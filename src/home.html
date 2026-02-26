@@ -6,7 +6,7 @@
   <title>Pool Cleaning &amp; Maintenance in Savannah &amp; Richmond Hill GA | Perfect Pools</title>
   <meta name="description" content="Professional pool cleaning, maintenance &amp; repair in Savannah, Richmond Hill &amp; Greater Savannah GA. CPO certified techs, 20+ years experience. Get a free quote today!">
   <link rel="canonical" href="https://perfectpoolscleaning.com/">
-  <link rel="icon" href="https://perfectpoolscleaning.com/wp-content/uploads/2025/08/Site-Icon-1.svg" type="image/svg+xml">
+  <link rel="icon" href="https://perfectpoolscleaning.com/wp-content/uploads/2025/09/beach-ball-2.png" type="image/png">
   <meta property="og:title" content="Pool Cleaning &amp; Maintenance in Savannah &amp; Richmond Hill GA | Perfect Pools">
   <meta property="og:description" content="Professional pool cleaning, maintenance &amp; repair in Savannah, Richmond Hill &amp; Greater Savannah GA. CPO certified techs, 20+ years experience.">
   <meta property="og:type" content="website">
@@ -205,9 +205,15 @@
       left: 0;
       right: 0;
       z-index: 1000;
-      background: var(--charcoal-dark);
+      background: transparent;
       padding: 12px 0;
+      transition: background 0.3s ease, box-shadow 0.3s ease, padding 0.3s ease;
+    }
+
+    .header.scrolled {
+      background: var(--charcoal-dark);
       box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+      padding: 6px 0;
     }
 
     .header .container {
@@ -218,7 +224,7 @@
     }
 
     .header-logo img {
-      height: 110px;
+      height: 80px;
       width: auto;
     }
 
@@ -839,6 +845,7 @@
 
     /* ========== RESPONSIVE — DESKTOP (1024px+) ========== */
     @media (min-width: 1024px) {
+      .header-logo img { height: 130px; }
       .header-phone-text { display: inline; }
       .header .btn { font-size: 0.9rem; padding: 12px 28px; }
 
@@ -1288,5 +1295,10 @@
     </div>
   </footer>
 
+  <script>
+    window.addEventListener('scroll', function() {
+      document.querySelector('.header').classList.toggle('scrolled', window.scrollY > 60);
+    });
+  </script>
 </body>
 </html>
