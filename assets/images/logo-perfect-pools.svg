@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 240" fill="none">
+  <!-- Pool oval (gray rim) -->
+  <ellipse cx="240" cy="105" rx="195" ry="50" fill="#6B6B6B"/>
+  <!-- Pool water (blue) -->
+  <ellipse cx="240" cy="105" rx="160" ry="35" fill="#1A8FC4"/>
+  <!-- Pool rim top highlight -->
+  <ellipse cx="240" cy="100" rx="195" ry="45" fill="none" stroke="#8C8C8C" stroke-width="2"/>
+  <!-- White top cap to create 3D pool edge effect -->
+  <path d="M45,100 Q240,50 435,100 Q240,60 45,100Z" fill="#A0A0A0" opacity="0.5"/>
+
+  <!-- Pool ladder -->
+  <g stroke="#7C7C7C" stroke-width="4" stroke-linecap="round" fill="none">
+    <!-- Left rail -->
+    <path d="M340,30 C340,30 338,60 336,80"/>
+    <!-- Right rail -->
+    <path d="M358,30 C358,30 356,60 354,80"/>
+    <!-- Top curve left -->
+    <path d="M340,30 Q340,18 346,18"/>
+    <!-- Top curve right -->
+    <path d="M358,30 Q358,18 352,18"/>
+    <!-- Top connecting bar -->
+    <line x1="346" y1="18" x2="352" y2="18"/>
+    <!-- Rungs -->
+    <line x1="339" y1="45" x2="357" y2="45"/>
+    <line x1="338" y1="60" x2="356" y2="60"/>
+    <line x1="337" y1="75" x2="355" y2="75"/>
+  </g>
+
+  <!-- PERFECT text -->
+  <text x="38" y="165" font-family="Arial Black, Arial, Helvetica, sans-serif" font-weight="900" font-size="52" fill="#4A4A4A" letter-spacing="2">PERFECT</text>
+  <!-- POOLS text -->
+  <text x="295" y="165" font-family="Arial Black, Arial, Helvetica, sans-serif" font-weight="900" font-size="52" fill="#1A8FC4" letter-spacing="2">POOLS</text>
+
+  <!-- Tagline -->
+  <text x="240" y="198" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="18" fill="#5A5A5A" text-anchor="middle" letter-spacing="1.5">WE KEEP YOUR POOL PERFECTLY CLEAN!</text>
+</svg>
