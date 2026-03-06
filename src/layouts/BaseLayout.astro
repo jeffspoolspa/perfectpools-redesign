@@ -17,7 +17,7 @@ const {
   title,
   description,
   canonicalPath = '',
-  ogImage = '/images/pool-cleaning.jpg',
+  ogImage = `${import.meta.env.BASE_URL}images/pool-cleaning.jpg`,
   schema,
 } = Astro.props;
 
@@ -55,7 +55,7 @@ const ogImageUrl = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`
   <meta name="twitter:image" content={ogImageUrl} />
 
   <!-- Favicon -->
-  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="icon" type="image/x-icon" href={`${import.meta.env.BASE_URL}favicon.ico`} />
 
   <!-- Schema / JSON-LD -->
   {schema && (
