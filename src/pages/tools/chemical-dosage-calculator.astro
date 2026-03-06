@@ -33,7 +33,7 @@ const schema = [
     <div class="container container--narrow">
       <ChemicalDosageCalculator client:load />
       <p style="text-align: center; margin-top: var(--space-4);">
-        <small>Don't know your pool volume? <a href="/tools/pool-volume-calculator/">Use our Pool Volume Calculator</a> first.</small>
+        <small>Don't know your pool volume? <a href={`${import.meta.env.BASE_URL}tools/pool-volume-calculator/`}>Use our Pool Volume Calculator</a> first.</small>
       </p>
     </div>
   </section>

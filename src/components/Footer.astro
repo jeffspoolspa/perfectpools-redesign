@@ -1,18 +1,19 @@
 ---
+const base = import.meta.env.BASE_URL;
 const currentYear = new Date().getFullYear();
 
 const serviceLinks = [
-  { name: 'Residential Pool Cleaning', href: '/services/residential-pool-cleaning/' },
-  { name: 'Commercial Pool Cleaning', href: '/services/commercial-pool-cleaning/' },
-  { name: 'Green Pool Recovery', href: '/services/green-pool-recovery/' },
-  { name: 'Pool Inspections', href: '/services/pool-inspections/' },
-  { name: 'Commercial Repair & Install', href: '/services/commercial-repair-install/' },
-  { name: 'Residential Repair & Install', href: '/services/residential-repair-install/' },
+  { name: 'Residential Pool Cleaning', href: `${base}services/residential-pool-cleaning/` },
+  { name: 'Commercial Pool Cleaning', href: `${base}services/commercial-pool-cleaning/` },
+  { name: 'Green Pool Recovery', href: `${base}services/green-pool-recovery/` },
+  { name: 'Pool Inspections', href: `${base}services/pool-inspections/` },
+  { name: 'Commercial Repair & Install', href: `${base}services/commercial-repair-install/` },
+  { name: 'Residential Repair & Install', href: `${base}services/residential-repair-install/` },
 ];
 
 const toolLinks = [
-  { name: 'Pool Volume Calculator', href: '/tools/pool-volume-calculator/' },
-  { name: 'Chemical Dosage Calculator', href: '/tools/chemical-dosage-calculator/' },
+  { name: 'Pool Volume Calculator', href: `${base}tools/pool-volume-calculator/` },
+  { name: 'Chemical Dosage Calculator', href: `${base}tools/chemical-dosage-calculator/` },
 ];
 ---
 
@@ -20,7 +21,7 @@ const toolLinks = [
   <div class="container">
     <div class="footer__grid">
       <div class="footer__brand">
-        <a href="/" class="footer__logo-link" aria-label="Perfect Pools - Home">
+        <a href={base} class="footer__logo-link" aria-label="Perfect Pools - Home">
           <span class="footer__logo-text">Perfect Pools</span>
         </a>
         <p class="footer__description">
@@ -56,8 +57,8 @@ const toolLinks = [
     <div class="footer__bottom">
       <p>&copy; {currentYear} Perfect Pools. All rights reserved. Licensed &amp; Insured.</p>
       <div class="footer__legal">
-        <a href="/privacy/">Privacy Policy</a>
-        <a href="/terms/">Terms &amp; Conditions</a>
+        <a href={`${base}privacy/`}>Privacy Policy</a>
+        <a href={`${base}terms/`}>Terms &amp; Conditions</a>
       </div>
     </div>
   </div>

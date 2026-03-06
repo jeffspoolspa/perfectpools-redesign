@@ -71,14 +71,14 @@ const icons = {
           <p>Transparent pricing. Consistent visits. Real updates after every service.</p>
 
           <div class="hero__buttons">
-            <a href="/plans" class="btn btn--white btn--lg">View Our Services</a>
+            <a href={`${import.meta.env.BASE_URL}plans`} class="btn btn--white btn--lg">View Our Services</a>
             <a href="tel:9124590160" class="btn btn--cta btn--lg">Call (912) 459-0160</a>
           </div>
         </div>
 
         <!-- Right: Service Route Cards -->
         <div class="hero__cards">
-          <a href="/plans" class="route-card route-card--gradient">
+          <a href={`${import.meta.env.BASE_URL}plans`} class="route-card route-card--gradient">
             <div class="route-card__inner">
               <div class="route-card__icon">
                 <Fragment set:html={icons.droplets} />
@@ -93,7 +93,7 @@ const icons = {
             </div>
           </a>
 
-          <a href="/repairs" class="route-card route-card--white">
+          <a href={`${import.meta.env.BASE_URL}repairs`} class="route-card route-card--white">
             <div class="route-card__inner">
               <div class="route-card__icon">
                 <Fragment set:html={icons.alertCircle} />
@@ -111,7 +111,7 @@ const icons = {
       </div>
 
       <div class="hero__footer">
-        <a href="/our-approach">First time pool owner? Start here &rarr;</a>
+        <a href={`${import.meta.env.BASE_URL}our-approach`}>First time pool owner? Start here &rarr;</a>
       </div>
     </div>
   </section>
@@ -188,7 +188,7 @@ const icons = {
             <h3>Pool Cleaning</h3>
           </div>
 
-          <a href="/plans" class="glass-card">
+          <a href={`${import.meta.env.BASE_URL}plans`} class="glass-card">
             <div class="glass-card__inner">
               <div class="glass-card__icon">
                 <Fragment set:html={icons.home} />
@@ -208,7 +208,7 @@ const icons = {
             <p class="glass-card__desc">Full service including chemical balancing, equipment checks, and detailed reports.</p>
           </a>
 
-          <a href="/contact" class="glass-card">
+          <a href={`${import.meta.env.BASE_URL}contact`} class="glass-card">
             <div class="glass-card__inner">
               <div class="glass-card__icon">
                 <Fragment set:html={icons.building} />
@@ -227,7 +227,7 @@ const icons = {
             <p class="glass-card__desc">High-traffic pool programs with compliance documentation and proactive maintenance.</p>
           </a>
 
-          <a href="/plans" class="btn btn--cta btn--lg btn--block" style="margin-top:1rem;">See Plans & Pricing</a>
+          <a href={`${import.meta.env.BASE_URL}plans`} class="btn btn--cta btn--lg btn--block" style="margin-top:1rem;">See Plans & Pricing</a>
         </div>
 
         <!-- Right Column: Equipment & Repair -->
@@ -237,7 +237,7 @@ const icons = {
             <h3>Equipment & Repair</h3>
           </div>
 
-          <a href="/repairs" class="glass-card glass-card--sm">
+          <a href={`${import.meta.env.BASE_URL}repairs`} class="glass-card glass-card--sm">
             <div class="glass-card__inner">
               <div class="glass-card__icon glass-card__icon--sm">
                 <Fragment set:html={icons.thermometer} />
@@ -252,7 +252,7 @@ const icons = {
             </div>
           </a>
 
-          <a href="/repairs" class="glass-card glass-card--sm">
+          <a href={`${import.meta.env.BASE_URL}repairs`} class="glass-card glass-card--sm">
             <div class="glass-card__inner">
               <div class="glass-card__icon glass-card__icon--sm">
                 <Fragment set:html={icons.settings} />
@@ -267,7 +267,7 @@ const icons = {
             </div>
           </a>
 
-          <a href="/repairs" class="glass-card glass-card--sm">
+          <a href={`${import.meta.env.BASE_URL}repairs`} class="glass-card glass-card--sm">
             <div class="glass-card__inner">
               <div class="glass-card__icon glass-card__icon--sm">
                 <Fragment set:html={icons.cloudRain} />
@@ -282,7 +282,7 @@ const icons = {
             </div>
           </a>
 
-          <a href="/repairs" class="glass-card glass-card--sm">
+          <a href={`${import.meta.env.BASE_URL}repairs`} class="glass-card glass-card--sm">
             <div class="glass-card__inner">
               <div class="glass-card__icon glass-card__icon--sm">
                 <Fragment set:html={icons.zap} />
@@ -297,7 +297,7 @@ const icons = {
             </div>
           </a>
 
-          <a href="/repairs" class="btn btn--outline-white btn--lg btn--block" style="margin-top:1rem;">Schedule a Diagnosis</a>
+          <a href={`${import.meta.env.BASE_URL}repairs`} class="btn btn--outline-white btn--lg btn--block" style="margin-top:1rem;">Schedule a Diagnosis</a>
         </div>
       </div>
     </div>
@@ -315,7 +315,7 @@ const icons = {
       <p class="highlight">We exist for pool owners who view their pool as a 15–20 year asset and want a true service partner.</p>
 
       <div style="margin-top:2rem;">
-        <a href="/about" class="btn btn--primary btn--lg">Learn Our Story</a>
+        <a href={`${import.meta.env.BASE_URL}about`} class="btn btn--primary btn--lg">Learn Our Story</a>
       </div>
     </div>
   </section>
@@ -366,7 +366,7 @@ const icons = {
       </div>
 
       <div class="text-center" style="margin-top:2rem;">
-        <a href="/reviews" class="btn btn--outline">Read More Reviews</a>
+        <a href={`${import.meta.env.BASE_URL}reviews`} class="btn btn--outline">Read More Reviews</a>
       </div>
     </div>
   </section>
@@ -380,8 +380,8 @@ const icons = {
       <p>This is coastal pool service built for Georgia. Not a franchise playbook.</p>
       <p class="sub">Salt air, humidity, and storms put unique stress on Georgia pools. We know how the marsh air affects your equipment and how fast algae blooms after a week of rain.</p>
       <div class="cta-image__buttons">
-        <a href="/plans" class="btn btn--cta btn--lg">See Maintenance Plans</a>
-        <a href="/repairs" class="btn btn--outline-white btn--lg">Schedule a Repair</a>
+        <a href={`${import.meta.env.BASE_URL}plans`} class="btn btn--cta btn--lg">See Maintenance Plans</a>
+        <a href={`${import.meta.env.BASE_URL}repairs`} class="btn btn--outline-white btn--lg">Schedule a Repair</a>
       </div>
     </div>
   </section>

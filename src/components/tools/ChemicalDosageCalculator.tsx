@@ -111,7 +111,7 @@ export default function ChemicalDosageCalculator() {
           min="0"
         />
         <small style={{ color: '#6b7280', marginTop: '4px', display: 'block' }}>
-          Don't know? <a href="/tools/pool-volume-calculator/">Calculate it here</a>
+          Don't know? <a href={`${import.meta.env.BASE_URL}tools/pool-volume-calculator/`}>Calculate it here</a>
         </small>
       </div>
 
