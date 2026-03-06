@@ -1,0 +1,57 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import FAQ from '../../components/FAQ.astro';
+import CTASection from '../../components/CTASection.astro';
+
+const faqs = [
+  { question: 'What types of commercial equipment do you repair?', answer: 'We service commercial pumps, sand and DE filters, chemical controllers, heaters, salt chlorine generators, automation systems, and more. We are authorized installers for major manufacturers.' },
+  { question: 'Do you offer emergency repair service?', answer: 'Yes, we understand that a down pool means lost revenue or unhappy residents. We offer priority emergency service for commercial clients to minimize facility downtime.' },
+  { question: 'What does the diagnosis fee cover?', answer: 'The $185 diagnosis fee covers a thorough evaluation of your equipment, identification of the problem, and a written estimate for the repair. If you proceed with the repair, the diagnosis fee is applied toward the total cost.' },
+  { question: 'Can you help with code compliance upgrades?', answer: 'Absolutely. We stay current with Georgia commercial pool codes and can bring your facility into compliance with required safety equipment, signage, and barrier requirements.' },
+];
+
+const schema = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": "Commercial Pool Repair & Installation",
+    "provider": { "@type": "LocalBusiness", "name": "Perfect Pools" },
+    "areaServed": "Savannah, Richmond Hill, Coastal Georgia",
+    "priceRange": "Diagnosis from $185"
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.map(f => ({
+      "@type": "Question",
+      "name": f.question,
+      "acceptedAnswer": { "@type": "Answer", "text": f.answer }
+    }))
+  }
+];
+---
+
+<BaseLayout
+  title="Commercial Pool Repair & Installation in Savannah & Richmond Hill GA | Perfect Pools"
+  description="Expert commercial pool equipment repair and installation. Authorized installer for major brands. Diagnosis from $185. Serving Richmond Hill, Savannah & Coastal Georgia."
+  canonicalPath="/services/commercial-repair-install/"
+  schema={schema}
+>
+  <section class="hero">
+    <div class="container">
+      <h1>Commercial Repair &amp; Install</h1>
+      <p>Expert commercial pool equipment repair and installation. Minimizing downtime for your facility. Diagnosis from $185.</p>
+      <button type="button" class="btn btn--accent btn--lg" data-open-intake>Request Service</button>
+    </div>
+  </section>
+
+  <!-- PHASE 2: Full service page content (800-1200 words) -->
+  <section class="section">
+    <div class="container container--narrow">
+      <p>Content will be designed in Phase 2.</p>
+    </div>
+  </section>
+
+  <FAQ items={faqs} />
+  <CTASection />
+</BaseLayout>

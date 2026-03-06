@@ -1,0 +1,80 @@
+---
+---
+
+<div class="top-bar">
+  <div class="container">
+    <div class="top-bar__inner">
+      <div class="top-bar__left">
+        <a href="tel:9124590160" class="top-bar__link">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+          <span>(912) 459-0160</span>
+        </a>
+        <span class="top-bar__divider">|</span>
+        <span class="top-bar__link">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span>Serving Richmond Hill, Savannah &amp; Coastal Georgia</span>
+        </span>
+      </div>
+      <div class="top-bar__right">
+        <span>Mon–Fri: 8AM–5PM</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .top-bar {
+    background-color: var(--color-dark-blue);
+    color: var(--color-white);
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    height: var(--topbar-height);
+    display: flex;
+    align-items: center;
+  }
+
+  .top-bar__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+
+  .top-bar__left {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  .top-bar__link {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--color-white);
+    transition: color var(--transition-fast);
+  }
+
+  a.top-bar__link:hover {
+    color: var(--color-cyan);
+  }
+
+  .top-bar__divider {
+    color: rgba(255, 255, 255, 0.3);
+  }
+
+  .top-bar__right {
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  @media (max-width: 767px) {
+    .top-bar__divider,
+    .top-bar__link:not(a),
+    .top-bar__right {
+      display: none;
+    }
+
+    .top-bar__inner {
+      justify-content: center;
+    }
+  }
+</style>

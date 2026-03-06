@@ -1,0 +1,127 @@
+---
+import TopBar from '../components/TopBar.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import CustomerIntakeForm from '../components/CustomerIntakeForm.tsx';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  canonicalPath?: string;
+  ogImage?: string;
+  schema?: Record<string, any> | Record<string, any>[];
+}
+
+const {
+  title,
+  description,
+  canonicalPath = '',
+  ogImage = '/images/pool-cleaning.jpg',
+  schema,
+} = Astro.props;
+
+const siteUrl = 'https://perfectpoolscleaning.com';
+const canonicalUrl = `${siteUrl}${canonicalPath}`;
+const ogImageUrl = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`;
+---
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <link rel="canonical" href={canonicalUrl} />
+
+  <!-- Google Fonts: Poppins (headings) + Inter (body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content={canonicalUrl} />
+  <meta property="og:image" content={ogImageUrl} />
+  <meta property="og:site_name" content="Perfect Pools" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={ogImageUrl} />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+
+  <!-- Schema / JSON-LD -->
+  {schema && (
+    <script type="application/ld+json" set:html={JSON.stringify(Array.isArray(schema) ? schema : schema)} />
+  )}
+</head>
+<body>
+  <TopBar />
+  <Header />
+  <main id="main-content">
+    <slot />
+  </main>
+  <Footer />
+
+  <!-- Customer Intake Form (Preact island) -->
+  <CustomerIntakeForm client:load />
+
+  <!-- Intake form trigger + Mobile menu script -->
+  <script>
+    // Intake form trigger delegation
+    document.addEventListener('click', (e) => {
+      const trigger = (e.target as HTMLElement).closest('[data-open-intake]');
+      if (trigger) {
+        e.preventDefault();
+        window.dispatchEvent(new CustomEvent('openIntakeForm'));
+      }
+    });
+
+    const toggle = document.getElementById('mobile-menu-toggle');
+    const nav = document.getElementById('main-nav');
+
+    if (toggle && nav) {
+      toggle.addEventListener('click', () => {
+        const isOpen = toggle.getAttribute('aria-expanded') === 'true';
+        toggle.setAttribute('aria-expanded', String(!isOpen));
+        nav.classList.toggle('is-open');
+        document.body.style.overflow = isOpen ? '' : 'hidden';
+      });
+
+      // Handle dropdown toggles on mobile
+      const dropdownItems = nav.querySelectorAll('.has-dropdown');
+      dropdownItems.forEach((item) => {
+        const link = item.querySelector('.nav-link');
+        if (link && window.innerWidth < 1024) {
+          link.addEventListener('click', (e) => {
+            if (window.innerWidth < 1024) {
+              e.preventDefault();
+              item.classList.toggle('is-open');
+            }
+          });
+        }
+      });
+    }
+
+    // FAQ accordion
+    document.querySelectorAll('.faq-question').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const item = btn.closest('.faq-item');
+        if (item) {
+          const wasActive = item.classList.contains('active');
+          // Close all in same section
+          item.parentElement?.querySelectorAll('.faq-item').forEach((i) => i.classList.remove('active'));
+          if (!wasActive) item.classList.add('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

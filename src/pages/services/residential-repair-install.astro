@@ -1,0 +1,58 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import FAQ from '../../components/FAQ.astro';
+import CTASection from '../../components/CTASection.astro';
+
+const faqs = [
+  { question: 'How do I know if my pool equipment needs repair or replacement?', answer: 'Signs include unusual noises, reduced water flow, visible leaks, higher energy bills, or equipment over 8-10 years old. Our technicians will assess your equipment and recommend the most cost-effective option.' },
+  { question: 'What does the diagnosis fee cover?', answer: 'The $150 diagnosis fee covers a thorough evaluation of your equipment and a written estimate. If you approve the repair, the diagnosis fee is applied toward the total cost.' },
+  { question: 'Do you install variable speed pumps?', answer: 'Yes, we are experienced with variable speed pump installations. These pumps can reduce your energy costs by up to 80% compared to single-speed pumps and are now required by code for new installations in Georgia.' },
+  { question: 'Is your work warrantied?', answer: 'Yes, all our repair and installation work comes with a warranty. Equipment we install also carries the manufacturer warranty. We stand behind our work.' },
+  { question: 'What brands do you work with?', answer: 'We service and install equipment from Pentair, Hayward, Jandy, Raypak, and other major manufacturers. We will recommend the best equipment for your specific pool setup and budget.' },
+];
+
+const schema = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": "Residential Pool Repair & Installation",
+    "provider": { "@type": "LocalBusiness", "name": "Perfect Pools" },
+    "areaServed": "Savannah, Richmond Hill, Coastal Georgia",
+    "priceRange": "Diagnosis from $150"
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.map(f => ({
+      "@type": "Question",
+      "name": f.question,
+      "acceptedAnswer": { "@type": "Answer", "text": f.answer }
+    }))
+  }
+];
+---
+
+<BaseLayout
+  title="Residential Pool Repair & Installation in Savannah & Richmond Hill GA | Perfect Pools"
+  description="Expert residential pool equipment repair and installation. Pumps, heaters, filters, salt systems, and more. Diagnosis from $150. Serving Richmond Hill, Savannah & Coastal Georgia."
+  canonicalPath="/services/residential-repair-install/"
+  schema={schema}
+>
+  <section class="hero">
+    <div class="container">
+      <h1>Residential Repair &amp; Install</h1>
+      <p>From pump replacements to complete equipment upgrades — we keep your pool running right. Diagnosis from $150.</p>
+      <button type="button" class="btn btn--accent btn--lg" data-open-intake>Request Service</button>
+    </div>
+  </section>
+
+  <!-- PHASE 2: Full service page content (800-1200 words) -->
+  <section class="section">
+    <div class="container container--narrow">
+      <p>Content will be designed in Phase 2.</p>
+    </div>
+  </section>
+
+  <FAQ items={faqs} />
+  <CTASection />
+</BaseLayout>

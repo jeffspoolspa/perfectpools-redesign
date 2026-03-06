@@ -1,0 +1,388 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "name": "Perfect Pools",
+  "description": "Professional pool cleaning, maintenance, and repair services in Richmond Hill, Savannah, and the Greater Savannah area.",
+  "url": "https://perfectpoolscleaning.com",
+  "telephone": "(912) 459-0160",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "8989 Ford Ave",
+    "addressLocality": "Richmond Hill",
+    "addressRegion": "GA",
+    "postalCode": "31324",
+    "addressCountry": "US"
+  },
+  "openingHoursSpecification": {
+    "@type": "OpeningHoursSpecification",
+    "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+    "opens": "08:00",
+    "closes": "17:00"
+  },
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.9",
+    "reviewCount": "127"
+  }
+};
+
+/* Inline SVG icons (Lucide-style, 24x24 viewBox) */
+const icons = {
+  star: '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none" class="icon"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+  droplets: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"/></svg>',
+  alertCircle: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+  arrowRight: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>',
+  shield: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>',
+  clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+  testTube: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M14.5 2v17.5c0 1.4-1.1 2.5-2.5 2.5s-2.5-1.1-2.5-2.5V2"/><path d="M8.5 2h7"/><path d="M14.5 16h-5"/></svg>',
+  eye: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>',
+  home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>',
+  building: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>',
+  thermometer: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/></svg>',
+  settings: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>',
+  cloudRain: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M16 14v6"/><path d="M8 14v6"/><path d="M12 16v6"/></svg>',
+  zap: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg>',
+};
+---
+
+<BaseLayout
+  title="Pool Cleaning & Maintenance in Savannah & Richmond Hill GA | Perfect Pools"
+  description="Professional pool cleaning, maintenance, and repair in Richmond Hill, Savannah & Coastal Georgia. Transparent pricing, consistent visits, and real updates after every service. Call (912) 459-0160."
+  canonicalPath="/"
+  schema={schema}
+>
+  <!-- ============ HERO ============ -->
+  <section class="hero hero--image">
+    <img src="/images/hero-pool.png" alt="" class="hero__bg" loading="eager" />
+    <div class="hero__overlay"></div>
+    <div class="container">
+      <div class="hero__grid">
+        <!-- Left: Hero Text -->
+        <div>
+          <div class="hero__badge">
+            <Fragment set:html={icons.star} />
+            <span>Rated 4.9/5 by 500+ customers</span>
+          </div>
+
+          <h1>Pool care you can count on.</h1>
+          <p>Transparent pricing. Consistent visits. Real updates after every service.</p>
+
+          <div class="hero__buttons">
+            <a href="/plans" class="btn btn--white btn--lg">View Our Services</a>
+            <a href="tel:9124590160" class="btn btn--cta btn--lg">Call (912) 459-0160</a>
+          </div>
+        </div>
+
+        <!-- Right: Service Route Cards -->
+        <div class="hero__cards">
+          <a href="/plans" class="route-card route-card--gradient">
+            <div class="route-card__inner">
+              <div class="route-card__icon">
+                <Fragment set:html={icons.droplets} />
+              </div>
+              <div>
+                <h3>Weekly Pool Care</h3>
+                <p>Ongoing maintenance plans starting at $120/month</p>
+                <span class="route-card__link">
+                  See Plans <Fragment set:html={icons.arrowRight} />
+                </span>
+              </div>
+            </div>
+          </a>
+
+          <a href="/repairs" class="route-card route-card--white">
+            <div class="route-card__inner">
+              <div class="route-card__icon">
+                <Fragment set:html={icons.alertCircle} />
+              </div>
+              <div>
+                <h3>Repairs & Equipment</h3>
+                <p>Something broken? We diagnose in 1-2 business days</p>
+                <span class="route-card__link">
+                  Schedule Visit <Fragment set:html={icons.arrowRight} />
+                </span>
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <div class="hero__footer">
+        <a href="/our-approach">First time pool owner? Start here &rarr;</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TRUST BADGES ============ -->
+  <section class="trust-badges">
+    <div class="container">
+      <div class="trust-badges__grid">
+        <div class="trust-badge">
+          <Fragment set:html={icons.shield} />
+          <span class="trust-badge__text">Licensed & Insured</span>
+        </div>
+        <div class="trust-badge">
+          <Fragment set:html={icons.clock} />
+          <span class="trust-badge__text">500+ Pools Maintained</span>
+        </div>
+        <div class="trust-badge">
+          <Fragment set:html={icons.star} />
+          <span class="trust-badge__text">4.9&#9733; Google Rating</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ METHODOLOGY ============ -->
+  <section class="methodology">
+    <div class="container">
+      <div class="section-header">
+        <h2>Clear water isn't luck. Here's how we keep it that way.</h2>
+        <p>Our methodology separates us from every other pool company</p>
+      </div>
+
+      <div class="methodology__grid">
+        <div class="method-card">
+          <div class="method-card__icon">
+            <Fragment set:html={icons.testTube} />
+          </div>
+          <h3>We balance the chemistry, not just add chlorine</h3>
+          <p>We test and adjust pH, alkalinity, sanitizer levels, and calcium hardness as a system—because one number out of range affects everything else.</p>
+        </div>
+
+        <div class="method-card">
+          <div class="method-card__icon">
+            <Fragment set:html={icons.alertCircle} />
+          </div>
+          <h3>We catch problems before they cost you money</h3>
+          <p>Every visit includes a full equipment check. We monitor pump pressure, filter condition, and water flow to flag issues early.</p>
+        </div>
+
+        <div class="method-card">
+          <div class="method-card__icon">
+            <Fragment set:html={icons.eye} />
+          </div>
+          <h3>You see everything we do</h3>
+          <p>After every visit, you get a service report with chemical readings, what was adjusted, and photos if anything needs attention.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ WHAT WE DO (DARK SECTION) ============ -->
+  <section class="services-dark">
+    <div class="container">
+      <div class="section-header">
+        <h2>What We Do</h2>
+        <p>Ongoing maintenance plans and on-demand repairs for residential and commercial pools.</p>
+      </div>
+
+      <div class="services-dark__grid">
+        <!-- Left Column: Pool Cleaning -->
+        <div>
+          <div class="services-dark__col-header">
+            <Fragment set:html={icons.droplets} />
+            <h3>Pool Cleaning</h3>
+          </div>
+
+          <a href="/plans" class="glass-card">
+            <div class="glass-card__inner">
+              <div class="glass-card__icon">
+                <Fragment set:html={icons.home} />
+              </div>
+              <div style="flex:1;">
+                <div class="glass-card__header">
+                  <h4>Need regular maintenance?</h4>
+                  <span class="glass-card__arrow"><Fragment set:html={icons.arrowRight} /></span>
+                </div>
+                <p>Weekly and bi-weekly residential service</p>
+                <div class="glass-card__tags">
+                  <span class="glass-card__tag">Weekly</span>
+                  <span class="glass-card__tag">Bi-weekly<span class="tag-badge tag-badge--winter">Winter Only</span></span>
+                </div>
+              </div>
+            </div>
+            <p class="glass-card__desc">Full service including chemical balancing, equipment checks, and detailed reports.</p>
+          </a>
+
+          <a href="/contact" class="glass-card">
+            <div class="glass-card__inner">
+              <div class="glass-card__icon">
+                <Fragment set:html={icons.building} />
+              </div>
+              <div style="flex:1;">
+                <div class="glass-card__header">
+                  <h4>Managing a commercial property?</h4>
+                  <span class="glass-card__arrow"><Fragment set:html={icons.arrowRight} /></span>
+                </div>
+                <p>Hotels, apartments, HOAs & public facilities</p>
+                <div class="glass-card__tags">
+                  <span class="glass-card__tag">Custom Schedule</span>
+                </div>
+              </div>
+            </div>
+            <p class="glass-card__desc">High-traffic pool programs with compliance documentation and proactive maintenance.</p>
+          </a>
+
+          <a href="/plans" class="btn btn--cta btn--lg btn--block" style="margin-top:1rem;">See Plans & Pricing</a>
+        </div>
+
+        <!-- Right Column: Equipment & Repair -->
+        <div>
+          <div class="services-dark__col-header">
+            <Fragment set:html={icons.settings} />
+            <h3>Equipment & Repair</h3>
+          </div>
+
+          <a href="/repairs" class="glass-card glass-card--sm">
+            <div class="glass-card__inner">
+              <div class="glass-card__icon glass-card__icon--sm">
+                <Fragment set:html={icons.thermometer} />
+              </div>
+              <div style="flex:1;">
+                <div class="glass-card__header">
+                  <h4>Pool not heating?</h4>
+                  <span class="glass-card__arrow"><Fragment set:html={icons.arrowRight} /></span>
+                </div>
+                <p>Heat pumps, gas heaters, solar systems</p>
+              </div>
+            </div>
+          </a>
+
+          <a href="/repairs" class="glass-card glass-card--sm">
+            <div class="glass-card__inner">
+              <div class="glass-card__icon glass-card__icon--sm">
+                <Fragment set:html={icons.settings} />
+              </div>
+              <div style="flex:1;">
+                <div class="glass-card__header">
+                  <h4>Equipment making noise?</h4>
+                  <span class="glass-card__arrow"><Fragment set:html={icons.arrowRight} /></span>
+                </div>
+                <p>Pumps, motors, filtration diagnosis</p>
+              </div>
+            </div>
+          </a>
+
+          <a href="/repairs" class="glass-card glass-card--sm">
+            <div class="glass-card__inner">
+              <div class="glass-card__icon glass-card__icon--sm">
+                <Fragment set:html={icons.cloudRain} />
+              </div>
+              <div style="flex:1;">
+                <div class="glass-card__header">
+                  <h4>Water won't clear up?</h4>
+                  <span class="glass-card__arrow"><Fragment set:html={icons.arrowRight} /></span>
+                </div>
+                <p>Chemistry, filtration, circulation issues</p>
+              </div>
+            </div>
+          </a>
+
+          <a href="/repairs" class="glass-card glass-card--sm">
+            <div class="glass-card__inner">
+              <div class="glass-card__icon glass-card__icon--sm">
+                <Fragment set:html={icons.zap} />
+              </div>
+              <div style="flex:1;">
+                <div class="glass-card__header">
+                  <h4>Ready for an upgrade?</h4>
+                  <span class="glass-card__arrow"><Fragment set:html={icons.arrowRight} /></span>
+                </div>
+                <p>Variable-speed pumps, automation, LED lighting</p>
+              </div>
+            </div>
+          </a>
+
+          <a href="/repairs" class="btn btn--outline-white btn--lg btn--block" style="margin-top:1rem;">Schedule a Diagnosis</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ A TRUE SERVICE PARTNER ============ -->
+  <section class="partner-section">
+    <div class="container max-w-4xl mx-auto text-center">
+      <h2>A True Service Partner</h2>
+
+      <p>Perfect Pools is a maintenance-first pool service company serving the greater Savannah metro area. We focus on long-term pool stewardship, preventative care, and system-level expertise — not construction volume or reactive patchwork service.</p>
+
+      <p>We understand pools as complete systems: water chemistry, circulation, hydraulics, filtration, heaters, automation, and equipment longevity. Our repair department doesn't just replace parts — we diagnose how your pool is supposed to work as a whole.</p>
+
+      <p class="highlight">We exist for pool owners who view their pool as a 15–20 year asset and want a true service partner.</p>
+
+      <div style="margin-top:2rem;">
+        <a href="/about" class="btn btn--primary btn--lg">Learn Our Story</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SOCIAL PROOF ============ -->
+  <section class="reviews-home">
+    <div class="container">
+      <div class="section-header">
+        <h2>What our customers say</h2>
+      </div>
+
+      <div class="grid grid--3">
+        <div class="review-card">
+          <div class="review-card__stars">
+            <Fragment set:html={icons.star} />
+            <Fragment set:html={icons.star} />
+            <Fragment set:html={icons.star} />
+            <Fragment set:html={icons.star} />
+            <Fragment set:html={icons.star} />
+          </div>
+          <p class="review-card__text">"After two bad pool companies, these guys actually show up and communicate. I finally feel like I can trust someone with my pool."</p>
+          <p class="review-card__author">— Sarah, Brunswick</p>
+        </div>
+
+        <div class="review-card">
+          <div class="review-card__stars">
+            <Fragment set:html={icons.star} />
+            <Fragment set:html={icons.star} />
+            <Fragment set:html={icons.star} />
+            <Fragment set:html={icons.star} />
+            <Fragment set:html={icons.star} />
+          </div>
+          <p class="review-card__text">"I had no idea what I was doing with my pool. They made it simple and explain everything. No more green water!"</p>
+          <p class="review-card__author">— Mike, Richmond Hill</p>
+        </div>
+
+        <div class="review-card">
+          <div class="review-card__stars">
+            <Fragment set:html={icons.star} />
+            <Fragment set:html={icons.star} />
+            <Fragment set:html={icons.star} />
+            <Fragment set:html={icons.star} />
+            <Fragment set:html={icons.star} />
+          </div>
+          <p class="review-card__text">"Been with them 3 years. Never had a green pool. They catch issues before they become expensive problems."</p>
+          <p class="review-card__author">— Jennifer, St. Marys</p>
+        </div>
+      </div>
+
+      <div class="text-center" style="margin-top:2rem;">
+        <a href="/reviews" class="btn btn--outline">Read More Reviews</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FINAL CTA WITH IMAGE ============ -->
+  <section class="cta-image">
+    <img src="/images/coastal-pool.png" alt="" class="cta-image__bg" loading="lazy" />
+    <div class="cta-image__overlay"></div>
+    <div class="container cta-image__content">
+      <h2>Ready for worry-free pool care?</h2>
+      <p>This is coastal pool service built for Georgia. Not a franchise playbook.</p>
+      <p class="sub">Salt air, humidity, and storms put unique stress on Georgia pools. We know how the marsh air affects your equipment and how fast algae blooms after a week of rain.</p>
+      <div class="cta-image__buttons">
+        <a href="/plans" class="btn btn--cta btn--lg">See Maintenance Plans</a>
+        <a href="/repairs" class="btn btn--outline-white btn--lg">Schedule a Repair</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

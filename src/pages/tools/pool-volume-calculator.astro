@@ -1,0 +1,50 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CTASection from '../../components/CTASection.astro';
+import PoolVolumeCalculator from '../../components/tools/PoolVolumeCalculator.tsx';
+
+const schema = [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Pool Volume Calculator",
+    "description": "Calculate your pool's water volume in gallons based on shape and dimensions.",
+    "url": "https://perfectpoolscleaning.com/tools/pool-volume-calculator/",
+    "applicationCategory": "UtilityApplication",
+    "operatingSystem": "Any"
+  }
+];
+---
+
+<BaseLayout
+  title="Pool Volume Calculator | Free Tool | Perfect Pools"
+  description="Calculate your pool's water volume in gallons. Supports rectangular, circular, oval, L-shaped, and kidney-shaped pools. Free online tool from Perfect Pools."
+  canonicalPath="/tools/pool-volume-calculator/"
+  schema={schema}
+>
+  <section class="hero">
+    <div class="container">
+      <h1>Pool Volume Calculator</h1>
+      <p>Calculate your pool's water volume for accurate chemical dosing, heating estimates, and pump sizing.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container container--narrow">
+      <PoolVolumeCalculator client:load />
+    </div>
+  </section>
+
+  <!-- PHASE 2: Static educational content below calculator -->
+  <section class="section section--alt">
+    <div class="container container--narrow">
+      <h2>How to Measure Your Pool</h2>
+      <p>Content will be designed in Phase 2.</p>
+    </div>
+  </section>
+
+  <CTASection
+    heading="Need Help With Your Pool Chemistry?"
+    text="Our CPO-certified technicians handle chemical balancing, equipment maintenance, and everything in between."
+  />
+</BaseLayout>

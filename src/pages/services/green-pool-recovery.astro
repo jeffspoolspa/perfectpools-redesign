@@ -1,0 +1,57 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import FAQ from '../../components/FAQ.astro';
+import CTASection from '../../components/CTASection.astro';
+
+const faqs = [
+  { question: 'How long does green pool recovery take?', answer: 'Most green pools can be restored to clear water within 3-7 days depending on severity. Extremely neglected pools may take longer if the filter system needs work.' },
+  { question: 'What causes a pool to turn green?', answer: 'Green water is caused by algae growth, typically from inconsistent chemical maintenance, equipment failure, storms washing debris into the pool, or the pool sitting unused for extended periods.' },
+  { question: 'Can any green pool be recovered?', answer: 'In most cases, yes. We assess the pool first to determine the best course of action. Occasionally, a drain and acid wash is needed for extreme cases, but shock treatment works for the vast majority.' },
+  { question: 'How do I prevent my pool from turning green again?', answer: 'Consistent chemical maintenance is the best prevention. We recommend weekly professional service, maintaining proper chlorine and pH levels, running your pump 8-12 hours daily, and cleaning after storms.' },
+];
+
+const schema = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": "Green Pool Recovery",
+    "provider": { "@type": "LocalBusiness", "name": "Perfect Pools" },
+    "areaServed": "Savannah, Richmond Hill, Coastal Georgia",
+    "priceRange": "From $85/visit"
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.map(f => ({
+      "@type": "Question",
+      "name": f.question,
+      "acceptedAnswer": { "@type": "Answer", "text": f.answer }
+    }))
+  }
+];
+---
+
+<BaseLayout
+  title="Green Pool Recovery in Savannah & Richmond Hill GA | Perfect Pools"
+  description="Turn your green pool crystal clear. Professional green pool recovery starting at $85/visit. Fast results in 3-7 days. Serving Richmond Hill, Savannah & Coastal Georgia."
+  canonicalPath="/services/green-pool-recovery/"
+  schema={schema}
+>
+  <section class="hero">
+    <div class="container">
+      <h1>Green Pool Recovery</h1>
+      <p>We'll turn your green pool crystal clear — typically within 3 to 7 days. Starting at $85/visit.</p>
+      <button type="button" class="btn btn--accent btn--lg" data-open-intake>Get a Free Quote</button>
+    </div>
+  </section>
+
+  <!-- PHASE 2: Full service page content (800-1200 words) -->
+  <section class="section">
+    <div class="container container--narrow">
+      <p>Content will be designed in Phase 2.</p>
+    </div>
+  </section>
+
+  <FAQ items={faqs} />
+  <CTASection />
+</BaseLayout>

@@ -1,0 +1,53 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CTASection from '../../components/CTASection.astro';
+import ChemicalDosageCalculator from '../../components/tools/ChemicalDosageCalculator.tsx';
+
+const schema = [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Chemical Dosage Calculator",
+    "description": "Calculate exactly how much of each pool chemical you need based on your pool volume and current readings.",
+    "url": "https://perfectpoolscleaning.com/tools/chemical-dosage-calculator/",
+    "applicationCategory": "UtilityApplication",
+    "operatingSystem": "Any"
+  }
+];
+---
+
+<BaseLayout
+  title="Chemical Dosage Calculator | Free Pool Tool | Perfect Pools"
+  description="Calculate the right amount of chlorine, pH adjuster, alkalinity, and other pool chemicals. Enter your pool volume and current readings. Free online tool."
+  canonicalPath="/tools/chemical-dosage-calculator/"
+  schema={schema}
+>
+  <section class="hero">
+    <div class="container">
+      <h1>Chemical Dosage Calculator</h1>
+      <p>Find out exactly how much of each chemical your pool needs based on your current water readings.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container container--narrow">
+      <ChemicalDosageCalculator client:load />
+      <p style="text-align: center; margin-top: var(--space-4);">
+        <small>Don't know your pool volume? <a href="/tools/pool-volume-calculator/">Use our Pool Volume Calculator</a> first.</small>
+      </p>
+    </div>
+  </section>
+
+  <!-- PHASE 2: Static Pool Chemistry 101 content below calculator -->
+  <section class="section section--alt">
+    <div class="container container--narrow">
+      <h2>Pool Chemistry 101</h2>
+      <p>Content will be designed in Phase 2.</p>
+    </div>
+  </section>
+
+  <CTASection
+    heading="Skip the Chemistry"
+    text="Let Perfect Pools maintain your water balance. Our pros handle it all so you can just enjoy your pool."
+  />
+</BaseLayout>

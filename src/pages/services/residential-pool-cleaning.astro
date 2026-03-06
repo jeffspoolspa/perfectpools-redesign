@@ -1,0 +1,57 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import FAQ from '../../components/FAQ.astro';
+import CTASection from '../../components/CTASection.astro';
+
+const faqs = [
+  { question: 'How often should I have my pool cleaned?', answer: 'For most residential pools in the Savannah area, weekly service is recommended due to our warm climate and high pollen counts. Bi-weekly service is available for pools with less usage.' },
+  { question: 'What does a typical cleaning visit include?', answer: 'Each visit includes skimming the surface, brushing walls and tile, vacuuming the floor, testing and balancing chemicals, checking the filter, and inspecting all equipment.' },
+  { question: 'Do you bring your own chemicals and equipment?', answer: 'Yes, our technicians arrive fully equipped with professional-grade chemicals, testing kits, and cleaning tools. Everything is included in your service price.' },
+  { question: 'What if I need service outside the regular schedule?', answer: 'We offer one-time cleanings and can adjust schedules for parties, storms, or special events. Just call us to arrange additional visits.' },
+];
+
+const schema = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": "Residential Pool Cleaning",
+    "provider": { "@type": "LocalBusiness", "name": "Perfect Pools" },
+    "areaServed": "Savannah, Richmond Hill, Coastal Georgia",
+    "priceRange": "From $50/visit"
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.map(f => ({
+      "@type": "Question",
+      "name": f.question,
+      "acceptedAnswer": { "@type": "Answer", "text": f.answer }
+    }))
+  }
+];
+---
+
+<BaseLayout
+  title="Residential Pool Cleaning in Savannah & Richmond Hill GA | Perfect Pools"
+  description="Weekly and bi-weekly residential pool cleaning starting at $50/visit. Professional chemical balancing, skimming, and equipment checks. Serving Richmond Hill, Savannah & Coastal Georgia."
+  canonicalPath="/services/residential-pool-cleaning/"
+  schema={schema}
+>
+  <section class="hero">
+    <div class="container">
+      <h1>Residential Pool Cleaning</h1>
+      <p>Keep your pool sparkling clean with professional weekly service starting at just $50/visit.</p>
+      <button type="button" class="btn btn--accent btn--lg" data-open-intake>Get a Free Quote</button>
+    </div>
+  </section>
+
+  <!-- PHASE 2: Full service page content (800-1200 words) -->
+  <section class="section">
+    <div class="container container--narrow">
+      <p>Content will be designed in Phase 2.</p>
+    </div>
+  </section>
+
+  <FAQ items={faqs} />
+  <CTASection />
+</BaseLayout>

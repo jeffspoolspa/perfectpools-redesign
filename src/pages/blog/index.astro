@@ -1,0 +1,44 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CTASection from '../../components/CTASection.astro';
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "Pool Care Tips & News",
+  "description": "Pool maintenance tips, seasonal guides, and local pool news for homeowners in the Savannah and Richmond Hill area.",
+  "url": "https://perfectpoolscleaning.com/blog/"
+};
+---
+
+<BaseLayout
+  title="Pool Care Tips & News | Perfect Pools Blog"
+  description="Pool maintenance tips, seasonal care guides, and local pool news for Coastal Georgia homeowners. Expert advice from Perfect Pools in Savannah & Richmond Hill."
+  canonicalPath="/blog/"
+  schema={schema}
+>
+  <section class="hero">
+    <div class="container">
+      <h1>Pool Care Tips &amp; News</h1>
+      <p>Expert pool maintenance advice for Coastal Georgia homeowners.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container container--narrow text-center">
+      <p style="font-size: var(--text-lg); color: var(--color-text-light);">
+        New articles coming soon! Check back for pool care tips, seasonal maintenance guides, and local pool news for the Savannah area.
+      </p>
+
+      <!-- PHASE 2: Blog post grid will go here when content collection is populated -->
+      <div class="blog-grid" style="margin-top: var(--space-10);">
+        <!-- Blog post cards rendered from src/content/blog/*.md -->
+      </div>
+    </div>
+  </section>
+
+  <CTASection
+    heading="Want Your Pool Maintained by Experts?"
+    text="Skip the DIY — let our CPO-certified technicians keep your pool perfect year-round."
+  />
+</BaseLayout>

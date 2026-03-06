@@ -1,0 +1,149 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": "Pool Repairs & Equipment Service",
+  "provider": {
+    "@type": "LocalBusiness",
+    "name": "Perfect Pools",
+    "telephone": "(912) 459-0160"
+  },
+  "areaServed": "Richmond Hill, Savannah, and Coastal Georgia",
+  "description": "Pool equipment repairs and diagnostics. $75 service call (waived with repair). Pumps, heaters, filters, salt systems, and more."
+};
+
+const icons = {
+  thermometer: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/></svg>',
+  wrench: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>',
+  droplets: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"/></svg>',
+  filter: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>',
+  zap: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg>',
+};
+
+const quoteFormUrl = "https://forms.jeffspoolspa.com/jeffspoolspaservice1/form/MaintenanceLeads/formperma/sZ_cHMy_F4pf-JTi8aCRtmGr78z4LJNGBj_w8_dtEIc";
+
+const problems = [
+  { icon: 'thermometer', title: "Pool not heating?", description: "Heater won't turn on, not reaching temperature, or gas/electric issues" },
+  { icon: 'wrench', title: "Pump making noise?", description: "Grinding sounds, loud humming, or pump won't turn on" },
+  { icon: 'droplets', title: "Water won't clear up?", description: "Cloudy water, algae growth, or persistent chemical imbalance" },
+  { icon: 'filter', title: "Filter problems?", description: "High pressure, poor filtration, or backwash issues" },
+  { icon: 'zap', title: "Equipment not working?", description: "Salt system, automation, lights, or other electrical issues" },
+];
+---
+
+<BaseLayout
+  title="Pool Repairs & Equipment Service | Diagnosis in 1-2 Days | Perfect Pools"
+  description="Pool equipment repairs in Richmond Hill, Savannah & Coastal Georgia. $75 diagnostic fee (waived with repair). Pumps, heaters, filters, salt systems. Fast, honest service."
+  canonicalPath="/repairs"
+  schema={schema}
+>
+  <!-- Page Header -->
+  <section class="page-header">
+    <div class="container">
+      <h1>Pool Repairs & Equipment</h1>
+      <p>Something broken? We diagnose in 1-2 business days.</p>
+    </div>
+  </section>
+
+  <!-- Common Problems -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header">
+        <h2>What's wrong with your pool?</h2>
+        <p>Select the issue that matches your situation. We'll diagnose it and provide a transparent quote before any work begins.</p>
+      </div>
+
+      <div class="grid grid--2" style="margin-bottom:3rem;">
+        {problems.map((problem) => (
+          <div class="info-card">
+            <div class="info-card__inner">
+              <div class="info-card__icon">
+                <Fragment set:html={icons[problem.icon]} />
+              </div>
+              <div>
+                <h3>{problem.title}</h3>
+                <p>{problem.description}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+
+        <div class="info-card">
+          <div class="info-card__inner">
+            <div class="info-card__icon">
+              <Fragment set:html={icons.wrench} />
+            </div>
+            <div>
+              <h3>Something else?</h3>
+              <p>Leak detection, equipment upgrades, or other pool equipment issues</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How Repairs Work -->
+  <section class="section section--alt">
+    <div class="container max-w-4xl mx-auto">
+      <div class="section-header">
+        <h2>How our repair process works</h2>
+      </div>
+
+      <div class="process-steps">
+        <div class="process-step">
+          <div class="process-step__number">1</div>
+          <div>
+            <h3>Schedule a diagnosis</h3>
+            <p>Call us or request a visit below. We'll schedule within 1-2 business days.</p>
+          </div>
+        </div>
+
+        <div class="process-step">
+          <div class="process-step__number">2</div>
+          <div>
+            <h3>We diagnose the problem</h3>
+            <p>Our technician will inspect your equipment, test components, and identify the root cause. You'll get a clear explanation of what's wrong.</p>
+          </div>
+        </div>
+
+        <div class="process-step">
+          <div class="process-step__number">3</div>
+          <div>
+            <h3>Transparent pricing, no surprises</h3>
+            <p>You'll receive a written quote for parts and labor before we start any work. No hidden fees. No pressure. You decide if you want to proceed.</p>
+          </div>
+        </div>
+
+        <div class="process-step">
+          <div class="process-step__number">4</div>
+          <div>
+            <h3>Fast, quality repairs</h3>
+            <p>Once approved, most repairs are completed within a week. We use quality parts and stand behind our work with a warranty.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diagnostic Fee -->
+  <section class="fee-banner">
+    <div class="container">
+      <p><strong>Diagnostic fee:</strong> $75 service call (waived if you proceed with the repair). Most repairs are completed same-day or within a week depending on parts availability.</p>
+    </div>
+  </section>
+
+  <!-- Schedule CTA -->
+  <section class="cta-section">
+    <div class="container">
+      <h2>Schedule a diagnosis</h2>
+      <p>Tell us what's wrong and we'll contact you within 1-2 business days.</p>
+      <div class="cta-section__buttons">
+        <button type="button" class="btn btn--cta btn--lg" data-open-intake>Request Diagnosis</button>
+        <a href="tel:9124590160" class="btn btn--outline-white btn--lg">Call (912) 459-0160</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

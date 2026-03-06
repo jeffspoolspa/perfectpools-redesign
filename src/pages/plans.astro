@@ -1,0 +1,164 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": "Pool Maintenance Plans",
+  "provider": {
+    "@type": "LocalBusiness",
+    "name": "Perfect Pools",
+    "telephone": "(912) 459-0160"
+  },
+  "areaServed": "Richmond Hill, Savannah, and Coastal Georgia",
+  "description": "Weekly and bi-weekly pool maintenance plans starting at $75/month. Includes chemical balancing, equipment checks, and service reports."
+};
+
+const icons = {
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon--check"><polyline points="20 6 9 17 4 12"/></svg>',
+  x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon--x"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+};
+
+const quoteFormUrl = "https://forms.jeffspoolspa.com/jeffspoolspaservice1/form/MaintenanceLeads/formperma/sZ_cHMy_F4pf-JTi8aCRtmGr78z4LJNGBj_w8_dtEIc";
+---
+
+<BaseLayout
+  title="Pool Service Plans & Pricing | Weekly & Bi-Weekly | Perfect Pools"
+  description="Clear, predictable pool maintenance pricing. Weekly service from $120/month, bi-weekly from $75/month. No contracts, no hidden fees. Serving Richmond Hill, Savannah & Coastal Georgia."
+  canonicalPath="/plans"
+  schema={schema}
+>
+  <!-- Page Header -->
+  <section class="page-header">
+    <div class="container">
+      <h1>Service Plans & Pricing</h1>
+      <p>Clear, predictable pricing. No surprises. No hidden fees.</p>
+    </div>
+  </section>
+
+  <!-- Plans Comparison -->
+  <section class="section">
+    <div class="container">
+      <div class="grid grid--2" style="margin-bottom:4rem;">
+        <!-- Weekly Plan -->
+        <div class="plan-card plan-card--featured">
+          <div style="margin-bottom:1.5rem;">
+            <h3 style="font-size:1.5rem;margin-bottom:0.5rem;">Weekly Service</h3>
+            <div style="display:flex;align-items:baseline;gap:0.5rem;margin-bottom:0.5rem;">
+              <span class="plan-card__price">$120</span>
+              <span class="plan-card__period">/ month</span>
+            </div>
+            <p style="font-size:0.875rem;">Standard residential pools up to 20,000 gallons</p>
+          </div>
+
+          <ul class="plan-card__features">
+            <li>
+              <Fragment set:html={icons.check} />
+              <span>Weekly visits every same day</span>
+            </li>
+            <li>
+              <Fragment set:html={icons.check} />
+              <span>Complete water chemistry testing & balancing</span>
+            </li>
+            <li>
+              <Fragment set:html={icons.check} />
+              <span>Pool surface skimming & debris removal</span>
+            </li>
+            <li>
+              <Fragment set:html={icons.check} />
+              <span>Basket cleaning (skimmer & pump)</span>
+            </li>
+            <li>
+              <Fragment set:html={icons.check} />
+              <span>Equipment inspection & monitoring</span>
+            </li>
+            <li>
+              <Fragment set:html={icons.check} />
+              <span>Digital service report after every visit</span>
+            </li>
+            <li>
+              <Fragment set:html={icons.check} />
+              <span>All standard chemicals included</span>
+            </li>
+          </ul>
+
+          <button type="button" class="btn btn--cta btn--lg btn--block" data-open-intake>Get Started</button>
+        </div>
+
+        <!-- Bi-Weekly Plan -->
+        <div class="plan-card">
+          <div style="margin-bottom:1.5rem;">
+            <h3 style="font-size:1.5rem;margin-bottom:0.5rem;">Bi-Weekly Service</h3>
+            <div style="display:flex;align-items:baseline;gap:0.5rem;margin-bottom:0.5rem;">
+              <span class="plan-card__price">$75</span>
+              <span class="plan-card__period">/ month</span>
+            </div>
+            <p style="font-size:0.875rem;">For experienced pool owners who need a helping hand</p>
+          </div>
+
+          <ul class="plan-card__features">
+            <li>
+              <Fragment set:html={icons.check} />
+              <span>Visits every other week</span>
+            </li>
+            <li>
+              <Fragment set:html={icons.check} />
+              <span>Complete water chemistry testing & balancing</span>
+            </li>
+            <li>
+              <Fragment set:html={icons.check} />
+              <span>Pool surface skimming & debris removal</span>
+            </li>
+            <li>
+              <Fragment set:html={icons.check} />
+              <span>Equipment inspection & monitoring</span>
+            </li>
+            <li>
+              <Fragment set:html={icons.check} />
+              <span>Digital service report after every visit</span>
+            </li>
+            <li>
+              <Fragment set:html={icons.x} />
+              <span class="text-muted">Chemicals not included</span>
+            </li>
+          </ul>
+
+          <button type="button" class="btn btn--outline btn--lg btn--block" data-open-intake>Get Started</button>
+        </div>
+      </div>
+
+      <!-- What's NOT Included -->
+      <div class="exclusions-box">
+        <h3>What's NOT included in maintenance plans</h3>
+        <p>We believe in transparency. These services are billed separately:</p>
+        <ul>
+          <li><span class="bullet">&bull;</span> Equipment repairs (pumps, filters, heaters, salt systems)</li>
+          <li><span class="bullet">&bull;</span> Green pool recovery / algae treatment</li>
+          <li><span class="bullet">&bull;</span> Filter cleaning (backwash or cartridge cleaning, done quarterly)</li>
+          <li><span class="bullet">&bull;</span> Opening/closing service (if applicable)</li>
+          <li><span class="bullet">&bull;</span> Specialty chemicals (phosphate remover, stain treatment, etc.)</li>
+        </ul>
+      </div>
+
+      <!-- Important Notes -->
+      <div class="notes-section text-center">
+        <h3 style="font-size:1.5rem;margin-bottom:1rem;">Important notes</h3>
+        <p><strong>Pool size matters:</strong> Prices shown are for standard residential pools (up to 20,000 gallons). Larger pools require custom pricing.</p>
+        <p><strong>Seasonal availability:</strong> Due to high demand in summer months, new weekly service slots may have a waitlist from May–August.</p>
+        <p><strong>No contracts:</strong> Month-to-month service. Cancel anytime with 2 weeks notice.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quote CTA -->
+  <section class="cta-section">
+    <div class="container">
+      <h2>Get a quote for your pool</h2>
+      <p>Tell us about your pool and we'll send you a custom quote within 24 hours.</p>
+      <div class="cta-section__buttons">
+        <button type="button" class="btn btn--cta btn--lg" data-open-intake>Request a Quote</button>
+        <a href="tel:9124590160" class="btn btn--outline-white btn--lg">Call (912) 459-0160</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,178 @@
+---
+const currentYear = new Date().getFullYear();
+
+const serviceLinks = [
+  { name: 'Residential Pool Cleaning', href: '/services/residential-pool-cleaning/' },
+  { name: 'Commercial Pool Cleaning', href: '/services/commercial-pool-cleaning/' },
+  { name: 'Green Pool Recovery', href: '/services/green-pool-recovery/' },
+  { name: 'Pool Inspections', href: '/services/pool-inspections/' },
+  { name: 'Commercial Repair & Install', href: '/services/commercial-repair-install/' },
+  { name: 'Residential Repair & Install', href: '/services/residential-repair-install/' },
+];
+
+const toolLinks = [
+  { name: 'Pool Volume Calculator', href: '/tools/pool-volume-calculator/' },
+  { name: 'Chemical Dosage Calculator', href: '/tools/chemical-dosage-calculator/' },
+];
+---
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div class="footer__brand">
+        <a href="/" class="footer__logo-link" aria-label="Perfect Pools - Home">
+          <span class="footer__logo-text">Perfect Pools</span>
+        </a>
+        <p class="footer__description">
+          Professional pool care for residential and commercial properties in Richmond Hill, Savannah, and the Greater Savannah area.
+        </p>
+      </div>
+
+      <div class="footer__col">
+        <h4 class="footer__heading">Contact</h4>
+        <ul>
+          <li>
+            <a href="tel:9124590160" class="footer__phone">(912) 459-0160</a>
+          </li>
+          <li>
+            <address class="footer__address">
+              8989 Ford Ave<br />
+              Richmond Hill, GA 31324
+            </address>
+          </li>
+        </ul>
+      </div>
+
+      <div class="footer__col">
+        <h4 class="footer__heading">Hours</h4>
+        <ul>
+          <li>Monday – Friday: 8AM – 5PM</li>
+          <li>Saturday: Closed</li>
+          <li>Sunday: Closed</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer__bottom">
+      <p>&copy; {currentYear} Perfect Pools. All rights reserved. Licensed &amp; Insured.</p>
+      <div class="footer__legal">
+        <a href="/privacy/">Privacy Policy</a>
+        <a href="/terms/">Terms &amp; Conditions</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background-color: var(--color-dark-blue);
+    color: rgba(255, 255, 255, 0.8);
+    padding-top: var(--space-12);
+    font-family: var(--font-body);
+  }
+
+  .footer__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+    padding-bottom: var(--space-8);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  @media (min-width: 768px) {
+    .footer__grid {
+      grid-template-columns: 1.5fr 1fr 1fr;
+    }
+  }
+
+  .footer__logo-link {
+    text-decoration: none;
+    display: inline-block;
+    margin-bottom: var(--space-4);
+  }
+
+  .footer__logo-text {
+    font-family: var(--font-heading);
+    font-size: 1.375rem;
+    font-weight: 600;
+    color: var(--color-white);
+  }
+
+  .footer__description {
+    font-size: var(--text-sm);
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .footer__heading {
+    font-family: var(--font-heading);
+    font-size: var(--text-base);
+    font-weight: 600;
+    color: var(--color-white);
+    margin-bottom: var(--space-4);
+  }
+
+  .footer__col ul {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .footer__col a {
+    color: rgba(255, 255, 255, 0.7);
+    transition: color var(--transition-fast);
+  }
+
+  .footer__col a:hover {
+    color: var(--color-white);
+  }
+
+  .footer__phone {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    color: var(--color-white) !important;
+  }
+
+  .footer__phone:hover {
+    color: var(--color-cyan) !important;
+  }
+
+  .footer__address {
+    font-style: normal;
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .footer__bottom {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding-block: var(--space-6);
+    font-size: var(--text-sm);
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  .footer__legal {
+    display: flex;
+    gap: var(--space-4);
+  }
+
+  .footer__legal a {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: var(--text-sm);
+  }
+
+  .footer__legal a:hover {
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  @media (max-width: 767px) {
+    .footer__bottom {
+      flex-direction: column;
+      text-align: center;
+    }
+  }
+</style>

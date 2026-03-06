@@ -1,0 +1,57 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import FAQ from '../../components/FAQ.astro';
+import CTASection from '../../components/CTASection.astro';
+
+const faqs = [
+  { question: 'What types of commercial pools do you service?', answer: 'We maintain pools for HOA communities, hotels and motels, apartment complexes, fitness centers, and other commercial facilities throughout the Greater Savannah area.' },
+  { question: 'Do you handle health department compliance?', answer: 'Yes, our CPO-certified technicians maintain all required records and ensure your pool meets Georgia Department of Public Health standards for commercial aquatic facilities.' },
+  { question: 'Can you work around our facility hours?', answer: 'Absolutely. We offer flexible scheduling including early morning, evening, and weekend service times to minimize disruption to your guests and residents.' },
+  { question: 'How do you handle high-traffic pools?', answer: 'High-bather-load pools require more frequent chemical checks and adjustments. We customize service frequency and chemical management plans based on your specific usage patterns.' },
+];
+
+const schema = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": "Commercial Pool Cleaning",
+    "provider": { "@type": "LocalBusiness", "name": "Perfect Pools" },
+    "areaServed": "Savannah, Richmond Hill, Coastal Georgia",
+    "priceRange": "Contact for pricing"
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.map(f => ({
+      "@type": "Question",
+      "name": f.question,
+      "acceptedAnswer": { "@type": "Answer", "text": f.answer }
+    }))
+  }
+];
+---
+
+<BaseLayout
+  title="Commercial Pool Cleaning in Savannah & Richmond Hill GA | Perfect Pools"
+  description="Professional commercial pool maintenance for HOAs, hotels, apartments, and fitness centers. Health department compliant. CPO certified. Serving the Greater Savannah area."
+  canonicalPath="/services/commercial-pool-cleaning/"
+  schema={schema}
+>
+  <section class="hero">
+    <div class="container">
+      <h1>Commercial Pool Cleaning</h1>
+      <p>Professional maintenance for HOA, hotel, apartment, and facility pools. Health department compliant service you can count on.</p>
+      <button type="button" class="btn btn--accent btn--lg" data-open-intake>Contact for Pricing</button>
+    </div>
+  </section>
+
+  <!-- PHASE 2: Full service page content (800-1200 words) -->
+  <section class="section">
+    <div class="container container--narrow">
+      <p>Content will be designed in Phase 2.</p>
+    </div>
+  </section>
+
+  <FAQ items={faqs} />
+  <CTASection />
+</BaseLayout>

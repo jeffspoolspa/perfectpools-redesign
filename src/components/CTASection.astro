@@ -1,0 +1,34 @@
+---
+interface Props {
+  heading?: string;
+  text?: string;
+  showPhone?: boolean;
+  showQuote?: boolean;
+}
+
+const {
+  heading = 'Ready for a Cleaner Pool?',
+  text = 'Contact Perfect Pools today for a free quote. Serving Richmond Hill, Savannah, and the Greater Savannah area.',
+  showPhone = true,
+  showQuote = true,
+} = Astro.props;
+---
+
+<section class="cta-section">
+  <div class="container">
+    <h2>{heading}</h2>
+    <p>{text}</p>
+    <div class="cta-section__buttons">
+      {showPhone && (
+        <a href="tel:9124590160" class="btn btn--outline-white btn--lg">
+          Call (912) 459-0160
+        </a>
+      )}
+      {showQuote && (
+        <button type="button" class="btn btn--cta btn--lg" data-open-intake>
+          Get a Free Quote
+        </button>
+      )}
+    </div>
+  </div>
+</section>

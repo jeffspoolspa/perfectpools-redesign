@@ -1,0 +1,320 @@
+---
+const currentPath = Astro.url.pathname;
+
+const services = [
+  { name: 'Residential Pool Cleaning', href: '/services/residential-pool-cleaning/' },
+  { name: 'Commercial Pool Cleaning', href: '/services/commercial-pool-cleaning/' },
+  { name: 'Green Pool Recovery', href: '/services/green-pool-recovery/' },
+  { name: 'Pool Inspections', href: '/services/pool-inspections/' },
+  { name: 'Commercial Repair & Install', href: '/services/commercial-repair-install/' },
+  { name: 'Residential Repair & Install', href: '/services/residential-repair-install/' },
+];
+
+const navLinks = [
+  { name: 'Home', href: '/' },
+  { name: 'Services', href: '/services/', children: services },
+  { name: 'About', href: '/about/' },
+  { name: 'Blog', href: '/blog/' },
+  { name: 'Tools', href: '/tools/' },
+  { name: 'Contact', href: '/contact/' },
+];
+
+function isActive(href: string): boolean {
+  if (href === '/') return currentPath === '/';
+  return currentPath.startsWith(href);
+}
+---
+
+<header class="site-header" id="site-header">
+  <div class="container">
+    <div class="header__inner">
+      <a href="/" class="header__logo" aria-label="Perfect Pools - Home">
+        <span class="header__logo-text">Perfect Pools</span>
+      </a>
+
+      <nav class="header__nav" id="main-nav" aria-label="Main navigation">
+        <ul class="nav-list">
+          {navLinks.map((link) => (
+            <li class={`nav-item ${link.children ? 'has-dropdown' : ''}`}>
+              <a
+                href={link.href}
+                class={`nav-link ${isActive(link.href) ? 'nav-link--active' : ''}`}
+                aria-current={isActive(link.href) ? 'page' : undefined}
+              >
+                {link.name}
+                {link.children && (
+                  <svg class="nav-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                    <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                )}
+              </a>
+              {link.children && (
+                <ul class="dropdown">
+                  {link.children.map((child) => (
+                    <li>
+                      <a href={child.href} class={`dropdown-link ${isActive(child.href) ? 'dropdown-link--active' : ''}`}>
+                        {child.name}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      <div class="header__actions">
+        <button type="button" class="btn btn--cta btn--sm" data-open-intake>
+          Get a Quote
+        </button>
+      </div>
+
+      <button
+        class="mobile-menu-toggle"
+        id="mobile-menu-toggle"
+        aria-expanded="false"
+        aria-controls="main-nav"
+        aria-label="Toggle navigation menu"
+      >
+        <span class="hamburger"></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--color-white);
+    border-bottom: 1px solid var(--color-border);
+    box-shadow: var(--shadow-sm);
+    height: var(--header-height);
+  }
+
+  .header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: var(--header-height);
+    gap: var(--space-6);
+  }
+
+  /* Logo as text — matching Figma */
+  .header__logo {
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+
+  .header__logo-text {
+    font-family: var(--font-heading);
+    font-size: 1.375rem;
+    font-weight: 600;
+    color: var(--color-primary);
+    letter-spacing: -0.01em;
+  }
+
+  .header__logo:hover .header__logo-text {
+    color: var(--color-primary-dark);
+  }
+
+  /* Navigation */
+  .nav-list {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+
+  .nav-link {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-2) var(--space-3);
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--color-gray-600);
+    border-radius: var(--radius-md);
+    transition: color var(--transition-fast);
+  }
+
+  .nav-link:hover {
+    color: var(--color-primary);
+  }
+
+  .nav-link--active {
+    color: var(--color-primary);
+    font-weight: 600;
+  }
+
+  .nav-chevron {
+    transition: transform var(--transition-fast);
+  }
+
+  .has-dropdown:hover .nav-chevron {
+    transform: rotate(180deg);
+  }
+
+  /* Dropdown */
+  .has-dropdown {
+    position: relative;
+  }
+
+  .dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 260px;
+    background: var(--color-white);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--color-border);
+    padding: var(--space-2);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(8px);
+    transition: all var(--transition-fast);
+  }
+
+  .has-dropdown:hover .dropdown,
+  .has-dropdown:focus-within .dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .dropdown-link {
+    display: block;
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-sm);
+    color: var(--color-gray-600);
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-fast);
+  }
+
+  .dropdown-link:hover,
+  .dropdown-link--active {
+    color: var(--color-primary);
+    background-color: var(--color-light-bg);
+  }
+
+  /* Actions */
+  .header__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    flex-shrink: 0;
+  }
+
+  /* Mobile Toggle */
+  .mobile-menu-toggle {
+    display: none;
+    width: 40px;
+    height: 40px;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-md);
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+
+  .hamburger,
+  .hamburger::before,
+  .hamburger::after {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background-color: var(--color-gray-700);
+    border-radius: 2px;
+    transition: all var(--transition-fast);
+  }
+
+  .hamburger {
+    position: relative;
+  }
+
+  .hamburger::before,
+  .hamburger::after {
+    content: '';
+    position: absolute;
+    left: 0;
+  }
+
+  .hamburger::before { top: -7px; }
+  .hamburger::after { top: 7px; }
+
+  /* Mobile open state */
+  .mobile-menu-toggle[aria-expanded="true"] .hamburger {
+    background-color: transparent;
+  }
+
+  .mobile-menu-toggle[aria-expanded="true"] .hamburger::before {
+    top: 0;
+    transform: rotate(45deg);
+  }
+
+  .mobile-menu-toggle[aria-expanded="true"] .hamburger::after {
+    top: 0;
+    transform: rotate(-45deg);
+  }
+
+  /* Mobile responsive */
+  @media (max-width: 1023px) {
+    .header__nav {
+      position: fixed;
+      top: var(--header-height);
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--color-white);
+      padding: var(--space-6);
+      overflow-y: auto;
+      transform: translateX(100%);
+      transition: transform var(--transition-base);
+      z-index: 99;
+    }
+
+    .header__nav.is-open {
+      transform: translateX(0);
+    }
+
+    .nav-list {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+    }
+
+    .nav-link {
+      font-size: var(--text-lg);
+      padding: var(--space-3) var(--space-4);
+    }
+
+    .dropdown {
+      position: static;
+      opacity: 1;
+      visibility: visible;
+      transform: none;
+      box-shadow: none;
+      border: none;
+      padding-left: var(--space-4);
+      display: none;
+    }
+
+    .has-dropdown.is-open .dropdown {
+      display: block;
+    }
+
+    .mobile-menu-toggle {
+      display: flex;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .header__actions {
+      display: none;
+    }
+  }
+</style>

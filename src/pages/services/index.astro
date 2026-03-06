@@ -1,0 +1,60 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ServiceCard from '../../components/ServiceCard.astro';
+import CTASection from '../../components/CTASection.astro';
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "name": "Perfect Pools",
+  "url": "https://perfectpoolscleaning.com/services/",
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "Pool Services",
+    "itemListElement": [
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Residential Pool Cleaning", "url": "https://perfectpoolscleaning.com/services/residential-pool-cleaning/" } },
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Commercial Pool Cleaning", "url": "https://perfectpoolscleaning.com/services/commercial-pool-cleaning/" } },
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Green Pool Recovery", "url": "https://perfectpoolscleaning.com/services/green-pool-recovery/" } },
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Pool Inspections", "url": "https://perfectpoolscleaning.com/services/pool-inspections/" } },
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Commercial Repair & Install", "url": "https://perfectpoolscleaning.com/services/commercial-repair-install/" } },
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Residential Repair & Install", "url": "https://perfectpoolscleaning.com/services/residential-repair-install/" } },
+    ]
+  }
+};
+
+const services = [
+  { title: 'Residential Pool Cleaning', description: 'Weekly and bi-weekly cleaning for home pools.', price: 'From $50/visit', href: '/services/residential-pool-cleaning/', image: '/images/pool-cleaning.jpg' },
+  { title: 'Commercial Pool Cleaning', description: 'HOA, hotel, and facility pool maintenance.', price: 'Contact for pricing', href: '/services/commercial-pool-cleaning/', image: '/images/testing-again.jpg' },
+  { title: 'Green Pool Recovery', description: 'Turn your green pool crystal clear again.', price: 'From $85/visit', href: '/services/green-pool-recovery/', image: '/images/green-pool-ssi.jpg' },
+  { title: 'Pool Inspections', description: 'Pre-purchase and safety inspections.', price: 'From $250', href: '/services/pool-inspections/', image: '/images/checking-over-equipment.jpg' },
+  { title: 'Commercial Repair & Install', description: 'Commercial equipment repair and installation.', price: 'Diagnosis from $185', href: '/services/commercial-repair-install/', image: '/images/heater-install.jpeg' },
+  { title: 'Residential Repair & Install', description: 'Home pool equipment repair and upgrades.', price: 'Diagnosis from $150', href: '/services/residential-repair-install/', image: '/images/heater-install.jpeg' },
+];
+---
+
+<BaseLayout
+  title="Pool Services in Savannah & Richmond Hill GA | Perfect Pools"
+  description="Full-service pool cleaning, repair, and maintenance for residential and commercial properties in Richmond Hill, Savannah, and Coastal Georgia."
+  canonicalPath="/services/"
+  schema={schema}
+>
+  <section class="hero">
+    <div class="container">
+      <h1>Our Pool Services</h1>
+      <p>From weekly cleaning to equipment repair, Perfect Pools is your full-service pool company in Coastal Georgia.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <!-- PHASE 2: Intro content -->
+      <div class="grid grid--3">
+        {services.map((s) => (
+          <ServiceCard {...s} />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <CTASection />
+</BaseLayout>

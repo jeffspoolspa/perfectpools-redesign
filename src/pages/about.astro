@@ -1,0 +1,200 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Perfect Pools",
+  "url": "https://perfectpoolscleaning.com",
+  "description": "Maintenance-first pool service company serving the greater Savannah metro area. System-level expertise, preventative care, and long-term pool stewardship.",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "8989 Ford Ave",
+    "addressLocality": "Richmond Hill",
+    "addressRegion": "GA",
+    "postalCode": "31324",
+    "addressCountry": "US"
+  },
+  "telephone": "(912) 459-0160"
+};
+
+const icons = {
+  target: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
+  heart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>',
+  award: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"/><circle cx="12" cy="8" r="6"/></svg>',
+  users: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M18 21a8 8 0 0 0-16 0"/><circle cx="10" cy="8" r="5"/><path d="M22 20c0-3.37-2-6.5-4-8a5 5 0 0 0-.45-8.3"/></svg>',
+};
+
+const quoteFormUrl = "https://forms.jeffspoolspa.com/jeffspoolspaservice1/form/MaintenanceLeads/formperma/sZ_cHMy_F4pf-JTi8aCRtmGr78z4LJNGBj_w8_dtEIc";
+---
+
+<BaseLayout
+  title="About Perfect Pools | Maintenance-First Pool Service | Richmond Hill & Savannah GA"
+  description="Perfect Pools is a maintenance-first pool service company serving coastal Georgia. System-level expertise, preventative care, and 15+ years of trusted partnerships. Learn our story."
+  canonicalPath="/about"
+  schema={schema}
+>
+  <!-- Page Header -->
+  <section class="page-header">
+    <div class="container">
+      <h1>About Perfect Pools</h1>
+      <p>A maintenance-first pool service company built on stewardship and expertise.</p>
+    </div>
+  </section>
+
+  <!-- Main Story -->
+  <section class="section">
+    <div class="container">
+      <div class="prose">
+        <h2 style="margin-bottom:2rem;">A True Service Partner</h2>
+        <p>
+          Perfect Pools is a maintenance-first pool service company serving the greater
+          Savannah metro area. We focus on long-term pool stewardship, preventative care,
+          and system-level expertise — not construction volume or reactive patchwork service.
+        </p>
+        <p>
+          We understand pools as complete systems: water chemistry, circulation, hydraulics,
+          filtration, heaters, automation, and equipment longevity. Our repair department
+          doesn't just replace parts — we diagnose how your pool is supposed to work as a whole.
+        </p>
+        <p>
+          Our partnerships with Jeff's Pool & Spa Service (2024) and Pool Solutions Plus (2025)
+          are built on trust and shared standards. Builders trust us with their maintenance
+          accounts. We refer renovations to trusted partners. This signals stewardship and
+          reputation alignment.
+        </p>
+        <p class="callout">
+          We exist for pool owners who view their pool as a 15-20 year asset and want a
+          true service partner.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Core Values -->
+  <section class="section section--alt">
+    <div class="container">
+      <div class="section-header">
+        <h2>What drives us</h2>
+      </div>
+
+      <div class="grid grid--4">
+        <div class="value-card">
+          <div class="value-card__icon">
+            <Fragment set:html={icons.target} />
+          </div>
+          <h3>System-Level Thinking</h3>
+          <p>We approach every pool as an integrated system, not a collection of isolated parts.</p>
+        </div>
+
+        <div class="value-card">
+          <div class="value-card__icon">
+            <Fragment set:html={icons.heart} />
+          </div>
+          <h3>Long-Term Stewardship</h3>
+          <p>We're not looking for quick jobs. We want to be your pool partner for decades.</p>
+        </div>
+
+        <div class="value-card">
+          <div class="value-card__icon">
+            <Fragment set:html={icons.award} />
+          </div>
+          <h3>Preventative Care</h3>
+          <p>We catch problems early, saving you money and extending equipment life.</p>
+        </div>
+
+        <div class="value-card">
+          <div class="value-card__icon">
+            <Fragment set:html={icons.users} />
+          </div>
+          <h3>Transparent Communication</h3>
+          <p>You always know what we're doing, why we're doing it, and what it costs.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why We're Different -->
+  <section class="section">
+    <div class="container max-w-4xl mx-auto">
+      <div class="section-header" style="text-align:left;margin-inline:0;">
+        <h2>Why we're different</h2>
+      </div>
+
+      <div class="diff-stack">
+        <div class="diff-card">
+          <h3>We're not a franchise following a national playbook</h3>
+          <p>
+            Coastal Georgia pools face unique challenges: salt air, humidity, summer storms,
+            and year-round sun. We understand how the marsh air affects your equipment and
+            how fast algae blooms after a week of rain.
+          </p>
+        </div>
+
+        <div class="diff-card">
+          <h3>We're maintenance-first, not construction-first</h3>
+          <p>
+            We don't build pools or push renovations. We focus exclusively on keeping existing
+            pools healthy and operational. This means our incentives are aligned with yours:
+            proper maintenance that extends the life of your investment.
+          </p>
+        </div>
+
+        <div class="diff-card">
+          <h3>We diagnose, not just replace</h3>
+          <p>
+            When something breaks, we take the time to understand why. A failing heater might
+            be a sensor issue, not a full replacement. We save you money by fixing what's
+            actually broken — not just selling you new equipment.
+          </p>
+        </div>
+
+        <div class="diff-card">
+          <h3>We provide real accountability</h3>
+          <p>
+            Digital service reports with chemical readings and photos after every visit.
+            GPS-tracked appointments. Predictable pricing. You never have to wonder if we
+            showed up or what we did.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Partnerships -->
+  <section class="section section--alt">
+    <div class="container">
+      <div class="prose">
+        <h2 style="margin-bottom:2rem;">Trusted partnerships</h2>
+        <p>
+          We believe in collaboration over competition when it serves our customers better.
+          Our strategic partnerships with Jeff's Pool & Spa Service (established 2024) and
+          Pool Solutions Plus (established 2025) allow us to serve more coastal Georgia
+          homeowners while maintaining our high standards.
+        </p>
+        <p>
+          These partnerships are built on shared values: system-level expertise, transparent
+          communication, and long-term customer relationships. When we refer work to our
+          partners, you can trust it's because they meet our standards.
+        </p>
+        <p>
+          Local builders and pool contractors trust us with their maintenance accounts because
+          they know we'll take care of their customers long after the construction is complete.
+          That trust is something we've earned over 15+ years in coastal Georgia.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section">
+    <div class="container">
+      <h2>Ready to experience the Perfect Pools difference?</h2>
+      <p>Let's start a conversation about your pool and how we can help you protect your investment.</p>
+      <div class="cta-section__buttons">
+        <a href="/plans" class="btn btn--cta btn--lg">View Service Plans</a>
+        <a href="tel:9124590160" class="btn btn--outline-white btn--lg">Call (912) 459-0160</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

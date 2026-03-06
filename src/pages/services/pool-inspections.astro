@@ -1,0 +1,57 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import FAQ from '../../components/FAQ.astro';
+import CTASection from '../../components/CTASection.astro';
+
+const faqs = [
+  { question: 'What does a pool inspection cover?', answer: 'Our inspections cover the pool structure, all mechanical equipment (pump, filter, heater), plumbing, electrical systems, safety features (fencing, alarms, covers), and code compliance. You receive a written report with photos.' },
+  { question: 'When should I get a pool inspection?', answer: 'The most common time is before purchasing a home with a pool. We also recommend inspections when buying or selling property, after major storms, or if your pool has been unused for an extended period.' },
+  { question: 'How long does an inspection take?', answer: 'A thorough pool inspection typically takes 1-2 hours depending on the size and complexity of the pool and its equipment. The written report is delivered within 48 hours.' },
+  { question: 'Can the inspection uncover hidden problems?', answer: 'Yes — that is the main purpose. We check for issues like hidden leaks, aging equipment nearing failure, code violations, and safety hazards that may not be obvious to a homebuyer.' },
+];
+
+const schema = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": "Residential Pool Inspections",
+    "provider": { "@type": "LocalBusiness", "name": "Perfect Pools" },
+    "areaServed": "Savannah, Richmond Hill, Coastal Georgia",
+    "priceRange": "From $250"
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.map(f => ({
+      "@type": "Question",
+      "name": f.question,
+      "acceptedAnswer": { "@type": "Answer", "text": f.answer }
+    }))
+  }
+];
+---
+
+<BaseLayout
+  title="Pool Inspections in Savannah & Richmond Hill GA | Perfect Pools"
+  description="Professional pool inspections for homebuyers starting at $250. Comprehensive written report with photos. Serving Richmond Hill, Savannah & Coastal Georgia."
+  canonicalPath="/services/pool-inspections/"
+  schema={schema}
+>
+  <section class="hero">
+    <div class="container">
+      <h1>Pool Inspections</h1>
+      <p>Know exactly what you're buying. Comprehensive pre-purchase pool inspections starting at $250.</p>
+      <button type="button" class="btn btn--accent btn--lg" data-open-intake>Schedule an Inspection</button>
+    </div>
+  </section>
+
+  <!-- PHASE 2: Full service page content (800-1200 words) -->
+  <section class="section">
+    <div class="container container--narrow">
+      <p>Content will be designed in Phase 2.</p>
+    </div>
+  </section>
+
+  <FAQ items={faqs} />
+  <CTASection />
+</BaseLayout>

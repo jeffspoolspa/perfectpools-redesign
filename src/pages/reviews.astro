@@ -1,0 +1,204 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "name": "Perfect Pools",
+  "telephone": "(912) 459-0160",
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.9",
+    "reviewCount": "127",
+    "bestRating": "5"
+  }
+};
+
+const icons = {
+  star: '<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1" class="icon"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+  mapPin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>',
+};
+
+const quoteFormUrl = "https://forms.jeffspoolspa.com/jeffspoolspaservice1/form/MaintenanceLeads/formperma/sZ_cHMy_F4pf-JTi8aCRtmGr78z4LJNGBj_w8_dtEIc";
+const googleReviewUrl = "https://g.page/r/CVrU0W_3-NRyEAE/review";
+
+const reviews = [
+  {
+    name: "Sarah M.",
+    location: "Brunswick",
+    rating: 5,
+    date: "2 weeks ago",
+    text: "After two bad pool companies, these guys actually show up and communicate. I finally feel like I can trust someone with my pool. They send me a report after every visit with pictures and chemical readings. Game changer.",
+    service: "Weekly Maintenance",
+  },
+  {
+    name: "Mike R.",
+    location: "Richmond Hill",
+    rating: 5,
+    date: "1 month ago",
+    text: "I had no idea what I was doing with my pool. They made it simple and explain everything. No more green water! My pool has been crystal clear for 6 months straight. Worth every penny.",
+    service: "Weekly Maintenance",
+  },
+  {
+    name: "Jennifer L.",
+    location: "St. Marys",
+    rating: 5,
+    date: "3 months ago",
+    text: "Been with them 3 years. Never had a green pool. They catch issues before they become expensive problems. Last summer they noticed my pump bearing was wearing out and replaced it before it died. Saved me a fortune.",
+    service: "Weekly Maintenance",
+  },
+  {
+    name: "David K.",
+    location: "Brunswick",
+    rating: 5,
+    date: "2 months ago",
+    text: "Diagnosed the issue in one visit. Fair price. Fixed in a week. My heater was acting up and other companies wanted to replace the whole thing. These guys found it was just a sensor and fixed it for a fraction of the cost.",
+    service: "Repair",
+  },
+  {
+    name: "Amanda P.",
+    location: "Kingsland",
+    rating: 5,
+    date: "1 week ago",
+    text: "Finally found a pool company that shows up when they say they will. Every Thursday like clockwork. The reports they send are so detailed - I can see exactly what they did and why. No more guessing games.",
+    service: "Weekly Maintenance",
+  },
+  {
+    name: "Tom B.",
+    location: "Richmond Hill",
+    rating: 5,
+    date: "3 weeks ago",
+    text: "Switched from another company and the difference is night and day. My water chemistry is actually stable now. They take the time to explain what they're doing and why. Highly recommend.",
+    service: "Bi-Weekly Maintenance",
+  },
+  {
+    name: "Lisa H.",
+    location: "Brunswick",
+    rating: 5,
+    date: "2 months ago",
+    text: "First time pool owners and completely overwhelmed. Perfect Pools walked us through everything, set up a maintenance schedule, and now our pool is the best on the block. So grateful for their patience and expertise.",
+    service: "Weekly Maintenance",
+  },
+  {
+    name: "James W.",
+    location: "St. Marys",
+    rating: 5,
+    date: "4 months ago",
+    text: "Had a green pool disaster when we bought the house. They brought it back to life in less than two weeks. Now on their weekly service and haven't had a single problem. These guys know coastal pools.",
+    service: "Green Pool Recovery + Weekly Maintenance",
+  },
+  {
+    name: "Rachel C.",
+    location: "Brunswick",
+    rating: 5,
+    date: "1 month ago",
+    text: "The transparency is what sold me. They tell you exactly what they're going to do, how much it costs, and why it's needed. No surprise bills. No upselling. Just honest, reliable service.",
+    service: "Weekly Maintenance",
+  },
+  {
+    name: "Kevin S.",
+    location: "Camden County",
+    rating: 5,
+    date: "3 weeks ago",
+    text: "My salt cell was giving me trouble. They diagnosed it quickly, ordered the part, and had it installed within a week. Fair pricing and great communication throughout. These guys are the real deal.",
+    service: "Repair",
+  },
+  {
+    name: "Maria G.",
+    location: "Richmond Hill",
+    rating: 5,
+    date: "2 months ago",
+    text: "I was skeptical after being burned by the last company, but Perfect Pools proved themselves right away. Consistent service, clear communication, and my pool looks better than ever. Couldn't be happier.",
+    service: "Weekly Maintenance",
+  },
+  {
+    name: "Brian T.",
+    location: "Brunswick",
+    rating: 5,
+    date: "6 months ago",
+    text: "Year-round service and they're just as reliable in December as they are in July. Other companies would skip weeks or not show up in the off-season. These guys are professionals through and through.",
+    service: "Weekly Maintenance",
+  },
+];
+---
+
+<BaseLayout
+  title="Customer Reviews | 4.9 Stars on Google | Perfect Pools"
+  description="Read what coastal Georgia homeowners say about Perfect Pools. 4.9-star rating on Google with 127+ reviews. Weekly maintenance, repairs, and equipment service in Richmond Hill, Savannah & beyond."
+  canonicalPath="/reviews"
+  schema={schema}
+>
+  <!-- Page Header -->
+  <section class="page-header">
+    <div class="container">
+      <h1>Customer Reviews</h1>
+      <p>See what coastal Georgia homeowners are saying about Perfect Pools.</p>
+    </div>
+  </section>
+
+  <!-- Rating Summary -->
+  <section class="rating-summary">
+    <div class="container">
+      <div class="rating-summary__inner">
+        <div>
+          <div class="rating-summary__score">4.9</div>
+          <div class="rating-summary__stars">
+            <Fragment set:html={icons.star} />
+            <Fragment set:html={icons.star} />
+            <Fragment set:html={icons.star} />
+            <Fragment set:html={icons.star} />
+            <Fragment set:html={icons.star} />
+          </div>
+          <p style="color:var(--color-text-light);">Based on 127+ Google reviews</p>
+        </div>
+        <div class="rating-summary__stat">
+          <div class="rating-summary__stat-number">500+</div>
+          <p style="color:var(--color-text-light);">Pools maintained</p>
+        </div>
+        <div class="rating-summary__stat">
+          <div class="rating-summary__stat-number">15+</div>
+          <p style="color:var(--color-text-light);">Years in business</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Reviews Grid -->
+  <section class="section">
+    <div class="container">
+      <div class="grid grid--3-reviews">
+        {reviews.map((review) => (
+          <div class="review-card">
+            <div class="review-card__stars">
+              {[...Array(review.rating)].map(() => (
+                <Fragment set:html={icons.star} />
+              ))}
+            </div>
+            <p class="review-card__text">{review.text}</p>
+            <div class="review-card__meta">
+              <p class="review-card__name">{review.name}</p>
+              <div class="review-card__location">
+                <Fragment set:html={icons.mapPin} />
+                <span>{review.location}</span>
+              </div>
+              <p class="review-card__service">{review.service}</p>
+              <p class="review-card__date">{review.date}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section">
+    <div class="container">
+      <h2>Ready to join our satisfied customers?</h2>
+      <p>Experience the Perfect Pools difference for yourself.</p>
+      <div class="cta-section__buttons">
+        <button type="button" class="btn btn--cta btn--lg" data-open-intake>Get Started</button>
+        <a href={googleReviewUrl} target="_blank" rel="noopener" class="btn btn--outline-white btn--lg">Read More on Google</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,94 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CTASection from '../../components/CTASection.astro';
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Free Pool Tools for Homeowners",
+  "description": "Free online pool calculators — pool volume calculator and chemical dosage calculator — to help maintain your pool between professional visits.",
+  "url": "https://perfectpoolscleaning.com/tools/"
+};
+
+const tools = [
+  {
+    title: 'Pool Volume Calculator',
+    description: "Calculate your pool's water volume for accurate chemical dosing.",
+    href: '/tools/pool-volume-calculator/',
+    available: true,
+  },
+  {
+    title: 'Chemical Dosage Calculator',
+    description: 'Find out exactly how much of each chemical your pool needs.',
+    href: '/tools/chemical-dosage-calculator/',
+    available: true,
+  },
+  {
+    title: 'Pool Heater Size Calculator',
+    description: 'Determine the right heater size for your pool.',
+    href: '#',
+    available: false,
+  },
+  {
+    title: 'Monthly Maintenance Cost Estimator',
+    description: 'Estimate your monthly pool maintenance costs.',
+    href: '#',
+    available: false,
+  },
+  {
+    title: 'Salt Water Pool Calculator',
+    description: 'Calculate salt levels for your saltwater system.',
+    href: '#',
+    available: false,
+  },
+];
+---
+
+<BaseLayout
+  title="Free Pool Tools & Calculators | Perfect Pools"
+  description="Free online pool calculators to help homeowners maintain their pools between professional visits. Pool volume calculator, chemical dosage calculator, and more."
+  canonicalPath="/tools/"
+  schema={schema}
+>
+  <section class="hero">
+    <div class="container">
+      <h1>Free Pool Tools for Homeowners</h1>
+      <p>Helpful tools to maintain your pool between professional service visits.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="grid grid--3">
+        {tools.map((tool) => (
+          <div class={`card ${!tool.available ? 'card--coming-soon' : ''}`}>
+            <div class="card__body">
+              <h3 class="card__title">{tool.title}</h3>
+              <p class="card__text">{tool.description}</p>
+              {tool.available ? (
+                <a href={tool.href} class="btn btn--primary btn--sm">Use Tool</a>
+              ) : (
+                <span class="badge">Coming Soon</span>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <CTASection
+    heading="These Tools Help Between Visits"
+    text="For complete pool care, let our CPO-certified pros handle it."
+  />
+</BaseLayout>
+
+<style>
+  .card--coming-soon {
+    opacity: 0.6;
+  }
+  .card--coming-soon:hover {
+    transform: none;
+    box-shadow: var(--shadow-md);
+  }
+</style>
