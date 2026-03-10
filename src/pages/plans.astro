@@ -1,6 +1,8 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 
+const base = import.meta.env.BASE_URL;
+
 const schema = {
   "@context": "https://schema.org",
   "@type": "Service",
@@ -11,74 +13,111 @@ const schema = {
     "telephone": "(912) 459-0160"
   },
   "areaServed": "Richmond Hill, Savannah, and Coastal Georgia",
-  "description": "Weekly and bi-weekly pool maintenance plans starting at $75/month. Includes chemical balancing, equipment checks, and service reports."
+  "description": "Weekly pool maintenance at $50 per visit ($200/month). Bi-weekly winter option available. Cost Plus Chemicals pricing for full transparency."
 };
 
-const icons = {
-  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon--check"><polyline points="20 6 9 17 4 12"/></svg>',
-  x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon--x"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
-};
-
-const quoteFormUrl = "https://forms.jeffspoolspa.com/jeffspoolspaservice1/form/MaintenanceLeads/formperma/sZ_cHMy_F4pf-JTi8aCRtmGr78z4LJNGBj_w8_dtEIc";
+const checkSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon--check"><polyline points="20 6 9 17 4 12"/></svg>';
+const xSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon--x"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
 ---
 
 <BaseLayout
   title="Pool Service Plans & Pricing | Weekly & Bi-Weekly | Perfect Pools"
-  description="Clear, predictable pool maintenance pricing. Weekly service from $120/month, bi-weekly from $75/month. No contracts, no hidden fees. Serving Richmond Hill, Savannah & Coastal Georgia."
+  description="Weekly pool maintenance at $50/visit ($200/month). Clear, transparent pricing with Cost Plus Chemicals. No contracts. Serving Richmond Hill, Savannah & Coastal Georgia."
   canonicalPath="/plans"
   schema={schema}
 >
-  <!-- Page Header -->
-  <section class="page-header">
+  <!-- Hero -->
+  <section class="plans-hero">
     <div class="container">
-      <h1>Service Plans & Pricing</h1>
-      <p>Clear, predictable pricing. No surprises. No hidden fees.</p>
+      <h1>Weekly Pool Care Plans</h1>
+      <p class="plans-hero__sub">Clear, predictable pricing. See exactly what's included in each visit.</p>
     </div>
   </section>
 
-  <!-- Plans Comparison -->
+  <!-- Main Pricing Cards -->
   <section class="section">
     <div class="container">
-      <div class="grid grid--2" style="margin-bottom:4rem;">
+      <div class="plans-grid">
+
         <!-- Weekly Plan -->
         <div class="plan-card plan-card--featured">
-          <div style="margin-bottom:1.5rem;">
-            <h3 style="font-size:1.5rem;margin-bottom:0.5rem;">Weekly Service</h3>
-            <div style="display:flex;align-items:baseline;gap:0.5rem;margin-bottom:0.5rem;">
-              <span class="plan-card__price">$120</span>
+          <span class="plan-card__badge">Most Popular</span>
+
+          <div class="plan-card__header">
+            <h3>Weekly Service</h3>
+            <div class="plan-card__price-row">
+              <span class="plan-card__price">$200</span>
               <span class="plan-card__period">/ month</span>
             </div>
-            <p style="font-size:0.875rem;">Standard residential pools up to 20,000 gallons</p>
+            <p class="plan-card__note">Standard residential pool (4 visits x $50)</p>
+          </div>
+
+          <div class="plan-card__pricing-table">
+            <h4 class="plan-card__table-label">Base Pricing</h4>
+            <div class="pricing-row">
+              <span>Pool Service</span>
+              <div class="pricing-row__right">
+                <span class="pricing-row__main">$50/visit</span>
+                <span class="pricing-row__sub">($200/month)</span>
+              </div>
+            </div>
+            <div class="pricing-row">
+              <span>Spa Service</span>
+              <div class="pricing-row__right">
+                <span class="pricing-row__main">$45/visit</span>
+                <span class="pricing-row__sub">($180/month)</span>
+              </div>
+            </div>
+            <div class="pricing-row">
+              <span>Pool + Spa Combo</span>
+              <div class="pricing-row__right">
+                <span class="pricing-row__main">$60/visit</span>
+                <span class="pricing-row__sub">($240/month)</span>
+              </div>
+            </div>
+            <div class="pricing-row">
+              <span>Additional body of water</span>
+              <div class="pricing-row__right">
+                <span class="pricing-row__main">+$10/visit</span>
+                <span class="pricing-row__sub">(+$40/month)</span>
+              </div>
+            </div>
+            <p class="plan-card__fine-print">Up to 30,000 gallons</p>
+            <p class="plan-card__fine-print plan-card__fine-print--italic">*Pricing assumes 4 visits per month. Some months may have 5 visits based on how the calendar falls. See billing section below for details.</p>
           </div>
 
           <ul class="plan-card__features">
             <li>
-              <Fragment set:html={icons.check} />
+              <Fragment set:html={checkSvg} />
               <span>Weekly visits every same day</span>
             </li>
             <li>
-              <Fragment set:html={icons.check} />
+              <Fragment set:html={checkSvg} />
               <span>Complete water chemistry testing & balancing</span>
             </li>
             <li>
-              <Fragment set:html={icons.check} />
+              <Fragment set:html={checkSvg} />
               <span>Pool surface skimming & debris removal</span>
             </li>
             <li>
-              <Fragment set:html={icons.check} />
+              <Fragment set:html={checkSvg} />
               <span>Basket cleaning (skimmer & pump)</span>
             </li>
             <li>
-              <Fragment set:html={icons.check} />
+              <Fragment set:html={checkSvg} />
               <span>Equipment inspection & monitoring</span>
             </li>
             <li>
-              <Fragment set:html={icons.check} />
+              <Fragment set:html={checkSvg} />
               <span>Digital service report after every visit</span>
             </li>
-            <li>
-              <Fragment set:html={icons.check} />
-              <span>All standard chemicals included</span>
+            <li class="plan-card__feature--green">
+              <Fragment set:html={checkSvg} />
+              <span>Green Free Guarantee</span>
+            </li>
+            <li class="plan-card__feature--muted">
+              <Fragment set:html={xSvg} />
+              <span>Chemicals billed separately (see Cost Plus Chemicals below)</span>
             </li>
           </ul>
 
@@ -87,39 +126,77 @@ const quoteFormUrl = "https://forms.jeffspoolspa.com/jeffspoolspaservice1/form/M
 
         <!-- Bi-Weekly Plan -->
         <div class="plan-card">
-          <div style="margin-bottom:1.5rem;">
-            <h3 style="font-size:1.5rem;margin-bottom:0.5rem;">Bi-Weekly Service</h3>
-            <div style="display:flex;align-items:baseline;gap:0.5rem;margin-bottom:0.5rem;">
-              <span class="plan-card__price">$75</span>
-              <span class="plan-card__period">/ month</span>
+          <div class="plan-card__header">
+            <div class="plan-card__title-row">
+              <h3>Bi-Weekly Service</h3>
+              <span class="plan-card__tag">Winter Only</span>
             </div>
-            <p style="font-size:0.875rem;">For experienced pool owners who need a helping hand</p>
+            <div class="plan-card__price-row">
+              <span class="plan-card__price">+$25</span>
+              <span class="plan-card__period">/ visit</span>
+            </div>
+            <p class="plan-card__note">Added to base weekly pricing</p>
+
+            <div class="plan-card__callout plan-card__callout--blue">
+              <svg class="plan-card__callout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <div>
+                <p class="plan-card__callout-title">Winter Service Only</p>
+                <p>Available September through March. Requires homeowner to manage chemicals between visits.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="plan-card__pricing-table plan-card__pricing-table--example">
+            <h4 class="plan-card__table-label">Pricing Example</h4>
+            <div class="pricing-example">
+              <div class="pricing-row">
+                <span>Pool base price</span>
+                <span>$50</span>
+              </div>
+              <div class="pricing-row">
+                <span>Bi-weekly surcharge</span>
+                <span>+ $25</span>
+              </div>
+              <div class="pricing-divider"></div>
+              <div class="pricing-row pricing-row--bold">
+                <span>Per visit</span>
+                <span>$75</span>
+              </div>
+              <div class="pricing-row pricing-row--muted">
+                <span>Monthly (2 visits)</span>
+                <span>~$150</span>
+              </div>
+            </div>
           </div>
 
           <ul class="plan-card__features">
             <li>
-              <Fragment set:html={icons.check} />
+              <Fragment set:html={checkSvg} />
               <span>Visits every other week</span>
             </li>
             <li>
-              <Fragment set:html={icons.check} />
+              <Fragment set:html={checkSvg} />
               <span>Complete water chemistry testing & balancing</span>
             </li>
             <li>
-              <Fragment set:html={icons.check} />
+              <Fragment set:html={checkSvg} />
               <span>Pool surface skimming & debris removal</span>
             </li>
             <li>
-              <Fragment set:html={icons.check} />
+              <Fragment set:html={checkSvg} />
+              <span>Basket cleaning (skimmer & pump)</span>
+            </li>
+            <li>
+              <Fragment set:html={checkSvg} />
               <span>Equipment inspection & monitoring</span>
             </li>
             <li>
-              <Fragment set:html={icons.check} />
+              <Fragment set:html={checkSvg} />
               <span>Digital service report after every visit</span>
             </li>
-            <li>
-              <Fragment set:html={icons.x} />
-              <span class="text-muted">Chemicals not included</span>
+            <li class="plan-card__feature--muted">
+              <Fragment set:html={xSvg} />
+              <span>Chemicals not included</span>
             </li>
           </ul>
 
@@ -128,29 +205,289 @@ const quoteFormUrl = "https://forms.jeffspoolspa.com/jeffspoolspaservice1/form/M
       </div>
 
       <!-- What's NOT Included -->
-      <div class="exclusions-box">
-        <h3>What's NOT included in maintenance plans</h3>
-        <p>We believe in transparency. These services are billed separately:</p>
-        <ul>
-          <li><span class="bullet">&bull;</span> Equipment repairs (pumps, filters, heaters, salt systems)</li>
-          <li><span class="bullet">&bull;</span> Green pool recovery / algae treatment</li>
-          <li><span class="bullet">&bull;</span> Filter cleaning (backwash or cartridge cleaning, done quarterly)</li>
-          <li><span class="bullet">&bull;</span> Opening/closing service (if applicable)</li>
-          <li><span class="bullet">&bull;</span> Specialty chemicals (phosphate remover, stain treatment, etc.)</li>
-        </ul>
+      <div class="not-included">
+        <h3>Not included in maintenance plans</h3>
+        <p class="not-included__intro">We believe in transparent pricing. Here's what's billed separately:</p>
+
+        <div class="not-included__items">
+          <div class="not-included__item">
+            <h4>Equipment Repair & Diagnosis</h4>
+            <p>If our technicians spot an equipment issue during service, we'll flag it for you immediately. We can schedule a diagnosis visit for <strong>$135</strong> (normally $150 -- we give maintenance customers $15 off). This includes a thorough inspection and diagnosis, with repair quote provided before any work begins.</p>
+          </div>
+
+          <div class="not-included__item">
+            <h4>Green Pool Recovery</h4>
+            <p>Heavy algae treatment and shock therapy to restore a green pool.</p>
+            <div class="not-included__callout not-included__callout--green">
+              <p><strong>Weekly service customers:</strong> Covered by our <span class="text-green">Green Free Guarantee</span> if your pool goes green under our care.</p>
+            </div>
+            <p class="not-included__note">Note: Your pool must be blue and in good condition when we take it over. Bi-weekly service customers are not covered, since they manage their own chemicals between visits.</p>
+          </div>
+
+          <div class="not-included__item">
+            <h4>Filter Cleaning</h4>
+            <p><strong>Sand filters:</strong> Backwashing is included in maintenance visits.<br/><strong>Cartridge filters:</strong> Deep cleaning is billed separately (typically quarterly) because it requires significantly more time and labor. We want to be fair to pool owners -- cartridge filters take 3-4x longer to clean properly than sand filters.</p>
+          </div>
+
+          <div class="not-included__item">
+            <h4>Salt Cell Cleaning</h4>
+            <p>Salt cells require periodic acid cleaning to remove calcium buildup. This is billed separately as it's a specialized service that takes additional time and materials. Most salt systems need cleaning 2-4 times per year depending on calcium hardness levels.</p>
+          </div>
+
+          <div class="not-included__item">
+            <h4>Chemicals</h4>
+            <p>Pool chemicals are billed separately from service visits. We offer transparent Cost Plus Chemicals pricing where you pay our wholesale cost. See our <a href={`${base}chemicals/`}>Chemicals page</a> for complete details on every chemical we use, what it does, and what it costs.</p>
+          </div>
+
+          <div class="not-included__item">
+            <h4>Opening & Closing Service</h4>
+            <p>Seasonal pool opening and winterization services (where applicable) are billed separately.</p>
+          </div>
+        </div>
       </div>
 
-      <!-- Important Notes -->
-      <div class="notes-section text-center">
-        <h3 style="font-size:1.5rem;margin-bottom:1rem;">Important notes</h3>
-        <p><strong>Pool size matters:</strong> Prices shown are for standard residential pools (up to 20,000 gallons). Larger pools require custom pricing.</p>
-        <p><strong>Seasonal availability:</strong> Due to high demand in summer months, new weekly service slots may have a waitlist from May–August.</p>
-        <p><strong>No contracts:</strong> Month-to-month service. Cancel anytime with 2 weeks notice.</p>
+      <!-- Accordion Sections -->
+      <div class="plans-accordion">
+
+        <!-- Weekly vs Bi-Weekly -->
+        <div class="accordion-card">
+          <button class="accordion-card__trigger" aria-expanded="false">
+            <h3>Weekly vs Bi-Weekly Service</h3>
+            <svg class="accordion-card__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="accordion-card__content" hidden>
+            <div class="accordion-card__body">
+              <div>
+                <h4>Weekly Service is Best For:</h4>
+                <ul class="bullet-list">
+                  <li>Most residential pools and spas</li>
+                  <li>Pools that get heavy use or are in direct sunlight</li>
+                  <li>Owners who want a truly hands-off experience</li>
+                  <li>Pools near trees or plants that drop debris</li>
+                  <li>Summer season (April-August) when pools are in peak use</li>
+                </ul>
+              </div>
+              <div>
+                <h4>Bi-Weekly Service is Best For:</h4>
+                <ul class="bullet-list">
+                  <li>Experienced pool owners who maintain their own pool between visits</li>
+                  <li>Winter months (September-March) when pools are used less</li>
+                  <li>Pools in shaded areas with minimal debris</li>
+                  <li>Owners who want professional oversight but handle day-to-day care</li>
+                </ul>
+              </div>
+              <div class="accordion-card__callout accordion-card__callout--amber">
+                <p><strong>Note:</strong> Most customers stay on weekly service year-round for best results. Bi-weekly service requires you to manage chemicals between visits.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cost Plus Chemicals -->
+        <div class="accordion-card">
+          <button class="accordion-card__trigger" aria-expanded="false">
+            <h3>Cost Plus Chemicals Mode</h3>
+            <svg class="accordion-card__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="accordion-card__content" hidden>
+            <div class="accordion-card__body">
+              <p>Cost Plus Chemicals is an alternative pricing model where you purchase chemicals separately from us at our cost, and pay only for the service itself.</p>
+              <div>
+                <h4>How It Works:</h4>
+                <ul class="bullet-list">
+                  <li>We buy chemicals at wholesale prices and pass those costs directly to you</li>
+                  <li>You see exactly what chemicals were used and their cost on each service report</li>
+                  <li>Chemical costs vary based on your pool's needs each week</li>
+                  <li>You're billed for chemicals used in addition to the service fee</li>
+                </ul>
+              </div>
+              <div>
+                <h4>Who Should Choose This:</h4>
+                <ul class="bullet-list">
+                  <li>Pools that need minimal chemicals (well-maintained, covered, etc.)</li>
+                  <li>Customers who want full transparency on chemical costs</li>
+                  <li>Those who prefer variable billing based on actual usage</li>
+                </ul>
+              </div>
+              <div class="accordion-card__callout accordion-card__callout--blue">
+                <p><strong>Most customers prefer all-inclusive pricing</strong> for predictable monthly bills. Contact us if you'd like to discuss Cost Plus Chemicals for your pool.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chemical Sales & Pricing -->
+        <div class="accordion-card">
+          <button class="accordion-card__trigger" aria-expanded="false">
+            <h3>Chemical Sales & Pricing</h3>
+            <svg class="accordion-card__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="accordion-card__content" hidden>
+            <div class="accordion-card__body">
+              <p>We sell professional-grade pool chemicals to both service customers and the public. All prices include delivery for service customers.</p>
+              <div class="chem-table-wrap">
+                <table class="chem-table">
+                  <thead>
+                    <tr>
+                      <th>Chemical</th>
+                      <th>Size</th>
+                      <th class="text-right">Price</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>Liquid Chlorine</td><td>2.5 gallon</td><td class="text-right">$8.50</td></tr>
+                    <tr><td>Chlorine Tablets</td><td>25 lbs</td><td class="text-right">$89.99</td></tr>
+                    <tr><td>Chlorine Tablets</td><td>50 lbs</td><td class="text-right">$169.99</td></tr>
+                    <tr><td>Shock (Cal-Hypo)</td><td>1 lb bag</td><td class="text-right">$6.99</td></tr>
+                    <tr><td>Muriatic Acid</td><td>1 gallon</td><td class="text-right">$9.99</td></tr>
+                    <tr><td>Alkalinity Increaser</td><td>10 lbs</td><td class="text-right">$24.99</td></tr>
+                    <tr><td>pH Increaser (Soda Ash)</td><td>10 lbs</td><td class="text-right">$19.99</td></tr>
+                    <tr><td>Calcium Hardness Increaser</td><td>10 lbs</td><td class="text-right">$27.99</td></tr>
+                    <tr><td>Stabilizer (Cyanuric Acid)</td><td>7 lbs</td><td class="text-right">$34.99</td></tr>
+                    <tr><td>Algaecide</td><td>1 quart</td><td class="text-right">$16.99</td></tr>
+                    <tr><td>Phosphate Remover</td><td>1 quart</td><td class="text-right">$24.99</td></tr>
+                    <tr><td>Salt (for salt systems)</td><td>40 lbs</td><td class="text-right">$12.99</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="accordion-card__callout">
+                <p><strong>Need something not listed?</strong> We can special order most pool chemicals and supplies. Contact us with your needs.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- What Our Service Covers -->
+        <div class="accordion-card">
+          <button class="accordion-card__trigger" aria-expanded="false">
+            <h3>What Our Service Covers</h3>
+            <svg class="accordion-card__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="accordion-card__content" hidden>
+            <div class="accordion-card__body">
+              <div>
+                <h4 class="covers-heading covers-heading--included">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon--check"><polyline points="20 6 9 17 4 12"/></svg>
+                  Included in Every Visit:
+                </h4>
+                <ul class="bullet-list bullet-list--indented">
+                  <li><strong>Water Testing:</strong> Complete chemical analysis (chlorine, pH, alkalinity, hardness, stabilizer)</li>
+                  <li><strong>Chemical Balancing:</strong> Add necessary chemicals to maintain perfect water chemistry</li>
+                  <li><strong>Surface Skimming:</strong> Remove leaves, bugs, and floating debris from pool surface</li>
+                  <li><strong>Basket Cleaning:</strong> Empty and clean skimmer baskets and pump basket</li>
+                  <li><strong>Equipment Check:</strong> Inspect pump, filter, heater, and automation for proper operation</li>
+                  <li><strong>Tile Line Brushing:</strong> Brush tile line to prevent buildup and staining</li>
+                  <li><strong>Digital Report:</strong> Receive a detailed service report with chemical readings and photos</li>
+                </ul>
+              </div>
+              <div>
+                <h4 class="covers-heading covers-heading--excluded">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon--x"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  NOT Included (Billed Separately):
+                </h4>
+                <ul class="bullet-list bullet-list--indented">
+                  <li><strong>Equipment Repairs:</strong> Pump, filter, heater, or automation repairs</li>
+                  <li><strong>Filter Cleaning:</strong> Deep cleaning (cartridge or backwashing) done quarterly</li>
+                  <li><strong>Green Pool Recovery:</strong> Heavy algae treatment and shocking</li>
+                  <li><strong>Vacuuming:</strong> Manual or robotic pool vacuuming (we can recommend equipment)</li>
+                  <li><strong>Specialty Chemicals:</strong> Phosphate remover, metal sequestrant, stain treatment</li>
+                  <li><strong>Seasonal Services:</strong> Pool opening/closing, winterization</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- How Billing Works -->
+        <div class="accordion-card">
+          <button class="accordion-card__trigger" aria-expanded="false">
+            <h3>How Billing Works</h3>
+            <svg class="accordion-card__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="accordion-card__content" hidden>
+            <div class="accordion-card__body">
+              <div>
+                <h4>Understanding the 4-Week vs 5-Week Month</h4>
+                <p>Weekly service is billed at $50 per visit. Most months have 4 service visits ($200), but some months will have 5 visits when your service day falls on a calendar date that occurs 5 times in that month.</p>
+                <div class="billing-example">
+                  <p><strong>Example: Monday Service</strong></p>
+                  <p>If your service day is Monday and there are 5 Mondays in March, you'll receive 5 visits and be billed $250 for that month ($50 x 5 visits).</p>
+                  <p>This typically happens 2-4 times per year depending on your service day and the calendar.</p>
+                </div>
+              </div>
+              <div>
+                <h4>Payment & Invoicing</h4>
+                <ul class="bullet-list">
+                  <li>Invoices are sent on the last day of each month</li>
+                  <li>Payment is due within 15 days of invoice date</li>
+                  <li>We accept credit cards, ACH transfers, checks, and cash</li>
+                  <li>Autopay options available for credit cards and ACH</li>
+                  <li>You'll see exactly which visits were completed and any add-on charges</li>
+                </ul>
+              </div>
+              <div>
+                <h4>Service Adjustments</h4>
+                <ul class="bullet-list">
+                  <li>Missed visits due to weather or access issues are credited</li>
+                  <li>Vacation holds: Let us know 48 hours in advance to skip a visit (no charge)</li>
+                  <li>Holiday schedule: We operate on normal schedule except major holidays</li>
+                </ul>
+              </div>
+              <div class="accordion-card__callout accordion-card__callout--blue">
+                <p><strong>No contracts required.</strong> Service is month-to-month. Cancel anytime with 2 weeks notice.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FAQ -->
+        <div class="accordion-card">
+          <button class="accordion-card__trigger" aria-expanded="false">
+            <h3>Frequently Asked Questions</h3>
+            <svg class="accordion-card__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="accordion-card__content" hidden>
+            <div class="accordion-card__body accordion-card__body--faq">
+              <div class="faq-item">
+                <h4>What if my pool is larger than 30,000 gallons?</h4>
+                <p>Pools larger than 30,000 gallons require custom pricing due to increased chemical usage. Contact us for a quote -- pricing is typically $60-75 per visit depending on size.</p>
+              </div>
+              <div class="faq-item">
+                <h4>Do I need to be home during service?</h4>
+                <p>No! Most of our customers are not home during service. We just need access to your pool area via a gate code, unlocked gate, or key. We'll send you a detailed report after each visit.</p>
+              </div>
+              <div class="faq-item">
+                <h4>What happens if you can't access my pool?</h4>
+                <p>If we arrive and can't access your pool (locked gate, aggressive dog, etc.), we'll contact you immediately. If we can't gain access, you won't be charged for that visit.</p>
+              </div>
+              <div class="faq-item">
+                <h4>Can you repair equipment if something breaks?</h4>
+                <p>Yes! We handle all types of pool equipment repairs. If we notice an issue during service, we'll contact you with a diagnosis and quote.</p>
+              </div>
+              <div class="faq-item">
+                <h4>Do you offer one-time service or just ongoing maintenance?</h4>
+                <p>We focus on ongoing maintenance relationships, but we can help with one-time service for green pool recovery, opening/closing, or equipment troubleshooting. Contact us to discuss your needs.</p>
+              </div>
+              <div class="faq-item">
+                <h4>What areas do you service?</h4>
+                <p>We service the coastal Georgia area including Savannah, Pooler, Richmond Hill, and surrounding communities. Contact us to confirm we service your area.</p>
+              </div>
+              <div class="faq-item">
+                <h4>Are you licensed and insured?</h4>
+                <p>Yes, Perfect Pools is fully licensed and carries comprehensive liability insurance for your peace of mind.</p>
+              </div>
+              <div class="faq-item">
+                <h4>How quickly can I get started?</h4>
+                <p>We typically have availability within 1-2 weeks for new customers. During peak summer months (May-August), there may be a short waitlist. Contact us for current availability.</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- Quote CTA -->
+  <!-- CTA -->
   <section class="cta-section">
     <div class="container">
       <h2>Get a quote for your pool</h2>
@@ -162,3 +499,545 @@ const quoteFormUrl = "https://forms.jeffspoolspa.com/jeffspoolspaservice1/form/M
     </div>
   </section>
 </BaseLayout>
+
+<style>
+  /* Hero */
+  .plans-hero {
+    background: var(--color-primary);
+    color: var(--color-white);
+    padding: var(--space-12) 0 var(--space-16);
+    text-align: center;
+  }
+
+  .plans-hero h1 {
+    font-size: clamp(2rem, 5vw, 3rem);
+    margin-bottom: var(--space-4);
+  }
+
+  .plans-hero__sub {
+    font-size: var(--text-lg);
+    color: rgba(255, 255, 255, 0.9);
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  /* Plans Grid */
+  .plans-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+    margin-bottom: var(--space-12);
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  @media (min-width: 768px) {
+    .plans-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  /* Plan Card */
+  .plan-card {
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-8);
+    position: relative;
+  }
+
+  .plan-card--featured {
+    border: 2px solid var(--color-accent, var(--color-primary));
+  }
+
+  .plan-card__badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--color-accent, var(--color-primary));
+    color: var(--color-white);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    padding: var(--space-1) var(--space-4);
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .plan-card__header {
+    margin-bottom: var(--space-6);
+  }
+
+  .plan-card__header h3 {
+    font-size: 1.5rem;
+    margin-bottom: var(--space-2);
+  }
+
+  .plan-card__title-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-2);
+  }
+
+  .plan-card__tag {
+    background: #dbeafe;
+    color: #1e40af;
+    font-size: var(--text-xs);
+    font-weight: 600;
+    padding: var(--space-1) var(--space-3);
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .plan-card__price-row {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    margin-bottom: var(--space-2);
+  }
+
+  .plan-card__price {
+    font-size: 2.5rem;
+    font-weight: 700;
+    font-family: var(--font-heading);
+    line-height: 1;
+  }
+
+  .plan-card__period {
+    color: var(--color-gray-500);
+    font-size: var(--text-base);
+  }
+
+  .plan-card__note {
+    font-size: var(--text-sm);
+    color: var(--color-gray-500);
+  }
+
+  .plan-card__callout {
+    display: flex;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    border-radius: var(--radius-md);
+    margin-top: var(--space-4);
+    font-size: var(--text-sm);
+  }
+
+  .plan-card__callout--blue {
+    background: #eff6ff;
+    border: 2px solid #93c5fd;
+    color: #1e3a5f;
+  }
+
+  .plan-card__callout-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    color: #1d4ed8;
+  }
+
+  .plan-card__callout-title {
+    font-weight: 600;
+    color: #1e3a8a;
+    margin-bottom: var(--space-1);
+  }
+
+  /* Pricing Table */
+  .plan-card__pricing-table {
+    margin-bottom: var(--space-6);
+  }
+
+  .plan-card__table-label {
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--color-gray-500);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: var(--space-3);
+  }
+
+  .pricing-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: var(--text-sm);
+    padding: var(--space-1) 0;
+  }
+
+  .pricing-row__right {
+    text-align: right;
+  }
+
+  .pricing-row__main {
+    font-weight: 500;
+  }
+
+  .pricing-row__sub {
+    color: var(--color-gray-500);
+    font-size: var(--text-xs);
+    margin-left: var(--space-2);
+  }
+
+  .pricing-row--bold {
+    font-weight: 600;
+  }
+
+  .pricing-row--muted {
+    color: var(--color-gray-500);
+  }
+
+  .pricing-divider {
+    border-top: 1px solid var(--color-border);
+    margin: var(--space-2) 0;
+  }
+
+  .pricing-example {
+    background: var(--color-light-bg, #f8f9fa);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+  }
+
+  .plan-card__fine-print {
+    font-size: var(--text-xs);
+    color: var(--color-gray-500);
+    margin-top: var(--space-3);
+  }
+
+  .plan-card__fine-print--italic {
+    font-style: italic;
+    margin-top: var(--space-2);
+  }
+
+  /* Plan Card Features */
+  .plan-card__features {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    margin-bottom: var(--space-8);
+  }
+
+  .plan-card__features li {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+
+  .plan-card__features :global(.icon) {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .plan-card__features :global(.icon--check) {
+    color: var(--color-accent, var(--color-primary));
+  }
+
+  .plan-card__features :global(.icon--x) {
+    color: var(--color-gray-300);
+  }
+
+  .plan-card__feature--green {
+    color: #16a34a;
+    font-weight: 500;
+  }
+
+  .plan-card__feature--green :global(.icon--check) {
+    color: #16a34a;
+  }
+
+  .plan-card__feature--muted span {
+    color: var(--color-gray-500);
+  }
+
+  /* Not Included */
+  .not-included {
+    background: var(--color-light-bg, #f8f9fa);
+    border-radius: var(--radius-lg);
+    padding: var(--space-8);
+    margin-bottom: var(--space-12);
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .not-included h3 {
+    font-size: 1.5rem;
+    margin-bottom: var(--space-4);
+  }
+
+  .not-included__intro {
+    color: var(--color-gray-600);
+    margin-bottom: var(--space-6);
+  }
+
+  .not-included__items {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .not-included__item h4 {
+    font-weight: 500;
+    margin-bottom: var(--space-2);
+  }
+
+  .not-included__item p {
+    font-size: var(--text-sm);
+    color: var(--color-gray-600);
+    line-height: 1.7;
+  }
+
+  .not-included__item a {
+    color: var(--color-accent, var(--color-primary));
+    font-weight: 500;
+  }
+
+  .not-included__item a:hover {
+    text-decoration: underline;
+  }
+
+  .not-included__callout {
+    padding: var(--space-3);
+    border-radius: var(--radius-md);
+    margin-top: var(--space-2);
+    margin-bottom: var(--space-2);
+    font-size: var(--text-sm);
+  }
+
+  .not-included__callout--green {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #14532d;
+  }
+
+  .text-green {
+    color: #16a34a;
+    font-weight: 500;
+  }
+
+  .not-included__note {
+    font-style: italic;
+    font-size: var(--text-sm);
+    color: var(--color-gray-500);
+  }
+
+  /* Accordion Cards */
+  .plans-accordion {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .accordion-card {
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .accordion-card__trigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-6);
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    transition: background-color var(--transition-fast);
+  }
+
+  .accordion-card__trigger:hover {
+    background-color: var(--color-light-bg, #f8f9fa);
+  }
+
+  .accordion-card__trigger h3 {
+    font-size: 1.25rem;
+    font-weight: 500;
+    margin: 0;
+  }
+
+  .accordion-card__chevron {
+    width: 20px;
+    height: 20px;
+    color: var(--color-gray-500);
+    transition: transform var(--transition-fast);
+    flex-shrink: 0;
+  }
+
+  .accordion-card__trigger[aria-expanded="true"] .accordion-card__chevron {
+    transform: rotate(180deg);
+  }
+
+  .accordion-card__content {
+    overflow: hidden;
+  }
+
+  .accordion-card__body {
+    padding: 0 var(--space-6) var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .accordion-card__body h4 {
+    font-weight: 500;
+    margin-bottom: var(--space-2);
+  }
+
+  .accordion-card__body p {
+    color: var(--color-gray-600);
+    line-height: 1.7;
+  }
+
+  .accordion-card__body--faq {
+    gap: var(--space-6);
+  }
+
+  .faq-item h4 {
+    font-weight: 500;
+    margin-bottom: var(--space-2);
+  }
+
+  .faq-item p {
+    color: var(--color-gray-600);
+    line-height: 1.7;
+  }
+
+  /* Bullet List */
+  .bullet-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    color: var(--color-gray-600);
+  }
+
+  .bullet-list li {
+    padding-left: var(--space-4);
+    position: relative;
+  }
+
+  .bullet-list li::before {
+    content: '\2022';
+    color: var(--color-accent, var(--color-primary));
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+
+  .bullet-list--indented {
+    margin-left: var(--space-6);
+  }
+
+  /* Covers Heading */
+  .covers-heading {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+  }
+
+  .covers-heading :global(.icon) {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+
+  .covers-heading--included :global(.icon--check) {
+    color: var(--color-accent, var(--color-primary));
+  }
+
+  .covers-heading--excluded :global(.icon--x) {
+    color: var(--color-gray-400);
+  }
+
+  /* Accordion Callouts */
+  .accordion-card__callout {
+    padding: var(--space-4);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+  }
+
+  .accordion-card__callout--amber {
+    background: #fffbeb;
+    border: 1px solid #fcd34d;
+    color: #78350f;
+  }
+
+  .accordion-card__callout--blue {
+    background: #eff6ff;
+    border: 1px solid #93c5fd;
+    color: #1e3a5f;
+  }
+
+  /* Chemical Table */
+  .chem-table-wrap {
+    overflow-x: auto;
+    margin: var(--space-4) 0;
+  }
+
+  .chem-table {
+    width: 100%;
+    font-size: var(--text-sm);
+    border-collapse: collapse;
+  }
+
+  .chem-table th {
+    text-align: left;
+    font-weight: 500;
+    padding: var(--space-2) var(--space-2);
+    border-bottom: 2px solid var(--color-border);
+  }
+
+  .chem-table td {
+    padding: var(--space-2) var(--space-2);
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-gray-600);
+  }
+
+  .text-right {
+    text-align: right;
+  }
+
+  /* Billing Example */
+  .billing-example {
+    background: var(--color-light-bg, #f8f9fa);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+    margin-top: var(--space-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--color-gray-600);
+  }
+</style>
+
+<script>
+  // Accordion toggle for plans page
+  document.querySelectorAll('.accordion-card__trigger').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const expanded = btn.getAttribute('aria-expanded') === 'true';
+      const content = btn.nextElementSibling;
+
+      // Close all others
+      document.querySelectorAll('.accordion-card__trigger').forEach(other => {
+        if (other !== btn) {
+          other.setAttribute('aria-expanded', 'false');
+          const otherContent = other.nextElementSibling;
+          if (otherContent) otherContent.hidden = true;
+        }
+      });
+
+      // Toggle this one
+      btn.setAttribute('aria-expanded', String(!expanded));
+      if (content) content.hidden = expanded;
+    });
+  });
+</script>

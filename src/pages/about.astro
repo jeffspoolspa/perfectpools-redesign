@@ -6,7 +6,7 @@ const schema = {
   "@type": "Organization",
   "name": "Perfect Pools",
   "url": "https://perfectpoolscleaning.com",
-  "description": "Maintenance-first pool service company serving the greater Savannah metro area. System-level expertise, preventative care, and long-term pool stewardship.",
+  "description": "Complete pool care company serving coastal Georgia. Built by bringing together the best local pool professionals and giving them the resources to do even more.",
   "address": {
     "@type": "PostalAddress",
     "streetAddress": "8989 Ford Ave",
@@ -15,186 +15,629 @@ const schema = {
     "postalCode": "31324",
     "addressCountry": "US"
   },
-  "telephone": "(912) 459-0160"
+  "telephone": "(912) 459-0160",
+  "areaServed": [
+    "Savannah, GA",
+    "Richmond Hill, GA",
+    "Brunswick, GA",
+    "St. Simons Island, GA",
+    "Jekyll Island, GA",
+    "Pooler, GA",
+    "Rincon, GA",
+    "Kingsland, GA",
+    "St. Marys, GA"
+  ]
 };
-
-const icons = {
-  target: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
-  heart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>',
-  award: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"/><circle cx="12" cy="8" r="6"/></svg>',
-  users: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M18 21a8 8 0 0 0-16 0"/><circle cx="10" cy="8" r="5"/><path d="M22 20c0-3.37-2-6.5-4-8a5 5 0 0 0-.45-8.3"/></svg>',
-};
-
-const quoteFormUrl = "https://forms.jeffspoolspa.com/jeffspoolspaservice1/form/MaintenanceLeads/formperma/sZ_cHMy_F4pf-JTi8aCRtmGr78z4LJNGBj_w8_dtEIc";
 ---
 
 <BaseLayout
-  title="About Perfect Pools | Maintenance-First Pool Service | Richmond Hill & Savannah GA"
-  description="Perfect Pools is a maintenance-first pool service company serving coastal Georgia. System-level expertise, preventative care, and 15+ years of trusted partnerships. Learn our story."
-  canonicalPath="/about"
+  title="About Perfect Pools | Complete Pool Care Built on Local Trust | Coastal Georgia"
+  description="We brought together the best local pool professionals in coastal Georgia and gave them the resources to do even more. From weekly maintenance to full equipment service — one team that knows your pool inside and out."
+  canonicalPath="/about/"
   schema={schema}
 >
-  <!-- Page Header -->
-  <section class="page-header">
-    <div class="container">
-      <h1>About Perfect Pools</h1>
-      <p>A maintenance-first pool service company built on stewardship and expertise.</p>
+  <!-- Hero -->
+  <section class="about-hero">
+    <div class="about-hero__bg"></div>
+    <div class="container about-hero__content">
+      <h1 class="about-hero__title">Complete Pool Care.<br/>Built on Decades of Local Trust.</h1>
+      <p class="about-hero__subtitle">
+        We brought together the best local pool professionals in the region — and gave them the resources to do even more. From weekly maintenance to full equipment service, one team that knows your pool inside and out.
+      </p>
     </div>
   </section>
 
-  <!-- Main Story -->
+  <!-- Why We Do This -->
   <section class="section">
     <div class="container">
-      <div class="prose">
-        <h2 style="margin-bottom:2rem;">A True Service Partner</h2>
-        <p>
-          Perfect Pools is a maintenance-first pool service company serving the greater
-          Savannah metro area. We focus on long-term pool stewardship, preventative care,
-          and system-level expertise — not construction volume or reactive patchwork service.
-        </p>
-        <p>
-          We understand pools as complete systems: water chemistry, circulation, hydraulics,
-          filtration, heaters, automation, and equipment longevity. Our repair department
-          doesn't just replace parts — we diagnose how your pool is supposed to work as a whole.
-        </p>
-        <p>
-          Our partnerships with Jeff's Pool & Spa Service (2024) and Pool Solutions Plus (2025)
-          are built on trust and shared standards. Builders trust us with their maintenance
-          accounts. We refer renovations to trusted partners. This signals stewardship and
-          reputation alignment.
-        </p>
-        <p class="callout">
-          We exist for pool owners who view their pool as a 15-20 year asset and want a
-          true service partner.
-        </p>
+      <div class="why-layout">
+        <div class="why-layout__content">
+          <span class="section-label">Why we do this</span>
+          <h2>The pool industry has a service problem</h2>
+
+          <div class="why-blocks">
+            <div class="why-block">
+              <div class="why-block__icon why-block__icon--blue">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              </div>
+              <div>
+                <strong>Construction drives the industry</strong>
+                <p>The pool construction market is more than double the size of maintenance nationwide. Most pool companies are organized around building first. Maintenance, if they offer it, is secondary.</p>
+              </div>
+            </div>
+
+            <div class="why-block">
+              <div class="why-block__icon why-block__icon--purple">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              </div>
+              <div>
+                <strong>Independent operators fill the gap</strong>
+                <p>Over 74,000 independent operators across the country do good, honest work. But one or two-person operations mean limited hours, limited equipment expertise, and limited consistency.</p>
+              </div>
+            </div>
+
+            <div class="why-block">
+              <div class="why-block__icon why-block__icon--orange">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              </div>
+              <div>
+                <strong>Pool owners get stuck in a cycle</strong>
+                <p>Service starts strong and gradually slips. Your tech can clean the pool but can't help when the heater goes out. Visits get missed. And you're back searching for someone new.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="why-layout__callout">
+          <div class="why-callout-card">
+            <h3>Perfect Pools exists to break that cycle.</h3>
+            <p>Not by adding another small operation to the pile, but by being a dedicated service provider intentionally focused on the maintenance and service side of pool ownership.</p>
+            <ul>
+              <li>Technical depth to handle equipment</li>
+              <li>Local presence to know your pool</li>
+              <li>Operational foundation for consistent care</li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- Core Values -->
+  <!-- Our Story Timeline -->
   <section class="section section--alt">
     <div class="container">
-      <div class="section-header">
-        <h2>What drives us</h2>
+      <div class="section-header" style="max-width: 720px; margin-bottom: var(--space-16);">
+        <span class="section-label">Our story</span>
+        <h2>Built by bringing the best together</h2>
+        <p class="section-header__subtitle">Our founder saw something most people overlooked: your pool is a 15 to 20-year asset. It needs a dedicated service partner — not just someone who shows up with a net and chlorine.</p>
       </div>
 
-      <div class="grid grid--4">
-        <div class="value-card">
-          <div class="value-card__icon">
-            <Fragment set:html={icons.target} />
+      <div class="timeline">
+        <!-- The Vision -->
+        <div class="timeline__item">
+          <div class="timeline__marker">
+            <div class="timeline__dot"></div>
           </div>
-          <h3>System-Level Thinking</h3>
-          <p>We approach every pool as an integrated system, not a collection of isolated parts.</p>
+          <div class="timeline__card">
+            <span class="timeline__badge">The Vision</span>
+            <h3>A different model for pool care</h3>
+            <p>Scattered across coastal Georgia were local business owners who had quietly built reputations for exceptional pool care. They'd earned trust one customer at a time and genuinely cared about the quality of their work. But they were running into the same walls — billing headaches, scheduling complexity, limited resources to grow.</p>
+            <p>Rather than compete with them, the model was simple: partner with them. Provide the capital, technology, and operational support to help them grow what they'd already built.</p>
+          </div>
         </div>
 
-        <div class="value-card">
-          <div class="value-card__icon">
-            <Fragment set:html={icons.heart} />
+        <!-- Jeff's Pool & Spa -->
+        <div class="timeline__item">
+          <div class="timeline__marker">
+            <div class="timeline__dot"></div>
+            <span class="timeline__year">2023</span>
           </div>
-          <h3>Long-Term Stewardship</h3>
-          <p>We're not looking for quick jobs. We want to be your pool partner for decades.</p>
+          <div class="timeline__card">
+            <span class="timeline__badge timeline__badge--blue">The Foundation</span>
+            <h3>Jeff's Pool & Spa Service</h3>
+            <p>The first acquisition was Jeff's Pool & Spa Service, a well-respected business serving the Golden Isles of Georgia. Jeff's was known for something rare in the maintenance world — deep equipment expertise. Pumps, filtration, heaters, automation, lighting, and complex hydraulic systems across both residential and commercial environments.</p>
+            <p>That became the foundation: a complete care model where the same company that maintains your pool also understands your system end to end and stands behind their work.</p>
+          </div>
         </div>
 
-        <div class="value-card">
-          <div class="value-card__icon">
-            <Fragment set:html={icons.award} />
+        <!-- Perfect Pools -->
+        <div class="timeline__item">
+          <div class="timeline__marker">
+            <div class="timeline__dot"></div>
+            <span class="timeline__year">2024</span>
           </div>
-          <h3>Preventative Care</h3>
-          <p>We catch problems early, saving you money and extending equipment life.</p>
+          <div class="timeline__card">
+            <span class="timeline__badge timeline__badge--green">The Partnership</span>
+            <h3>Perfect Pools</h3>
+            <p>Erin Cowan built Perfect Pools in the Savannah metro area with a philosophy that great pool care is really about relationships. She focused heavily on commercial clients — HOAs, hotels, and community pools — clients who demand consistency and accountability above everything else.</p>
+            <p>The partnership combined Jeff's technical depth with Perfect Pools' service culture. Under the Perfect Pools name, the combined company now serves both markets with a single standard: complete care, no gaps, no excuses.</p>
+          </div>
         </div>
 
-        <div class="value-card">
-          <div class="value-card__icon">
-            <Fragment set:html={icons.users} />
+        <!-- Pool Solutions Plus -->
+        <div class="timeline__item">
+          <div class="timeline__marker">
+            <div class="timeline__dot"></div>
+            <span class="timeline__year">2025</span>
           </div>
-          <h3>Transparent Communication</h3>
-          <p>You always know what we're doing, why we're doing it, and what it costs.</p>
+          <div class="timeline__card">
+            <span class="timeline__badge timeline__badge--orange">Expanded Capabilities</span>
+            <h3>Pool Solutions Plus & Garden City</h3>
+            <p>Pool Solutions Plus was one of the most respected pool builders in the area and a trusted subcontractor for years. They'd also taken on a small portfolio of maintenance clients — not because they loved maintenance, but because they couldn't find a company they trusted enough to refer customers to.</p>
+            <p>The acquisition of the PSP maintenance division, along with a new facility in Garden City, Georgia, expanded our service area across Savannah, greater Chatham County, Effingham County, and Beaufort County, South Carolina.</p>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Why We're Different -->
+  <!-- How We Take Care of Your Pool -->
   <section class="section">
-    <div class="container max-w-4xl mx-auto">
-      <div class="section-header" style="text-align:left;margin-inline:0;">
-        <h2>Why we're different</h2>
+    <div class="container">
+      <div class="section-header" style="max-width: 720px; margin-bottom: var(--space-12);">
+        <span class="section-label">How it works</span>
+        <h2>How we actually take care of your pool</h2>
+        <p class="section-header__subtitle">Most pool companies tell you not to worry. We'd rather show you exactly what we do and why.</p>
       </div>
 
-      <div class="diff-stack">
-        <div class="diff-card">
-          <h3>We're not a franchise following a national playbook</h3>
-          <p>
-            Coastal Georgia pools face unique challenges: salt air, humidity, summer storms,
-            and year-round sun. We understand how the marsh air affects your equipment and
-            how fast algae blooms after a week of rain.
-          </p>
+      <div class="care-grid">
+        <div class="care-card">
+          <div class="care-card__number">01</div>
+          <h3>Reliable service, transparent pricing</h3>
+          <p>GPS tracking, service logs, and trained technicians mean your pool never gets missed — and no matter who shows up, the job gets done right. We're a cost-plus chemical shop, so you see exactly what goes into your water. No mystery chemicals, no vague line items.</p>
         </div>
 
-        <div class="diff-card">
-          <h3>We're maintenance-first, not construction-first</h3>
-          <p>
-            We don't build pools or push renovations. We focus exclusively on keeping existing
-            pools healthy and operational. This means our incentives are aligned with yours:
-            proper maintenance that extends the life of your investment.
-          </p>
+        <div class="care-card">
+          <div class="care-card__number">02</div>
+          <h3>Complete system knowledge</h3>
+          <p>Every visit includes equipment checks — pump pressure, filter condition, heater operation. When something needs attention, you don't call a separate company. The same team that maintains your pool diagnoses and repairs your equipment.</p>
         </div>
 
-        <div class="diff-card">
-          <h3>We diagnose, not just replace</h3>
-          <p>
-            When something breaks, we take the time to understand why. A failing heater might
-            be a sensor issue, not a full replacement. We save you money by fixing what's
-            actually broken — not just selling you new equipment.
-          </p>
+        <div class="care-card">
+          <div class="care-card__number">03</div>
+          <h3>Transparent communication</h3>
+          <p>After every visit, you get a real report — what was done, your water chemistry, and anything we're keeping an eye on. If something needs repair, we tell you what it is, what it costs, and why it matters before we do anything.</p>
         </div>
 
-        <div class="diff-card">
-          <h3>We provide real accountability</h3>
-          <p>
-            Digital service reports with chemical readings and photos after every visit.
-            GPS-tracked appointments. Predictable pricing. You never have to wonder if we
-            showed up or what we did.
-          </p>
+        <div class="care-card">
+          <div class="care-card__number">04</div>
+          <h3>Local expertise, real resources</h3>
+          <p>Your technician knows coastal Georgia pools — salt air corrosion, high water tables, seasonal chemistry swings. But unlike a solo operator, your tech is backed by training programs, parts inventory, and operational support to solve problems fast.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Partnerships -->
+  <!-- Service Areas -->
   <section class="section section--alt">
     <div class="container">
-      <div class="prose">
-        <h2 style="margin-bottom:2rem;">Trusted partnerships</h2>
-        <p>
-          We believe in collaboration over competition when it serves our customers better.
-          Our strategic partnerships with Jeff's Pool & Spa Service (established 2024) and
-          Pool Solutions Plus (established 2025) allow us to serve more coastal Georgia
-          homeowners while maintaining our high standards.
-        </p>
-        <p>
-          These partnerships are built on shared values: system-level expertise, transparent
-          communication, and long-term customer relationships. When we refer work to our
-          partners, you can trust it's because they meet our standards.
-        </p>
-        <p>
-          Local builders and pool contractors trust us with their maintenance accounts because
-          they know we'll take care of their customers long after the construction is complete.
-          That trust is something we've earned over 15+ years in coastal Georgia.
-        </p>
+      <div class="section-header" style="margin-bottom: var(--space-12);">
+        <span class="section-label">Where we serve</span>
+        <h2>Serving Coastal Georgia</h2>
+        <p class="section-header__subtitle">Each area is served by a dedicated local team with a branch manager who knows the community and the pools in it.</p>
+      </div>
+
+      <div class="area-grid">
+        <div class="area-card">
+          <div class="area-card__icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <h3>Brunswick & The Golden Isles</h3>
+          <p>St. Simons Island, Jekyll Island, Sea Island</p>
+        </div>
+
+        <div class="area-card">
+          <div class="area-card__icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <h3>Savannah Metro</h3>
+          <p>Savannah, Pooler, Richmond Hill, Rincon</p>
+        </div>
+
+        <div class="area-card">
+          <div class="area-card__icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <h3>Camden County</h3>
+          <p>Kingsland, St. Marys, Kings Bay</p>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- CTA Section -->
+  <!-- CTA -->
   <section class="cta-section">
     <div class="container">
-      <h2>Ready to experience the Perfect Pools difference?</h2>
-      <p>Let's start a conversation about your pool and how we can help you protect your investment.</p>
+      <h2>Ready to see the difference?</h2>
+      <p>Whether you need weekly maintenance, have an equipment issue, or manage a commercial property — we'll show you what real pool care looks like.</p>
       <div class="cta-section__buttons">
-        <a href={`${import.meta.env.BASE_URL}plans`} class="btn btn--cta btn--lg">View Service Plans</a>
+        <a href="/services/" class="btn btn--cta btn--lg">View Our Services</a>
         <a href="tel:9124590160" class="btn btn--outline-white btn--lg">Call (912) 459-0160</a>
       </div>
     </div>
   </section>
 </BaseLayout>
+
+<style>
+  /* About Hero */
+  .about-hero {
+    position: relative;
+    padding: var(--space-16) 0;
+    background: linear-gradient(135deg, var(--color-dark-blue) 0%, var(--color-primary) 100%);
+    color: white;
+    overflow: hidden;
+  }
+
+  .about-hero__bg {
+    position: absolute;
+    inset: 0;
+    opacity: 0.08;
+    background: radial-gradient(circle at 30% 80%, rgba(255,255,255,0.15), rgba(0,0,0,0));
+  }
+
+  .about-hero__content {
+    position: relative;
+    max-width: 800px;
+  }
+
+  .about-hero__title {
+    font-size: clamp(2.5rem, 5vw, 3.75rem);
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: var(--space-6);
+    color: white;
+  }
+
+  .about-hero__subtitle {
+    font-size: var(--text-xl);
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.7;
+    max-width: 680px;
+  }
+
+  @media (min-width: 768px) {
+    .about-hero {
+      padding: var(--space-20) 0;
+    }
+  }
+
+  /* Section Label */
+  .section-label {
+    display: block;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: var(--space-2);
+  }
+
+  /* Why Layout */
+  .why-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-12);
+    align-items: start;
+  }
+
+  @media (min-width: 1024px) {
+    .why-layout {
+      grid-template-columns: 1.2fr 1fr;
+      gap: var(--space-16);
+    }
+  }
+
+  .why-layout__content h2 {
+    font-size: clamp(2rem, 4vw, 2.75rem);
+    margin-bottom: var(--space-8);
+    line-height: 1.15;
+  }
+
+  .why-blocks {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .why-block {
+    display: flex;
+    gap: var(--space-4);
+    align-items: flex-start;
+  }
+
+  .why-block__icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .why-block__icon--blue { background: #dbeafe; color: var(--color-primary); }
+  .why-block__icon--purple { background: #f3e8ff; color: #9333ea; }
+  .why-block__icon--orange { background: #ffedd5; color: #ea580c; }
+
+  .why-block strong {
+    display: block;
+    font-size: var(--text-base);
+    font-weight: 700;
+    color: var(--color-gray-900);
+    margin-bottom: var(--space-1);
+  }
+
+  .why-block p {
+    font-size: var(--text-sm);
+    color: var(--color-gray-600);
+    line-height: 1.7;
+  }
+
+  /* Why Callout Card */
+  .why-callout-card {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-dark-blue));
+    color: white;
+    border-radius: var(--radius-xl);
+    padding: var(--space-10);
+  }
+
+  .why-callout-card h3 {
+    font-size: clamp(1.5rem, 3vw, 1.75rem);
+    font-weight: 700;
+    margin-bottom: var(--space-4);
+    line-height: 1.25;
+    color: white;
+  }
+
+  .why-callout-card p {
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.7;
+    margin-bottom: var(--space-6);
+  }
+
+  .why-callout-card ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .why-callout-card li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    font-size: var(--text-sm);
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
+  }
+
+  .why-callout-card li::before {
+    content: '';
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    flex-shrink: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 11px;
+  }
+
+  /* Timeline */
+  .timeline {
+    position: relative;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 16px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--color-border);
+  }
+
+  @media (min-width: 768px) {
+    .timeline::before {
+      left: 24px;
+    }
+  }
+
+  .timeline__item {
+    position: relative;
+    padding-left: 56px;
+    padding-bottom: var(--space-12);
+  }
+
+  @media (min-width: 768px) {
+    .timeline__item {
+      padding-left: 72px;
+    }
+  }
+
+  .timeline__item:last-child {
+    padding-bottom: 0;
+  }
+
+  .timeline__marker {
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .timeline__dot {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    border: 4px solid var(--color-light-bg);
+    position: relative;
+    z-index: 1;
+  }
+
+  @media (min-width: 768px) {
+    .timeline__dot {
+      width: 50px;
+      height: 50px;
+      border-width: 5px;
+    }
+  }
+
+  .timeline__year {
+    display: block;
+    font-size: var(--text-sm);
+    font-weight: 700;
+    color: var(--color-primary);
+    margin-top: var(--space-2);
+  }
+
+  .timeline__card {
+    background: white;
+    border-radius: var(--radius-xl);
+    padding: var(--space-8);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .timeline__badge {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-full);
+    margin-bottom: var(--space-3);
+    background: var(--color-light-bg);
+    color: var(--color-gray-600);
+  }
+
+  .timeline__badge--blue { background: #dbeafe; color: #1d4ed8; }
+  .timeline__badge--green { background: #dcfce7; color: #166534; }
+  .timeline__badge--orange { background: #ffedd5; color: #c2410c; }
+
+  .timeline__card h3 {
+    font-size: clamp(1.25rem, 2.5vw, 1.5rem);
+    font-weight: 700;
+    margin-bottom: var(--space-4);
+    line-height: 1.2;
+  }
+
+  .timeline__card p {
+    font-size: var(--text-base);
+    color: var(--color-gray-600);
+    line-height: 1.7;
+    margin-bottom: var(--space-4);
+  }
+
+  .timeline__card p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Care Grid */
+  .care-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+  }
+
+  @media (min-width: 768px) {
+    .care-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .care-card {
+    background: var(--color-light-bg);
+    border-radius: var(--radius-xl);
+    padding: var(--space-8);
+    border: 1px solid var(--color-border);
+    transition: all var(--transition-fast);
+  }
+
+  .care-card:hover {
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-md);
+  }
+
+  .care-card__number {
+    font-size: clamp(2.5rem, 4vw, 3.5rem);
+    font-weight: 800;
+    color: var(--color-primary);
+    opacity: 0.2;
+    line-height: 1;
+    margin-bottom: var(--space-3);
+    font-family: var(--font-heading);
+  }
+
+  .care-card h3 {
+    font-size: var(--text-xl);
+    font-weight: 700;
+    margin-bottom: var(--space-3);
+    line-height: 1.25;
+  }
+
+  .care-card p {
+    font-size: var(--text-base);
+    color: var(--color-gray-600);
+    line-height: 1.7;
+  }
+
+  /* Area Grid */
+  .area-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 768px) {
+    .area-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .area-card {
+    background: white;
+    border-radius: var(--radius-xl);
+    padding: var(--space-8);
+    border: 1px solid var(--color-border);
+    text-align: center;
+    transition: all var(--transition-fast);
+  }
+
+  .area-card:hover {
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-md);
+  }
+
+  .area-card__icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #dbeafe;
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto var(--space-4);
+  }
+
+  .area-card h3 {
+    font-size: var(--text-lg);
+    font-weight: 700;
+    margin-bottom: var(--space-2);
+  }
+
+  .area-card p {
+    font-size: var(--text-sm);
+    color: var(--color-gray-600);
+  }
+</style>
