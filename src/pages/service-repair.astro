@@ -107,35 +107,31 @@ const equipment = [
   </section>
 
   <!-- ============ TECHNICAL PHILOSOPHY ============ -->
-  <section class="section">
+  <section class="section section--dark-diagram">
     <div class="container">
       <div class="philosophy-layout">
         <div class="philosophy-layout__content">
-          <span class="section-label">Our approach</span>
+          <span class="section-label section-label--light">Our approach</span>
           <h2>Your Pool Is a System, Not a Collection of Parts</h2>
           <p>Most pool problems aren't what they look like on the surface. Cloudy water isn't always a chemical problem. A pump that won't prime isn't always a pump problem. A heater that shuts off mid-cycle might be a flow issue, not a heater issue.</p>
           <p>We approach every pool as an engineered system where water movement, filtration, and chlorination work together. When those three things are dialed in correctly, they do 90% of the work — and your chemical costs drop significantly. When one is off, you end up chasing symptoms with band-aid repairs that never solve the problem.</p>
         </div>
-        <div class="philosophy-layout__equipment">
-          <div class="eq-preview-grid">
-            {equipment.map((item) => (
-              <a href={`#eq-${item.id}`} class="eq-preview" data-eq-target={item.id}>
-                <div class="eq-preview__icon">
-                  {item.image
-                    ? <img src={`${import.meta.env.BASE_URL}images/equipment/${item.image}`} alt={item.name} class="eq-preview__img" loading="lazy" />
-                    : <>
-                      {item.icon === 'pump' && <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg>}
-                      {item.icon === 'filter' && <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>}
-                      {item.icon === 'chlorination' && <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2v17.5c0 1.4-1.1 2.5-2.5 2.5s-2.5-1.1-2.5-2.5V2"/><path d="M8.5 2h7"/><path d="M14.5 16h-5"/></svg>}
-                      {item.icon === 'heater' && <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/></svg>}
-                      {item.icon === 'automation' && <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>}
-                      {item.icon === 'cleaner' && <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"/></svg>}
-                    </>
-                  }
-                </div>
-                <span class="eq-preview__label">{item.name}</span>
-              </a>
-            ))}
+        <div class="philosophy-layout__diagram">
+          <div class="diagram-wrapper">
+            <img
+              src={`${import.meta.env.BASE_URL}images/pool-equipment-diagram.png`}
+              alt="Pool equipment system diagram showing how water flows through the pump, filter, heater, chlorinator, and back to the pool"
+              class="diagram-img"
+              loading="lazy"
+              width="2816"
+              height="1536"
+            />
+            <!-- Clickable hotspot regions over equipment on the pad -->
+            <a href="#eq-pump" class="diagram-hotspot" style="top: 54.4%; left: 57.5%; width: 9.6%; height: 9.5%;" aria-label="Pump"></a>
+            <a href="#eq-filter" class="diagram-hotspot" style="top: 44.7%; left: 69.0%; width: 6.3%; height: 18.8%;" aria-label="Filter"></a>
+            <a href="#eq-heater" class="diagram-hotspot" style="top: 48.3%; left: 77.4%; width: 6.4%; height: 15.6%;" aria-label="Heater"></a>
+            <a href="#eq-chlorination" class="diagram-hotspot" style="top: 56.4%; left: 85.9%; width: 6.9%; height: 5.0%;" aria-label="Salt Cell"></a>
+            <a href="#eq-automation" class="diagram-hotspot" style="top: 29.5%; left: 61.2%; width: 6.7%; height: 14.2%;" aria-label="Automation Controller"></a>
           </div>
         </div>
       </div>
@@ -441,11 +437,8 @@ const equipment = [
     align-items: start;
   }
 
-  @media (min-width: 1024px) {
-    .philosophy-layout {
-      grid-template-columns: 1.3fr 1fr;
-      gap: var(--space-16);
-    }
+  .philosophy-layout__content {
+    max-width: 800px;
   }
 
   .philosophy-layout__content h2 {
@@ -465,87 +458,56 @@ const equipment = [
     margin-bottom: 0;
   }
 
-  /* Equipment Preview Grid (replaces callout card) */
-  .eq-preview-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--space-4);
+  /* Dark diagram section */
+  .section--dark-diagram {
+    background: #1a1f2e;
+    color: white;
   }
 
-  @media (max-width: 1023px) {
-    .eq-preview-grid {
-      grid-template-columns: repeat(3, 1fr);
-    }
+  .section--dark-diagram h2 {
+    color: white;
   }
 
-  @media (max-width: 480px) {
-    .eq-preview-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
+  .section--dark-diagram p {
+    color: rgba(255, 255, 255, 0.75);
   }
 
-  .eq-preview {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--space-3);
-    padding: var(--space-5);
-    background: var(--color-light-bg);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-xl);
-    text-decoration: none;
-    cursor: pointer;
-    transition: all var(--transition-base);
+  .section-label--light {
+    color: var(--color-accent);
   }
 
-  .eq-preview:hover {
-    border-color: var(--color-primary);
-    background: white;
-    box-shadow: var(--shadow-md);
-    transform: translateY(-4px);
-  }
-
-  .eq-preview:hover .eq-preview__icon {
-    color: var(--color-primary);
-    background: #dbeafe;
-  }
-
-  .eq-preview__icon {
-    width: 80px;
-    height: 80px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--color-gray-500);
-    background: white;
-    border-radius: var(--radius-lg);
-    transition: all var(--transition-base);
+  /* Equipment Diagram */
+  .diagram-wrapper {
+    position: relative;
     overflow: hidden;
   }
 
-  .eq-preview__img {
+  .diagram-img {
     width: 100%;
-    height: 100%;
-    object-fit: contain;
+    height: auto;
+    display: block;
+  }
+
+  /* Clickable hotspot regions */
+  .diagram-hotspot {
+    position: absolute;
+    border: 2px solid transparent;
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    z-index: 2;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
     padding: 4px;
-    transition: transform var(--transition-base);
   }
 
-  .eq-preview:hover .eq-preview__img {
-    transform: scale(1.08);
+  .diagram-hotspot:hover {
+    background: rgba(14, 116, 188, 0.25);
+    box-shadow: 0 0 30px rgba(14, 116, 188, 0.7), 0 0 60px rgba(14, 116, 188, 0.3), inset 0 0 16px rgba(14, 116, 188, 0.3);
   }
 
-  .eq-preview__label {
-    font-size: var(--text-sm);
-    font-weight: 600;
-    color: var(--color-gray-700);
-    text-align: center;
-    line-height: 1.3;
-  }
-
-  .eq-preview:hover .eq-preview__label {
-    color: var(--color-primary);
-  }
 
   /* ============ BRAND STRIP ============ */
   .brand-strip {
