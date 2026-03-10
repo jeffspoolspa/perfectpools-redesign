@@ -6,8 +6,10 @@ import CTASection from '../../components/CTASection.astro';
 const faqs = [
   { question: 'How often should I have my pool cleaned?', answer: 'For most residential pools in the Savannah area, weekly service is recommended due to our warm climate and high pollen counts. Bi-weekly service is available for pools with less usage.' },
   { question: 'What does a typical cleaning visit include?', answer: 'Each visit includes skimming the surface, brushing walls and tile, vacuuming the floor, testing and balancing chemicals, checking the filter, and inspecting all equipment.' },
-  { question: 'Do you bring your own chemicals and equipment?', answer: 'Yes, our technicians arrive fully equipped with professional-grade chemicals, testing kits, and cleaning tools. Everything is included in your service price.' },
+  { question: 'Do you bring your own chemicals and equipment?', answer: 'Yes, our technicians arrive fully equipped with professional-grade chemicals, testing kits, and cleaning tools. Chemicals are billed separately at transparent, itemized pricing.' },
   { question: 'What if I need service outside the regular schedule?', answer: 'We offer one-time cleanings and can adjust schedules for parties, storms, or special events. Just call us to arrange additional visits.' },
+  { question: 'What is the Green Free Guarantee?', answer: 'If your pool turns green while you\'re on weekly service, we handle the recovery at no charge. Period. It\'s our promise that your pool stays swim-ready.' },
+  { question: 'How does billing work?', answer: 'Service is billed monthly at a flat rate ($200/mo for weekly). Chemicals used are billed separately and fully itemized so you see exactly what was added and why.' },
 ];
 
 const schema = [
@@ -33,25 +35,819 @@ const schema = [
 
 <BaseLayout
   title="Residential Pool Cleaning in Savannah & Richmond Hill GA | Perfect Pools"
-  description="Weekly and bi-weekly residential pool cleaning starting at $50/visit. Professional chemical balancing, skimming, and equipment checks. Serving Richmond Hill, Savannah & Coastal Georgia."
+  description="Weekly residential pool cleaning at $200/month. Professional water testing, chemical balancing, cleaning, and digital reports every visit. Serving Richmond Hill, Savannah & Coastal Georgia."
   canonicalPath="/services/residential-pool-cleaning/"
   schema={schema}
 >
-  <section class="hero">
-    <div class="container">
-      <h1>Residential Pool Cleaning</h1>
-      <p>Keep your pool sparkling clean with professional weekly service starting at just $50/visit.</p>
-      <button type="button" class="btn btn--accent btn--lg" data-open-intake>Get a Free Quote</button>
+  <!-- Hero -->
+  <section class="res-hero">
+    <div class="res-hero__bg"></div>
+    <div class="container res-hero__content">
+      <h1 class="res-hero__title">Your pool, handled.<br>Every week.</h1>
+      <p class="res-hero__subtitle">
+        Water testing, chemistry, cleaning, and reports—every visit. So you can actually enjoy your backyard.
+      </p>
+      <button type="button" class="btn btn--accent btn--lg" data-open-intake>Get a Quote</button>
     </div>
   </section>
 
-  <!-- PHASE 2: Full service page content (800-1200 words) -->
+  <!-- How It Works -->
+  <section class="section hiw-section">
+    <div class="container">
+      <div class="hiw-header">
+        <span class="section-label">How it works</span>
+        <h2 class="hiw-headline">Clear pricing. Easy signup. Better results.</h2>
+      </div>
+
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-card__icon">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+          <h3>View our pricing</h3>
+          <p>Clear, itemized pricing for weekly service. See exactly what weekly maintenance costs, plus transparent pricing on chemicals and extras like filter cleans.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-card__icon">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="m13 13 6 6"/></svg>
+          </div>
+          <h3>Sign up online</h3>
+          <p>Quick online signup in minutes. Tell us about your pool, pick your start date, and we'll handle the rest. No waiting for callbacks or home visits.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-card__icon">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+          </div>
+          <h3>Enjoy your pool</h3>
+          <p>We show up every week, test and balance your water, clean and report. You get crystal-clear water without lifting a finger.</p>
+        </div>
+      </div>
+
+      <div class="text-center">
+        <button type="button" class="btn btn--accent btn--lg" data-open-intake>Get Started Today</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Feature Showcase -->
+  <section class="showcase-section">
+    <div class="container">
+      <div class="feature-showcase">
+        <div class="feature-showcase__content">
+          <h2 class="feature-showcase__title">We'll take care of your pool so you can take care of what matters most.</h2>
+          <div class="feature-showcase__grid">
+            <div class="feature-showcase__item">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2v17.5c0 1.4-1.1 2.5-2.5 2.5s-2.5-1.1-2.5-2.5V2"/><path d="M8.5 2h7"/><path d="M14.5 16h-5"/></svg>
+              <span>Weekly Testing</span>
+            </div>
+            <div class="feature-showcase__item">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 3h15"/><path d="M6 3v16a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V3"/><path d="M6 14h12"/></svg>
+              <span>Chemistry Balance</span>
+            </div>
+            <div class="feature-showcase__item">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+              <span>Full Cleaning</span>
+            </div>
+            <div class="feature-showcase__item">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg>
+              <span>Equipment Check</span>
+            </div>
+            <div class="feature-showcase__item">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>
+              <span>Year-Round Service</span>
+            </div>
+            <div class="feature-showcase__item">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="5" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg>
+              <span>Digital Reports</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="feature-showcase__image">
+          <img src="/images/pool-water-testing.jpg" alt="Perfect Pools technician testing pool water chemistry" loading="lazy" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- What We Do Every Week -->
+  <section class="section weekly-section">
+    <div class="container">
+      <h2 class="weekly-headline">Your weekly service includes:</h2>
+
+      <div class="weekly-grid">
+        <div class="weekly-item">
+          <img src="/images/icons/test-tubes.svg" width="48" height="48" alt="" />
+          <h3>Water Testing</h3>
+          <p>Full panel test: chlorine, pH, alkalinity, hardness, stabilizer, salt, and phosphates.</p>
+        </div>
+
+        <div class="weekly-item">
+          <img src="/images/icons/chemical.svg" width="48" height="48" alt="" />
+          <h3>Chemical Dosing</h3>
+          <p>Adjust chemistry based on test results—liquid chlorine, pH adjusters, and stabilizer as needed.</p>
+        </div>
+
+        <div class="weekly-item">
+          <img src="/images/icons/pool-brush.svg" width="48" height="48" alt="" />
+          <h3>Brush Walls & Steps</h3>
+          <p>Thorough brushing to remove algae buildup and prevent stains on surfaces.</p>
+        </div>
+
+        <div class="weekly-item">
+          <img src="/images/icons/skimmer-net.svg" width="48" height="48" alt="" />
+          <h3>Skim & Net</h3>
+          <p>Remove leaves, debris, and surface contaminants to keep water clear.</p>
+        </div>
+
+        <div class="weekly-item">
+          <img src="/images/icons/basket.svg" width="48" height="48" alt="" />
+          <h3>Empty Baskets</h3>
+          <p>Clear skimmer and pump baskets so your circulation system runs efficiently.</p>
+        </div>
+
+        <div class="weekly-item">
+          <img src="/images/icons/motor.svg" width="48" height="48" alt="" />
+          <h3>Check Equipment</h3>
+          <p>Check pressure to make sure equipment has proper flow, clean filters if not, and look for leaks, cracks, and wear.</p>
+        </div>
+
+        <div class="weekly-item">
+          <img src="/images/icons/vacuum.svg" width="48" height="48" alt="" />
+          <h3>Vacuum</h3>
+          <p>Vacuum the pool floor and walls to remove dirt, debris, and settled algae.</p>
+        </div>
+
+        <div class="weekly-item">
+          <img src="/images/icons/water-tap.svg" width="48" height="48" alt="" />
+          <h3>Check Water Level</h3>
+          <p>Verify water level is at the correct height and add fresh water if needed.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Green Free Guarantee -->
+  <section class="section section--alt">
+    <div class="container">
+      <div class="guarantee-banner">
+        <div class="guarantee-banner__icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>
+        </div>
+        <h3>Green Free Guarantee</h3>
+        <p>If your pool turns green while you're on weekly service, we handle the recovery at no charge. Period.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why Perfect Pools -->
   <section class="section">
-    <div class="container container--narrow">
-      <p>Content will be designed in Phase 2.</p>
+    <div class="container">
+      <div class="benefits-layout">
+        <div class="benefits-layout__image">
+          <img src="/images/pool-cleaning-action.jpg" alt="Perfect Pools technician cleaning a residential pool with a skimmer" loading="lazy" />
+        </div>
+
+        <div class="benefits-layout__content">
+          <h2>Why Perfect Pools?</h2>
+
+          <div class="benefit-row">
+            <div class="benefit-row__icon benefit-row__icon--blue">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg>
+            </div>
+            <div>
+              <h3>Chemistry done right</h3>
+              <p>We test your water every visit and dose to the exact reading—not a pre-packaged treatment plan. That's how we keep your water balanced, prevent algae, and avoid over-dosing that causes cloudy water.</p>
+            </div>
+          </div>
+
+          <div class="benefit-row">
+            <div class="benefit-row__icon benefit-row__icon--orange">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 18v-1"/><path d="M14 18v-3"/><path d="M10 13v-1"/></svg>
+            </div>
+            <div>
+              <h3>No surprise bills</h3>
+              <p>Chemicals and extras like salt cell or filter cleans are billed separately and itemized. We ask before performing extras—so you see exactly what's added and why, with <strong>transparent pricing</strong> every time.</p>
+            </div>
+          </div>
+
+          <div class="benefit-row">
+            <div class="benefit-row__icon benefit-row__icon--green">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>
+            </div>
+            <div>
+              <h3>Expert support</h3>
+              <p>Weekly service customers get preferred access to our repair department. Whether it's equipment troubleshooting or a pump replacement, same transparent pricing and same reliable service.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Banner -->
+  <section class="stats-banner">
+    <div class="container stats-banner__content">
+      <h2>Simplifying pool care for <em>hundreds of homeowners</em> in the southeast.</h2>
+    </div>
+  </section>
+
+  <!-- Coastal Georgia Expertise -->
+  <section class="section">
+    <div class="container container--narrow text-center">
+      <div class="expertise-icon">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+      </div>
+      <h2>Built for coastal Georgia pools</h2>
+      <p class="text-lg">
+        Salt air accelerates corrosion. Summer rain brings algae blooms. And the season never really ends here—your pool needs attention year-round.
+      </p>
+      <p>
+        We've been maintaining pools in coastal Georgia long enough to know what works. That's why we dose liquid chlorine (not tablets), monitor stabilizer levels closely, and keep phosphate removers on the truck during algae season.
+      </p>
+    </div>
+  </section>
+
+  <!-- Social Proof -->
+  <section class="section section--alt">
+    <div class="container">
+      <div class="section-header">
+        <h2>What homeowners say</h2>
+        <p class="section-header__subtitle">Real feedback from residential customers</p>
+      </div>
+
+      <div class="reviews-grid">
+        <div class="review-card">
+          <div class="review-card__stars">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <p class="review-card__text">"We switched from our old pool company and immediately noticed the difference. The reports are detailed, the water has never looked better, and I actually understand what they're doing now."</p>
+          <div class="review-card__author">
+            <strong>Jennifer M.</strong>
+            <span>Homeowner, Richmond Hill</span>
+          </div>
+        </div>
+
+        <div class="review-card">
+          <div class="review-card__stars">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <p class="review-card__text">"First-time pool owner, totally overwhelmed. Perfect Pools handled everything and explained it in a way I could understand. Haven't had to call them once with an issue—it just works."</p>
+          <div class="review-card__author">
+            <strong>David K.</strong>
+            <span>Homeowner, Savannah</span>
+          </div>
+        </div>
+
+        <div class="review-card">
+          <div class="review-card__stars">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <p class="review-card__text">"The billing transparency is what sold me. I can see exactly what they added and what it cost. No mystery charges, no weird line items. It's refreshing."</p>
+          <div class="review-card__author">
+            <strong>Sarah T.</strong>
+            <span>Homeowner, Pooler</span>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
   <FAQ items={faqs} />
-  <CTASection />
+
+  <!-- Final CTA -->
+  <section class="section">
+    <div class="container container--narrow text-center">
+      <h2>Get a quote for your pool</h2>
+      <p class="text-lg">Tell us about your pool and we'll send you a custom quote within 24 hours. Weekly service starts at $200/month.</p>
+      <div class="cta-buttons">
+        <button type="button" class="btn btn--accent btn--lg" data-open-intake>Get Your Quote</button>
+        <a href="/plans/" class="btn btn--outline btn--lg">See Plans & Pricing</a>
+      </div>
+    </div>
+  </section>
 </BaseLayout>
+
+<style>
+  /* Residential Hero */
+  .res-hero {
+    position: relative;
+    padding: var(--space-16) 0;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-dark-blue) 100%);
+    color: white;
+    overflow: hidden;
+  }
+
+  .res-hero__bg {
+    position: absolute;
+    inset: 0;
+    opacity: 0.1;
+    background: radial-gradient(circle at 50% 120%, rgba(255,255,255,0.1), rgba(0,0,0,0));
+  }
+
+  .res-hero__content {
+    position: relative;
+    max-width: 720px;
+  }
+
+  .res-hero__title {
+    font-size: clamp(2.5rem, 5vw, 3.75rem);
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: var(--space-6);
+    color: white;
+  }
+
+  .res-hero__subtitle {
+    font-size: var(--text-xl);
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
+    margin-bottom: var(--space-8);
+  }
+
+  @media (min-width: 768px) {
+    .res-hero {
+      padding: var(--space-20) 0;
+    }
+  }
+
+  /* Section Label */
+  .section-label {
+    display: block;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: var(--space-2);
+  }
+
+  /* How It Works Section */
+  .hiw-section {
+    padding: var(--space-16) 0;
+  }
+
+  .hiw-header {
+    margin-bottom: var(--space-12);
+  }
+
+  .hiw-headline {
+    font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--color-gray-900);
+  }
+
+  /* Steps Grid */
+  .steps-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-10);
+    margin-bottom: var(--space-12);
+  }
+
+  @media (min-width: 768px) {
+    .steps-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .step-card {
+    text-align: left;
+  }
+
+  .step-card__icon {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: var(--space-6);
+    background: #dbeafe;
+    color: var(--color-primary);
+  }
+
+  .step-card h3 {
+    font-size: var(--text-xl);
+    font-weight: 700;
+    margin-bottom: var(--space-3);
+    color: var(--color-gray-900);
+  }
+
+  .step-card p {
+    color: var(--color-gray-600);
+    line-height: 1.7;
+  }
+
+  /* Feature Showcase — grey wrapper with rounded cards */
+  .showcase-section {
+    background: var(--color-light-bg, #f8fafc);
+    padding: var(--space-8) 0;
+  }
+
+  .feature-showcase {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+    align-items: stretch;
+  }
+
+  @media (min-width: 768px) {
+    .feature-showcase {
+      grid-template-columns: 1fr 1fr;
+      max-height: 400px;
+    }
+  }
+
+  .feature-showcase__content {
+    background: var(--color-dark-blue, #0c4a6e);
+    color: white;
+    border-radius: 1rem;
+    padding: var(--space-16) var(--space-8);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .feature-showcase__title {
+    font-size: clamp(1.35rem, 2.2vw, 1.65rem);
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: var(--space-4);
+    color: white;
+    text-align: center;
+  }
+
+  .feature-showcase__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-2);
+  }
+
+  .feature-showcase__item {
+    background: transparent;
+    border: 1.5px solid rgba(255, 255, 255, 0.25);
+    border-radius: var(--radius-md);
+    padding: var(--space-3) var(--space-2);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-1);
+    color: white;
+    transition: border-color var(--transition-fast);
+  }
+
+  .feature-showcase__item:hover {
+    border-color: rgba(255, 255, 255, 0.5);
+  }
+
+  .feature-showcase__item svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .feature-showcase__item span {
+    font-size: 0.6rem;
+    font-weight: 600;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .feature-showcase__image {
+    overflow: hidden;
+    border-radius: 1rem;
+  }
+
+  .feature-showcase__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+  }
+
+  .image-placeholder {
+    width: 100%;
+    height: 100%;
+    min-height: 280px;
+    background: linear-gradient(135deg, #e0e7ee, #cdd5de);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-gray-500);
+    font-size: var(--text-sm);
+    border-radius: 1rem;
+  }
+
+  /* Weekly Service Grid */
+  .weekly-section {
+    padding: var(--space-16) 0 var(--space-12);
+  }
+
+  .weekly-headline {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--color-gray-900);
+    margin-bottom: var(--space-12);
+  }
+
+  .weekly-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-10) var(--space-8);
+  }
+
+  @media (min-width: 768px) {
+    .weekly-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .weekly-item svg {
+    color: var(--color-primary);
+    margin-bottom: var(--space-4);
+  }
+
+  .weekly-item h3 {
+    font-size: var(--text-lg);
+    font-weight: 700;
+    color: var(--color-gray-900);
+    margin-bottom: var(--space-2);
+  }
+
+  .weekly-item p {
+    font-size: var(--text-sm);
+    color: var(--color-gray-600);
+    line-height: 1.6;
+  }
+
+  /* Green Free Guarantee Banner */
+  .guarantee-banner {
+    background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
+    border: 2px solid #22c55e;
+    border-radius: var(--radius-xl);
+    padding: var(--space-8);
+    text-align: center;
+  }
+
+  .guarantee-banner__icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #22c55e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto var(--space-4);
+  }
+
+  .guarantee-banner h3 {
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    color: #14532d;
+    margin-bottom: var(--space-3);
+  }
+
+  .guarantee-banner p {
+    font-size: var(--text-lg);
+    color: #14532d;
+    max-width: 640px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* Benefits Layout (Why Perfect Pools) */
+  .benefits-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-12);
+    align-items: center;
+  }
+
+  @media (min-width: 768px) {
+    .benefits-layout {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .benefits-layout__image {
+    overflow: hidden;
+    border-radius: 1rem;
+  }
+
+  .benefits-layout__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 1rem;
+  }
+
+  .benefits-layout h2 {
+    font-size: clamp(2rem, 4vw, 3rem);
+    margin-bottom: var(--space-8);
+  }
+
+  .benefit-row {
+    display: flex;
+    gap: var(--space-6);
+    margin-bottom: var(--space-8);
+  }
+
+  .benefit-row:last-child {
+    margin-bottom: 0;
+  }
+
+  .benefit-row__icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .benefit-row__icon--blue { background: #dbeafe; color: var(--color-primary); }
+  .benefit-row__icon--orange { background: #ffedd5; color: #ea580c; }
+  .benefit-row__icon--green { background: #dcfce7; color: #16a34a; }
+
+  .benefit-row h3 {
+    font-size: var(--text-xl);
+    font-weight: 700;
+    margin-bottom: var(--space-2);
+  }
+
+  .benefit-row p {
+    color: var(--color-gray-700);
+    line-height: 1.7;
+  }
+
+  /* Stats Banner */
+  .stats-banner {
+    position: relative;
+    padding: var(--space-8) 0;
+    background: linear-gradient(135deg, var(--color-dark-blue), var(--color-primary));
+    color: white;
+    overflow: hidden;
+  }
+
+  @media (min-width: 768px) {
+    .stats-banner {
+      padding: var(--space-10) 0;
+    }
+  }
+
+  .stats-banner__content {
+    text-align: center;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .stats-banner h2 {
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: var(--space-2);
+    color: white;
+  }
+
+  .stats-banner h2 em {
+    font-style: italic;
+  }
+
+  .stats-banner p {
+    font-size: var(--text-base);
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  /* Expertise icon */
+  .expertise-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #dbeafe;
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto var(--space-6);
+  }
+
+  /* Reviews Grid */
+  .reviews-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+  }
+
+  @media (min-width: 768px) {
+    .reviews-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .review-card {
+    background: white;
+    border-radius: var(--radius-xl);
+    padding: var(--space-8);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .review-card__stars {
+    display: flex;
+    gap: 2px;
+    margin-bottom: var(--space-4);
+  }
+
+  .review-card__text {
+    color: var(--color-gray-700);
+    line-height: 1.7;
+    margin-bottom: var(--space-6);
+  }
+
+  .review-card__author strong {
+    display: block;
+    font-weight: 600;
+    color: var(--color-gray-900);
+  }
+
+  .review-card__author span {
+    font-size: var(--text-sm);
+    color: var(--color-gray-600);
+  }
+
+  /* CTA Buttons */
+  .cta-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    justify-content: center;
+    align-items: center;
+    margin-top: var(--space-8);
+  }
+
+  @media (min-width: 640px) {
+    .cta-buttons {
+      flex-direction: row;
+    }
+  }
+
+  /* Image Placeholders */
+  .image-placeholder {
+    background: linear-gradient(135deg, #e0f2fe, #cffafe);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    border-radius: var(--radius-xl);
+  }
+
+  .image-placeholder--tall {
+    min-height: 400px;
+    aspect-ratio: 4/5;
+  }
+
+  .image-placeholder--square {
+    aspect-ratio: 1/1;
+    min-height: auto;
+  }
+
+  .image-placeholder--round {
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: var(--shadow-xl);
+  }
+
+  .image-placeholder span {
+    font-size: var(--text-sm);
+    color: var(--color-primary);
+    font-weight: 500;
+    opacity: 0.6;
+  }
+
+  /* Utility */
+  .text-center { text-align: center; }
+  .text-lg { font-size: var(--text-lg); line-height: 1.7; color: var(--color-gray-600); margin-bottom: var(--space-4); }
+</style>

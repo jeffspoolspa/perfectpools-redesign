@@ -1,13 +1,14 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import FAQ from '../../components/FAQ.astro';
-import CTASection from '../../components/CTASection.astro';
 
 const faqs = [
-  { question: 'What types of commercial pools do you service?', answer: 'We maintain pools for HOA communities, hotels and motels, apartment complexes, fitness centers, and other commercial facilities throughout the Greater Savannah area.' },
-  { question: 'Do you handle health department compliance?', answer: 'Yes, our CPO-certified technicians maintain all required records and ensure your pool meets Georgia Department of Public Health standards for commercial aquatic facilities.' },
+  { question: 'What types of commercial pools do you service?', answer: 'We maintain pools for HOA communities, hotels and motels, apartment complexes, fitness centers, and short-term rental properties throughout the Greater Savannah area.' },
+  { question: 'Do you handle health department compliance?', answer: 'Yes. We maintain chemical logs, testing schedules, and service documentation formatted exactly how Georgia DPH inspectors expect to see them. When they show up, you hand them our logs.' },
   { question: 'Can you work around our facility hours?', answer: 'Absolutely. We offer flexible scheduling including early morning, evening, and weekend service times to minimize disruption to your guests and residents.' },
-  { question: 'How do you handle high-traffic pools?', answer: 'High-bather-load pools require more frequent chemical checks and adjustments. We customize service frequency and chemical management plans based on your specific usage patterns.' },
+  { question: 'How do you handle high-traffic pools?', answer: 'Higher bather loads mean more contaminants. We adjust testing frequency and chemical dosing based on your actual usage patterns—not a one-size-fits-all schedule.' },
+  { question: 'What happens if our regular tech is unavailable?', answer: 'Someone else on the team covers the route—same day, same service standards. Commercial properties can\'t wait, and we don\'t make you.' },
+  { question: 'How does commercial pricing work?', answer: 'Pricing is based on pool size, visit frequency, and specific compliance requirements. Contact us for a consultation and custom quote for your property.' },
 ];
 
 const schema = [
@@ -33,25 +34,1219 @@ const schema = [
 
 <BaseLayout
   title="Commercial Pool Cleaning in Savannah & Richmond Hill GA | Perfect Pools"
-  description="Professional commercial pool maintenance for HOAs, hotels, apartments, and fitness centers. Health department compliant. CPO certified. Serving the Greater Savannah area."
+  description="Professional commercial pool maintenance for HOAs, hotels, apartments, and short-term rentals. Health department compliant documentation, 24hr response time. Serving Coastal Georgia."
   canonicalPath="/services/commercial-pool-cleaning/"
   schema={schema}
 >
-  <section class="hero">
-    <div class="container">
-      <h1>Commercial Pool Cleaning</h1>
-      <p>Professional maintenance for HOA, hotel, apartment, and facility pools. Health department compliant service you can count on.</p>
-      <button type="button" class="btn btn--accent btn--lg" data-open-intake>Contact for Pricing</button>
+  <!-- Hero -->
+  <section class="comm-hero">
+    <div class="comm-hero__bg"></div>
+    <div class="container comm-hero__content">
+      <h1 class="comm-hero__title">Commercial pool care that keeps you compliant and covered.</h1>
+      <p class="comm-hero__subtitle">
+        Health department documentation, reliable service, and one point of contact. So you can focus on your property, not your pool.
+      </p>
+      <button type="button" class="btn btn--accent btn--lg" data-open-intake>Schedule a Consultation</button>
     </div>
   </section>
 
-  <!-- PHASE 2: Full service page content (800-1200 words) -->
+  <!-- Stats Bar -->
+  <section class="comm-stats">
+    <div class="container">
+      <div class="comm-stats__grid">
+        <div class="comm-stats__item">
+          <span class="comm-stats__number">50+</span>
+          <span class="comm-stats__label">Properties Serviced</span>
+        </div>
+        <div class="comm-stats__item">
+          <span class="comm-stats__number">100%</span>
+          <span class="comm-stats__label">Inspection Ready</span>
+        </div>
+        <div class="comm-stats__item">
+          <span class="comm-stats__number">24hr</span>
+          <span class="comm-stats__label">Response Time</span>
+        </div>
+        <div class="comm-stats__item">
+          <span class="comm-stats__number">15+</span>
+          <span class="comm-stats__label">Years Experience</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- What Commercial Pools Require — Image + Callouts -->
+  <section class="section comm-require">
+    <div class="container">
+      <div class="comm-require__layout">
+        <div class="comm-require__image">
+          <img src="/images/tech-testing-poolside.jpg" alt="Pool technician testing water at a commercial property" loading="lazy" width="640" height="480" />
+        </div>
+        <div class="comm-require__content">
+          <span class="section-label">Built for commercial</span>
+          <h2>What commercial pools require differently</h2>
+          <p class="comm-require__intro">
+            Commercial pools aren't just bigger residential pools—they have different regulations, higher bather loads, and stricter documentation requirements. We understand that world.
+          </p>
+
+          <div class="comm-callouts">
+            <div class="comm-callout">
+              <div class="comm-callout__icon comm-callout__icon--blue">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="5" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg>
+              </div>
+              <div>
+                <strong>Health department compliance</strong>
+                <p>We follow Georgia DPH requirements exactly and maintain records that pass inspections.</p>
+              </div>
+            </div>
+
+            <div class="comm-callout">
+              <div class="comm-callout__icon comm-callout__icon--purple">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              </div>
+              <div>
+                <strong>Higher bather load management</strong>
+                <p>We adjust testing frequency and chemical dosing based on your actual usage patterns.</p>
+              </div>
+            </div>
+
+            <div class="comm-callout">
+              <div class="comm-callout__icon comm-callout__icon--green">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>
+              </div>
+              <div>
+                <strong>Inspection-ready documentation</strong>
+                <p>Every test, adjustment, and visit—logged, timestamped, and formatted for county inspectors.</p>
+              </div>
+            </div>
+
+            <div class="comm-callout">
+              <div class="comm-callout__icon comm-callout__icon--orange">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>
+              </div>
+              <div>
+                <strong>Equipment at commercial scale</strong>
+                <p>We monitor systems built to handle continuous use and flag issues early.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- What Every Visit Includes -->
+  <section class="section visit-section">
+    <div class="container">
+      <h2 class="visit-headline">What every visit includes:</h2>
+
+      <div class="visit-grid">
+        <div class="visit-item">
+          <img src="/images/icons/test-tubes.svg" width="48" height="48" alt="" />
+          <h3>Water Testing</h3>
+          <p>pH, free/combined chlorine, alkalinity, stabilizer, hardness—tested and logged every visit.</p>
+        </div>
+
+        <div class="visit-item">
+          <img src="/images/icons/chemical.svg" width="48" height="48" alt="" />
+          <h3>Chemistry Adjustment</h3>
+          <p>Dosed to exact readings with commercial-grade chemicals. Quantities and costs documented.</p>
+        </div>
+
+        <div class="visit-item">
+          <img src="/images/icons/motor.svg" width="48" height="48" alt="" />
+          <h3>Equipment Monitoring</h3>
+          <p>Pumps, filters, heaters, feeders, automation systems—checked for proper operation.</p>
+        </div>
+
+        <div class="visit-item">
+          <img src="/images/icons/skimmer-net.svg" width="48" height="48" alt="" />
+          <h3>Surface Cleaning</h3>
+          <p>Skim, brush tile line, empty baskets. Your pool looks maintained before guests arrive.</p>
+        </div>
+
+        <div class="visit-item">
+          <img src="/images/icons/pool-brush.svg" width="48" height="48" alt="" />
+          <h3>Brush Walls & Tile</h3>
+          <p>Thorough brushing to prevent algae buildup and calcium deposits on commercial surfaces.</p>
+        </div>
+
+        <div class="visit-item">
+          <img src="/images/icons/vacuum.svg" width="48" height="48" alt="" />
+          <h3>Vacuum</h3>
+          <p>Vacuum pool floor and walls to remove dirt, debris, and settled contaminants.</p>
+        </div>
+
+        <div class="visit-item">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="5" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg>
+          <h3>Chemical Log</h3>
+          <p>Date, time, readings, adjustments—formatted for health department inspections.</p>
+        </div>
+
+        <div class="visit-item">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 12h4"/><path d="M10 16h4"/></svg>
+          <h3>Digital Report</h3>
+          <p>Photos, notes, and readings sent to your property manager portal or email.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Compliance Documentation -->
+  <section class="section compliance-section" style="background: linear-gradient(135deg, #f0fdf4, #ecfdf5);">
+    <div class="container">
+      <div class="compliance-layout">
+        <div class="compliance-layout__content">
+          <span class="compliance-badge">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>
+            Inspection Ready
+          </span>
+          <h2>Compliance documentation that actually works</h2>
+          <p class="compliance-layout__text">
+            When the health department shows up, you hand them our logs. That's it. We maintain chemical records, testing schedules, and service documentation formatted exactly how inspectors expect to see them.
+          </p>
+
+          <div class="compliance-checks">
+            <div class="compliance-check">
+              <div class="compliance-check__dot"></div>
+              <div>
+                <strong>Georgia DPH format</strong>
+                <span>Chemical logs match state requirements exactly</span>
+              </div>
+            </div>
+            <div class="compliance-check">
+              <div class="compliance-check__dot"></div>
+              <div>
+                <strong>Timestamped records</strong>
+                <span>Every test and adjustment logged with date/time</span>
+              </div>
+            </div>
+            <div class="compliance-check">
+              <div class="compliance-check__dot"></div>
+              <div>
+                <strong>Instant access</strong>
+                <span>Download reports anytime for inspections or audits</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mock Chemical Log -->
+        <div class="chem-log">
+          <div class="chem-log__header">
+            <span class="chem-log__property">Property: Seaside HOA</span>
+            <span class="chem-log__title">Chemical Log - March 2026</span>
+          </div>
+          <div class="chem-log__body">
+            <div class="chem-log__entry">
+              <div class="chem-log__entry-header">
+                <span class="chem-log__date">March 9, 2026 - 8:15 AM</span>
+                <span class="chem-log__status">Compliant</span>
+              </div>
+              <div class="chem-log__readings">
+                <div><span class="chem-log__label">FC</span><span class="chem-log__value">2.8 ppm</span></div>
+                <div><span class="chem-log__label">pH</span><span class="chem-log__value">7.4</span></div>
+                <div><span class="chem-log__label">TA</span><span class="chem-log__value">105 ppm</span></div>
+              </div>
+              <span class="chem-log__note">Added: 3.5 gal liquid chlorine</span>
+            </div>
+
+            <div class="chem-log__entry">
+              <div class="chem-log__entry-header">
+                <span class="chem-log__date">March 6, 2026 - 9:00 AM</span>
+                <span class="chem-log__status">Compliant</span>
+              </div>
+              <div class="chem-log__readings">
+                <div><span class="chem-log__label">FC</span><span class="chem-log__value">3.1 ppm</span></div>
+                <div><span class="chem-log__label">pH</span><span class="chem-log__value">7.6</span></div>
+                <div><span class="chem-log__label">TA</span><span class="chem-log__value">98 ppm</span></div>
+              </div>
+              <span class="chem-log__note">Added: 2 lbs pH decreaser</span>
+            </div>
+
+            <div class="chem-log__entry">
+              <div class="chem-log__entry-header">
+                <span class="chem-log__date">March 2, 2026 - 8:30 AM</span>
+                <span class="chem-log__status">Compliant</span>
+              </div>
+              <div class="chem-log__readings">
+                <div><span class="chem-log__label">FC</span><span class="chem-log__value">2.9 ppm</span></div>
+                <div><span class="chem-log__label">pH</span><span class="chem-log__value">7.3</span></div>
+                <div><span class="chem-log__label">TA</span><span class="chem-log__value">100 ppm</span></div>
+              </div>
+              <span class="chem-log__note">Added: 3.0 gal liquid chlorine</span>
+            </div>
+          </div>
+          <div class="chem-log__footer">
+            <span>Ready for inspection</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- We Handle Everything — Photo Carousel -->
+  <section class="section manage-section">
+    <div class="container">
+      <div class="section-header" style="max-width: 720px; margin-bottom: var(--space-12);">
+        <span class="section-label">Full-service management</span>
+        <h2 style="font-size: clamp(2rem, 4vw, 2.75rem); margin-bottom: var(--space-4);">We handle everything so you don't have to</h2>
+        <p style="font-size: var(--text-lg); color: var(--color-gray-600); line-height: 1.7;">Commercial pool management goes beyond weekly cleaning. We take the entire operation off your plate.</p>
+      </div>
+
+      <div class="manage-carousel" id="manageCarousel">
+        <div class="manage-carousel__track" id="carouselTrack">
+          <!-- Slide 1: Bulk Chemicals -->
+          <div class="manage-slide" data-slide="0">
+            <div class="manage-slide__image">
+              <img src="/images/pool-cleaning.jpg" alt="Bulk chemical delivery for commercial pools" loading="lazy" width="640" height="480" />
+            </div>
+            <div class="manage-slide__content">
+              <span class="manage-slide__badge manage-slide__badge--blue">Save up to 30%</span>
+              <h3>Bulk chemical delivery</h3>
+              <p>We monitor your levels and deliver in bulk before you run low. No emergency runs, no retail markup—just commercial pricing and hands-free inventory management.</p>
+              <ul class="manage-slide__points">
+                <li>Bulk pricing saves up to 30% vs. store-bought</li>
+                <li>We deliver, store, and manage inventory</li>
+                <li>Never run out mid-season again</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Slide 2: Equipment Rooms -->
+          <div class="manage-slide" data-slide="1">
+            <div class="manage-slide__image">
+              <img src="/images/checking-over-equipment.jpg" alt="Clean and organized pool equipment room" loading="lazy" width="640" height="480" />
+            </div>
+            <div class="manage-slide__content">
+              <span class="manage-slide__badge manage-slide__badge--green">Inspection Ready</span>
+              <h3>Equipment rooms kept clean & organized</h3>
+              <p>Your pump room reflects your property. We keep chemical storage organized, equipment labeled, and the space clean—ready for any walkthrough.</p>
+              <ul class="manage-slide__points">
+                <li>Chemical storage organized and labeled</li>
+                <li>No cluttered shelves or leaking jugs</li>
+                <li>Professional appearance for inspectors</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Slide 3: DPH Handling -->
+          <div class="manage-slide" data-slide="2">
+            <div class="manage-slide__image">
+              <img src="/images/pool-water-testing.jpg" alt="Water testing for health department compliance" loading="lazy" width="640" height="480" />
+            </div>
+            <div class="manage-slide__content">
+              <span class="manage-slide__badge manage-slide__badge--purple">Full Compliance</span>
+              <h3>We deal with the health department</h3>
+              <p>When DPH shows up, you hand them our logs—that's it. We maintain all documentation, handle follow-ups, and keep your property in compliance.</p>
+              <ul class="manage-slide__points">
+                <li>Georgia DPH-formatted chemical logs</li>
+                <li>We handle inspector questions directly</li>
+                <li>Zero compliance headaches for you</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Slide 4: Reliable Coverage -->
+          <div class="manage-slide" data-slide="3">
+            <div class="manage-slide__image">
+              <img src="/images/pool-cleaning-action.jpg" alt="Pool technician providing reliable service" loading="lazy" width="640" height="480" />
+            </div>
+            <div class="manage-slide__content">
+              <span class="manage-slide__badge manage-slide__badge--orange">Never Missed</span>
+              <h3>Reliable coverage, every time</h3>
+              <p>Tech calls in sick? Someone else covers the route—same day, same standards. One point of contact, full backup coverage, no gaps in service.</p>
+              <ul class="manage-slide__points">
+                <li>Same-day backup if your tech is out</li>
+                <li>Supervisor oversight on every route</li>
+                <li>One dedicated point of contact</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="manage-carousel__nav">
+          <button class="manage-carousel__arrow manage-carousel__arrow--prev" id="carouselPrev" aria-label="Previous slide">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <div class="manage-carousel__dots" id="carouselDots">
+            <button class="manage-carousel__dot active" data-slide="0" aria-label="Slide 1"></button>
+            <button class="manage-carousel__dot" data-slide="1" aria-label="Slide 2"></button>
+            <button class="manage-carousel__dot" data-slide="2" aria-label="Slide 3"></button>
+            <button class="manage-carousel__dot" data-slide="3" aria-label="Slide 4"></button>
+          </div>
+          <button class="manage-carousel__arrow manage-carousel__arrow--next" id="carouselNext" aria-label="Next slide">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    (function() {
+      const track = document.getElementById('carouselTrack');
+      const dots = document.querySelectorAll('#carouselDots .manage-carousel__dot');
+      const prev = document.getElementById('carouselPrev');
+      const next = document.getElementById('carouselNext');
+      const slides = track.querySelectorAll('.manage-slide');
+      let current = 0;
+
+      function goTo(index) {
+        if (index < 0) index = slides.length - 1;
+        if (index >= slides.length) index = 0;
+        current = index;
+        track.style.transform = `translateX(-${current * 100}%)`;
+        dots.forEach((d, i) => d.classList.toggle('active', i === current));
+      }
+
+      prev.addEventListener('click', () => goTo(current - 1));
+      next.addEventListener('click', () => goTo(current + 1));
+      dots.forEach(dot => {
+        dot.addEventListener('click', () => goTo(parseInt(dot.dataset.slide)));
+      });
+
+      // Auto-advance every 6 seconds
+      let autoplay = setInterval(() => goTo(current + 1), 6000);
+      const carousel = document.getElementById('manageCarousel');
+      carousel.addEventListener('mouseenter', () => clearInterval(autoplay));
+      carousel.addEventListener('mouseleave', () => {
+        autoplay = setInterval(() => goTo(current + 1), 6000);
+      });
+
+      // Touch/swipe support
+      let touchStartX = 0;
+      track.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; }, { passive: true });
+      track.addEventListener('touchend', (e) => {
+        const diff = touchStartX - e.changedTouches[0].clientX;
+        if (Math.abs(diff) > 50) goTo(current + (diff > 0 ? 1 : -1));
+      }, { passive: true });
+    })();
+  </script>
+
+  <!-- Properties We Service -->
+  <section class="section section--alt">
+    <div class="container">
+      <div class="section-header">
+        <h2>Properties we service</h2>
+        <p class="section-header__subtitle">From HOA community pools to hotel resorts, we handle commercial properties of all types</p>
+      </div>
+
+      <div class="property-grid">
+        <div class="property-card">
+          <div class="property-card__icon property-card__icon--blue">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>
+          </div>
+          <h3>HOAs</h3>
+          <p>Community pools for homeowners associations and neighborhoods</p>
+        </div>
+
+        <div class="property-card">
+          <div class="property-card__icon property-card__icon--purple">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v16"/><path d="M22 21H2"/><path d="M9 7h1"/><path d="M9 11h1"/><path d="M14 7h1"/><path d="M14 11h1"/><path d="M9 15v6"/><path d="M15 15v6"/></svg>
+          </div>
+          <h3>Hotels</h3>
+          <p>Resort and hotel pools with high guest turnover</p>
+        </div>
+
+        <div class="property-card">
+          <div class="property-card__icon property-card__icon--green">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </div>
+          <h3>Apartment Complexes</h3>
+          <p>Multi-family residential properties with shared amenities</p>
+        </div>
+
+        <div class="property-card">
+          <div class="property-card__icon property-card__icon--orange">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
+          </div>
+          <h3>Short-Term Rentals</h3>
+          <p>Vacation rental properties with frequent guest turnover</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Social Proof -->
   <section class="section">
-    <div class="container container--narrow">
-      <p>Content will be designed in Phase 2.</p>
+    <div class="container">
+      <div class="section-header">
+        <h2>What property managers say</h2>
+        <p class="section-header__subtitle">Real feedback from commercial clients</p>
+      </div>
+
+      <div class="reviews-grid reviews-grid--2col">
+        <div class="review-card review-card--alt">
+          <div class="review-card__stars">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <p class="review-card__text">"We manage 12 properties with pools and Perfect Pools handles 8 of them now. Their documentation makes inspections painless, and I have one phone number for all of them. That alone is worth it."</p>
+          <div class="review-card__author">
+            <strong>Michael P.</strong>
+            <span>Property Manager, Coastal Georgia Properties</span>
+          </div>
+        </div>
+
+        <div class="review-card review-card--alt">
+          <div class="review-card__stars">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <p class="review-card__text">"Our HOA board switched to Perfect Pools three years ago. Zero complaints from residents, health department has never flagged us, and their reports make my board meetings so much easier."</p>
+          <div class="review-card__author">
+            <strong>Rebecca T.</strong>
+            <span>HOA Board President, Palmetto Shores</span>
+          </div>
+        </div>
+
+        <div class="review-card review-card--alt">
+          <div class="review-card__stars">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <p class="review-card__text">"We had a pool emergency on a Saturday during peak season. Perfect Pools had someone there within two hours and got us back open same day. That's the kind of reliability we need."</p>
+          <div class="review-card__author">
+            <strong>James K.</strong>
+            <span>Facilities Director, Oceanfront Resort</span>
+          </div>
+        </div>
+
+        <div class="review-card review-card--alt">
+          <div class="review-card__stars">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <p class="review-card__text">"The service consistency is what sold me. It doesn't matter which tech shows up—the work gets done to the same standard every time. That's rare in this industry."</p>
+          <div class="review-card__author">
+            <strong>Angela M.</strong>
+            <span>Community Manager, Island View Apartments</span>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
   <FAQ items={faqs} />
-  <CTASection />
+
+  <!-- Final CTA -->
+  <section class="section section--alt">
+    <div class="container container--narrow text-center">
+      <h2>Schedule a consultation</h2>
+      <p class="text-lg">Tell us about your property and we'll walk you through our service model, pricing, and documentation process. No pressure, just information.</p>
+      <button type="button" class="btn btn--accent btn--lg" data-open-intake>Schedule Consultation</button>
+    </div>
+  </section>
 </BaseLayout>
+
+<style>
+  /* Commercial Hero */
+  .comm-hero {
+    position: relative;
+    padding: var(--space-16) 0;
+    background: linear-gradient(135deg, var(--color-dark-blue) 0%, var(--color-primary) 100%);
+    color: white;
+    overflow: hidden;
+  }
+
+  .comm-hero__bg {
+    position: absolute;
+    inset: 0;
+    opacity: 0.1;
+    background: radial-gradient(circle at 50% 120%, rgba(255,255,255,0.1), rgba(0,0,0,0));
+  }
+
+  .comm-hero__content {
+    position: relative;
+    max-width: 720px;
+  }
+
+  .comm-hero__title {
+    font-size: clamp(2.5rem, 5vw, 3.75rem);
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: var(--space-6);
+    color: white;
+  }
+
+  .comm-hero__subtitle {
+    font-size: var(--text-xl);
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
+    margin-bottom: var(--space-8);
+  }
+
+  @media (min-width: 768px) {
+    .comm-hero {
+      padding: var(--space-20) 0;
+    }
+  }
+
+  /* Stats Bar */
+  .comm-stats {
+    padding: var(--space-8) 0;
+    background: white;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .comm-stats__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-6);
+    text-align: center;
+  }
+
+  @media (min-width: 768px) {
+    .comm-stats__grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .comm-stats__number {
+    display: block;
+    font-size: clamp(2rem, 4vw, 2.5rem);
+    font-weight: 700;
+    color: var(--color-primary);
+    font-family: var(--font-heading);
+    margin-bottom: var(--space-2);
+  }
+
+  .comm-stats__label {
+    font-size: var(--text-sm);
+    color: var(--color-gray-600);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* Commercial Require — Image + Callouts */
+  .comm-require {
+    background: white;
+  }
+
+  .comm-require__layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-12);
+    align-items: stretch;
+  }
+
+  @media (min-width: 768px) {
+    .comm-require__layout {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-16);
+    }
+  }
+
+  .comm-require__image {
+    border-radius: 1rem;
+    overflow: hidden;
+  }
+
+  .comm-require__image img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    border-radius: 1rem;
+  }
+
+  .comm-require__content h2 {
+    font-size: clamp(2rem, 4vw, 2.75rem);
+    margin-bottom: var(--space-4);
+    line-height: 1.15;
+  }
+
+  .comm-require__intro {
+    font-size: var(--text-lg);
+    color: var(--color-gray-600);
+    line-height: 1.7;
+    margin-bottom: var(--space-8);
+  }
+
+  .comm-callouts {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+
+  .comm-callout {
+    display: flex;
+    gap: var(--space-4);
+    align-items: flex-start;
+  }
+
+  .comm-callout__icon {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .comm-callout__icon--blue { background: #dbeafe; color: var(--color-primary); }
+  .comm-callout__icon--purple { background: #f3e8ff; color: #9333ea; }
+  .comm-callout__icon--green { background: #dcfce7; color: #16a34a; }
+  .comm-callout__icon--orange { background: #ffedd5; color: #ea580c; }
+
+  .comm-callout strong {
+    display: block;
+    font-size: var(--text-base);
+    font-weight: 700;
+    color: var(--color-gray-900);
+    margin-bottom: var(--space-1);
+  }
+
+  .comm-callout p {
+    font-size: var(--text-sm);
+    color: var(--color-gray-600);
+    line-height: 1.6;
+  }
+
+  /* Section label */
+  .section-label {
+    display: block;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: var(--space-2);
+  }
+
+  /* Visit Section — Residential-style grid */
+  .visit-section {
+    padding: var(--space-16) 0 var(--space-12);
+  }
+
+  .visit-headline {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--color-gray-900);
+    margin-bottom: var(--space-12);
+  }
+
+  .visit-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-10) var(--space-8);
+  }
+
+  @media (min-width: 768px) {
+    .visit-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .visit-item img,
+  .visit-item svg {
+    margin-bottom: var(--space-4);
+  }
+
+  .visit-item h3 {
+    font-size: var(--text-lg);
+    font-weight: 700;
+    color: var(--color-gray-900);
+    margin-bottom: var(--space-2);
+  }
+
+  .visit-item p {
+    font-size: var(--text-sm);
+    color: var(--color-gray-600);
+    line-height: 1.6;
+  }
+
+  /* Compliance Section */
+  .compliance-section {
+    background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
+  }
+
+  .compliance-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-12);
+    align-items: center;
+  }
+
+  @media (min-width: 768px) {
+    .compliance-layout {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .compliance-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    background: #22c55e;
+    color: white;
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-full);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    margin-bottom: var(--space-6);
+  }
+
+  .compliance-layout__content h2 {
+    font-size: clamp(2rem, 4vw, 3rem);
+    margin-bottom: var(--space-6);
+  }
+
+  .compliance-layout__text {
+    font-size: var(--text-xl);
+    color: var(--color-gray-700);
+    line-height: 1.7;
+    margin-bottom: var(--space-6);
+  }
+
+  .compliance-checks {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .compliance-check {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+
+  .compliance-check__dot {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #22c55e;
+    flex-shrink: 0;
+    margin-top: 2px;
+    position: relative;
+  }
+
+  .compliance-check__dot::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(45deg);
+    width: 6px;
+    height: 10px;
+    border-bottom: 2px solid white;
+    border-right: 2px solid white;
+  }
+
+  .compliance-check strong {
+    display: block;
+    font-weight: 600;
+    color: var(--color-gray-900);
+  }
+
+  .compliance-check span {
+    font-size: var(--text-sm);
+    color: var(--color-gray-600);
+  }
+
+  /* Chemical Log Mock */
+  .chem-log {
+    background: white;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xl);
+    border: 1px solid var(--color-border);
+    overflow: hidden;
+  }
+
+  .chem-log__header {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-cyan));
+    color: white;
+    padding: var(--space-6);
+  }
+
+  .chem-log__property {
+    display: block;
+    font-size: var(--text-sm);
+    opacity: 0.9;
+    margin-bottom: var(--space-1);
+  }
+
+  .chem-log__title {
+    display: block;
+    font-size: var(--text-2xl);
+    font-weight: 700;
+  }
+
+  .chem-log__body {
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .chem-log__entry {
+    background: var(--color-light-bg);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+    border: 1px solid var(--color-border);
+  }
+
+  .chem-log__entry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--space-2);
+  }
+
+  .chem-log__date {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-gray-900);
+  }
+
+  .chem-log__status {
+    font-size: 0.75rem;
+    background: #dcfce7;
+    color: #166534;
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+    font-weight: 600;
+  }
+
+  .chem-log__readings {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-3);
+    margin-bottom: var(--space-2);
+  }
+
+  .chem-log__label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--color-gray-500);
+  }
+
+  .chem-log__value {
+    display: block;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-gray-900);
+  }
+
+  .chem-log__note {
+    font-size: 0.75rem;
+    color: var(--color-gray-600);
+  }
+
+  .chem-log__footer {
+    background: var(--color-light-bg);
+    padding: var(--space-4) var(--space-6);
+    font-size: 0.75rem;
+    color: var(--color-gray-600);
+    border-top: 1px solid var(--color-border);
+  }
+
+  /* Manage Carousel */
+  .manage-carousel {
+    overflow: hidden;
+    border-radius: var(--radius-xl);
+    background: white;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--color-border);
+  }
+
+  .manage-carousel__track {
+    display: flex;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .manage-slide {
+    min-width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 768px) {
+    .manage-slide {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .manage-slide__image {
+    position: relative;
+    overflow: hidden;
+    min-height: 280px;
+  }
+
+  @media (min-width: 768px) {
+    .manage-slide__image {
+      min-height: 400px;
+    }
+  }
+
+  .manage-slide__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    position: absolute;
+    inset: 0;
+  }
+
+  .manage-slide__content {
+    padding: var(--space-8) var(--space-8) var(--space-8);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  @media (min-width: 768px) {
+    .manage-slide__content {
+      padding: var(--space-12) var(--space-12);
+    }
+  }
+
+  .manage-slide__badge {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    padding: var(--space-1) var(--space-4);
+    border-radius: var(--radius-full);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    margin-bottom: var(--space-4);
+  }
+
+  .manage-slide__badge--blue { background: #dbeafe; color: #1d4ed8; }
+  .manage-slide__badge--green { background: #dcfce7; color: #166534; }
+  .manage-slide__badge--purple { background: #f3e8ff; color: #7c3aed; }
+  .manage-slide__badge--orange { background: #ffedd5; color: #c2410c; }
+
+  .manage-slide__content h3 {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 700;
+    color: var(--color-gray-900);
+    margin-bottom: var(--space-4);
+    line-height: 1.2;
+  }
+
+  .manage-slide__content p {
+    font-size: var(--text-base);
+    color: var(--color-gray-600);
+    line-height: 1.7;
+    margin-bottom: var(--space-6);
+  }
+
+  .manage-slide__points {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .manage-slide__points li {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    font-size: var(--text-sm);
+    color: var(--color-gray-700);
+    line-height: 1.5;
+  }
+
+  .manage-slide__points li::before {
+    content: '';
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    flex-shrink: 0;
+    margin-top: 1px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 11px;
+  }
+
+  /* Carousel Navigation */
+  .manage-carousel__nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-4);
+    padding: var(--space-5) var(--space-6);
+    background: var(--color-light-bg);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .manage-carousel__dots {
+    display: flex;
+    gap: var(--space-2);
+  }
+
+  .manage-carousel__dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: none;
+    background: var(--color-gray-300);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+  }
+
+  .manage-carousel__dot.active {
+    background: var(--color-primary);
+    transform: scale(1.2);
+  }
+
+  .manage-carousel__dot:hover:not(.active) {
+    background: var(--color-gray-400);
+  }
+
+  .manage-carousel__arrow {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--color-border);
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--color-gray-600);
+    transition: all 0.2s ease;
+  }
+
+  .manage-carousel__arrow:hover {
+    background: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+  }
+
+  /* Property Grid */
+  .property-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 640px) {
+    .property-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .property-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .property-card {
+    background: white;
+    border-radius: var(--radius-xl);
+    padding: var(--space-6);
+    text-align: center;
+    border: 1px solid var(--color-border);
+    transition: all var(--transition-fast);
+  }
+
+  .property-card:hover {
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .property-card__icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto var(--space-4);
+  }
+
+  .property-card__icon--blue { background: #dbeafe; color: var(--color-primary); }
+  .property-card__icon--purple { background: #f3e8ff; color: #9333ea; }
+  .property-card__icon--green { background: #dcfce7; color: #16a34a; }
+  .property-card__icon--orange { background: #ffedd5; color: #ea580c; }
+
+  .property-card h3 {
+    font-size: var(--text-lg);
+    font-weight: 700;
+    margin-bottom: var(--space-2);
+  }
+
+  .property-card p {
+    font-size: var(--text-sm);
+    color: var(--color-gray-600);
+  }
+
+  /* Reviews Grid - 2 col variant */
+  .reviews-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+  }
+
+  .reviews-grid--2col {
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 768px) {
+    .reviews-grid--2col {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .review-card {
+    background: white;
+    border-radius: var(--radius-xl);
+    padding: var(--space-8);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .review-card--alt {
+    background: var(--color-light-bg);
+  }
+
+  .review-card__stars {
+    display: flex;
+    gap: 2px;
+    margin-bottom: var(--space-4);
+  }
+
+  .review-card__text {
+    color: var(--color-gray-700);
+    line-height: 1.7;
+    margin-bottom: var(--space-6);
+  }
+
+  .review-card__author strong {
+    display: block;
+    font-weight: 600;
+    color: var(--color-gray-900);
+  }
+
+  .review-card__author span {
+    font-size: var(--text-sm);
+    color: var(--color-gray-600);
+  }
+
+  /* Utilities */
+  .text-center { text-align: center; }
+  .text-lg { font-size: var(--text-lg); line-height: 1.7; color: var(--color-gray-600); margin-bottom: var(--space-4); }
+</style>

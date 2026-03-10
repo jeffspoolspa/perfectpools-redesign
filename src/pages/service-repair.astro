@@ -1,0 +1,966 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import FAQ from '../components/FAQ.astro';
+
+const faqs = [
+  { question: 'How much does a site visit cost?', answer: 'Residential site visits are $150 and commercial site visits are $185. This covers travel, on-site inspection, equipment documentation, and the office time our team spends researching your specific equipment configuration to build an accurate estimate.' },
+  { question: 'Do you charge for estimates?', answer: 'The site visit fee covers the full diagnostic and estimate process. You\'ll receive a detailed written estimate with every cost itemized — equipment, parts, PVC, electrical, and labor. There are no additional fees for the estimate itself.' },
+  { question: 'Do you service all pool equipment brands?', answer: 'We are certified installers for Hayward, Pentair, Jandy, Fluidra, and AquaCal. We can service and repair most major brands, and our certified installer status means equipment we install comes with full manufacturer warranty coverage.' },
+  { question: 'How do I know if my equipment should be repaired or replaced?', answer: 'That\'s exactly what our diagnostic process is designed to determine. We evaluate the age of the equipment, cost of repair vs. replacement, warranty implications, and whether the failure is isolated or systemic. Then we lay out your options clearly with costs and our honest recommendation.' },
+  { question: 'Do your installations come with a warranty?', answer: 'Yes. As a certified installer for all major brands, equipment we install comes with full manufacturer warranty — typically two to three years depending on the product. We also handle the warranty claim process if anything goes wrong.' },
+  { question: 'Can you work on my pool if another company installed the equipment?', answer: 'Absolutely. We service all major brands regardless of who installed them. If the equipment is still under manufacturer warranty, we\'ll work with the manufacturer on your behalf.' },
+];
+
+const schema = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": "Pool Equipment Service & Repair",
+    "provider": { "@type": "LocalBusiness", "name": "Perfect Pools" },
+    "areaServed": "Savannah, Richmond Hill, Brunswick, Coastal Georgia",
+    "description": "Certified pool equipment diagnosis, repair, and installation. Pumps, filters, heaters, salt systems, automation, and more.",
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.map(faq => ({
+      "@type": "Question",
+      "name": faq.question,
+      "acceptedAnswer": { "@type": "Answer", "text": faq.answer }
+    }))
+  }
+];
+
+/* Equipment categories for the interactive grid */
+const equipment = [
+  {
+    id: 'pumps',
+    name: 'Pumps & Motors',
+    icon: 'pump',
+    image: 'pump.png',
+    description: 'Single-speed, dual-speed, and variable-speed pump service, repair, and installation.',
+    detail: 'The heart of your pool\'s circulation system. We service and install single-speed, dual-speed, and variable-speed pumps across all major brands. Variable-speed pumps can cut your energy costs dramatically and are now required by federal efficiency standards on most replacements. We\'ll help you understand whether a motor rebuild, a seal replacement, or a full pump upgrade is the right move — and size it correctly for your plumbing and filter system.',
+    brands: 'Hayward · Pentair · Jandy',
+  },
+  {
+    id: 'filtration',
+    name: 'Filtration Systems',
+    icon: 'filter',
+    description: 'Sand, glass media, cartridge, and DE filter maintenance and replacement.',
+    detail: 'Your filter is what actually removes debris and particulates from the water. We work with all major filter types — sand, glass media, cartridge, and DE (diatomaceous earth). Each has different maintenance needs, replacement cycles, and performance characteristics depending on your pool size, usage, and plumbing. We\'ll help you choose the right media and keep your filter operating at the pressure and flow rate it was designed for.',
+    brands: 'Sand & Glass Media · Cartridge · DE',
+  },
+  {
+    id: 'chlorination',
+    name: 'Chlorination Systems',
+    icon: 'chlorination',
+    description: 'Salt chlorine generators and tablet feeder installation and service.',
+    detail: 'Proper sanitization is one of the three foundations of a clean pool. We install and service both salt chlorine generators and traditional tablet feeder systems. Salt systems generate chlorine continuously and can reduce your ongoing chemical costs, but they require proper sizing, compatible equipment, and regular cell maintenance. We\'ll recommend the right system for your pool and make sure it\'s integrated correctly with your circulation and automation.',
+    brands: 'Salt Chlorine Generators · Tablet Feeders',
+  },
+  {
+    id: 'heaters',
+    name: 'Heaters & Heat Pumps',
+    icon: 'heater',
+    description: 'Gas heaters, electric heat pumps, and pool chillers for year-round comfort.',
+    detail: 'Extending your pool season — or making it comfortable year-round — starts with the right heating or cooling equipment matched to your pool volume, climate, and usage. We install and service gas heaters, electric heat pumps, and pool chillers. Heat pumps are the most energy-efficient option for our climate and are what we recommend most often, but the right choice depends on your pool size, how quickly you need to heat, and your utility costs.',
+    brands: 'Gas Heaters · Electric Heat Pumps · Pool Chillers',
+  },
+  {
+    id: 'automation',
+    name: 'Automation & Controls',
+    icon: 'automation',
+    description: 'From basic timers to full smart-home-integrated control panels.',
+    detail: 'From basic analog timers to full smart-home-integrated control panels, automation determines how and when your equipment runs. We service and install systems ranging from simple time clocks and relay panels to advanced platforms like Hayward OmniLogic, Pentair IntelliCenter, and Jandy iAqualink. If you\'re upgrading equipment, automation is often the smartest investment — it optimizes run times, protects equipment, and gives you control from your phone.',
+    brands: 'Hayward OmniLogic · Pentair IntelliCenter · Jandy iAqualink',
+  },
+  {
+    id: 'cleaners',
+    name: 'Automatic Pool Cleaners',
+    icon: 'cleaner',
+    description: 'Robotic cleaners and pressure-side cleaners for automated pool cleaning.',
+    detail: 'We service and install both robotic cleaners and water-powered pressure-side cleaners. Robotic cleaners operate independently from your pool\'s circulation system and are the most efficient option for most residential pools. Pressure-side cleaners like the Polaris line use a dedicated booster pump and are common in older installations. We\'ll help you understand which type fits your pool and whether your existing plumbing supports it.',
+    brands: 'Robotic Cleaners · Pressure-Side (Polaris)',
+  },
+];
+---
+
+<BaseLayout
+  title="Pool Equipment Service & Repair | Certified Diagnosis & Installation | Perfect Pools"
+  description="Certified pool equipment repair and installation in Savannah, Brunswick & Coastal Georgia. Pumps, heaters, filters, salt systems, automation. Manufacturer-backed warranties. Call (912) 459-0160."
+  canonicalPath="/service-repair/"
+  schema={schema}
+>
+  <!-- ============ HERO ============ -->
+  <section class="sr-hero">
+    <div class="sr-hero__bg"></div>
+    <div class="container sr-hero__content">
+      <h1 class="sr-hero__title">We Don't Guess.<br/>We Diagnose.</h1>
+      <p class="sr-hero__subtitle">
+        Certified equipment experts who understand your pool as a complete system — not just the part that broke.
+      </p>
+      <div class="sr-hero__actions">
+        <button type="button" class="btn btn--cta btn--lg" data-open-intake>Schedule a Site Visit</button>
+        <a href="tel:9124590160" class="btn btn--outline-white btn--lg">Call (912) 459-0160</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TECHNICAL PHILOSOPHY ============ -->
+  <section class="section">
+    <div class="container">
+      <div class="philosophy-layout">
+        <div class="philosophy-layout__content">
+          <span class="section-label">Our approach</span>
+          <h2>Your Pool Is a System, Not a Collection of Parts</h2>
+          <p>Most pool problems aren't what they look like on the surface. Cloudy water isn't always a chemical problem. A pump that won't prime isn't always a pump problem. A heater that shuts off mid-cycle might be a flow issue, not a heater issue.</p>
+          <p>We approach every pool as an engineered system where water movement, filtration, and chlorination work together. When those three things are dialed in correctly, they do 90% of the work — and your chemical costs drop significantly. When one is off, you end up chasing symptoms with band-aid repairs that never solve the problem.</p>
+        </div>
+        <div class="philosophy-layout__equipment">
+          <div class="eq-preview-grid">
+            {equipment.map((item) => (
+              <a href={`#eq-${item.id}`} class="eq-preview" data-eq-target={item.id}>
+                <div class="eq-preview__icon">
+                  {item.image
+                    ? <img src={`${import.meta.env.BASE_URL}images/equipment/${item.image}`} alt={item.name} class="eq-preview__img" loading="lazy" />
+                    : <>
+                      {item.icon === 'pump' && <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg>}
+                      {item.icon === 'filter' && <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>}
+                      {item.icon === 'chlorination' && <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2v17.5c0 1.4-1.1 2.5-2.5 2.5s-2.5-1.1-2.5-2.5V2"/><path d="M8.5 2h7"/><path d="M14.5 16h-5"/></svg>}
+                      {item.icon === 'heater' && <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/></svg>}
+                      {item.icon === 'automation' && <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>}
+                      {item.icon === 'cleaner' && <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"/></svg>}
+                    </>
+                  }
+                </div>
+                <span class="eq-preview__label">{item.name}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CERTIFIED INSTALLATION ============ -->
+  <section class="section section--alt">
+    <div class="container">
+      <div class="section-header" style="max-width: 800px; margin-bottom: var(--space-12);">
+        <span class="section-label">Certifications</span>
+        <h2>Certified Installer. Manufacturer-Backed Warranty.</h2>
+        <p class="section-header__subtitle">When we install equipment, it comes with a full manufacturer's warranty — typically two to three years. In coastal Georgia where salt air accelerates wear on everything, that coverage matters.</p>
+      </div>
+
+      <!-- Brand logos -->
+      <div class="brand-strip">
+        <div class="brand-strip__item">Hayward</div>
+        <div class="brand-strip__item">Pentair</div>
+        <div class="brand-strip__item">Jandy</div>
+        <div class="brand-strip__item">Fluidra</div>
+        <div class="brand-strip__item">AquaCal</div>
+      </div>
+
+      <div class="warranty-grid">
+        <div class="warranty-card">
+          <div class="warranty-card__icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>
+          </div>
+          <h3>Full warranty coverage</h3>
+          <p>Equipment we install comes with manufacturer-backed warranty. Non-certified installers or self-installs often don't qualify — and when something fails 18 months in, you pay full price again.</p>
+        </div>
+
+        <div class="warranty-card">
+          <div class="warranty-card__icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <h3>We handle warranty claims</h3>
+          <p>If something fails under warranty, we manage the entire claim process. We know the manufacturers, the documentation they need, and we advocate on your behalf to make sure it's honored.</p>
+        </div>
+
+        <div class="warranty-card">
+          <div class="warranty-card__icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>
+          </div>
+          <h3>Vetted products only</h3>
+          <p>We're selective about what we sell. If we don't trust the product to last or the company to honor their warranty, we won't put it on your pool. Hundreds of installs behind every brand we recommend.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SERVICE PROCESS ============ -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header" style="max-width: 800px; margin-bottom: var(--space-12);">
+        <span class="section-label">How it works</span>
+        <h2>Every Job Starts with a Site Visit</h2>
+        <p class="section-header__subtitle">Every repair, installation, and equipment upgrade begins the same way — with a technician on-site collecting the information our service team needs to do the job right.</p>
+      </div>
+
+      <div class="process-steps">
+        <div class="process-step">
+          <div class="process-step__number">1</div>
+          <div class="process-step__content">
+            <h3>On-site inspection</h3>
+            <p>Your tech documents part numbers, model information, takes detailed photos of your equipment pad and plumbing layout, assesses the overall system condition, and notes anything that could affect scope.</p>
+          </div>
+        </div>
+
+        <div class="process-step">
+          <div class="process-step__number">2</div>
+          <div class="process-step__content">
+            <h3>Research & estimate</h3>
+            <p>That information goes to our service team, who research your specific configuration and build a detailed estimate — equipment, parts, PVC, electrical, labor. No vague line items. No surprises on install day.</p>
+          </div>
+        </div>
+
+        <div class="process-step">
+          <div class="process-step__number">3</div>
+          <div class="process-step__content">
+            <h3>Scheduled installation</h3>
+            <p>Once you approve the estimate, we schedule the work and show up prepared — right equipment, right parts, right plan. The job gets done correctly the first time.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Site visit fee callout -->
+      <div class="fee-callout">
+        <div class="fee-callout__prices">
+          <div class="fee-callout__price">
+            <span class="fee-callout__label">Residential</span>
+            <span class="fee-callout__amount">$150</span>
+          </div>
+          <div class="fee-callout__divider"></div>
+          <div class="fee-callout__price">
+            <span class="fee-callout__label">Commercial</span>
+            <span class="fee-callout__amount">$185</span>
+          </div>
+        </div>
+        <div class="fee-callout__text">
+          <p><strong>Why we charge for site visits:</strong> This covers travel, time on-site gathering accurate information, and the office time our team spends researching your equipment to make sure what we recommend is right for your pool.</p>
+          <p>The alternative is a company that shows up, glances at your equipment, and quotes from memory. That's how you end up with a pump that isn't graded for your filter, or a heater undersized for your pool volume. We'd rather get it right the first time.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ REPAIR VS REPLACE ============ -->
+  <section class="section section--alt">
+    <div class="container">
+      <div class="section-header" style="max-width: 800px; margin-bottom: var(--space-12);">
+        <span class="section-label">Honest diagnosis</span>
+        <h2>Repair When It Makes Sense. Replace When It Doesn't.</h2>
+        <p class="section-header__subtitle">One of the most valuable things a qualified technician can do is tell you honestly whether equipment should be repaired or replaced.</p>
+      </div>
+
+      <div class="compare-layout">
+        <div class="compare-card compare-card--repair">
+          <div class="compare-card__header">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+            <h3>The repair-only shop</h3>
+          </div>
+          <p>Saves you money short-term. But if they're replacing seals without recognizing the motor is overheating — which burned the seals in the first place — you're paying twice for a fix that won't last.</p>
+        </div>
+
+        <div class="compare-card compare-card--replace">
+          <div class="compare-card__header">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
+            <h3>The replace-everything shop</h3>
+          </div>
+          <p>Puts in brand new equipment when a straightforward repair would have given you years more life out of what you already have. Costs more than necessary.</p>
+        </div>
+      </div>
+
+      <div class="our-approach-card">
+        <div class="our-approach-card__icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>
+        </div>
+        <div>
+          <h3>Our approach: the right call, not the easy one</h3>
+          <p>We evaluate equipment age, repair vs. replacement cost, warranty coverage, and whether the failure is isolated or systemic. Then we lay out your options clearly — what each path costs, what it gets you, and what we'd recommend if it were our pool.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ EQUIPMENT WE SERVICE ============ -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header" style="max-width: 800px; margin-bottom: var(--space-12);">
+        <span class="section-label">Equipment</span>
+        <h2>Equipment We Service, Repair & Install</h2>
+      </div>
+
+      <div class="equipment-grid">
+        {equipment.map((item) => (
+          <details class="equipment-card" id={`eq-${item.id}`}>
+            <summary class="equipment-card__header">
+              <div class="equipment-card__icon">
+                {item.icon === 'pump' && <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg>}
+                {item.icon === 'filter' && <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>}
+                {item.icon === 'chlorination' && <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2v17.5c0 1.4-1.1 2.5-2.5 2.5s-2.5-1.1-2.5-2.5V2"/><path d="M8.5 2h7"/><path d="M14.5 16h-5"/></svg>}
+                {item.icon === 'heater' && <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/></svg>}
+                {item.icon === 'automation' && <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>}
+                {item.icon === 'cleaner' && <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"/></svg>}
+              </div>
+              <div class="equipment-card__text">
+                <h3>{item.name}</h3>
+                <p>{item.description}</p>
+              </div>
+              <div class="equipment-card__chevron">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+              </div>
+            </summary>
+            <div class="equipment-card__detail">
+              <p>{item.detail}</p>
+              <span class="equipment-card__brands">{item.brands}</span>
+            </div>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CTA ============ -->
+  <section class="cta-section">
+    <div class="container">
+      <h2>Need a Diagnosis?</h2>
+      <p>Schedule a site visit and let our team assess your equipment. You'll get a detailed estimate with every cost laid out — no surprises, no pressure.</p>
+      <div class="cta-section__buttons">
+        <button type="button" class="btn btn--cta btn--lg" data-open-intake>Schedule a Site Visit</button>
+        <a href="tel:9124590160" class="btn btn--outline-white btn--lg">Call (912) 459-0160</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FAQ ============ -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header" style="max-width: 720px; margin-bottom: var(--space-12);">
+        <span class="section-label">Common questions</span>
+        <h2>Service & Repair FAQ</h2>
+      </div>
+      <FAQ items={faqs} />
+    </div>
+  </section>
+
+  <!-- Equipment preview → detail scroll + expand -->
+  <script>
+    document.querySelectorAll('.eq-preview').forEach((link) => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const targetId = (link as HTMLElement).dataset.eqTarget;
+        if (!targetId) return;
+        const target = document.getElementById(`eq-${targetId}`) as HTMLDetailsElement;
+        if (!target) return;
+
+        // Close all other equipment cards
+        document.querySelectorAll('.equipment-card').forEach((card) => {
+          if (card !== target) (card as HTMLDetailsElement).open = false;
+        });
+
+        // Open the target card
+        target.open = true;
+
+        // Smooth scroll to it with offset for sticky header
+        setTimeout(() => {
+          const top = target.getBoundingClientRect().top + window.scrollY - 100;
+          window.scrollTo({ top, behavior: 'smooth' });
+        }, 50);
+      });
+    });
+  </script>
+</BaseLayout>
+
+<style>
+  /* ============ HERO ============ */
+  .sr-hero {
+    position: relative;
+    padding: var(--space-16) 0;
+    background: linear-gradient(135deg, var(--color-dark-blue) 0%, var(--color-primary) 100%);
+    color: white;
+    overflow: hidden;
+  }
+
+  .sr-hero__bg {
+    position: absolute;
+    inset: 0;
+    opacity: 0.08;
+    background: radial-gradient(circle at 70% 20%, rgba(255,255,255,0.2), rgba(0,0,0,0));
+  }
+
+  .sr-hero__content {
+    position: relative;
+    max-width: 800px;
+  }
+
+  .sr-hero__title {
+    font-size: clamp(2.5rem, 5vw, 3.75rem);
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: var(--space-6);
+    color: white;
+  }
+
+  .sr-hero__subtitle {
+    font-size: var(--text-xl);
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.7;
+    max-width: 640px;
+    margin-bottom: var(--space-8);
+  }
+
+  .sr-hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+  }
+
+  @media (min-width: 768px) {
+    .sr-hero {
+      padding: var(--space-20) 0;
+    }
+  }
+
+  /* ============ SECTION LABEL (shared) ============ */
+  .section-label {
+    display: block;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: var(--space-2);
+  }
+
+  /* ============ TECHNICAL PHILOSOPHY ============ */
+  .philosophy-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-12);
+    align-items: start;
+  }
+
+  @media (min-width: 1024px) {
+    .philosophy-layout {
+      grid-template-columns: 1.3fr 1fr;
+      gap: var(--space-16);
+    }
+  }
+
+  .philosophy-layout__content h2 {
+    font-size: clamp(2rem, 4vw, 2.75rem);
+    margin-bottom: var(--space-6);
+    line-height: 1.15;
+  }
+
+  .philosophy-layout__content p {
+    font-size: var(--text-lg);
+    color: var(--color-gray-600);
+    line-height: 1.8;
+    margin-bottom: var(--space-4);
+  }
+
+  .philosophy-layout__content p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Equipment Preview Grid (replaces callout card) */
+  .eq-preview-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-4);
+  }
+
+  @media (max-width: 1023px) {
+    .eq-preview-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .eq-preview-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .eq-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-5);
+    background: var(--color-light-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    text-decoration: none;
+    cursor: pointer;
+    transition: all var(--transition-base);
+  }
+
+  .eq-preview:hover {
+    border-color: var(--color-primary);
+    background: white;
+    box-shadow: var(--shadow-md);
+    transform: translateY(-4px);
+  }
+
+  .eq-preview:hover .eq-preview__icon {
+    color: var(--color-primary);
+    background: #dbeafe;
+  }
+
+  .eq-preview__icon {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-gray-500);
+    background: white;
+    border-radius: var(--radius-lg);
+    transition: all var(--transition-base);
+    overflow: hidden;
+  }
+
+  .eq-preview__img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 4px;
+    transition: transform var(--transition-base);
+  }
+
+  .eq-preview:hover .eq-preview__img {
+    transform: scale(1.08);
+  }
+
+  .eq-preview__label {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-gray-700);
+    text-align: center;
+    line-height: 1.3;
+  }
+
+  .eq-preview:hover .eq-preview__label {
+    color: var(--color-primary);
+  }
+
+  /* ============ BRAND STRIP ============ */
+  .brand-strip {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-6);
+    margin-bottom: var(--space-12);
+  }
+
+  .brand-strip__item {
+    padding: var(--space-4) var(--space-8);
+    background: white;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    font-family: var(--font-heading);
+    font-size: var(--text-lg);
+    font-weight: 600;
+    color: var(--color-gray-700);
+    white-space: nowrap;
+  }
+
+  /* ============ WARRANTY GRID ============ */
+  .warranty-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 768px) {
+    .warranty-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .warranty-card {
+    background: white;
+    border-radius: var(--radius-xl);
+    padding: var(--space-8);
+    border: 1px solid var(--color-border);
+    transition: all var(--transition-fast);
+  }
+
+  .warranty-card:hover {
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-md);
+  }
+
+  .warranty-card__icon {
+    width: 52px;
+    height: 52px;
+    border-radius: var(--radius-lg);
+    background: #dbeafe;
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: var(--space-4);
+  }
+
+  .warranty-card h3 {
+    font-size: var(--text-lg);
+    font-weight: 700;
+    margin-bottom: var(--space-3);
+  }
+
+  .warranty-card p {
+    font-size: var(--text-sm);
+    color: var(--color-gray-600);
+    line-height: 1.7;
+  }
+
+  /* ============ PROCESS STEPS ============ */
+  .process-steps {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+    margin-bottom: var(--space-12);
+  }
+
+  @media (min-width: 768px) {
+    .process-steps {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .process-step {
+    display: flex;
+    gap: var(--space-4);
+    align-items: flex-start;
+  }
+
+  @media (min-width: 768px) {
+    .process-step {
+      flex-direction: column;
+    }
+  }
+
+  .process-step__number {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-heading);
+    font-size: var(--text-xl);
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .process-step__content h3 {
+    font-size: var(--text-lg);
+    font-weight: 700;
+    margin-bottom: var(--space-2);
+  }
+
+  .process-step__content p {
+    font-size: var(--text-sm);
+    color: var(--color-gray-600);
+    line-height: 1.7;
+  }
+
+  /* ============ FEE CALLOUT ============ */
+  .fee-callout {
+    background: var(--color-light-bg);
+    border: 2px solid var(--color-primary);
+    border-radius: var(--radius-xl);
+    padding: var(--space-8);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+  }
+
+  @media (min-width: 768px) {
+    .fee-callout {
+      grid-template-columns: auto 1fr;
+      padding: var(--space-10);
+    }
+  }
+
+  .fee-callout__prices {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+    justify-content: center;
+  }
+
+  @media (min-width: 768px) {
+    .fee-callout__prices {
+      flex-direction: column;
+      gap: var(--space-4);
+      min-width: 160px;
+    }
+  }
+
+  .fee-callout__price {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-1);
+  }
+
+  .fee-callout__label {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-gray-500);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .fee-callout__amount {
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 3vw, 2.5rem);
+    font-weight: 700;
+    color: var(--color-primary);
+    line-height: 1;
+  }
+
+  .fee-callout__divider {
+    width: 1px;
+    height: 48px;
+    background: var(--color-border);
+  }
+
+  @media (min-width: 768px) {
+    .fee-callout__divider {
+      width: 80px;
+      height: 1px;
+    }
+  }
+
+  .fee-callout__text p {
+    font-size: var(--text-base);
+    color: var(--color-gray-600);
+    line-height: 1.7;
+    margin-bottom: var(--space-4);
+  }
+
+  .fee-callout__text p:last-child {
+    margin-bottom: 0;
+  }
+
+  .fee-callout__text strong {
+    color: var(--color-gray-900);
+  }
+
+  /* ============ REPAIR VS REPLACE ============ */
+  .compare-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+    margin-bottom: var(--space-8);
+  }
+
+  @media (min-width: 768px) {
+    .compare-layout {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .compare-card {
+    border-radius: var(--radius-xl);
+    padding: var(--space-8);
+    border: 1px solid var(--color-border);
+    background: white;
+  }
+
+  .compare-card__header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+  }
+
+  .compare-card__header svg {
+    flex-shrink: 0;
+  }
+
+  .compare-card__header h3 {
+    font-size: var(--text-lg);
+    font-weight: 700;
+  }
+
+  .compare-card--repair {
+    border-color: #fbbf24;
+    background: #fffbeb;
+  }
+
+  .compare-card--repair .compare-card__header svg {
+    color: #d97706;
+  }
+
+  .compare-card--replace {
+    border-color: #f87171;
+    background: #fef2f2;
+  }
+
+  .compare-card--replace .compare-card__header svg {
+    color: #dc2626;
+  }
+
+  .compare-card p {
+    font-size: var(--text-base);
+    color: var(--color-gray-600);
+    line-height: 1.7;
+  }
+
+  .our-approach-card {
+    display: flex;
+    gap: var(--space-6);
+    align-items: flex-start;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-dark-blue));
+    color: white;
+    border-radius: var(--radius-xl);
+    padding: var(--space-8);
+  }
+
+  @media (max-width: 640px) {
+    .our-approach-card {
+      flex-direction: column;
+    }
+  }
+
+  .our-approach-card__icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .our-approach-card h3 {
+    font-size: var(--text-xl);
+    font-weight: 700;
+    margin-bottom: var(--space-3);
+    color: white;
+  }
+
+  .our-approach-card p {
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.7;
+  }
+
+  /* ============ EQUIPMENT GRID (single column) ============ */
+  .equipment-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .equipment-card {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    background: var(--color-light-bg);
+    overflow: hidden;
+    transition: all var(--transition-fast);
+  }
+
+  .equipment-card:hover {
+    border-color: var(--color-primary);
+  }
+
+  .equipment-card[open] {
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-md);
+  }
+
+  .equipment-card__header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-6);
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .equipment-card__header::-webkit-details-marker {
+    display: none;
+  }
+
+  .equipment-card__header::marker {
+    display: none;
+    content: '';
+  }
+
+  .equipment-card__icon {
+    width: 52px;
+    height: 52px;
+    border-radius: var(--radius-lg);
+    background: #dbeafe;
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .equipment-card__text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .equipment-card__text h3 {
+    font-size: var(--text-base);
+    font-weight: 700;
+    margin-bottom: var(--space-1);
+  }
+
+  .equipment-card__text p {
+    font-size: var(--text-sm);
+    color: var(--color-gray-500);
+    line-height: 1.5;
+  }
+
+  .equipment-card__chevron {
+    color: var(--color-gray-400);
+    transition: transform var(--transition-fast);
+    flex-shrink: 0;
+  }
+
+  .equipment-card[open] .equipment-card__chevron {
+    transform: rotate(180deg);
+    color: var(--color-primary);
+  }
+
+  .equipment-card__detail {
+    padding: 0 var(--space-6) var(--space-6);
+    border-top: 1px solid var(--color-border);
+    margin-top: 0;
+    padding-top: var(--space-6);
+  }
+
+  .equipment-card__detail p {
+    font-size: var(--text-base);
+    color: var(--color-gray-600);
+    line-height: 1.7;
+    margin-bottom: var(--space-4);
+  }
+
+  .equipment-card__brands {
+    display: inline-block;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-primary);
+    background: #dbeafe;
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-full);
+  }
+</style>

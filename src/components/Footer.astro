@@ -2,18 +2,19 @@
 const base = import.meta.env.BASE_URL;
 const currentYear = new Date().getFullYear();
 
-const serviceLinks = [
-  { name: 'Residential Pool Cleaning', href: `${base}services/residential-pool-cleaning/` },
-  { name: 'Commercial Pool Cleaning', href: `${base}services/commercial-pool-cleaning/` },
-  { name: 'Green Pool Recovery', href: `${base}services/green-pool-recovery/` },
-  { name: 'Pool Inspections', href: `${base}services/pool-inspections/` },
-  { name: 'Commercial Repair & Install', href: `${base}services/commercial-repair-install/` },
-  { name: 'Residential Repair & Install', href: `${base}services/residential-repair-install/` },
+const maintenanceLinks = [
+  { name: 'Our Approach', href: `${base}services/` },
+  { name: 'Residential', href: `${base}services/residential-pool-cleaning/` },
+  { name: 'Commercial', href: `${base}services/commercial-pool-cleaning/` },
+  { name: 'Pricing', href: `${base}plans/` },
+  { name: 'Chemicals', href: `${base}chemicals/` },
 ];
 
-const toolLinks = [
-  { name: 'Pool Volume Calculator', href: `${base}tools/pool-volume-calculator/` },
-  { name: 'Chemical Dosage Calculator', href: `${base}tools/chemical-dosage-calculator/` },
+const companyLinks = [
+  { name: 'About', href: `${base}about/` },
+  { name: 'Blog', href: `${base}blog/` },
+  { name: 'Tools', href: `${base}tools/` },
+  { name: 'Contact', href: `${base}contact/` },
 ];
 ---
 
@@ -52,6 +53,24 @@ const toolLinks = [
           <li>Sunday: Closed</li>
         </ul>
       </div>
+
+      <div class="footer__col">
+        <h4 class="footer__heading">Maintenance</h4>
+        <ul>
+          {maintenanceLinks.map((link) => (
+            <li><a href={link.href}>{link.name}</a></li>
+          ))}
+        </ul>
+      </div>
+
+      <div class="footer__col">
+        <h4 class="footer__heading">Company</h4>
+        <ul>
+          {companyLinks.map((link) => (
+            <li><a href={link.href}>{link.name}</a></li>
+          ))}
+        </ul>
+      </div>
     </div>
 
     <div class="footer__bottom">
@@ -82,7 +101,7 @@ const toolLinks = [
 
   @media (min-width: 768px) {
     .footer__grid {
-      grid-template-columns: 1.5fr 1fr 1fr;
+      grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr;
     }
   }
 

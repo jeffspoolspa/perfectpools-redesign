@@ -2,18 +2,18 @@
 const base = import.meta.env.BASE_URL;
 const currentPath = Astro.url.pathname;
 
-const services = [
-  { name: 'Residential Pool Cleaning', href: `${base}services/residential-pool-cleaning/` },
-  { name: 'Commercial Pool Cleaning', href: `${base}services/commercial-pool-cleaning/` },
-  { name: 'Green Pool Recovery', href: `${base}services/green-pool-recovery/` },
-  { name: 'Pool Inspections', href: `${base}services/pool-inspections/` },
-  { name: 'Commercial Repair & Install', href: `${base}services/commercial-repair-install/` },
-  { name: 'Residential Repair & Install', href: `${base}services/residential-repair-install/` },
+const maintenance = [
+  { name: 'Our Approach', href: `${base}services/` },
+  { name: 'Residential', href: `${base}services/residential-pool-cleaning/` },
+  { name: 'Commercial', href: `${base}services/commercial-pool-cleaning/` },
+  { name: 'Pricing', href: `${base}plans/` },
+  { name: 'Chemicals', href: `${base}chemicals/` },
 ];
 
 const navLinks = [
   { name: 'Home', href: base },
-  { name: 'Services', href: `${base}services/`, children: services },
+  { name: 'Maintenance', href: `${base}services/`, children: maintenance },
+  { name: 'Service & Repair', href: `${base}service-repair/` },
   { name: 'About', href: `${base}about/` },
   { name: 'Blog', href: `${base}blog/` },
   { name: 'Tools', href: `${base}tools/` },
