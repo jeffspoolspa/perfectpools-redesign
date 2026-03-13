@@ -3,6 +3,7 @@ import TopBar from '../components/TopBar.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import CustomerIntakeForm from '../components/CustomerIntakeForm.tsx';
+import GetStartedQuote from '../components/GetStartedQuote.tsx';
 import '../styles/global.css';
 
 interface Props {
@@ -73,14 +74,17 @@ const ogImageUrl = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`
   <!-- Customer Intake Form (Preact island) -->
   <CustomerIntakeForm client:load />
 
-  <!-- Intake form trigger + Mobile menu script -->
+  <!-- Get Started Quote Modal (Preact island) -->
+  <GetStartedQuote client:load basePath={import.meta.env.BASE_URL} />
+
+  <!-- Intake form trigger + Get Started trigger + Mobile menu script -->
   <script>
-    // Intake form trigger delegation
+    // Quote form trigger delegation — all quote/get-started buttons open the new GetStartedQuote modal
     document.addEventListener('click', (e) => {
-      const trigger = (e.target as HTMLElement).closest('[data-open-intake]');
+      const trigger = (e.target as HTMLElement).closest('[data-open-intake], [data-open-get-started]');
       if (trigger) {
         e.preventDefault();
-        window.dispatchEvent(new CustomEvent('openIntakeForm'));
+        window.dispatchEvent(new CustomEvent('openGetStarted'));
       }
     });
 

@@ -1,0 +1,48 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": "Pool Maintenance Service — Get Started",
+  "provider": {
+    "@type": "LocalBusiness",
+    "name": "Perfect Pools",
+    "telephone": "(912) 459-0160",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "8989 Ford Ave",
+      "addressLocality": "Richmond Hill",
+      "addressRegion": "GA",
+      "postalCode": "31324",
+      "addressCountry": "US"
+    }
+  },
+  "areaServed": {
+    "@type": "State",
+    "name": "Georgia"
+  },
+  "description": "Get an instant quote for weekly pool maintenance service. Perfect Pools serves the Greater Savannah and Coastal Georgia area."
+};
+---
+
+<BaseLayout
+  title="Get Started — Instant Pool Maintenance Quote | Perfect Pools"
+  description="Get your instant pool maintenance quote in minutes. Perfect Pools serves Savannah, Richmond Hill, and Coastal Georgia with weekly pool cleaning starting at $200/month."
+  canonicalPath="/get-started/"
+  schema={schema}
+>
+  <div class="gs-page">
+    <div id="get-started-onboarding" style="width: 100%;"></div>
+  </div>
+</BaseLayout>
+
+<script>
+  import { h, render } from 'preact';
+  import GetStartedOnboarding from '../components/GetStartedOnboarding';
+
+  const container = document.getElementById('get-started-onboarding');
+  if (container) {
+    render(h(GetStartedOnboarding, null), container);
+  }
+</script>

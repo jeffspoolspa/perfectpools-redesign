@@ -2,6 +2,8 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import FAQ from '../../components/FAQ.astro';
 
+const base = import.meta.env.BASE_URL;
+
 const faqs = [
   { question: 'What types of commercial pools do you service?', answer: 'We maintain pools for HOA communities, hotels and motels, apartment complexes, fitness centers, and short-term rental properties throughout the Greater Savannah area.' },
   { question: 'Do you handle health department compliance?', answer: 'Yes. We maintain chemical logs, testing schedules, and service documentation formatted exactly how Georgia DPH inspectors expect to see them. When they show up, you hand them our logs.' },
@@ -79,7 +81,7 @@ const schema = [
     <div class="container">
       <div class="comm-require__layout">
         <div class="comm-require__image">
-          <img src="/images/tech-testing-poolside.jpg" alt="Pool technician testing water at a commercial property" loading="lazy" width="640" height="480" />
+          <img src={`${base}images/tech-testing-poolside.jpg`} alt="Pool technician testing water at a commercial property" loading="lazy" width="640" height="480" />
         </div>
         <div class="comm-require__content">
           <span class="section-label">Built for commercial</span>
@@ -141,37 +143,37 @@ const schema = [
 
       <div class="visit-grid">
         <div class="visit-item">
-          <img src="/images/icons/test-tubes.svg" width="48" height="48" alt="" />
+          <img src={`${base}images/icons/test-tubes.svg`} width="48" height="48" alt="" />
           <h3>Water Testing</h3>
           <p>pH, free/combined chlorine, alkalinity, stabilizer, hardness—tested and logged every visit.</p>
         </div>
 
         <div class="visit-item">
-          <img src="/images/icons/chemical.svg" width="48" height="48" alt="" />
+          <img src={`${base}images/icons/chemical.svg`} width="48" height="48" alt="" />
           <h3>Chemistry Adjustment</h3>
           <p>Dosed to exact readings with commercial-grade chemicals. Quantities and costs documented.</p>
         </div>
 
         <div class="visit-item">
-          <img src="/images/icons/motor.svg" width="48" height="48" alt="" />
+          <img src={`${base}images/icons/motor.svg`} width="48" height="48" alt="" />
           <h3>Equipment Monitoring</h3>
           <p>Pumps, filters, heaters, feeders, automation systems—checked for proper operation.</p>
         </div>
 
         <div class="visit-item">
-          <img src="/images/icons/skimmer-net.svg" width="48" height="48" alt="" />
+          <img src={`${base}images/icons/skimmer-net.svg`} width="48" height="48" alt="" />
           <h3>Surface Cleaning</h3>
           <p>Skim, brush tile line, empty baskets. Your pool looks maintained before guests arrive.</p>
         </div>
 
         <div class="visit-item">
-          <img src="/images/icons/pool-brush.svg" width="48" height="48" alt="" />
+          <img src={`${base}images/icons/pool-brush.svg`} width="48" height="48" alt="" />
           <h3>Brush Walls & Tile</h3>
           <p>Thorough brushing to prevent algae buildup and calcium deposits on commercial surfaces.</p>
         </div>
 
         <div class="visit-item">
-          <img src="/images/icons/vacuum.svg" width="48" height="48" alt="" />
+          <img src={`${base}images/icons/vacuum.svg`} width="48" height="48" alt="" />
           <h3>Vacuum</h3>
           <p>Vacuum pool floor and walls to remove dirt, debris, and settled contaminants.</p>
         </div>
@@ -298,7 +300,7 @@ const schema = [
           <!-- Slide 1: Bulk Chemicals -->
           <div class="manage-slide" data-slide="0">
             <div class="manage-slide__image">
-              <img src="/images/pool-cleaning.jpg" alt="Bulk chemical delivery for commercial pools" loading="lazy" width="640" height="480" />
+              <img src={`${base}images/pool-cleaning.jpg`} alt="Bulk chemical delivery for commercial pools" loading="lazy" width="640" height="480" />
             </div>
             <div class="manage-slide__content">
               <span class="manage-slide__badge manage-slide__badge--blue">Save up to 30%</span>
@@ -315,7 +317,7 @@ const schema = [
           <!-- Slide 2: Equipment Rooms -->
           <div class="manage-slide" data-slide="1">
             <div class="manage-slide__image">
-              <img src="/images/checking-over-equipment.jpg" alt="Clean and organized pool equipment room" loading="lazy" width="640" height="480" />
+              <img src={`${base}images/checking-over-equipment.jpg`} alt="Clean and organized pool equipment room" loading="lazy" width="640" height="480" />
             </div>
             <div class="manage-slide__content">
               <span class="manage-slide__badge manage-slide__badge--green">Inspection Ready</span>
@@ -332,7 +334,7 @@ const schema = [
           <!-- Slide 3: DPH Handling -->
           <div class="manage-slide" data-slide="2">
             <div class="manage-slide__image">
-              <img src="/images/pool-water-testing.jpg" alt="Water testing for health department compliance" loading="lazy" width="640" height="480" />
+              <img src={`${base}images/pool-water-testing.jpg`} alt="Water testing for health department compliance" loading="lazy" width="640" height="480" />
             </div>
             <div class="manage-slide__content">
               <span class="manage-slide__badge manage-slide__badge--purple">Full Compliance</span>
@@ -349,7 +351,7 @@ const schema = [
           <!-- Slide 4: Reliable Coverage -->
           <div class="manage-slide" data-slide="3">
             <div class="manage-slide__image">
-              <img src="/images/pool-cleaning-action.jpg" alt="Pool technician providing reliable service" loading="lazy" width="640" height="480" />
+              <img src={`${base}images/pool-cleaning-action.jpg`} alt="Pool technician providing reliable service" loading="lazy" width="640" height="480" />
             </div>
             <div class="manage-slide__content">
               <span class="manage-slide__badge manage-slide__badge--orange">Never Missed</span>

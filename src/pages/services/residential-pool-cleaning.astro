@@ -3,6 +3,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import FAQ from '../../components/FAQ.astro';
 import CTASection from '../../components/CTASection.astro';
 
+const base = import.meta.env.BASE_URL;
+
 const faqs = [
   { question: 'How often should I have my pool cleaned?', answer: 'For most residential pools in the Savannah area, weekly service is recommended due to our warm climate and high pollen counts. Bi-weekly service is available for pools with less usage.' },
   { question: 'What does a typical cleaning visit include?', answer: 'Each visit includes skimming the surface, brushing walls and tile, vacuuming the floor, testing and balancing chemicals, checking the filter, and inspecting all equipment.' },
@@ -126,7 +128,7 @@ const schema = [
         </div>
 
         <div class="feature-showcase__image">
-          <img src="/images/pool-water-testing.jpg" alt="Perfect Pools technician testing pool water chemistry" loading="lazy" />
+          <img src={`${base}images/pool-water-testing.jpg`} alt="Perfect Pools technician testing pool water chemistry" loading="lazy" />
         </div>
       </div>
     </div>
@@ -139,49 +141,49 @@ const schema = [
 
       <div class="weekly-grid">
         <div class="weekly-item">
-          <img src="/images/icons/test-tubes.svg" width="48" height="48" alt="" />
+          <img src={`${base}images/icons/test-tubes.svg`} width="48" height="48" alt="" />
           <h3>Water Testing</h3>
           <p>Full panel test: chlorine, pH, alkalinity, hardness, stabilizer, salt, and phosphates.</p>
         </div>
 
         <div class="weekly-item">
-          <img src="/images/icons/chemical.svg" width="48" height="48" alt="" />
+          <img src={`${base}images/icons/chemical.svg`} width="48" height="48" alt="" />
           <h3>Chemical Dosing</h3>
           <p>Adjust chemistry based on test results—liquid chlorine, pH adjusters, and stabilizer as needed.</p>
         </div>
 
         <div class="weekly-item">
-          <img src="/images/icons/pool-brush.svg" width="48" height="48" alt="" />
+          <img src={`${base}images/icons/pool-brush.svg`} width="48" height="48" alt="" />
           <h3>Brush Walls & Steps</h3>
           <p>Thorough brushing to remove algae buildup and prevent stains on surfaces.</p>
         </div>
 
         <div class="weekly-item">
-          <img src="/images/icons/skimmer-net.svg" width="48" height="48" alt="" />
+          <img src={`${base}images/icons/skimmer-net.svg`} width="48" height="48" alt="" />
           <h3>Skim & Net</h3>
           <p>Remove leaves, debris, and surface contaminants to keep water clear.</p>
         </div>
 
         <div class="weekly-item">
-          <img src="/images/icons/basket.svg" width="48" height="48" alt="" />
+          <img src={`${base}images/icons/basket.svg`} width="48" height="48" alt="" />
           <h3>Empty Baskets</h3>
           <p>Clear skimmer and pump baskets so your circulation system runs efficiently.</p>
         </div>
 
         <div class="weekly-item">
-          <img src="/images/icons/motor.svg" width="48" height="48" alt="" />
+          <img src={`${base}images/icons/motor.svg`} width="48" height="48" alt="" />
           <h3>Check Equipment</h3>
           <p>Check pressure to make sure equipment has proper flow, clean filters if not, and look for leaks, cracks, and wear.</p>
         </div>
 
         <div class="weekly-item">
-          <img src="/images/icons/vacuum.svg" width="48" height="48" alt="" />
+          <img src={`${base}images/icons/vacuum.svg`} width="48" height="48" alt="" />
           <h3>Vacuum</h3>
           <p>Vacuum the pool floor and walls to remove dirt, debris, and settled algae.</p>
         </div>
 
         <div class="weekly-item">
-          <img src="/images/icons/water-tap.svg" width="48" height="48" alt="" />
+          <img src={`${base}images/icons/water-tap.svg`} width="48" height="48" alt="" />
           <h3>Check Water Level</h3>
           <p>Verify water level is at the correct height and add fresh water if needed.</p>
         </div>
@@ -207,7 +209,7 @@ const schema = [
     <div class="container">
       <div class="benefits-layout">
         <div class="benefits-layout__image">
-          <img src="/images/pool-cleaning-action.jpg" alt="Perfect Pools technician cleaning a residential pool with a skimmer" loading="lazy" />
+          <img src={`${base}images/pool-cleaning-action.jpg`} alt="Perfect Pools technician cleaning a residential pool with a skimmer" loading="lazy" />
         </div>
 
         <div class="benefits-layout__content">
