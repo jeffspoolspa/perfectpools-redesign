@@ -5,38 +5,41 @@
 
 /* --- CSS Custom Properties --- */
 :root {
-  /* Colors — Figma Design System */
-  --color-primary: #0284c7;        /* Primary Blue */
-  --color-primary-dark: #0369a1;
+  /* Colors — Azure Equilibrium Design System */
+  --color-primary: #1E3A5F;        /* Primary Navy */
+  --color-primary-dark: #0B1320;   /* Deep Slate */
   --color-primary-light: #e0f2fe;
-  --color-cyan: #06b6d4;           /* Cyan accent */
-  --color-dark-blue: #0c4a6e;      /* Dark blue (top bar, footer) */
-  --color-light-bg: #f0f9ff;       /* Light blue background */
-  --color-orange: #fb923c;         /* Orange CTA start */
-  --color-orange-hover: #f97316;   /* Orange CTA end/hover */
+  --color-deep-blue: #145BB8;      /* Deep Blue — secondary brand */
+  --color-cyan: #06b6d4;           /* Legacy cyan */
+  --color-dark-blue: #1E3A5F;      /* Dark blue (top bar, footer) */
+  --color-light-bg: #F9F6F0;       /* Warm Sand */
+  --color-orange: #E28D33;         /* Accent Amber */
+  --color-orange-hover: #d47e28;   /* Amber hover */
+  --color-cta: #E28D33;            /* CTA Amber */
+  --color-gold: #F59E0B;           /* Sun-Warmed Gold */
   --color-white: #ffffff;
-  --color-gray-50: #f9fafb;
-  --color-gray-100: #f3f4f6;
+  --color-gray-50: #F9F6F0;        /* Warm Sand */
+  --color-gray-100: #f3f0ea;
   --color-gray-200: #e5e7eb;
   --color-gray-300: #d1d5db;
-  --color-gray-400: #9ca3af;
+  --color-gray-400: #8BA1B5;       /* Sea Mist Gray */
   --color-gray-500: #6b7280;
   --color-gray-600: #4b5563;
   --color-gray-700: #374151;
   --color-gray-800: #1f2937;
-  --color-gray-900: #111827;
-  --color-text: #111827;
-  --color-text-light: #6b7280;
-  --color-text-muted: #9ca3af;
-  --color-bg: #ffffff;
-  --color-bg-alt: #f9fafb;
+  --color-gray-900: #0B1320;       /* Deep Slate */
+  --color-text: #2C3E50;           /* Body text */
+  --color-text-light: #5a6c7d;
+  --color-text-muted: #8BA1B5;     /* Sea Mist */
+  --color-bg: #ffffff;             /* Alabaster White */
+  --color-bg-alt: #F9F6F0;        /* Warm Sand */
   --color-warning: #d97706;
   --color-success: #059669;
   --color-border: #e5e7eb;
 
-  /* Typography — Figma Fonts */
-  --font-heading: 'Poppins', system-ui, sans-serif;
-  --font-body: 'Inter', system-ui, sans-serif;
+  /* Typography — Plus Jakarta Sans */
+  --font-heading: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
 
   /* Font Sizes */
   --text-xs: 0.75rem;
@@ -64,20 +67,20 @@
   --space-24: 6rem;
 
   /* Layout */
-  --container-max: 1200px;
+  --container-max: 1280px;
   --container-narrow: 800px;
   --container-padding: 1.25rem;
   --header-height: 64px;
   --topbar-height: 40px;
 
-  /* Borders & Shadows */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 16px;
-  --radius-full: 9999px;
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  /* Borders & Shadows — Azure Equilibrium */
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-full: 99px;          /* Pill buttons */
+  --shadow-sm: 0 4px 12px rgba(30, 58, 95, 0.04);
+  --shadow-md: 0 10px 40px rgba(30, 58, 95, 0.08);
+  --shadow-lg: 0 20px 60px rgba(30, 58, 95, 0.12);
 
   /* Transitions */
   --transition-fast: 150ms ease;
@@ -154,20 +157,24 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 h1 {
-  font-size: var(--text-4xl);
+  font-size: clamp(2.25rem, 5vw, 4rem); /* 64px hero */
+  font-weight: 800;
   letter-spacing: -0.02em;
+  line-height: 1.1;
   margin-bottom: var(--space-6);
 }
 
 h2 {
-  font-size: var(--text-3xl);
-  font-weight: 600;
+  font-size: clamp(1.75rem, 4vw, 3rem); /* 48px section */
+  font-weight: 700;
+  line-height: 1.2;
   margin-bottom: var(--space-4);
 }
 
 h3 {
-  font-size: 1.375rem;
-  font-weight: 600;
+  font-size: clamp(1.25rem, 2vw, 1.5rem); /* 24px card */
+  font-weight: 700;
+  line-height: 1.4;
   margin-bottom: var(--space-3);
 }
 
@@ -181,6 +188,7 @@ p {
   color: var(--color-text-light);
   margin-bottom: var(--space-4);
   line-height: 1.6;
+  font-size: 1.125rem; /* 18px body text per spec */
 }
 
 p:last-child {
@@ -200,7 +208,13 @@ p:last-child {
 }
 
 .section {
-  padding-block: var(--space-16);
+  padding-block: var(--space-20);
+}
+
+@media (min-width: 900px) {
+  .section {
+    padding-block: 7.5rem; /* 120px */
+  }
 }
 
 .section--alt {
