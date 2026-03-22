@@ -1,260 +1,501 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-
-const schema = {
-  "@context": "https://schema.org",
-  "@type": "Service",
-  "name": "Pool Maintenance Approach",
-  "provider": {
-    "@type": "LocalBusiness",
-    "name": "Perfect Pools",
-    "telephone": "(912) 459-0160"
-  },
-  "areaServed": "Richmond Hill, Savannah, and Coastal Georgia",
-  "description": "Our systematic approach to pool care: water chemistry as a system, preventive equipment monitoring, and total transparency with digital service reports."
-};
-
-const icons = {
-  testTube: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M14.5 2v17.5c0 1.4-1.1 2.5-2.5 2.5s-2.5-1.1-2.5-2.5V2"/><path d="M8.5 2h7"/><path d="M14.5 16h-5"/></svg>',
-  alertCircle: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
-  eye: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>',
-  checkCircle: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
-  droplets: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"/></svg>',
-  waves: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/></svg>',
-};
-
-const quoteFormUrl = "https://forms.jeffspoolspa.com/jeffspoolspaservice1/form/MaintenanceLeads/formperma/sZ_cHMy_F4pf-JTi8aCRtmGr78z4LJNGBj_w8_dtEIc";
 ---
 
 <BaseLayout
-  title="Our Approach to Pool Care | Science, Consistency & Transparency | Perfect Pools"
-  description="How Perfect Pools maintains your pool: water chemistry as a system, preventive equipment monitoring, and total transparency with digital reports. Serving Richmond Hill, Savannah & Coastal Georgia."
+  title="Our Approach to Pool Care | Perfect Pools"
+  description="Pool care isn't guesswork — it's chemistry, consistency, and accountability. Learn how Perfect Pools keeps your water balanced year-round in coastal Georgia."
   canonicalPath="/our-approach"
-  schema={schema}
 >
-  <!-- Page Header -->
-  <section class="page-header">
-    <div class="container">
-      <h1>Our Approach to Pool Care</h1>
-      <p>Why clear water isn't luck — it's science, consistency, and accountability.</p>
-    </div>
-  </section>
+  <section class="liquid-hero">
+    <div id="liquid-hero-mount"></div>
 
-  <!-- Introduction -->
-  <section class="section">
-    <div class="container">
-      <div class="prose">
-        <p>
-          Most pool companies treat maintenance like a checklist: dump chlorine, skim the surface,
-          and move to the next house. That approach might keep your water from turning completely
-          green, but it doesn't create truly balanced, healthy pool chemistry — and it doesn't catch
-          equipment problems before they become expensive emergencies.
-        </p>
-        <p>
-          We do things differently. Here's exactly how we maintain your pool — and why it matters.
-        </p>
+    <!-- HTML overlay for interactive elements -->
+    <div class="liquid-hero__overlay">
+      <p class="liquid-hero__subtitle">
+        Why clear water isn't luck — it's science, consistency, and accountability.
+      </p>
+      <div class="liquid-hero__buttons">
+        <a href="/get-started" class="btn btn--cta btn--lg">View Service Plans</a>
+        <a href="#pillars" class="btn btn--outline-white btn--lg">See How We Work</a>
       </div>
     </div>
+
+    <div class="liquid-hero__wave">
+      <svg viewBox="0 0 1440 120" preserveAspectRatio="none" fill="none">
+        <path d="M0,60 C240,120 480,0 720,60 C960,120 1200,0 1440,60 L1440,120 L0,120 Z" fill="var(--color-bg)" />
+      </svg>
+    </div>
   </section>
 
-  <!-- The Three Pillars -->
-  <section class="section section--alt">
+  <!-- Section 2: Three Pillars Triangle (Interactive) -->
+  <section class="section pillars-section" id="pillars">
     <div class="container">
       <div class="section-header">
         <h2>Three pillars of Perfect Pool care</h2>
+        <p>Every visit is built on chemistry, equipment health, and transparency — working together as one system.</p>
       </div>
 
-      <div class="grid grid--3">
-        <div class="pillar-card">
-          <div class="pillar-card__icon">
-            <Fragment set:html={icons.testTube} />
-          </div>
-          <h3>Water Chemistry as a System</h3>
-          <p>
-            Your pool water isn't just "chlorinated" or "not chlorinated." It's a delicate
-            balance of pH, alkalinity, calcium hardness, stabilizer, and sanitizer.
-          </p>
-          <p>
-            When one of these is off, it affects everything else. Too much calcium makes
-            chlorine less effective. Low alkalinity causes pH swings. We test and adjust all
-            of these factors together — not just throw in chlorine and hope for the best.
-          </p>
-        </div>
-
-        <div class="pillar-card">
-          <div class="pillar-card__icon">
-            <Fragment set:html={icons.alertCircle} />
-          </div>
-          <h3>Preventive Equipment Monitoring</h3>
-          <p>
-            Every visit includes a full inspection: pump pressure, filter condition, water
-            flow rate, skimmer baskets, and equipment sounds.
-          </p>
-          <p>
-            A pump that starts making a different noise isn't "fine." It's a warning sign
-            that a bearing is wearing out. We catch these early — before a $200 repair becomes
-            a $1,500 emergency replacement in July.
-          </p>
-        </div>
-
-        <div class="pillar-card">
-          <div class="pillar-card__icon">
-            <Fragment set:html={icons.eye} />
-          </div>
-          <h3>Total Transparency</h3>
-          <p>
-            After every visit, you get a digital service report with chemical readings, what
-            we adjusted, and photos if we notice anything.
-          </p>
-          <p>
-            You should never wonder, "Did they actually come this week?" or "Why is my bill
-            higher this month?" If we add something beyond standard chemicals, you know about
-            it before it happens.
-          </p>
-        </div>
-      </div>
+      <div id="pillars-mount"></div>
     </div>
   </section>
 
-  <!-- What a Typical Visit Looks Like -->
-  <section class="section">
-    <div class="container max-w-4xl mx-auto">
-      <div class="section-header" style="text-align:left;margin-inline:0;">
-        <h2>What a typical service visit looks like</h2>
-      </div>
-
-      <div class="visit-steps">
-        <div class="visit-card">
-          <div class="visit-card__inner">
-            <Fragment set:html={icons.checkCircle} />
-            <div>
-              <h3>Arrival & Visual Inspection (2-3 min)</h3>
-              <p>We check the pool surface for debris, algae spots, staining, and water level. We also look at the deck area for safety issues or equipment leaks.</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="visit-card">
-          <div class="visit-card__inner">
-            <Fragment set:html={icons.testTube} />
-            <div>
-              <h3>Water Testing (3-5 min)</h3>
-              <p>We test for free chlorine, pH, total alkalinity, calcium hardness, and stabilizer (CYA). These readings are logged in your service report.</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="visit-card">
-          <div class="visit-card__inner">
-            <Fragment set:html={icons.droplets} />
-            <div>
-              <h3>Chemical Adjustment (5-7 min)</h3>
-              <p>Based on test results, we adjust pH, alkalinity, and add chlorine or salt as needed. We also add algaecide or clarifier if the water needs it.</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="visit-card">
-          <div class="visit-card__inner">
-            <Fragment set:html={icons.waves} />
-            <div>
-              <h3>Surface Cleaning & Basket Service (5-7 min)</h3>
-              <p>We skim leaves and debris from the surface, empty skimmer and pump baskets, and brush the pool walls and steps as needed.</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="visit-card">
-          <div class="visit-card__inner">
-            <Fragment set:html={icons.alertCircle} />
-            <div>
-              <h3>Equipment Check (3-5 min)</h3>
-              <p>We inspect pump operation, filter pressure gauge, heater (if applicable), salt cell condition, and automation settings. Any abnormalities are noted.</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="visit-card">
-          <div class="visit-card__inner">
-            <Fragment set:html={icons.eye} />
-            <div>
-              <h3>Documentation & Report (2-3 min)</h3>
-              <p>Before we leave, we log all readings and actions in our system. You'll receive a digital report with photos if we spotted anything unusual.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <p class="text-center text-italic" style="color:var(--color-text-light);margin-top:2rem;">
-        Total visit time: 20-30 minutes, depending on pool size and condition
-      </p>
-    </div>
-  </section>
-
-  <!-- Water Chemistry Explained -->
-  <section class="section section--alt">
-    <div class="container max-w-4xl mx-auto">
-      <div class="section-header" style="text-align:left;margin-inline:0;">
-        <h2>Pool chemistry in plain English</h2>
-        <p style="text-align:left;">You don't need to be a chemist to understand your pool. Here's what the numbers mean:</p>
-      </div>
-
-      <div class="chemistry-stack">
-        <div class="chemistry-card">
-          <h3>Free Chlorine (1-3 ppm)</h3>
-          <p style="color:var(--color-text-light);line-height:1.7;">
-            This is your sanitizer. It kills bacteria, algae, and other contaminants. Too low
-            and you get algae. Too high and it irritates eyes and skin. We keep it in the
-            sweet spot.
-          </p>
-        </div>
-
-        <div class="chemistry-card">
-          <h3>pH (7.2-7.6)</h3>
-          <p style="color:var(--color-text-light);line-height:1.7;">
-            pH measures how acidic or basic your water is. Low pH (acidic) corrodes equipment
-            and irritates skin. High pH makes chlorine ineffective and causes cloudy water.
-            This is one of the most important numbers.
-          </p>
-        </div>
-
-        <div class="chemistry-card">
-          <h3>Total Alkalinity (80-120 ppm)</h3>
-          <p style="color:var(--color-text-light);line-height:1.7;">
-            Think of this as pH's "shock absorber." Proper alkalinity prevents pH from swinging
-            wildly every time you add chemicals or it rains. Low alkalinity = unstable water.
-          </p>
-        </div>
-
-        <div class="chemistry-card">
-          <h3>Calcium Hardness (200-400 ppm)</h3>
-          <p style="color:var(--color-text-light);line-height:1.7;">
-            Too low and your water "hungers" for calcium, pulling it from your pool surface
-            and equipment (causing damage). Too high and you get scaling on tiles and fixtures.
-          </p>
-        </div>
-
-        <div class="chemistry-card">
-          <h3>Stabilizer / CYA (30-50 ppm)</h3>
-          <p style="color:var(--color-text-light);line-height:1.7;">
-            This protects chlorine from UV breakdown in the sun. Without it, chlorine
-            evaporates in hours. Too much and chlorine becomes ineffective (common problem
-            with tab feeders and salt pools).
-          </p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- CTA Section -->
-  <section class="cta-section">
+  <!-- Section 3: Industry vs Us Comparison -->
+  <section class="section compare-section">
     <div class="container">
-      <h2>Ready to experience the difference?</h2>
-      <p>Join hundreds of coastal Georgia homeowners who trust us with their pools.</p>
-      <div class="cta-section__buttons">
-        <a href={`${import.meta.env.BASE_URL}plans`} class="btn btn--cta btn--lg">View Service Plans</a>
-        <a href={`${import.meta.env.BASE_URL}reviews`} class="btn btn--outline-white btn--lg">Read Customer Reviews</a>
+      <div class="compare-card">
+        <div class="compare-card__divider"></div>
+
+        <!-- Left: Industry Standard -->
+        <div class="compare-side compare-side--industry">
+          <div class="compare-side__header">
+            <span class="compare-label">The Industry Standard</span>
+            <h3 class="compare-title">Chaos & Reaction</h3>
+          </div>
+          <div class="compare-points">
+            <div class="compare-point">
+              <div class="compare-icon compare-icon--bad">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              </div>
+              <div>
+                <h4 class="compare-point__title">Reactive Treatment</h4>
+                <p class="compare-point__desc">Chemicals dumped only after algae blooms or equipment fails. Constant catch-up.</p>
+                <div class="compare-bar compare-bar--chaotic">
+                  <span style="left: 0; width: 33%;"></span>
+                  <span style="left: 50%; width: 25%;"></span>
+                </div>
+              </div>
+            </div>
+            <div class="compare-point">
+              <div class="compare-icon compare-icon--bad">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              </div>
+              <div>
+                <h4 class="compare-point__title">Inconsistent Visits</h4>
+                <p class="compare-point__desc">No proof of service duration or specific tasks completed. The "splash and dash".</p>
+                <div class="compare-bar compare-bar--gaps">
+                  <span></span><span class="empty"></span><span></span><span></span><span class="empty"></span>
+                </div>
+              </div>
+            </div>
+            <div class="compare-point">
+              <div class="compare-icon compare-icon--bad">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              </div>
+              <div>
+                <h4 class="compare-point__title">Hidden Chemical Costs</h4>
+                <p class="compare-point__desc">Opaque billing with sudden spikes for shock treatments and algaecides.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Our Approach -->
+        <div class="compare-side compare-side--ours">
+          <div class="compare-side__header">
+            <span class="compare-label compare-label--accent">Our Systematic Approach</span>
+            <h3 class="compare-title compare-title--dark">Structure & Perfection</h3>
+          </div>
+          <div class="compare-points">
+            <div class="compare-point">
+              <div class="compare-icon compare-icon--good">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.5 3.5L13 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <div>
+                <h4 class="compare-point__title">Proactive Asset Management</h4>
+                <p class="compare-point__desc">Micro-adjustments made weekly based on precise baseline testing. Zero algae, ever.</p>
+                <div class="compare-bar compare-bar--solid"></div>
+              </div>
+            </div>
+            <div class="compare-point">
+              <div class="compare-icon compare-icon--good">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.5 3.5L13 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <div>
+                <h4 class="compare-point__title">Timestamped Verification</h4>
+                <p class="compare-point__desc">Digital logs of exact arrival times, chemical dosing, and photographic evidence.</p>
+                <div class="compare-bar compare-bar--consistent">
+                  <span></span><span></span><span></span><span></span><span></span>
+                </div>
+              </div>
+            </div>
+            <div class="compare-point">
+              <div class="compare-icon compare-icon--good">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.5 3.5L13 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <div>
+                <h4 class="compare-point__title">Transparent Chemical Dosing</h4>
+                <p class="compare-point__desc">Flat-rate predictability. We absorb the fluctuations of chemical markets, not you.</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 </BaseLayout>
+
+<script>
+  import { render, h } from 'preact';
+  import LiquidHero from '../components/LiquidHero.tsx';
+  import PillarsTriangle from '../components/PillarsTriangle.tsx';
+
+  const mount = document.getElementById('liquid-hero-mount');
+  if (mount) {
+    render(h(LiquidHero, null), mount);
+  }
+
+  const pillarsMount = document.getElementById('pillars-mount');
+  if (pillarsMount) {
+    render(h(PillarsTriangle, null), pillarsMount);
+  }
+</script>
+
+<style>
+  .liquid-hero {
+    position: relative;
+    min-height: 85vh;
+    overflow: hidden;
+    background: url('/images/pool-tile-nice.webp') center center / cover no-repeat;
+    background-color: #0369a1;
+  }
+
+  #liquid-hero-mount {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  .liquid-hero__overlay {
+    position: absolute;
+    bottom: 14%;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    text-align: center;
+    padding: 0 var(--container-padding);
+  }
+
+  .liquid-hero__subtitle {
+    font-family: var(--font-body);
+    font-size: clamp(0.95rem, 1.8vw, 1.15rem);
+    color: rgba(255, 255, 255, 0.85);
+    max-width: 520px;
+    margin: 0 auto var(--space-6);
+    line-height: 1.6;
+    text-shadow: 0 1px 8px rgba(0, 40, 60, 0.3);
+  }
+
+  .liquid-hero__buttons {
+    display: flex;
+    gap: var(--space-4);
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .liquid-hero__wave {
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    z-index: 1;
+    line-height: 0;
+  }
+
+  .liquid-hero__wave svg {
+    width: 100%;
+    height: 80px;
+  }
+
+  @media (max-width: 768px) {
+    .liquid-hero { min-height: 70vh; }
+    .liquid-hero__overlay { bottom: 12%; }
+    .liquid-hero__wave svg { height: 50px; }
+  }
+
+  /* === Comparison Section === */
+  .compare-section {
+    padding-top: var(--space-16);
+    padding-bottom: var(--space-16);
+  }
+
+  .compare-card {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    background: #fff;
+    box-shadow: 0 25px 50px -12px rgba(11, 19, 32, 0.08);
+    border: 1px solid #e5e5e5;
+  }
+
+  .compare-card__divider {
+    display: none;
+  }
+
+  @media (min-width: 768px) {
+    .compare-card {
+      flex-direction: row;
+    }
+    .compare-card__divider {
+      display: block;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 1px;
+      background: #e5e5e5;
+      z-index: 1;
+    }
+  }
+
+  .compare-side {
+    flex: 1;
+    padding: 2.5rem;
+  }
+
+  @media (min-width: 768px) {
+    .compare-side { padding: 3.5rem; }
+  }
+
+  @media (min-width: 1024px) {
+    .compare-side { padding: 4rem 5rem; }
+  }
+
+  .compare-side--industry {
+    background: #fafafa;
+  }
+
+  .compare-side--ours {
+    background: #fff;
+  }
+
+  .compare-side__header {
+    margin-bottom: 2.5rem;
+  }
+
+  .compare-label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-text-light);
+    margin-bottom: 0.75rem;
+  }
+
+  .compare-label--accent {
+    color: var(--color-cta);
+  }
+
+  .compare-title {
+    font-family: var(--font-heading);
+    font-size: clamp(1.5rem, 3vw, 1.85rem);
+    font-weight: 600;
+    color: var(--color-text);
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+  }
+
+  .compare-title--dark {
+    color: #0B1320;
+  }
+
+  .compare-points {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+
+  .compare-point {
+    display: flex;
+    gap: 1.25rem;
+  }
+
+  .compare-icon {
+    flex-shrink: 0;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 0.15rem;
+  }
+
+  .compare-icon--bad {
+    border: 1px solid #fecaca;
+    background: #fef2f2;
+    color: #ef4444;
+  }
+
+  .compare-icon--good {
+    border: 1px solid var(--color-cta);
+    background: rgba(224, 182, 41, 0.1);
+    color: var(--color-cta);
+  }
+
+  .compare-point__title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--color-text);
+    margin-bottom: 0.35rem;
+  }
+
+  .compare-point__desc {
+    font-size: 0.85rem;
+    line-height: 1.65;
+    color: var(--color-text-light);
+  }
+
+  /* Visual bars */
+  .compare-bar {
+    margin-top: 0.85rem;
+    height: 0.4rem;
+    position: relative;
+    background: #e5e7eb;
+    overflow: hidden;
+  }
+
+  .compare-bar--chaotic span {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    background: #ef4444;
+    opacity: 0.55;
+  }
+
+  .compare-bar--gaps {
+    display: flex;
+    gap: 3px;
+    background: transparent;
+  }
+
+  .compare-bar--gaps span {
+    flex: 1;
+    height: 0.4rem;
+    background: #fca5a5;
+  }
+
+  .compare-bar--gaps span.empty {
+    background: transparent;
+  }
+
+  .compare-bar--solid {
+    background: linear-gradient(to right, rgba(224, 182, 41, 0.4), rgba(224, 182, 41, 0.8));
+  }
+
+  .compare-bar--consistent {
+    display: flex;
+    gap: 3px;
+    background: transparent;
+  }
+
+  .compare-bar--consistent span {
+    flex: 1;
+    height: 0.4rem;
+    background: rgba(224, 182, 41, 0.6);
+  }
+
+  /* === Pillars Section === */
+  .pillars-section {
+    padding-top: var(--space-16);
+    padding-bottom: var(--space-16);
+    background: #fafafa;
+  }
+
+  /* Interactive pillars — :global() because Preact renders these */
+  :global(.pillars-interactive) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    margin-top: var(--space-10);
+  }
+
+  @media (min-width: 900px) {
+    :global(.pillars-interactive) {
+      flex-direction: row;
+      align-items: center;
+      gap: 2.5rem;
+    }
+  }
+
+  :global(.pillars-interactive__diagram) {
+    flex-shrink: 0;
+    width: 100%;
+    max-width: 420px;
+  }
+
+  @media (min-width: 900px) {
+    :global(.pillars-interactive__diagram) {
+      flex: 0 0 55%;
+      width: 55%;
+      max-width: 55%;
+    }
+  }
+
+  :global(.pillars-interactive__svg) {
+    width: 100%;
+    height: auto;
+    filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.1));
+  }
+
+  :global(.pillars-interactive__panel) {
+    flex: 1;
+    background: #fff;
+    border-radius: 12px;
+    border: 2px solid #e5e7eb;
+    padding: 2rem;
+    min-height: 180px;
+    animation: panelFadeIn 0.3s ease;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    transition: border-color 0.3s ease;
+  }
+
+  @keyframes panelFadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  :global(.pi-panel__header) {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  :global(.pi-panel__icon) {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+  }
+
+  :global(.pi-panel__icon img) {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  :global(.pi-panel__title) {
+    font-family: var(--font-heading);
+    font-size: clamp(1.1rem, 2vw, 1.35rem);
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  :global(.pi-panel__body) {
+    font-size: 0.9rem;
+    line-height: 1.75;
+    color: var(--color-text-light);
+  }
+
+  :global(.pi-panel__body p) {
+    margin-bottom: 0.75rem;
+  }
+</style>
