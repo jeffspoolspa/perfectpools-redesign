@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+const base = import.meta.env.BASE_URL;
 ---
 
 <BaseLayout
@@ -7,7 +8,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   description="Pool care isn't guesswork — it's chemistry, consistency, and accountability. Learn how Perfect Pools keeps your water balanced year-round in coastal Georgia."
   canonicalPath="/our-approach"
 >
-  <section class="liquid-hero">
+  <section class="liquid-hero" style={`--hero-bg: url('${base}images/pool-tile-nice.webp')`}>
     <div id="liquid-hero-mount"></div>
 
     <!-- HTML overlay for interactive elements -->
@@ -70,7 +71,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     position: relative;
     min-height: 85vh;
     overflow: hidden;
-    background: url('/images/pool-tile-nice.webp') center center / cover no-repeat;
+    background: var(--hero-bg) center center / cover no-repeat;
     background-color: #0369a1;
   }
 
@@ -146,8 +147,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     margin: 0 auto;
   }
 
-  :global(.cs__header) {
-    margin-bottom: var(--space-8);
+  :global(.cs__header--mobile) {
+    display: block;
+    margin-bottom: var(--space-6);
+  }
+
+  :global(.cs__header--desktop) {
+    display: none;
   }
 
   :global(.cs__card-stack) {
@@ -326,22 +332,68 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.1));
   }
 
-  /* Mobile: stacked layout */
+  /* Mobile: stacked layout — diagram on top, cards below, scroll still works */
   :global(.ps) {
-    margin-top: var(--space-10);
+    margin-top: var(--space-6);
+    position: relative;
   }
 
   :global(.ps__sticky-col) {
-    display: none; /* hidden on mobile */
+    position: sticky;
+    top: 50px;
+    z-index: 1;
+    background: #fafafa;
+    padding-bottom: 1rem;
   }
 
-  :global(.ps__track) {
-    display: none; /* hidden on mobile */
+  /* Mobile: show the non-sticky header, hide the sticky one */
+  :global(.ps__header--mobile) {
+    display: block;
+    margin-bottom: var(--space-6);
+  }
+
+  :global(.ps__header--desktop) {
+    display: none;
+  }
+
+  :global(.ps__content-row) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  :global(.ps__diagram) {
+    max-width: 220px;
+    width: 100%;
+  }
+
+  :global(.ps__card) {
+    padding: 1.25rem;
+  }
+
+  :global(.ps__card-header) {
+    gap: 0.65rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.65rem;
+  }
+
+  :global(.ps__card-icon) {
+    width: 36px;
+    height: 36px;
+    padding: 6px;
+  }
+
+  :global(.ps__card-title) {
+    font-size: 1rem;
+  }
+
+  :global(.ps__card-body) {
+    font-size: 0.85rem;
   }
 
   :global(.ps__mobile-diagram) {
-    max-width: 320px;
-    margin: 0 auto 2rem;
+    display: none;
   }
 
   /* Card stack — all cards layered, only active visible via crossfade */
@@ -429,35 +481,111 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     }
 
     :global(.ps__sticky-col) {
-      display: block;
-      position: sticky;
-      top: 100px;
-      z-index: 1;
-      width: 100%;
+      top: 80px;
+      background: #fafafa;
     }
 
-    :global(.ps__header) {
+    :global(.ps__header--mobile) {
+      display: none;
+    }
+
+    :global(.ps__header--desktop) {
+      display: block;
       margin-bottom: var(--space-8);
     }
 
     :global(.ps__content-row) {
-      display: flex;
+      flex-direction: row;
       align-items: center;
       gap: 2rem;
     }
 
     :global(.ps__diagram) {
       flex: 0 0 50%;
+      max-width: none;
     }
 
     :global(.ps__card-stack) {
       flex: 1;
     }
 
-    :global(.ps__mobile-diagram) {
+    :global(.cs__header--mobile) {
       display: none;
+    }
+
+    :global(.cs__header--desktop) {
+      display: block;
+      margin-bottom: var(--space-8);
     }
   }
 
-  /* Compare card global styles (used by CompareScroll Preact component) */
+  /* === Mobile overrides for comparison section === */
+  @media (max-width: 899px) {
+    :global(.cs) {
+      margin-top: var(--space-6);
+    }
+
+    :global(.cs__sticky) {
+      top: 50px;
+    }
+
+    /* compare headers already handled by global defaults */
+
+    :global(.compare-card) {
+      padding: 1.25rem;
+    }
+
+    :global(.compare-points) {
+      gap: 1.5rem;
+    }
+
+    :global(.compare-point__title) {
+      font-size: 0.85rem;
+    }
+
+    :global(.compare-point__desc) {
+      font-size: 0.8rem;
+    }
+
+    :global(.cs__spacer) {
+      height: 120vh;
+    }
+  }
+
+  /* === Mobile overrides for pillar cards (after global card styles) === */
+  @media (max-width: 899px) {
+    /* ps__header visibility handled by --mobile/--desktop toggle */
+
+    :global(.ps__card) {
+      padding: 1.25rem !important;
+    }
+
+    :global(.ps__spacer) {
+      height: 300vh;
+    }
+
+    :global(.ps__card-header) {
+      gap: 0.65rem;
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.65rem;
+    }
+
+    :global(.ps__card-icon) {
+      width: 36px;
+      height: 36px;
+      padding: 6px;
+    }
+
+    :global(.ps__card-title) {
+      font-size: 1rem;
+    }
+
+    :global(.ps__card-body) {
+      font-size: 0.85rem;
+    }
+
+    :global(.ps__card-body p) {
+      margin-bottom: 0.5rem;
+    }
+  }
 </style>

@@ -92,8 +92,15 @@ export default function CompareScroll() {
 
   return (
     <div className="cs" ref={containerRef}>
+      {/* Mobile: header scrolls naturally */}
+      <div className="section-header cs__header cs__header--mobile">
+        <h2>What sets us apart</h2>
+        <p>The difference between the industry standard and our systematic approach.</p>
+      </div>
+
       <div className="cs__sticky">
-        <div className="section-header cs__header">
+        {/* Desktop: header inside sticky */}
+        <div className="section-header cs__header cs__header--desktop">
           <h2>What sets us apart</h2>
           <p>The difference between the industry standard and our systematic approach.</p>
         </div>

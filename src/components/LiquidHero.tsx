@@ -1,4 +1,5 @@
 import { useEffect, useRef, useCallback } from 'preact/hooks';
+import { assetPath } from '../utils/base-url';
 
 interface LiquidHeroProps {
   title?: string[];
@@ -130,7 +131,7 @@ export default function LiquidHero({
         resolve(offscreen.toDataURL('image/png'));
       };
 
-      img.src = '/images/pool-tile-nice.webp';
+      img.src = assetPath('/images/pool-tile-nice.webp');
     });
   }, [title, eyebrow, subtitle]);
 

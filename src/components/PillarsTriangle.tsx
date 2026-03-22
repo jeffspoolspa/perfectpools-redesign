@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'preact/hooks';
+import { useState, useEffect, useMemo } from 'preact/hooks';
+import { assetPath } from '../utils/base-url';
 
 /*
   IMPORTANT: Icon/label positions were carefully tuned.
@@ -72,6 +73,8 @@ interface Props {
 
 export default function PillarsTriangle({ active: activeProp, onHover }: Props) {
   const [localActive, setLocalActive] = useState(activeProp || 'sanitation');
+  // Resolve asset paths once (handles GitHub Pages base path)
+  const resolvedPillars = useMemo(() => PILLARS.map(p => ({ ...p, resolvedIcon: assetPath(p.icon) })), []);
 
   // Sync with external active prop (scroll-driven)
   useEffect(() => {
@@ -89,7 +92,7 @@ export default function PillarsTriangle({ active: activeProp, onHover }: Props) 
       xmlns="http://www.w3.org/2000/svg"
       className="pillars-interactive__svg"
     >
-      {PILLARS.map((p) => {
+      {resolvedPillars.map((p) => {
         const isActive = localActive === p.id;
         const small = p.id === 'flow';
 
@@ -123,7 +126,7 @@ export default function PillarsTriangle({ active: activeProp, onHover }: Props) 
                 style={{ transition: 'fill 0.3s ease, stroke 0.3s ease' }}
               />
               <image
-                href={p.icon}
+                href={p.resolvedIcon}
                 x={p.iconX}
                 y={p.iconY}
                 width={p.iconSize}

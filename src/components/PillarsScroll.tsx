@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'preact/hooks';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import PillarsTriangle, { PILLARS } from './PillarsTriangle';
+import { assetPath } from '../utils/base-url';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -69,8 +70,18 @@ export default function PillarsScroll() {
 
   return (
     <div className="ps" ref={containerRef}>
+      {/* Mobile: header scrolls naturally (not sticky) */}
+      <div className="section-header ps__header ps__header--mobile">
+        <h2>Three pillars of Perfect Pool care</h2>
+        <p>
+          Every visit is built on chemistry, equipment health, and
+          transparency — working together as one system.
+        </p>
+      </div>
+
       <div className="ps__sticky-col">
-        <div className="section-header ps__header">
+        {/* Desktop: header inside sticky col */}
+        <div className="section-header ps__header ps__header--desktop">
           <h2>Three pillars of Perfect Pool care</h2>
           <p>
             Every visit is built on chemistry, equipment health, and
@@ -106,7 +117,7 @@ export default function PillarsScroll() {
               >
                 <div className="ps__card-header">
                   <div className="ps__card-icon" style={{ background: p.color }}>
-                    <img src={p.icon} alt="" />
+                    <img src={assetPath(p.icon)} alt="" />
                   </div>
                   <h3 className="ps__card-title" style={{ color: p.color }}>
                     {p.heading}
