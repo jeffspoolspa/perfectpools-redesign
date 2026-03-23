@@ -71,17 +71,22 @@ export default function TimelineScroll() {
         const markers = sectionRef.current!.querySelectorAll('.tl-marker');
         if (!cards.length) return;
 
-        // Build timeline
+        // Set first card and marker as active immediately
+        gsap.set(cards[0], { opacity: 1, y: 0 });
+        gsap.set(markers[0], { scale: 1.2, background: '#145BB8' });
+        (markers[0] as HTMLElement).querySelector('.tl-numeral')!.style.color = '#fff';
+
+        // Build timeline starting from hold on first card
         const tl = gsap.timeline();
-        cards.forEach((card, i) => {
-          if (i > 0) {
-            tl.to(cards[i - 1], { opacity: 0, y: -20, duration: 0.3 }, `card${i}`);
-            tl.fromTo(markers[i - 1], { scale: 1.2, background: '#145BB8' }, { scale: 1, background: '#e5e7eb', duration: 0.3 }, `card${i}`);
-          }
-          tl.fromTo(card, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5 }, `card${i}`);
-          tl.fromTo(markers[i], { scale: 1, background: '#e5e7eb' }, { scale: 1.2, background: '#145BB8', duration: 0.3 }, `card${i}`);
+        tl.to({}, { duration: 0.8 }); // hold first card
+
+        for (let i = 1; i < cards.length; i++) {
+          tl.to(cards[i - 1], { opacity: 0, y: -20, duration: 0.3 }, `card${i}`);
+          tl.to(markers[i - 1], { scale: 1, background: '#e5e7eb', duration: 0.3, onUpdate() { (markers[i-1] as HTMLElement).querySelector('.tl-numeral')!.style.color = '#6b7280'; } }, `card${i}`);
+          tl.fromTo(cards[i], { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5 }, `card${i}`);
+          tl.to(markers[i], { scale: 1.2, background: '#145BB8', duration: 0.3, onUpdate() { (markers[i] as HTMLElement).querySelector('.tl-numeral')!.style.color = '#fff'; } }, `card${i}`);
           tl.to({}, { duration: 0.8 }); // hold
-        });
+        }
 
         ScrollTrigger.create({
           trigger: sectionRef.current,
@@ -111,7 +116,7 @@ export default function TimelineScroll() {
         {/* Right: card stack */}
         <div class="tl-card-area">
           {PHASES.map((p, i) => (
-            <div key={i} class={`tl-card ${i === 0 ? 'tl-card--active' : ''}`} style={i > 0 ? 'opacity: 0; position: absolute; top: 0; left: 0; right: 0;' : ''}>
+            <div key={i} class={`tl-card`} style={i !== 0 ? 'opacity: 0; position: absolute; top: 0; left: 0; right: 0;' : ''}>
               <span class={`tl-badge tl-badge--${p.badgeClass || 'default'}`}>{p.badge}</span>
               <h3>{p.title}</h3>
               {p.content.map((para, j) => (
