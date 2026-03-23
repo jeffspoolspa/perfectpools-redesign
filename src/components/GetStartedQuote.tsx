@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'preact/hooks';
 import ChemicalCostChart from './ChemicalCostChart';
+import { assetPath } from '../utils/base-url';
 
 /* ── Constants ── */
 const COUNTIES = ['Bryan', 'Chatham', 'Liberty', 'McIntosh', 'Glynn', 'Camden', 'Effingham'];
@@ -296,7 +297,7 @@ export default function GetStartedQuote({ basePath = '/' }: { basePath?: string 
         visitsPerMonth: price.visitsPerMonth,
       }));
     } catch {}
-    window.location.href = '/get-started/';
+    window.location.href = assetPath('get-started/');
   }
 
   /* ── P2-2: Submit ticket (equipment / green pool) ── */
