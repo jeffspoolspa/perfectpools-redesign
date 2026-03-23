@@ -5829,6 +5829,10 @@ p:last-child {
   overflow: hidden;
 }
 
+.home-cities__viewport {
+  overflow: hidden;
+}
+
 .home-city-card__content strong {
   color: #fff;
 }
@@ -5920,7 +5924,6 @@ p:last-child {
 .home-cities__track {
   display: flex;
   gap: 1rem;
-  overflow: hidden;
   transition: transform 0.4s ease;
 }
 
