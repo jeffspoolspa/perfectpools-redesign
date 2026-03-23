@@ -321,6 +321,72 @@ const icons = {
     </div>
   </section>
 
+  <!-- ============ MARKETS WE SERVE ============ -->
+  <section class="section service-area-section" id="service-area">
+    <div class="container">
+      <div class="section-header">
+        <h2>Markets We Serve</h2>
+        <p>Serving coastal Georgia and the Lowcountry</p>
+      </div>
+
+      <!-- Checker + Map card -->
+      <div class="service-area__card">
+        <div class="service-area__layout">
+          <div class="service-area__checker">
+            <h3>Check Your Address</h3>
+            <p>Enter your address to see if you're within our service area.</p>
+            <div id="service-area-checker"></div>
+          </div>
+          <div class="service-area__map" id="service-area-map"></div>
+        </div>
+      </div>
+
+      <!-- City cards carousel -->
+      <div class="home-cities">
+        <div class="home-cities__track">
+          <a href={`${import.meta.env.BASE_URL}service-areas/richmond-hill/`} class="home-city-card">
+            <img src={`${import.meta.env.BASE_URL}images/city-richmond-hill.jpg`} alt="Richmond Hill" />
+            <div class="home-city-card__overlay"></div>
+            <div class="home-city-card__content"><span>GA</span><strong>Richmond Hill</strong></div>
+          </a>
+          <a href={`${import.meta.env.BASE_URL}service-areas/savannah/`} class="home-city-card">
+            <img src={`${import.meta.env.BASE_URL}images/city-savannah.jpg`} alt="Savannah" />
+            <div class="home-city-card__overlay"></div>
+            <div class="home-city-card__content"><span>GA</span><strong>Savannah</strong></div>
+          </a>
+          <a href={`${import.meta.env.BASE_URL}service-areas/pooler/`} class="home-city-card">
+            <img src={`${import.meta.env.BASE_URL}images/city-pooler.webp`} alt="Pooler" />
+            <div class="home-city-card__overlay"></div>
+            <div class="home-city-card__content"><span>GA</span><strong>Pooler</strong></div>
+          </a>
+          <a href={`${import.meta.env.BASE_URL}service-areas/hinesville/`} class="home-city-card">
+            <img src={`${import.meta.env.BASE_URL}images/city-hinesville.jpeg`} alt="Hinesville" />
+            <div class="home-city-card__overlay"></div>
+            <div class="home-city-card__content"><span>GA</span><strong>Hinesville</strong></div>
+          </a>
+          <a href={`${import.meta.env.BASE_URL}service-areas/tybee-island/`} class="home-city-card">
+            <img src={`${import.meta.env.BASE_URL}images/city-tybee-island.webp`} alt="Tybee Island" />
+            <div class="home-city-card__overlay"></div>
+            <div class="home-city-card__content"><span>GA</span><strong>Tybee Island</strong></div>
+          </a>
+          <a href={`${import.meta.env.BASE_URL}service-areas/bluffton/`} class="home-city-card">
+            <img src={`${import.meta.env.BASE_URL}images/city-bluffton.webp`} alt="Bluffton" />
+            <div class="home-city-card__overlay"></div>
+            <div class="home-city-card__content"><span>SC</span><strong>Bluffton</strong></div>
+          </a>
+        </div>
+        <div class="home-cities__nav">
+          <button class="home-cities__btn" id="cities-prev" aria-label="Previous">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <button class="home-cities__btn" id="cities-next" aria-label="Next">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ============ SOCIAL PROOF ============ -->
   <section class="reviews-home">
     <div class="container">
@@ -349,3 +415,133 @@ const icons = {
     </div>
   </section>
 </BaseLayout>
+
+<script>
+  import { render, h } from 'preact';
+  import ServiceAreaChecker from '../components/ServiceAreaChecker.tsx';
+
+  const checkerMount = document.getElementById('service-area-checker');
+  if (checkerMount) render(h(ServiceAreaChecker, null), checkerMount);
+
+  // Render Google Map in the map container
+  async function initMap() {
+    const mapEl = document.getElementById('service-area-map');
+    if (!mapEl || !(window as any).google?.maps) return;
+    const google = (window as any).google;
+    const center = { lat: 31.6, lng: -81.35 };
+    const map = new google.maps.Map(mapEl, {
+      center, zoom: 9,
+      disableDefaultUI: true,
+      zoomControl: true,
+      styles: [
+        { featureType: 'water', elementType: 'geometry.fill', stylers: [{ color: '#c8e3f5' }] },
+        { featureType: 'water', elementType: 'labels', stylers: [{ visibility: 'off' }] },
+        { featureType: 'landscape', elementType: 'geometry.fill', stylers: [{ color: '#eef2ee' }] },
+        { featureType: 'landscape.natural', elementType: 'geometry.fill', stylers: [{ color: '#e8efe8' }] },
+        { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#dde4dd' }, { visibility: 'simplified' }] },
+        { featureType: 'road.highway', elementType: 'labels', stylers: [{ visibility: 'off' }] },
+        { featureType: 'road.arterial', elementType: 'geometry', stylers: [{ color: '#e8ece8' }, { visibility: 'simplified' }] },
+        { featureType: 'road.arterial', elementType: 'labels', stylers: [{ visibility: 'off' }] },
+        { featureType: 'road.local', elementType: 'geometry', stylers: [{ color: '#f0f4f0' }, { visibility: 'simplified' }] },
+        { featureType: 'road.local', elementType: 'labels', stylers: [{ visibility: 'off' }] },
+        { featureType: 'poi', stylers: [{ visibility: 'off' }] },
+        { featureType: 'transit', stylers: [{ visibility: 'off' }] },
+        { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#4a5568' }] },
+        { featureType: 'administrative.locality', elementType: 'labels.text.stroke', stylers: [{ color: '#ffffff' }, { weight: 3 }] },
+        { featureType: 'administrative.neighborhood', stylers: [{ visibility: 'off' }] },
+      ],
+    });
+    // Fetch heatmap data from Supabase
+    const SUPABASE_URL = 'https://vvprodiuwraceabviyes.supabase.co';
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ2cHJvZGl1d3JhY2VhYnZpeWVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5MDU4MTYsImV4cCI6MjA3MjQ4MTgxNn0.HOFTUrInpmzhxTJDSp1xKp81noC7jMuTcdxr9JqC3z0';
+    try {
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/heatmap-data`, {
+        headers: { apikey: SUPABASE_ANON },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.points?.length > 0) {
+          const points = data.points as { lat: number; lng: number }[];
+          const areas = [
+            { name: 'Savannah', lat: 32.065, lng: -81.09 },
+            { name: 'Pooler', lat: 32.12, lng: -81.25 },
+            { name: 'Richmond Hill', lat: 31.94, lng: -81.30 },
+            { name: 'Wilmington Is.', lat: 31.99, lng: -80.97 },
+            { name: 'Tybee Island', lat: 32.00, lng: -80.85 },
+            { name: 'Skidaway Is.', lat: 31.94, lng: -81.06 },
+            { name: 'Hinesville', lat: 31.84, lng: -81.60 },
+            { name: 'Midway', lat: 31.81, lng: -81.43 },
+            { name: 'Brunswick', lat: 31.16, lng: -81.49 },
+            { name: 'St. Simons Is.', lat: 31.17, lng: -81.37 },
+          ];
+          const counts = new Map<string, number>();
+          areas.forEach(a => counts.set(a.name, 0));
+          points.forEach(p => {
+            let nearest = areas[0];
+            let minD = Infinity;
+            areas.forEach(a => {
+              const d = (p.lat - a.lat) ** 2 + (p.lng - a.lng) ** 2;
+              if (d < minD) { minD = d; nearest = a; }
+            });
+            counts.set(nearest.name, (counts.get(nearest.name) || 0) + 1);
+          });
+          areas.forEach(area => {
+            const count = counts.get(area.name) || 0;
+            if (count < 3) return;
+            const scale = Math.min(count / 80, 1);
+            new google.maps.Circle({ center: { lat: area.lat, lng: area.lng }, radius: 5000 + scale * 9000, map, fillColor: '#22d3ee', fillOpacity: 0.08 + scale * 0.04, strokeWeight: 0, clickable: false, zIndex: 0 });
+            new google.maps.Circle({ center: { lat: area.lat, lng: area.lng }, radius: 3000 + scale * 5500, map, fillColor: '#06b6d4', fillOpacity: 0.12 + scale * 0.06, strokeWeight: 0, clickable: false, zIndex: 1 });
+            new google.maps.Circle({ center: { lat: area.lat, lng: area.lng }, radius: 1200 + scale * 2800, map, fillColor: '#0891b2', fillOpacity: 0.17 + scale * 0.09, strokeWeight: 0, clickable: false, zIndex: 2 });
+          });
+        }
+      }
+    } catch {};
+
+    // Listen for address check — zoom in and drop pin
+    let marker: any = null;
+    window.addEventListener('address-checked', ((e: CustomEvent) => {
+      const { lat, lng, inArea } = e.detail;
+      if (marker) marker.setMap(null);
+      map.panTo({ lat, lng });
+      map.setZoom(13);
+      marker = new google.maps.Marker({
+        position: { lat, lng },
+        map,
+        icon: {
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: 10,
+          fillColor: inArea ? '#059669' : '#d97706',
+          fillOpacity: 1,
+          strokeColor: '#fff',
+          strokeWeight: 3,
+        },
+        animation: google.maps.Animation.DROP,
+      });
+    }) as EventListener);
+  }
+  // Wait for Google Maps to load (already loaded by ServiceAreaChecker)
+  const checkMaps = setInterval(() => {
+    if ((window as any).google?.maps) { clearInterval(checkMaps); initMap(); }
+  }, 200);
+
+  // City cards carousel
+  const citiesTrack = document.querySelector('.home-cities__track') as HTMLElement;
+  const citiesPrev = document.getElementById('cities-prev');
+  const citiesNext = document.getElementById('cities-next');
+  if (citiesTrack && citiesPrev && citiesNext) {
+    let cityOffset = 0;
+    const getCardWidth = () => {
+      const card = citiesTrack.querySelector('.home-city-card') as HTMLElement;
+      return card ? card.offsetWidth + 16 : 0;
+    };
+    const getMax = () => Math.max(0, citiesTrack.scrollWidth - (citiesTrack.parentElement as HTMLElement).offsetWidth);
+    citiesPrev.addEventListener('click', () => {
+      cityOffset = Math.max(0, cityOffset - getCardWidth());
+      citiesTrack.style.transform = `translateX(-${cityOffset}px)`;
+    });
+    citiesNext.addEventListener('click', () => {
+      cityOffset = Math.min(getMax(), cityOffset + getCardWidth());
+      citiesTrack.style.transform = `translateX(-${cityOffset}px)`;
+    });
+  }
+</script>

@@ -1,0 +1,457 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import ReviewCarousel from '../../../components/ReviewCarousel.astro';
+const base = import.meta.env.BASE_URL;
+
+const city = {
+  name: 'Bluffton',
+  state: 'SC',
+  tagline: "LOWCOUNTRY POOL SPECIALISTS",
+  heroHeading: 'Professional Pool Service in Bluffton, SC',
+  heroSubtext: "From Sun City to Berkeley Hall, we bring data-driven pool care across the Savannah River into Beaufort County. The same meticulous protocols our Georgia clients trust — now serving the Lowcountry.",
+  heroImage: `${base}images/city-bluffton.webp`,
+  localImage: `${base}images/coastal-aerial.jpg`,
+  localExpertise: {
+    kicker: '',
+    heading: 'Lowcountry Water, Solved.',
+    paragraphs: [
+      "Bluffton's Lowcountry environment presents a distinct set of pool maintenance challenges. The Beaufort County water supply carries different mineral profiles than Chatham County across the river, and the area's tidal creek system means elevated humidity and organic matter even in neighborhoods set back from the coast.",
+      "The large retirement and resort communities — Sun City, Berkeley Hall, Colleton River — feature pools that often sit under mature live oak canopy, creating heavy tannin loads and persistent phosphate issues. Our protocols for Bluffton account for the region's unique water chemistry, the longer drive from our Richmond Hill base with adjusted scheduling, and the specific equipment corrosion patterns common in Beaufort County's salt-influenced air."
+    ]
+  },
+  services: [
+    {
+      icon: 'calendar',
+      iconFile: 'icon-weekly-care.svg',
+      title: 'Weekly Maintenance',
+      desc: 'Our signature meticulous service. Full panel testing, debris removal, and equipment monitoring to keep your pool perfect year round.',
+      color: '#145BB8',
+      bg: '#e7f0ff',
+      href: `${base}our-approach/`,
+    },
+    {
+      icon: 'wrench',
+      iconFile: 'icon-repair.svg',
+      title: 'Equipment Service',
+      desc: 'Everything from small repairs to full equipment pad upgrades. Backed by expert diagnosis to ensure we get it right the first time.',
+      color: '#E28D33',
+      bg: '#ffebcc',
+      href: `${base}services/residential-repair-install/`,
+    },
+    {
+      icon: 'leaf',
+      iconFile: 'icon-green-pool.svg',
+      title: 'Green Recovery',
+      desc: 'Complete algae remediation and water restoration — from swamp green back to crystal clear in days.',
+      color: '#059669',
+      bg: '#d1fae5',
+      href: `${base}services/green-pool-recovery/`,
+    },
+  ],
+  stats: [
+    { value: '4.9/5', label: 'Google Rating', icon: 'star' },
+    { value: '45-Min', label: 'Protocol Minimum', icon: 'clock' },
+    { value: 'Real-Time', label: 'Digital Reports', icon: 'chart' },
+  ],
+  testimonials: [
+    {
+      quote: "Erin and Jackie of Perfect Pools have managed the maintenance of our pool, deck and lanai for over 8 years and are a credit to their profession. The quality of work is always exceptional. Their professionalism and attention to detail is unmatched. Matthew, our pool tech is highly skilled and efficient. Perfect Pools maintains exceptional communications: timely, full-disclosure, team-focused and courteous.",
+      name: 'Scott Lopez',
+      stars: 5,
+    },
+    {
+      quote: "After calling about 6 different companies, Perfect Pools was the ONLY pool service that we could find that would come out to Midway, GA. So happy we found them. Our pool was green and full of algae when we first bought this house... they had it cleaned up and sparkling blue in no time. They have helped us with some energy saving ideas as well.",
+      name: 'Katie S.',
+      stars: 5,
+    },
+    {
+      quote: "After dealing with other companies in the area, Perfect Pools is by far the most responsive, fairly priced, and experienced company. I had damage after one of the recent hurricanes and they came in quick to measure and replace my liner. They kept in constant communication and provided timely updates. Any issue they ran into during the process they were open about and provided a solution.",
+      name: 'Josh Anderson',
+      stars: 5,
+    },
+    {
+      quote: "Our pool is sparkling clean! Erin, the owner, and her staff are very professional and do excellent work. We have Perfect Pools come every two weeks and they take care of everything. They leave a checklist of all services performed. We have had zero issues and our pool is pristine. Anytime we have had questions, they are quick to respond. We are completely satisfied with Perfect Pools and absolutely recommend them.",
+      name: 'Terry & Pete H.',
+      stars: 5,
+    },
+    {
+      quote: "We are so pleased with Erin and her wonderful staff. They are not only efficient and knowledgeable but very courteous and helpful. We had large stains in our pool after the hurricane came through this year. We tried everything known to get them out. Erin analyzed the stains and she and her crew worked diligently to get them out. Our pool looks like it did when we first got it. We also had a pump issue come up and they came out the next day and fixed it.",
+      name: 'Susan Keen',
+      stars: 5,
+    },
+  ],
+  pricing: {
+    weekly: { price: 200, features: ['Weekly Chemical Balancing', 'Full Surface Skimming & Brushing', 'Vacuuming as Needed', 'Digital Visit Reports & Photos', 'Equipment Health Audit'] },
+    biweekly: { price: 125, features: ['Every-Other-Week Balancing', 'Surface Skimming & Brushing', 'Digital Visit Reports', 'Basket & Filter Clearing'] },
+  },
+};
+---
+
+<BaseLayout
+  title={`Pool Service in ${city.name}, ${city.state} | Perfect Pools`}
+  description={`Professional pool cleaning, maintenance, and repair in ${city.name}, ${city.state}. Weekly and bi-weekly plans with digital reporting. Serving the Lowcountry from Richmond Hill.`}
+  canonicalPath={`/service-areas/bluffton`}
+>
+
+  <!-- Hero -->
+  <section class="city-hero">
+    <div class="container">
+      <div class="city-hero__grid">
+        <div class="city-hero__content">
+          <span class="city-kicker">{city.tagline}</span>
+          <h1>{city.heroHeading}</h1>
+          <p class="city-hero__sub">{city.heroSubtext}</p>
+          <div class="city-hero__buttons">
+            <a href={`${base}get-started/`} class="btn btn--cta btn--lg">Get a Quote</a>
+          </div>
+        </div>
+        <div class="city-hero__image">
+          <img src={city.heroImage} alt={`Pool service in ${city.name}`} />
+        </div>
+      </div>
+    </div>
+    <div class="city-hero__glow"></div>
+  </section>
+
+  <!-- Stats Bar -->
+  <section class="city-stats">
+    <div class="container">
+      <div class="city-stats__grid">
+        {city.stats.map((stat) => (
+          <div class="city-stat">
+            <span class="city-stat__value">{stat.value}</span>
+            <span class="city-stat__label">{stat.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Services -->
+  <section class="section city-services">
+    <div class="container">
+      <span class="city-kicker">CORE OFFERINGS</span>
+      <h2>Pool Care Made Simple.</h2>
+      <div class="city-services__carousel">
+        <div class="city-services__track" id="services-track">
+          {city.services.map((svc) => (
+            <a href={svc.href} class="city-service-card">
+              <div class="city-service-card__icon" style={`background: ${svc.bg};`}>
+                <span class="city-service-card__svg" style={`background-color: ${svc.color}; -webkit-mask-image: url('${base}images/${svc.iconFile}'); mask-image: url('${base}images/${svc.iconFile}');`}></span>
+              </div>
+              <h3>{svc.title}</h3>
+              <p>{svc.desc}</p>
+              <div class="city-service-card__accent"></div>
+              <span class="city-service-card__link" style={`color: ${svc.color};`}>
+                Learn more
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </span>
+            </a>
+          ))}
+        </div>
+        <div class="city-services__dots" id="services-dots">
+          {city.services.map((_, i) => (
+            <button class={`city-services__dot ${i === 0 ? 'city-services__dot--active' : ''}`} data-index={i} aria-label={`Card ${i + 1}`}></button>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Local Expertise -->
+  <section class="city-local">
+    <div class="container">
+      <div class="city-local__grid">
+        <div class="city-local__content">
+          <span class="city-kicker city-kicker--light">{city.localExpertise.kicker}</span>
+          <h2 class="city-local__heading">{city.localExpertise.heading}</h2>
+          {city.localExpertise.paragraphs.map((p) => (
+            <p class="city-local__text">{p}</p>
+          ))}
+        </div>
+        <div class="city-local__image">
+          <div class="city-local__frame">
+            <img src={city.localImage} alt={`${city.name} aerial view`} />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="city-local__gradient"></div>
+  </section>
+
+  <!-- Testimonials -->
+  <section class="section city-testimonial">
+    <div class="container">
+      <div class="text-center" style="margin-bottom: var(--space-12);">
+        <span class="city-kicker">WHAT OUR CLIENTS SAY</span>
+        <h2>Real Reviews, Real Results.</h2>
+      </div>
+      <ReviewCarousel />
+      <div class="text-center" style="margin-top: var(--space-8);">
+        <a href="https://g.page/r/CVrU0W_3-NRyEAE/review" target="_blank" rel="noopener" class="btn btn--outline">Read All Reviews on Google</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section class="section section--alt city-pricing" id="pricing-section">
+    <div class="container">
+      <div class="text-center">
+        <span class="city-kicker">PRICING STRUCTURE</span>
+        <h2>Transparent Investments.</h2>
+        <p style="color: var(--color-text-light); max-width: 540px; margin: 0.5rem auto 0;">No contracts. Month-to-month service with 2 weeks notice to cancel.</p>
+      </div>
+
+      <div class="pricing-tabs">
+        <button class="pricing-tab pricing-tab--active" data-tab="weekly">Weekly</button>
+        <button class="pricing-tab pricing-tab--winter" data-tab="biweekly">
+          Bi-Weekly
+          <span class="pricing-tab__badge">&#10052; Winter Only</span>
+        </button>
+      </div>
+
+      <div class="pricing-card">
+        <div class="pricing-card__content pricing-card__content--active" data-content="weekly">
+          <div class="pricing-card__layout">
+            <div class="pricing-card__plan" id="pricing-config-weekly"></div>
+            <div class="pricing-card__chemicals">
+              <div class="chem-header">
+                <span class="chem-kicker">HOW CHEMICALS WORK</span>
+                <h4>True Cost Pricing</h4>
+                <p>Your bill reflects your pool, not an average.</p>
+              </div>
+              <div id="chem-chart-weekly"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pricing-card__content" data-content="biweekly">
+          <div class="pricing-card__layout">
+            <div class="pricing-card__plan" id="pricing-config-biweekly"></div>
+            <div class="pricing-card__chemicals">
+              <div class="chem-header">
+                <span class="chem-kicker">WHY WINTER ONLY</span>
+                <h4>Weekly vs. Bi-Weekly</h4>
+                <p style="color: #1E3A5F; font-weight: 700;">Anyone who's maintained a pool in coastal weather knows — two weeks is too long in the heat.</p>
+              </div>
+
+              <div class="biweekly-section__title">The Lawn Analogy</div>
+              <div class="biweekly-cards">
+                <div class="biweekly-card biweekly-card--good">
+                  <span class="biweekly-card__emoji">&#127807;</span>
+                  <strong>Weekly</strong>
+                  <span>Like mowing every week — stays level, no surprises.</span>
+                </div>
+                <div class="biweekly-card biweekly-card--warn">
+                  <span class="biweekly-card__emoji">&#127806;</span>
+                  <strong>Bi-weekly</strong>
+                  <span>Tall grass, weeds taking hold, harder to cut through.</span>
+                </div>
+                <div class="biweekly-card biweekly-card--bad">
+                  <span class="biweekly-card__emoji">&#128994;</span>
+                  <strong>Green pool</strong>
+                  <span>The overgrown yard — needs specialized equipment to recover.</span>
+                </div>
+              </div>
+              <p class="biweekly-story__kicker">Algae slows in winter just like grass — which is why bi-weekly works September through March.</p>
+
+              <div class="biweekly-section__title">The Data Shows the Strain</div>
+              <div class="biweekly-compare">
+                <div class="biweekly-compare__bars">
+                  <div class="biweekly-compare__row">
+                    <span class="biweekly-compare__label">Weekly</span>
+                    <div class="biweekly-compare__bar-track">
+                      <div class="biweekly-compare__bar biweekly-compare__bar--weekly" style="width: 80%;"></div>
+                    </div>
+                    <span class="biweekly-compare__value">$25/visit</span>
+                  </div>
+                  <div class="biweekly-compare__row">
+                    <span class="biweekly-compare__label">Bi-Weekly</span>
+                    <div class="biweekly-compare__bar-track">
+                      <div class="biweekly-compare__bar biweekly-compare__bar--biweekly" style="width: 100%;"></div>
+                    </div>
+                    <span class="biweekly-compare__value" style="color: #d97706; font-weight: 800;">$31/visit</span>
+                  </div>
+                </div>
+                <p class="biweekly-compare__note">24% more chemicals per visit just to play catch-up — which is why we no longer offer bi-weekly in summer.</p>
+              </div>
+
+              <div class="biweekly-section__title">What Happens in Two Weeks</div>
+              <div class="biweekly-cards">
+                <div class="biweekly-card biweekly-card--bad">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M12 2v10M12 22a10 10 0 0 1 0-20"/><circle cx="12" cy="12" r="2" fill="#ef4444"/></svg>
+                  <strong>Chlorine bottoms out</strong>
+                  <span>Degrades to zero in 10–14 days in coastal heat.</span>
+                </div>
+                <div class="biweekly-card biweekly-card--warn">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 6v6l4 2"/></svg>
+                  <strong>Phosphate buildup</strong>
+                  <span>Debris breaks down into algae food.</span>
+                </div>
+                <div class="biweekly-card biweekly-card--warn">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg>
+                  <strong>Equipment unmonitored</strong>
+                  <span>Failures run 12+ days undetected.</span>
+                </div>
+              </div>
+
+              <p class="chem-data-note" style="margin-top: 0.75rem;">Chemical data from customers who remained on bi-weekly last summer (234 bi-weekly vs 721 weekly invoices).</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center" style="margin-top: 2rem;">
+        <a href={`${base}get-started/`} class="btn btn--cta btn--lg">Get Started</a>
+        <p style="margin-top: 1rem; color: var(--color-text-light); font-size: 0.85rem;">
+          Chemicals billed separately at transparent cost-plus pricing. <a href={`${base}plans/`} style="color: var(--color-primary); text-decoration: underline;">See full pricing details</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section city-cta">
+    <div class="container container--narrow text-center">
+      <h2>Ready to fix your pool?</h2>
+      <p class="city-cta__sub">Choose the path that fits your needs. Our assessments are complimentary and comprehensive.</p>
+      <div class="city-hero__buttons" style="justify-content: center;">
+        <a href={`${base}get-started/`} class="btn btn--cta btn--lg">Book Assessment</a>
+        <a href={`${base}plans/`} class="btn btn--outline btn--lg">See Full Pricing</a>
+      </div>
+    </div>
+  </section>
+
+</BaseLayout>
+
+<script>
+  const track = document.getElementById('services-track');
+  const dots = document.querySelectorAll('.city-services__dot');
+  if (track && dots.length) {
+    track.addEventListener('scroll', () => {
+      const scrollLeft = track.scrollLeft;
+      const cardWidth = (track.firstElementChild as HTMLElement)?.offsetWidth || 1;
+      const gap = 24;
+      const index = Math.round(scrollLeft / (cardWidth + gap));
+      dots.forEach((dot, i) => {
+        dot.classList.toggle('city-services__dot--active', i === index);
+      });
+    });
+    dots.forEach((dot) => {
+      dot.addEventListener('click', () => {
+        const index = Number((dot as HTMLElement).dataset.index);
+        const cardWidth = (track.firstElementChild as HTMLElement)?.offsetWidth || 0;
+        const gap = 24;
+        track.scrollTo({ left: index * (cardWidth + gap), behavior: 'smooth' });
+      });
+    });
+  }
+
+  const tabs = document.querySelectorAll('.pricing-tab');
+  const contents = document.querySelectorAll('.pricing-card__content');
+  tabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      const target = (tab as HTMLElement).dataset.tab;
+      tabs.forEach((t) => t.classList.remove('pricing-tab--active'));
+      tab.classList.add('pricing-tab--active');
+      contents.forEach((c) => {
+        c.classList.toggle('pricing-card__content--active', (c as HTMLElement).dataset.content === target);
+      });
+    });
+  });
+
+  async function mountChemCharts() {
+    const { render, h } = await import('preact');
+    const { default: PricingConfigurator } = await import('../../../components/PricingConfigurator.tsx');
+    const { default: ChemicalCostChart } = await import('../../../components/ChemicalCostChart.tsx');
+
+    const weeklyConfig = document.getElementById('pricing-config-weekly');
+    if (weeklyConfig) {
+      render(h(PricingConfigurator, { frequency: 'weekly', ctaHref: '/get-started/' }), weeklyConfig);
+    }
+    const biweeklyConfig = document.getElementById('pricing-config-biweekly');
+    if (biweeklyConfig) {
+      render(h(PricingConfigurator, { frequency: 'biweekly', ctaHref: '/get-started/' }), biweeklyConfig);
+    }
+
+    const SUPABASE_URL = 'https://vvprodiuwraceabviyes.supabase.co';
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ2cHJvZGl1d3JhY2VhYnZpeWVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5MDU4MTYsImV4cCI6MjA3MjQ4MTgxNn0.HOFTUrInpmzhxTJDSp1xKp81noC7jMuTcdxr9JqC3z0';
+
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/chemical_cost_estimates?select=*`, {
+        headers: { apikey: SUPABASE_ANON, Accept: 'application/json' }
+      });
+      const allData = await res.json();
+      if (!Array.isArray(allData)) { console.error('Chem data not array:', JSON.stringify(allData)); return; }
+      const weeklyData = allData.filter((d: any) => d.service_frequency === 'weekly');
+
+      const weeklyMount = document.getElementById('chem-chart-weekly');
+      if (weeklyMount && weeklyData.length) {
+        render(h(ChemicalCostChart, { data: weeklyData, serviceMonthly: 217, competitorFlat: 350, compact: true }), weeklyMount);
+      }
+    } catch (err) {
+      console.error('Failed to load chemical cost data:', err);
+    }
+  }
+  mountChemCharts();
+</script>
+
+<style>
+  .city-kicker { display: block; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: #E28D33; margin-bottom: 1rem; }
+  .city-kicker--light { color: #E28D33; }
+  .city-hero { position: relative; padding: var(--space-16) 0 var(--space-12); overflow: hidden; }
+  .city-hero__grid { display: flex; flex-direction: column; gap: 3rem; align-items: center; }
+  @media (min-width: 900px) { .city-hero { padding: var(--space-24) 0; } .city-hero__grid { flex-direction: row; gap: 4rem; } .city-hero__content { flex: 0 0 58%; } .city-hero__image { flex: 1; } }
+  .city-hero__content h1 { margin-bottom: 1.25rem; }
+  .city-hero__sub { font-size: clamp(1rem, 1.8vw, 1.25rem); color: var(--color-text-light); max-width: 600px; margin-bottom: 2.5rem; }
+  .city-hero__buttons { display: flex; flex-wrap: wrap; gap: 1rem; }
+  .city-hero__image { position: relative; }
+  .city-hero__image img { border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); aspect-ratio: 4/5; object-fit: cover; width: 100%; }
+  .city-hero__glow { position: absolute; top: 0; right: 0; width: 40%; height: 100%; background: linear-gradient(to left, rgba(20, 91, 184, 0.06), transparent); pointer-events: none; z-index: -1; }
+  .city-stats { padding: 1.5rem 0; border-top: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border); background: #fff; }
+  .city-stats__grid { display: flex; justify-content: center; gap: 3rem; flex-wrap: wrap; }
+  @media (min-width: 768px) { .city-stats__grid { gap: 0; } .city-stat { padding-inline: 3rem; } .city-stat + .city-stat { border-left: 1px solid var(--color-border); } }
+  .city-stat { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.25rem; }
+  .city-stat__value { font-weight: 800; font-size: 1.25rem; color: var(--color-primary); }
+  .city-stat__label { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-text-muted); }
+  .city-services { background: #fff; }
+  .city-services__carousel { margin-top: 2.5rem; }
+  .city-services__track { display: flex; gap: 1.5rem; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: 0.5rem; }
+  .city-services__track::-webkit-scrollbar { display: none; }
+  .city-services__track .city-service-card { flex: 0 0 100%; scroll-snap-align: start; }
+  .city-services__dots { display: flex; justify-content: center; gap: 0.5rem; margin-top: 1.25rem; }
+  .city-services__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-border); border: none; cursor: pointer; transition: all 0.25s ease; padding: 0; }
+  .city-services__dot--active { background: var(--color-primary); width: 24px; border-radius: 4px; }
+  @media (min-width: 768px) { .city-services__track { overflow: visible; scroll-snap-type: none; } .city-services__track .city-service-card { flex: 1; } .city-services__dots { display: none; } }
+  .city-service-card { background: #fff; padding: 2.5rem; border-radius: var(--radius-lg); border: 1px solid rgba(226, 141, 51, 0.12); box-shadow: var(--shadow-sm); display: flex; flex-direction: column; transition: box-shadow 0.3s ease; }
+  .city-service-card:hover { box-shadow: var(--shadow-lg); }
+  .city-service-card__icon { width: 56px; height: 56px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; transition: transform 0.3s ease; padding: 10px; }
+  .city-service-card__svg { display: block; width: 100%; height: 100%; -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; }
+  .city-service-card:hover .city-service-card__icon { transform: scale(1.1); }
+  .city-service-card h3 { margin-bottom: 0.75rem; }
+  .city-service-card p { flex: 1; font-size: 0.95rem; }
+  .city-service-card__accent { width: 48px; height: 3px; background: #E28D33; margin-top: 1.5rem; border-radius: 2px; }
+  .city-service-card__link { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.85rem; font-weight: 600; margin-top: 0.75rem; transition: gap 0.2s ease; }
+  .city-service-card:hover .city-service-card__link { gap: 0.6rem; }
+  .city-local { background: var(--color-primary); color: #fff; padding: var(--space-20) 0; position: relative; overflow: hidden; }
+  .city-local__grid { display: flex; flex-direction: column; gap: 3rem; align-items: center; }
+  @media (min-width: 900px) { .city-local__grid { flex-direction: row; gap: 4rem; } .city-local__content { flex: 1; } .city-local__image { flex: 0 0 40%; } }
+  .city-local__heading { color: #fff; font-size: clamp(1.75rem, 4vw, 2.75rem); margin-bottom: 1.5rem; }
+  .city-local__text { font-size: 1.1rem; line-height: 1.7; color: rgba(200, 215, 240, 0.85); font-weight: 300; }
+  .city-local__frame { border-radius: 50%; overflow: hidden; border: 2px solid rgba(226, 141, 51, 0.25); aspect-ratio: 1; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3); }
+  .city-local__frame img { width: 100%; height: 100%; object-fit: cover; }
+  .city-local__gradient { position: absolute; top: 0; right: 0; width: 50%; height: 100%; background: linear-gradient(to left, rgba(20, 91, 184, 0.1), transparent); pointer-events: none; }
+  .city-testimonial__grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
+  @media (min-width: 768px) { .city-testimonial__grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1024px) { .city-testimonial__grid { grid-template-columns: repeat(3, 1fr); } }
+  .city-testimonial__card { position: relative; background: #fff; border: 1px solid #e5e7eb; border-radius: 24px; padding: 2rem; display: flex; flex-direction: column; box-shadow: 0 10px 40px rgba(30, 58, 95, 0.06); transition: box-shadow 0.3s ease, transform 0.3s ease; }
+  .city-testimonial__card:hover { box-shadow: 0 20px 60px rgba(30, 58, 95, 0.1); transform: translateY(-2px); }
+  .city-testimonial__stars { display: flex; gap: 2px; margin-bottom: 1rem; }
+  .city-testimonial__card blockquote { font-size: 0.95rem; line-height: 1.7; color: #2c3e50; margin-bottom: 1.5rem; flex: 1; }
+  .city-testimonial__author { display: flex; flex-direction: column; gap: 0.15rem; border-top: 1px solid #f0f0f0; padding-top: 1rem; }
+  .city-testimonial__author strong { font-size: 1rem; color: var(--color-text); }
+  .city-testimonial__author span { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-text-muted); }
+  .city-cta { background: #fff; }
+  .city-cta h2 { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 1rem; }
+  .city-cta__sub { font-size: clamp(1rem, 2vw, 1.35rem); color: var(--color-text-light); max-width: 560px; margin: 0 auto 2.5rem; }
+</style>
