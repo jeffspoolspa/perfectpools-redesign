@@ -42,7 +42,7 @@ const schema = {
     <div class="container about-hero__content">
       <h1 class="about-hero__title">Complete Pool Care.<br/>Built on Decades of Local Trust.</h1>
       <p class="about-hero__subtitle">
-        We brought together the best local pool professionals in the region — and gave them the resources to do even more. From weekly maintenance to full equipment service, one team that knows your pool inside and out.
+        Highest-quality service. Experienced technicians. Clear communication and transparent pricing.
       </p>
     </div>
   </section>
@@ -52,7 +52,7 @@ const schema = {
     <div class="container">
       <div class="why-layout">
         <div class="why-layout__content">
-          <span class="section-label">Why we do this</span>
+          <span class="section-label">Our Story</span>
           <h2>The pool industry has a service problem</h2>
 
           <div class="why-blocks">
@@ -91,7 +91,8 @@ const schema = {
         <div class="why-layout__callout">
           <div class="why-callout-card">
             <h3>Perfect Pools exists to break that cycle.</h3>
-            <p>Not by adding another small operation to the pile, but by being a dedicated service provider intentionally focused on the maintenance and service side of pool ownership.</p>
+            <p>Scattered across coastal Georgia were local business owners who had quietly built reputations for exceptional pool care. They earned trust one customer at a time and genuinely cared about the quality of their work. But as they grew, they began running into the same challenges — customer communication, billing headaches, hiring and training, maintaining quality control, scheduling complexity, and limited resources to scale.</p>
+            <p style="color: rgba(255,255,255,0.85); margin-bottom: var(--space-4);">The model was simple: partner and build with them. Provide the operational support, technology, and capital needed to help them grow while improving service quality and building on the strengths that made them successful in the first place.</p>
             <ul>
               <li>Technical depth to handle equipment</li>
               <li>Local presence to know your pool</li>
@@ -109,65 +110,10 @@ const schema = {
       <div class="section-header" style="max-width: 720px; margin-bottom: var(--space-16);">
         <span class="section-label">Our story</span>
         <h2>Built by bringing the best together</h2>
-        <p class="section-header__subtitle">Our founder saw something most people overlooked: your pool is a 15 to 20-year asset. It needs a dedicated service partner — not just someone who shows up with a net and chlorine.</p>
+        <p class="section-header__subtitle">We saw an opportunity to create a best-in-class pool service company. Your pool is one of the most valuable and complex assets and you need a reliable, full-service partner.</p>
       </div>
 
-      <div class="timeline">
-        <!-- The Vision -->
-        <div class="timeline__item">
-          <div class="timeline__marker">
-            <div class="timeline__dot"></div>
-          </div>
-          <div class="timeline__card">
-            <span class="timeline__badge">The Vision</span>
-            <h3>A different model for pool care</h3>
-            <p>Scattered across coastal Georgia were local business owners who had quietly built reputations for exceptional pool care. They'd earned trust one customer at a time and genuinely cared about the quality of their work. But they were running into the same walls — billing headaches, scheduling complexity, limited resources to grow.</p>
-            <p>Rather than compete with them, the model was simple: partner with them. Provide the capital, technology, and operational support to help them grow what they'd already built.</p>
-          </div>
-        </div>
-
-        <!-- Jeff's Pool & Spa -->
-        <div class="timeline__item">
-          <div class="timeline__marker">
-            <div class="timeline__dot"></div>
-            <span class="timeline__year">2023</span>
-          </div>
-          <div class="timeline__card">
-            <span class="timeline__badge timeline__badge--blue">The Foundation</span>
-            <h3>Jeff's Pool & Spa Service</h3>
-            <p>The first acquisition was Jeff's Pool & Spa Service, a well-respected business serving the Golden Isles of Georgia. Jeff's was known for something rare in the maintenance world — deep equipment expertise. Pumps, filtration, heaters, automation, lighting, and complex hydraulic systems across both residential and commercial environments.</p>
-            <p>That became the foundation: a complete care model where the same company that maintains your pool also understands your system end to end and stands behind their work.</p>
-          </div>
-        </div>
-
-        <!-- Perfect Pools -->
-        <div class="timeline__item">
-          <div class="timeline__marker">
-            <div class="timeline__dot"></div>
-            <span class="timeline__year">2024</span>
-          </div>
-          <div class="timeline__card">
-            <span class="timeline__badge timeline__badge--green">The Partnership</span>
-            <h3>Perfect Pools</h3>
-            <p>Erin Cowan built Perfect Pools in the Savannah metro area with a philosophy that great pool care is really about relationships. She focused heavily on commercial clients — HOAs, hotels, and community pools — clients who demand consistency and accountability above everything else.</p>
-            <p>The partnership combined Jeff's technical depth with Perfect Pools' service culture. Under the Perfect Pools name, the combined company now serves both markets with a single standard: complete care, no gaps, no excuses.</p>
-          </div>
-        </div>
-
-        <!-- Pool Solutions Plus -->
-        <div class="timeline__item">
-          <div class="timeline__marker">
-            <div class="timeline__dot"></div>
-            <span class="timeline__year">2025</span>
-          </div>
-          <div class="timeline__card">
-            <span class="timeline__badge timeline__badge--orange">Expanded Capabilities</span>
-            <h3>Pool Solutions Plus & Garden City</h3>
-            <p>Pool Solutions Plus was one of the most respected pool builders in the area and a trusted subcontractor for years. They'd also taken on a small portfolio of maintenance clients — not because they loved maintenance, but because they couldn't find a company they trusted enough to refer customers to.</p>
-            <p>The acquisition of the PSP maintenance division, along with a new facility in Garden City, Georgia, expanded our service area across Savannah, greater Chatham County, Effingham County, and Beaufort County, South Carolina.</p>
-          </div>
-        </div>
-      </div>
+      <div id="timeline-mount"></div>
     </div>
   </section>
 
@@ -257,6 +203,16 @@ const schema = {
     </div>
   </section>
 </BaseLayout>
+
+<script>
+  import { render, h } from 'preact';
+  import TimelineScroll from '../components/TimelineScroll.tsx';
+
+  const mount = document.getElementById('timeline-mount');
+  if (mount) {
+    render(h(TimelineScroll, null), mount);
+  }
+</script>
 
 <style>
   /* About Hero */
