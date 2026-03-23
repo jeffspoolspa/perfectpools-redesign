@@ -2,22 +2,13 @@
 const base = import.meta.env.BASE_URL;
 const currentPath = Astro.url.pathname;
 
-const maintenance = [
-  { name: 'Our Approach', href: `${base}our-approach/` },
-  { name: 'Residential', href: `${base}services/residential-pool-cleaning/` },
-  { name: 'Commercial', href: `${base}services/commercial-pool-cleaning/` },
-  { name: 'Pricing', href: `${base}plans/` },
-  { name: 'Chemicals', href: `${base}chemicals/` },
-];
-
 const navLinks = [
-  { name: 'Home', href: base },
-  { name: 'Maintenance', href: `${base}services/`, children: maintenance },
+  { name: 'Our Approach', href: `${base}our-approach/` },
+  { name: 'Residential Pool Care', href: `${base}services/residential-pool-cleaning/` },
+  { name: 'Commercial Aquatics', href: `${base}services/commercial-pool-cleaning/` },
   { name: 'Service & Repair', href: `${base}service-repair/` },
   { name: 'About', href: `${base}about/` },
-  { name: 'Blog', href: `${base}blog/` },
-  { name: 'Tools', href: `${base}tools/` },
-  { name: 'Contact', href: `${base}contact/` },
+  { name: 'Learn', href: `${base}blog/` },
 ];
 
 function isActive(href: string): boolean {
@@ -36,30 +27,14 @@ function isActive(href: string): boolean {
       <nav class="header__nav" id="main-nav" aria-label="Main navigation">
         <ul class="nav-list">
           {navLinks.map((link) => (
-            <li class={`nav-item ${link.children ? 'has-dropdown' : ''}`}>
+            <li class="nav-item">
               <a
                 href={link.href}
                 class={`nav-link ${isActive(link.href) ? 'nav-link--active' : ''}`}
                 aria-current={isActive(link.href) ? 'page' : undefined}
               >
                 {link.name}
-                {link.children && (
-                  <svg class="nav-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                    <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                )}
               </a>
-              {link.children && (
-                <ul class="dropdown">
-                  {link.children.map((child) => (
-                    <li>
-                      <a href={child.href} class={`dropdown-link ${isActive(child.href) ? 'dropdown-link--active' : ''}`}>
-                        {child.name}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              )}
             </li>
           ))}
         </ul>
