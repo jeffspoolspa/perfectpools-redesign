@@ -93,43 +93,80 @@ const schema = [
     </div>
   </section>
 
-  <!-- Feature Showcase -->
-  <section class="showcase-section">
+  <!-- Pricing Section -->
+  <section class="section section--alt" id="pricing-section">
     <div class="container">
-      <div class="feature-showcase">
-        <div class="feature-showcase__content">
-          <h2 class="feature-showcase__title">We'll take care of your pool so you can take care of what matters most.</h2>
-          <div class="feature-showcase__grid">
-            <div class="feature-showcase__item">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2v17.5c0 1.4-1.1 2.5-2.5 2.5s-2.5-1.1-2.5-2.5V2"/><path d="M8.5 2h7"/><path d="M14.5 16h-5"/></svg>
-              <span>Weekly Testing</span>
-            </div>
-            <div class="feature-showcase__item">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 3h15"/><path d="M6 3v16a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V3"/><path d="M6 14h12"/></svg>
-              <span>Chemistry Balance</span>
-            </div>
-            <div class="feature-showcase__item">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
-              <span>Full Cleaning</span>
-            </div>
-            <div class="feature-showcase__item">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg>
-              <span>Equipment Check</span>
-            </div>
-            <div class="feature-showcase__item">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>
-              <span>Year-Round Service</span>
-            </div>
-            <div class="feature-showcase__item">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="5" x="8" y="2" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg>
-              <span>Digital Reports</span>
+      <div class="text-center">
+        <span class="section-label">PRICING STRUCTURE</span>
+        <h2>Transparent Investments.</h2>
+        <p style="color: var(--color-text-light); max-width: 540px; margin: 0.5rem auto 0;">No contracts. Month-to-month service with 2 weeks notice to cancel.</p>
+      </div>
+
+      <!-- Tab Switcher -->
+      <div class="pricing-tabs">
+        <button class="pricing-tab pricing-tab--active" data-tab="weekly">Weekly</button>
+        <button class="pricing-tab pricing-tab--winter" data-tab="biweekly">
+          Bi-Weekly
+          <span class="pricing-tab__badge">❄ Winter Only</span>
+        </button>
+      </div>
+
+      <!-- Pricing Card -->
+      <div class="pricing-card">
+        <div class="pricing-card__content pricing-card__content--active" data-content="weekly">
+          <div class="pricing-card__layout">
+            <div class="pricing-card__plan" id="res-pricing-config-weekly"></div>
+            <div class="pricing-card__chemicals">
+              <div class="chem-header">
+                <span class="chem-kicker">HOW CHEMICALS WORK</span>
+                <h4>True Cost Pricing</h4>
+                <p>Your bill reflects your pool, not an average.</p>
+              </div>
+              <div id="res-chem-chart-weekly"></div>
             </div>
           </div>
         </div>
-
-        <div class="feature-showcase__image">
-          <img src={`${base}images/pool-water-testing.jpg`} alt="Perfect Pools technician testing pool water chemistry" loading="lazy" />
+        <div class="pricing-card__content" data-content="biweekly">
+          <div class="pricing-card__layout">
+            <div class="pricing-card__plan" id="res-pricing-config-biweekly"></div>
+            <div class="pricing-card__chemicals">
+              <div class="chem-header">
+                <span class="chem-kicker">WHY WINTER ONLY</span>
+                <h4>Weekly vs. Bi-Weekly</h4>
+                <p style="color: #1E3A5F; font-weight: 700;">Anyone who's maintained a pool in coastal weather knows — two weeks is too long in the heat.</p>
+              </div>
+              <div class="biweekly-section__title">The Lawn Analogy</div>
+              <div class="biweekly-cards">
+                <div class="biweekly-card biweekly-card--good"><span class="biweekly-card__emoji">🌿</span><strong>Weekly</strong><span>Like mowing every week — stays level, no surprises.</span></div>
+                <div class="biweekly-card biweekly-card--warn"><span class="biweekly-card__emoji">🌾</span><strong>Bi-weekly</strong><span>Tall grass, weeds taking hold, harder to cut through.</span></div>
+                <div class="biweekly-card biweekly-card--bad"><span class="biweekly-card__emoji">🟢</span><strong>Green pool</strong><span>The overgrown yard — needs specialized equipment to recover.</span></div>
+              </div>
+              <p class="biweekly-story__kicker">Algae slows in winter just like grass — which is why bi-weekly works September through March.</p>
+              <div class="biweekly-section__title">The Data Shows the Strain</div>
+              <div class="biweekly-compare">
+                <div class="biweekly-compare__bars">
+                  <div class="biweekly-compare__row"><span class="biweekly-compare__label">Weekly</span><div class="biweekly-compare__bar-track"><div class="biweekly-compare__bar biweekly-compare__bar--weekly" style="width: 80%;"></div></div><span class="biweekly-compare__value">$25/visit</span></div>
+                  <div class="biweekly-compare__row"><span class="biweekly-compare__label">Bi-Weekly</span><div class="biweekly-compare__bar-track"><div class="biweekly-compare__bar biweekly-compare__bar--biweekly" style="width: 100%;"></div></div><span class="biweekly-compare__value" style="color: #d97706; font-weight: 800;">$31/visit</span></div>
+                </div>
+                <p class="biweekly-compare__note">24% more chemicals per visit just to play catch-up — which is why we no longer offer bi-weekly in summer.</p>
+              </div>
+              <div class="biweekly-section__title">What Happens in Two Weeks</div>
+              <div class="biweekly-cards">
+                <div class="biweekly-card biweekly-card--bad"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M12 2v10M12 22a10 10 0 0 1 0-20"/><circle cx="12" cy="12" r="2" fill="#ef4444"/></svg><strong>Chlorine bottoms out</strong><span>Degrades to zero in 10–14 days.</span></div>
+                <div class="biweekly-card biweekly-card--warn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 6v6l4 2"/></svg><strong>Phosphate buildup</strong><span>Debris breaks down into algae food.</span></div>
+                <div class="biweekly-card biweekly-card--warn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg><strong>Equipment unmonitored</strong><span>Failures run 12+ days undetected.</span></div>
+              </div>
+              <p class="chem-data-note" style="margin-top: 0.5rem;">Chemical data from customers who remained on bi-weekly last summer.</p>
+            </div>
+          </div>
         </div>
+      </div>
+
+      <div class="text-center" style="margin-top: 2rem;">
+        <a href={`${base}get-started/`} class="btn btn--cta btn--lg">Get Started</a>
+        <p style="margin-top: 1rem; color: var(--color-text-light); font-size: 0.85rem;">
+          Chemicals billed separately at transparent cost-plus pricing. <a href={`${base}plans/`} style="color: var(--color-primary); text-decoration: underline;">See full pricing details</a>
+        </p>
       </div>
     </div>
   </section>
@@ -343,6 +380,55 @@ const schema = [
     </div>
   </section>
 </BaseLayout>
+
+<script>
+  // Pricing tabs
+  const tabs = document.querySelectorAll('.pricing-tab');
+  const contents = document.querySelectorAll('.pricing-card__content');
+  tabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      const target = (tab as HTMLElement).dataset.tab;
+      tabs.forEach((t) => t.classList.remove('pricing-tab--active'));
+      tab.classList.add('pricing-tab--active');
+      contents.forEach((c) => {
+        c.classList.toggle('pricing-card__content--active', (c as HTMLElement).dataset.content === target);
+      });
+    });
+  });
+
+  // Mount Preact islands
+  async function mountPricingIslands() {
+    const { render, h } = await import('preact');
+    const { default: PricingConfigurator } = await import('../../components/PricingConfigurator.tsx');
+    const { default: ChemicalCostChart } = await import('../../components/ChemicalCostChart.tsx');
+
+    const weeklyConfig = document.getElementById('res-pricing-config-weekly');
+    if (weeklyConfig) render(h(PricingConfigurator, { frequency: 'weekly', ctaHref: '/get-started/' }), weeklyConfig);
+
+    const biweeklyConfig = document.getElementById('res-pricing-config-biweekly');
+    if (biweeklyConfig) render(h(PricingConfigurator, { frequency: 'biweekly', ctaHref: '/get-started/' }), biweeklyConfig);
+
+    const SUPABASE_URL = 'https://vvprodiuwraceabviyes.supabase.co';
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ2cHJvZGl1d3JhY2VhYnZpeWVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5MDU4MTYsImV4cCI6MjA3MjQ4MTgxNn0.HOFTUrInpmzhxTJDSp1xKp81noC7jMuTcdxr9JqC3z0';
+
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/chemical_cost_estimates?select=*`, {
+        headers: { apikey: SUPABASE_ANON, Accept: 'application/json' }
+      });
+      const allData = await res.json();
+      if (!Array.isArray(allData)) return;
+      const weeklyData = allData.filter((d: any) => d.service_frequency === 'weekly');
+
+      const weeklyChart = document.getElementById('res-chem-chart-weekly');
+      if (weeklyChart && weeklyData.length) {
+        render(h(ChemicalCostChart, { data: weeklyData, serviceMonthly: 217, competitorFlat: 350, compact: true }), weeklyChart);
+      }
+    } catch (err) {
+      console.error('Failed to load chemical cost data:', err);
+    }
+  }
+  mountPricingIslands();
+</script>
 
 <style>
   /* Residential Hero */
