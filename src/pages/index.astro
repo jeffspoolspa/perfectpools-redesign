@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import ReviewCarousel from '../components/ReviewCarousel.astro';
 
 const schema = {
   "@context": "https://schema.org",
@@ -326,47 +327,9 @@ const icons = {
       <div class="section-header">
         <h2>What our customers say</h2>
       </div>
-
-      <div class="grid grid--3">
-        <div class="review-card">
-          <div class="review-card__stars">
-            <Fragment set:html={icons.star} />
-            <Fragment set:html={icons.star} />
-            <Fragment set:html={icons.star} />
-            <Fragment set:html={icons.star} />
-            <Fragment set:html={icons.star} />
-          </div>
-          <p class="review-card__text">"After two bad pool companies, these guys actually show up and communicate. I finally feel like I can trust someone with my pool."</p>
-          <p class="review-card__author">— Sarah, Brunswick</p>
-        </div>
-
-        <div class="review-card">
-          <div class="review-card__stars">
-            <Fragment set:html={icons.star} />
-            <Fragment set:html={icons.star} />
-            <Fragment set:html={icons.star} />
-            <Fragment set:html={icons.star} />
-            <Fragment set:html={icons.star} />
-          </div>
-          <p class="review-card__text">"I had no idea what I was doing with my pool. They made it simple and explain everything. No more green water!"</p>
-          <p class="review-card__author">— Mike, Richmond Hill</p>
-        </div>
-
-        <div class="review-card">
-          <div class="review-card__stars">
-            <Fragment set:html={icons.star} />
-            <Fragment set:html={icons.star} />
-            <Fragment set:html={icons.star} />
-            <Fragment set:html={icons.star} />
-            <Fragment set:html={icons.star} />
-          </div>
-          <p class="review-card__text">"Been with them 3 years. Never had a green pool. They catch issues before they become expensive problems."</p>
-          <p class="review-card__author">— Jennifer, St. Marys</p>
-        </div>
-      </div>
-
+      <ReviewCarousel />
       <div class="text-center" style="margin-top:2rem;">
-        <a href={`${import.meta.env.BASE_URL}reviews`} class="btn btn--outline">Read More Reviews</a>
+        <a href="https://g.page/r/CVrU0W_3-NRyEAE/review" target="_blank" rel="noopener" class="btn btn--outline">Read All Reviews on Google</a>
       </div>
     </div>
   </section>

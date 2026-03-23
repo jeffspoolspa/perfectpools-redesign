@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import ReviewCarousel from '../components/ReviewCarousel.astro';
 const base = import.meta.env.BASE_URL;
 ---
 
@@ -57,22 +58,18 @@ const base = import.meta.env.BASE_URL;
           <div class="coastal-map__glow"></div>
           <div class="coastal-map__frame">
             <img
-              src={`${base}images/pool-water-bg.jpg`}
-              alt="Coastal Georgia waterways"
+              src={`${base}images/coastal-aerial.jpg`}
+              alt="Aerial view of Georgia coastal marshlands and tidal creeks"
               class="coastal-map__img"
             />
             <div class="coastal-map__overlay"></div>
-            <div class="coastal-map__pin">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="#E28D33"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>
-              <span class="coastal-map__pulse"></span>
-            </div>
           </div>
         </div>
 
         <!-- Right: Content -->
         <div class="coastal-content">
           <h2 class="coastal-content__title">
-            Engineered for the<br/>Georgia Coast
+            Engineered for<br/>the Coast
           </h2>
           <p class="coastal-content__desc">
             Local environments demand local expertise. We've built our methodology
@@ -109,6 +106,71 @@ const base = import.meta.env.BASE_URL;
           </ul>
         </div>
       </div>
+
+      <!-- Service Area Carousel -->
+      <div class="coastal-areas">
+        <h3 class="coastal-areas__title">Communities We Serve</h3>
+        <div class="coastal-areas__track-wrapper">
+          <div class="coastal-areas__track" id="area-track">
+            <a href={`${base}service-areas/richmond-hill/`} class="coastal-area-card">
+              <img src={`${base}images/city-richmond-hill.jpg`} alt="Richmond Hill, Georgia" class="coastal-area-card__img" />
+              <div class="coastal-area-card__overlay"></div>
+              <div class="coastal-area-card__content">
+                <span class="coastal-area-card__label">GA</span>
+                <span class="coastal-area-card__name">Richmond Hill</span>
+              </div>
+            </a>
+            <a href={`${base}service-areas/savannah/`} class="coastal-area-card">
+              <img src={`${base}images/city-savannah.jpg`} alt="Savannah, Georgia" class="coastal-area-card__img" />
+              <div class="coastal-area-card__overlay"></div>
+              <div class="coastal-area-card__content">
+                <span class="coastal-area-card__label">GA</span>
+                <span class="coastal-area-card__name">Savannah</span>
+              </div>
+            </a>
+            <a href={`${base}service-areas/pooler/`} class="coastal-area-card">
+              <img src={`${base}images/city-pooler.webp`} alt="Pooler, Georgia" class="coastal-area-card__img" />
+              <div class="coastal-area-card__overlay"></div>
+              <div class="coastal-area-card__content">
+                <span class="coastal-area-card__label">GA</span>
+                <span class="coastal-area-card__name">Pooler</span>
+              </div>
+            </a>
+            <a href={`${base}service-areas/hinesville/`} class="coastal-area-card">
+              <img src={`${base}images/city-hinesville.jpeg`} alt="Hinesville, Georgia" class="coastal-area-card__img" />
+              <div class="coastal-area-card__overlay"></div>
+              <div class="coastal-area-card__content">
+                <span class="coastal-area-card__label">GA</span>
+                <span class="coastal-area-card__name">Hinesville</span>
+              </div>
+            </a>
+            <a href={`${base}service-areas/tybee-island/`} class="coastal-area-card">
+              <img src={`${base}images/city-tybee-island.webp`} alt="Tybee Island, Georgia" class="coastal-area-card__img" />
+              <div class="coastal-area-card__overlay"></div>
+              <div class="coastal-area-card__content">
+                <span class="coastal-area-card__label">GA</span>
+                <span class="coastal-area-card__name">Tybee Island</span>
+              </div>
+            </a>
+            <a href={`${base}service-areas/bluffton/`} class="coastal-area-card">
+              <img src={`${base}images/city-bluffton.webp`} alt="Bluffton, South Carolina" class="coastal-area-card__img" />
+              <div class="coastal-area-card__overlay"></div>
+              <div class="coastal-area-card__content">
+                <span class="coastal-area-card__label">SC</span>
+                <span class="coastal-area-card__name">Bluffton</span>
+              </div>
+            </a>
+          </div>
+        </div>
+        <div class="coastal-areas__nav">
+          <button class="coastal-areas__btn" id="area-prev" aria-label="Previous cities">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          </button>
+          <button class="coastal-areas__btn" id="area-next" aria-label="Next cities">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+      </div>
     </div>
   </section>
   <div class="coastal-wave coastal-wave--bottom">
@@ -121,6 +183,20 @@ const base = import.meta.env.BASE_URL;
   <section class="section visit-section" id="visit">
     <div class="container">
       <div id="visit-mount"></div>
+    </div>
+  </section>
+
+  <!-- Section 6: Reviews -->
+  <section class="section" id="reviews">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-kicker">WHAT OUR CLIENTS SAY</span>
+        <h2>Real Reviews, Real Results.</h2>
+      </div>
+      <ReviewCarousel />
+      <div style="text-align: center; margin-top: var(--space-8);">
+        <a href="https://g.page/r/CVrU0W_3-NRyEAE/review" target="_blank" rel="noopener" class="btn btn--outline">Read All Reviews on Google</a>
+      </div>
     </div>
   </section>
 </BaseLayout>
@@ -145,6 +221,32 @@ const base = import.meta.env.BASE_URL;
   const visitMount = document.getElementById('visit-mount');
   if (visitMount) {
     render(h(VisitScroll, null), visitMount);
+  }
+
+  // Service area carousel
+  const track = document.getElementById('area-track');
+  const prevBtn = document.getElementById('area-prev');
+  const nextBtn = document.getElementById('area-next');
+  if (track && prevBtn && nextBtn) {
+    let offset = 0;
+    const getCardWidth = () => {
+      const card = track.querySelector('.coastal-area-card') as HTMLElement;
+      if (!card) return 0;
+      return card.offsetWidth + 16; // card width + gap
+    };
+    const getMaxOffset = () => {
+      const visibleWidth = (track.parentElement as HTMLElement).offsetWidth;
+      const totalWidth = track.scrollWidth;
+      return Math.max(0, totalWidth - visibleWidth);
+    };
+    prevBtn.addEventListener('click', () => {
+      offset = Math.max(0, offset - getCardWidth());
+      track.style.transform = `translateX(-${offset}px)`;
+    });
+    nextBtn.addEventListener('click', () => {
+      offset = Math.min(getMaxOffset(), offset + getCardWidth());
+      track.style.transform = `translateX(-${offset}px)`;
+    });
   }
 
   const compareMount = document.getElementById('compare-mount');
@@ -677,7 +779,7 @@ const base = import.meta.env.BASE_URL;
   }
 
   /* ========================================
-     Coastal Expertise Section
+     Coastal Expertise Section + Service Area Cards
      ======================================== */
   .coastal-wave {
     position: relative;
@@ -693,6 +795,7 @@ const base = import.meta.env.BASE_URL;
 
   .coastal-wave--top {
     margin-bottom: -1px;
+    margin-top: var(--space-8);
   }
 
   .coastal-wave--bottom {
@@ -773,8 +876,7 @@ const base = import.meta.env.BASE_URL;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    opacity: 0.5;
-    mix-blend-mode: overlay;
+    opacity: 0.9;
     transition: opacity 0.7s ease;
   }
 
@@ -785,7 +887,7 @@ const base = import.meta.env.BASE_URL;
   .coastal-map__overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(to top right, rgba(30, 58, 95, 0.7), transparent);
+    background: linear-gradient(to top right, rgba(30, 58, 95, 0.2), transparent);
   }
 
   .coastal-map__pin {
@@ -882,6 +984,132 @@ const base = import.meta.env.BASE_URL;
     font-size: 0.85rem;
     color: rgba(203, 213, 225, 0.85);
     line-height: 1.5;
+  }
+
+  /* --- Service Area Carousel --- */
+  .coastal-areas {
+    margin-top: 3.5rem;
+  }
+
+  .coastal-areas__title {
+    font-family: var(--font-heading);
+    font-size: clamp(1.25rem, 2.5vw, 1.5rem);
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 1.25rem;
+  }
+
+  .coastal-areas__nav {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    margin-top: 1.5rem;
+  }
+
+  .coastal-areas__btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+
+  .coastal-areas__btn:hover {
+    background: rgba(255, 255, 255, 0.18);
+    color: #fff;
+    border-color: rgba(226, 141, 51, 0.5);
+  }
+
+  .coastal-areas__track-wrapper {
+    overflow: hidden;
+  }
+
+  .coastal-areas__track {
+    display: flex;
+    gap: 1rem;
+    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .coastal-area-card {
+    flex: 0 0 calc(50% - 0.5rem);
+    position: relative;
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    text-decoration: none;
+    color: #fff;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  @media (min-width: 600px) {
+    .coastal-area-card {
+      flex: 0 0 calc(33.333% - 0.67rem);
+    }
+  }
+
+  @media (min-width: 900px) {
+    .coastal-area-card {
+      flex: 0 0 calc(25% - 0.75rem);
+    }
+  }
+
+  .coastal-area-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+    color: #fff;
+  }
+
+  .coastal-area-card__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+
+  .coastal-area-card:hover .coastal-area-card__img {
+    transform: scale(1.06);
+  }
+
+  .coastal-area-card__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.1) 50%, transparent 100%);
+  }
+
+  .coastal-area-card__content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .coastal-area-card__label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #E28D33;
+  }
+
+  .coastal-area-card__name {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.25rem;
+    line-height: 1.2;
+    color: #fff;
   }
 
   /* ========================================

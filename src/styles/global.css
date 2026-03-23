@@ -3799,7 +3799,7 @@ p:last-child {
 
 /* SVG chart container */
 .chem-chart-container {
-  padding: 0.5rem 0.75rem 0.25rem;
+  padding: 0.25rem 0 0.25rem;
 }
 
 .chem-chart-svg {
@@ -3817,6 +3817,737 @@ p:last-child {
   border-top: 1px solid #f3f4f6;
   line-height: 1.4;
   font-style: italic;
+}
+
+/* Chemical number line — stacked seasonal rows */
+.chem-numberline {
+  padding: 0.75rem 0;
+  margin-bottom: 0.5rem;
+}
+
+.chem-numberline__header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.6rem;
+}
+
+.chem-numberline__label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #1E3A5F;
+}
+
+.chem-numberline__range-header {
+  font-size: 0.6rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #1E3A5F;
+}
+
+.chem-numberline__rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.chem-numberline__row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.chem-numberline__season {
+  flex: 0 0 85px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #374151;
+  white-space: nowrap;
+}
+
+.chem-numberline__track {
+  flex: 1;
+  position: relative;
+  height: 10px;
+  background: #f3f4f6;
+  border-radius: 5px;
+}
+
+.chem-numberline__band {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: 5px;
+}
+
+.chem-numberline__band--winter {
+  background: linear-gradient(to right, #93c5fd, #60a5fa);
+}
+
+.chem-numberline__band--spring,
+.chem-numberline__band--shoulder {
+  background: linear-gradient(to right, #86efac, #22c55e);
+}
+
+.chem-numberline__band--summer {
+  background: linear-gradient(to right, #fcd34d, #f59e0b);
+}
+
+.chem-numberline__band--fall {
+  background: linear-gradient(to right, #fdba74, #ea580c);
+}
+
+.chem-numberline__period {
+  display: block;
+  font-size: 0.55rem;
+  font-weight: 500;
+  opacity: 0.7;
+  margin-top: 1px;
+}
+
+.chem-numberline__mid {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 2px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 1px;
+  transform: translateX(-50%);
+}
+
+.chem-numberline__mid-label {
+  position: absolute;
+  bottom: calc(100% + 3px);
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.55rem;
+  font-weight: 700;
+  color: #374151;
+  white-space: nowrap;
+  background: rgba(255,255,255,0.85);
+  padding: 0 2px;
+  border-radius: 2px;
+}
+
+.chem-numberline__range {
+  flex: 0 0 70px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #374151;
+  text-align: right;
+}
+
+.chem-numberline__callout {
+  font-size: 0.6rem;
+  font-weight: 500;
+  opacity: 0.7;
+  padding-left: calc(85px + 0.5rem);
+  margin-top: -0.25rem;
+  margin-bottom: 0.15rem;
+}
+
+.chem-numberline__axis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.35rem;
+  padding-left: calc(85px + 0.5rem);
+  padding-right: calc(70px + 0.5rem);
+}
+
+.chem-numberline__axis span {
+  font-size: 0.55rem;
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+/* Compact tabbed chem view */
+/* --- Pricing Card shared styles (used by Preact islands) --- */
+.pricing-card__headline {
+  margin-bottom: 1.25rem;
+}
+
+.pricing-card__price-line {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: nowrap;
+}
+
+@media (max-width: 500px) {
+  .pricing-card__amount { font-size: 2.25rem; }
+  .pricing-card__period-inline { font-size: 0.7rem; }
+  .pricing-card__plus-chem { font-size: 1rem; }
+}
+
+.pricing-card__amount {
+  font-size: 3rem;
+  font-weight: 800;
+  color: #1E3A5F;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.pricing-card__period {
+  display: block;
+  font-size: 0.7rem;
+  color: #8BA1B5;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.15rem;
+}
+
+.pricing-card__plus-chem {
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: #E28D33;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+  align-self: center;
+  white-space: nowrap;
+}
+
+.pricing-card__plus-chem .plus-sign {
+  font-size: 1.3rem;
+}
+
+.pricing-card__basis {
+  display: block;
+  font-size: 0.8rem;
+  color: #8BA1B5;
+  margin-top: 0.25rem;
+}
+
+.pricing-card__note {
+  font-size: 0.8rem;
+  color: #8BA1B5;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+}
+
+.pricing-card__includes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin-bottom: 0.5rem;
+  padding-top: 0;
+}
+
+.pricing-card__includes li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #1E3A5F;
+}
+
+.pricing-card__includes li svg {
+  flex-shrink: 0;
+}
+
+.pricing-card__green-guarantee {
+  color: #059669;
+  font-weight: 600;
+}
+
+.tooltip-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #d1fae5;
+  color: #059669;
+  font-size: 0.65rem;
+  font-weight: 700;
+  cursor: help;
+  margin-left: 0.35rem;
+  position: relative;
+  vertical-align: middle;
+}
+
+.tooltip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1E3A5F;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1.5;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  width: 260px;
+  z-index: 10;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+
+.tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: #1E3A5F;
+}
+
+.tooltip-trigger:hover .tooltip {
+  display: block;
+}
+
+/* --- Pricing Configurator (Preact island) --- */
+.pricing-config__types {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.pricing-config__type {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid #e5e7eb;
+  background: #fff;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #8BA1B5;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.pricing-config__type:hover {
+  border-color: #145BB8;
+  color: #1E3A5F;
+}
+
+.pricing-config__type--active {
+  border-color: #145BB8;
+  background: rgba(20, 91, 184, 0.04);
+  color: #145BB8;
+  box-shadow: 0 2px 6px rgba(20, 91, 184, 0.1);
+}
+
+.pricing-config__visit {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f0f0f0;
+  margin-bottom: 0.75rem;
+}
+
+.pricing-config__visit-label {
+  font-size: 0.8rem;
+  color: #8BA1B5;
+  font-weight: 500;
+}
+
+.pricing-config__visit-amount {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #1E3A5F;
+}
+
+.pricing-config__addon {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.75rem;
+  background: #f9f6f0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #1E3A5F;
+  margin-bottom: 0.75rem;
+  transition: background 0.2s ease;
+}
+
+.pricing-config__addon:hover {
+  background: #f0ede6;
+}
+
+.pricing-config__addon input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #E28D33;
+  cursor: pointer;
+}
+
+.pricing-card__period-inline {
+  font-size: 0.9rem;
+  color: #8BA1B5;
+  font-weight: 500;
+  align-self: flex-end;
+  margin-bottom: 0.2rem;
+}
+
+.pricing-config__monthly {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid #f0f0f0;
+  margin-bottom: 0.75rem;
+}
+
+.pricing-config__monthly-label {
+  font-size: 0.8rem;
+  color: #1E3A5F;
+  font-weight: 700;
+}
+
+.pricing-config__monthly-amount {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #1E3A5F;
+  display: flex;
+  align-items: center;
+}
+
+.pricing-config__monthly-chem {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #E28D33;
+  letter-spacing: 0.03em;
+  display: inline-flex;
+  flex-direction: column;
+  line-height: 1.1;
+  vertical-align: middle;
+  margin-left: 0.25rem;
+}
+
+.pricing-card__no-guarantee {
+  color: #991b1b;
+  font-weight: 600;
+}
+
+.pricing-config__notices {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.pricing-config__notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: 8px;
+  border: 1px solid;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.pricing-config__notice svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.pricing-config__notice strong {
+  display: block;
+  font-size: 0.8rem;
+  margin-bottom: 0.1rem;
+}
+
+.pricing-config__notice span {
+  font-size: 0.72rem;
+  color: #6b7280;
+}
+
+.pricing-config__notice--info {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.pricing-config__notice--info strong {
+  color: #1e40af;
+}
+
+.pricing-config__notice--warn {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.pricing-config__notice--warn strong {
+  color: #991b1b;
+}
+
+.chem-compact__tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid #f0f0f0;
+  margin-bottom: 1rem;
+}
+
+.chem-compact__tab {
+  flex: 1;
+  padding: 0.6rem 0.75rem;
+  border: none;
+  background: transparent;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #9ca3af;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.2s ease;
+}
+
+.chem-compact__tab:hover {
+  color: #374151;
+}
+
+.chem-compact__tab--active {
+  color: var(--color-primary, #145BB8);
+  border-bottom-color: var(--color-primary, #145BB8);
+}
+
+.chem-compact__commentary {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: #f9fafb;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: #6b7280;
+}
+
+/* Total cost bars */
+.chem-totalcost {
+  padding: 0.75rem 0;
+}
+
+.chem-totalcost__flatline {
+  position: absolute;
+  top: -4px;
+  bottom: -4px;
+  width: 2px;
+  background: #ef4444;
+  z-index: 5;
+  border-radius: 1px;
+  opacity: 0.8;
+}
+
+.chem-totalcost__over {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: rgba(239, 68, 68, 0.2);
+  border-radius: 0 5px 5px 0;
+  z-index: 1;
+}
+
+.chem-totalcost__legend {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 0.75rem;
+  padding-left: calc(85px + 0.5rem);
+  flex-wrap: wrap;
+}
+
+.chem-totalcost__legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.65rem;
+  color: #6b7280;
+}
+
+.chem-totalcost__legend-line {
+  width: 14px;
+  height: 2px;
+  background: #ef4444;
+  flex-shrink: 0;
+}
+
+.chem-totalcost__legend-item--red {
+  color: #991b1b;
+}
+
+.chem-totalcost__legend-swatch {
+  width: 10px;
+  height: 10px;
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.chem-chart-title {
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #1E3A5F;
+  margin-bottom: 0.35rem;
+}
+
+.chem-data-note {
+  font-size: 0.65rem;
+  color: #9ca3af;
+  font-style: italic;
+}
+
+.chem-chart-subscript {
+  display: block;
+  font-size: 0.5rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: #bbb;
+  margin-top: 0.15rem;
+}
+
+.chem-chart-accordions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 0.75rem;
+}
+
+.chem-chart-detail {
+  border: 1px solid #f0f0f0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.chem-chart-detail summary {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #1E3A5F;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.chem-chart-detail summary::before {
+  content: '▸';
+  font-size: 0.65rem;
+  color: #2563eb;
+  transition: transform 0.2s ease;
+}
+
+.chem-chart-detail[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.chem-chart-detail summary::-webkit-details-marker {
+  display: none;
+}
+
+.chem-chart-detail p {
+  padding: 0 0.75rem 0.6rem 1.75rem;
+  font-size: 0.75rem;
+  line-height: 1.55;
+  color: #6b7280;
+  margin: 0;
+}
+
+.chem-chart-preheader {
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.55;
+  color: #1E3A5F;
+  margin-bottom: 0.5rem;
+}
+
+.chem-chart-summary {
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: #6b7280;
+  margin-bottom: 0.75rem;
+}
+
+.chem-chart-bullets {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 0.75rem;
+  padding: 0.75rem 1rem;
+  list-style: none;
+  background: #f5f5f5;
+  border-radius: 8px;
+}
+
+.chem-chart-bullets li {
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.chem-chart-bullets li strong {
+  color: #1E3A5F;
+}
+
+.chem-chart-annotations {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding: 0 0.25rem;
+}
+
+.chem-annotation {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.7rem;
+  line-height: 1.45;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+}
+
+.chem-annotation__icon {
+  flex-shrink: 0;
+  font-size: 0.6rem;
+  margin-top: 0.1rem;
+}
+
+.chem-annotation--red {
+  background: rgba(239, 68, 68, 0.06);
+  color: #991b1b;
+  border-left: 2px solid #ef4444;
+}
+
+.chem-annotation--red .chem-annotation__icon {
+  color: #ef4444;
+}
+
+.chem-annotation--green {
+  background: rgba(5, 150, 105, 0.06);
+  color: #065f46;
+  border-left: 2px solid #059669;
+}
+
+.chem-annotation--green .chem-annotation__icon {
+  color: #059669;
+}
+
+.chem-annotation--winter {
+  background: rgba(37, 99, 235, 0.05);
+  color: #1e3a5f;
+  border-left: 2px solid #2563eb;
+}
+
+.chem-annotation--winter .chem-annotation__icon {
+  color: #2563eb;
 }
 
 /* Loading skeleton */

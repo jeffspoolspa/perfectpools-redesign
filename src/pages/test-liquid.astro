@@ -1,0 +1,112 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Liquid Hero Test"
+  description="Testing liquid effect"
+  canonicalPath="/test-liquid"
+>
+  <section class="liquid-hero">
+    <div id="liquid-hero-mount"></div>
+
+    <!-- HTML overlay for interactive elements -->
+    <div class="liquid-hero__overlay">
+      <p class="liquid-hero__subtitle">
+        Why clear water isn't luck — it's science, consistency, and accountability.
+      </p>
+      <div class="liquid-hero__buttons">
+        <a href="/plans" class="btn btn--cta btn--lg">View Service Plans</a>
+        <a href="#pillars" class="btn btn--outline-white btn--lg">See How We Work</a>
+      </div>
+    </div>
+
+    <div class="liquid-hero__wave">
+      <svg viewBox="0 0 1440 120" preserveAspectRatio="none" fill="none">
+        <path d="M0,60 C240,120 480,0 720,60 C960,120 1200,0 1440,60 L1440,120 L0,120 Z" fill="var(--color-bg)" />
+      </svg>
+    </div>
+  </section>
+
+  <section class="section" id="pillars">
+    <div class="container">
+      <div class="section-header">
+        <h2>Three pillars of Perfect Pool care</h2>
+        <p>Placeholder section to see how the hero transitions into page content.</p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  import { render, h } from 'preact';
+  import LiquidHero from '../components/LiquidHero.tsx';
+
+  const mount = document.getElementById('liquid-hero-mount');
+  if (mount) {
+    render(h(LiquidHero, null), mount);
+  }
+</script>
+
+<style>
+  .liquid-hero {
+    position: relative;
+    min-height: 85vh;
+    overflow: hidden;
+    background: url('/images/pool-tile-nice.webp') center center / cover no-repeat;
+    background-color: #0369a1;
+  }
+
+  #liquid-hero-mount {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  .liquid-hero__overlay {
+    position: absolute;
+    bottom: 14%;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    text-align: center;
+    padding: 0 var(--container-padding);
+  }
+
+  .liquid-hero__subtitle {
+    font-family: var(--font-body);
+    font-size: clamp(0.95rem, 1.8vw, 1.15rem);
+    color: rgba(255, 255, 255, 0.85);
+    max-width: 520px;
+    margin: 0 auto var(--space-6);
+    line-height: 1.6;
+    text-shadow: 0 1px 8px rgba(0, 40, 60, 0.3);
+  }
+
+  .liquid-hero__buttons {
+    display: flex;
+    gap: var(--space-4);
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .liquid-hero__wave {
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    z-index: 1;
+    line-height: 0;
+  }
+
+  .liquid-hero__wave svg {
+    width: 100%;
+    height: 80px;
+  }
+
+  @media (max-width: 768px) {
+    .liquid-hero { min-height: 70vh; }
+    .liquid-hero__overlay { bottom: 12%; }
+    .liquid-hero__wave svg { height: 50px; }
+  }
+</style>

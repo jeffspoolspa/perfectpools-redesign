@@ -1,0 +1,211 @@
+---
+import { REVIEWS } from '../data/reviews';
+const id = `reviews-${Math.random().toString(36).slice(2, 8)}`;
+---
+
+<div class="review-carousel" id={id}>
+  <div class="review-carousel__viewport">
+    <div class="review-carousel__track">
+      {REVIEWS.map((r) => (
+        <div class="review-card">
+          <div class="review-card__stars">
+            {Array.from({length: r.stars}).map(() => (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="var(--color-primary, #1E3A5F)"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            ))}
+          </div>
+          <p class="review-card__text">"{r.quote}"</p>
+          <p class="review-card__author">— {r.name}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+  <div class="review-carousel__nav">
+    <button class="review-carousel__btn review-carousel__btn--prev" aria-label="Previous reviews">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="review-carousel__dots"></div>
+    <button class="review-carousel__btn review-carousel__btn--next" aria-label="Next reviews">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.review-carousel').forEach((carousel) => {
+    const track = carousel.querySelector('.review-carousel__track') as HTMLElement;
+    const viewport = carousel.querySelector('.review-carousel__viewport') as HTMLElement;
+    const prevBtn = carousel.querySelector('.review-carousel__btn--prev') as HTMLElement;
+    const nextBtn = carousel.querySelector('.review-carousel__btn--next') as HTMLElement;
+    const dotsContainer = carousel.querySelector('.review-carousel__dots') as HTMLElement;
+    if (!track || !viewport || !prevBtn || !nextBtn || !dotsContainer) return;
+
+    const cards = Array.from(track.querySelectorAll('.review-card')) as HTMLElement[];
+    let currentIndex = 0;
+
+    const getCardsVisible = () => {
+      const w = window.innerWidth;
+      if (w >= 1024) return 3;
+      if (w >= 768) return 2;
+      return 1;
+    };
+
+    const getMaxIndex = () => Math.max(0, cards.length - getCardsVisible());
+
+    const buildDots = () => {
+      const totalDots = getMaxIndex() + 1;
+      dotsContainer.innerHTML = '';
+      for (let i = 0; i < totalDots; i++) {
+        const dot = document.createElement('button');
+        dot.className = 'review-carousel__dot' + (i === currentIndex ? ' active' : '');
+        dot.setAttribute('aria-label', `Go to review ${i + 1}`);
+        dot.addEventListener('click', () => goTo(i));
+        dotsContainer.appendChild(dot);
+      }
+    };
+
+    const goTo = (index: number) => {
+      currentIndex = Math.max(0, Math.min(index, getMaxIndex()));
+      const card = cards[0];
+      if (!card) return;
+      const gap = 16;
+      const cardWidth = card.offsetWidth + gap;
+      track.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
+      buildDots();
+    };
+
+    prevBtn.addEventListener('click', () => goTo(currentIndex - 1));
+    nextBtn.addEventListener('click', () => goTo(currentIndex + 1));
+
+    // Touch/swipe support for mobile
+    let touchStartX = 0;
+    let touchEndX = 0;
+    viewport.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+    viewport.addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      const diff = touchStartX - touchEndX;
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) goTo(currentIndex + 1);
+        else goTo(currentIndex - 1);
+      }
+    }, { passive: true });
+
+    // Init
+    buildDots();
+    window.addEventListener('resize', () => {
+      goTo(Math.min(currentIndex, getMaxIndex()));
+    });
+  });
+</script>
+
+<style>
+  .review-carousel__viewport {
+    overflow: hidden;
+  }
+
+  .review-carousel__track {
+    display: flex;
+    gap: 1rem;
+    transition: transform 0.4s ease;
+  }
+
+  .review-card {
+    flex: 0 0 calc(100%);
+    background: var(--color-white, #fff);
+    border: 1px solid var(--color-gray-100, #e5e7eb);
+    border-radius: var(--radius-lg, 12px);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.08));
+    transition: all 0.3s ease;
+  }
+
+  @media (min-width: 768px) {
+    .review-card {
+      flex: 0 0 calc(50% - 0.5rem);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .review-card {
+      flex: 0 0 calc(33.333% - 0.667rem);
+    }
+  }
+
+  .review-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg, 0 8px 24px rgba(0,0,0,0.12));
+  }
+
+  .review-card__stars {
+    display: flex;
+    gap: 0.125rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .review-card__text {
+    color: var(--color-text-light, #637388);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    flex: 1;
+  }
+
+  .review-card__author {
+    font-size: var(--text-sm, 0.875rem);
+    color: var(--color-text-muted, #8BA1B5);
+  }
+
+  /* Navigation */
+  .review-carousel__nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .review-carousel__btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--color-text, #1E3A5F);
+    transition: all 0.2s ease;
+  }
+
+  .review-carousel__btn:hover {
+    background: var(--color-primary, #145BB8);
+    border-color: var(--color-primary, #145BB8);
+    color: #fff;
+  }
+
+  .review-carousel__dots {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .review-carousel__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: none;
+    background: #d1d5db;
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.2s ease;
+  }
+
+  .review-carousel__dot.active {
+    width: 24px;
+    border-radius: 4px;
+    background: var(--color-primary, #145BB8);
+  }
+</style>
