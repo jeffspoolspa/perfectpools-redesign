@@ -1055,6 +1055,31 @@ p:last-child {
   }
 }
 
+/* Water background for methodology section */
+.methodology--water {
+  position: relative;
+  overflow: hidden;
+}
+
+.methodology--water::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('/images/pool-tile-nice.webp') center center / cover no-repeat;
+  opacity: 0.08;
+  z-index: 0;
+}
+
+.methodology--water > * {
+  position: relative;
+  z-index: 1;
+}
+
+.methodology--water .section-header h2,
+.methodology--water .section-header p {
+  color: var(--color-text);
+}
+
 .method-card {
   background: var(--color-white);
   border: 1px solid var(--color-border);

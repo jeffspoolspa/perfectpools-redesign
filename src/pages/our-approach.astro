@@ -9,28 +9,7 @@ const base = import.meta.env.BASE_URL;
   description="Pool care isn't guesswork — it's chemistry, consistency, and accountability. Learn how Perfect Pools keeps your water balanced year-round in coastal Georgia."
   canonicalPath="/our-approach"
 >
-  <section class="liquid-hero" style={`--hero-bg: url('${base}images/pool-tile-nice.webp')`}>
-    <div id="liquid-hero-mount"></div>
-
-    <!-- HTML overlay for interactive elements -->
-    <div class="liquid-hero__overlay">
-      <p class="liquid-hero__subtitle">
-        Why clear water isn't luck — it's science, consistency, and accountability.
-      </p>
-      <div class="liquid-hero__buttons">
-        <a href="/get-started" class="btn btn--cta btn--lg">View Service Plans</a>
-        <a href="#pillars" class="btn btn--outline-white btn--lg">See How We Work</a>
-      </div>
-    </div>
-
-    <div class="liquid-hero__wave">
-      <svg viewBox="0 0 1440 120" preserveAspectRatio="none" fill="none">
-        <path d="M0,60 C240,120 480,0 720,60 C960,120 1200,0 1440,60 L1440,120 L0,120 Z" fill="var(--color-bg)" />
-      </svg>
-    </div>
-  </section>
-
-  <!-- Section 2: Problem Statement (scroll-driven cinematic) -->
+  <!-- Section 1: Problem Statement (scroll-driven cinematic) -->
   <section class="section problem-section">
     <div class="container">
       <div id="problem-mount"></div>
@@ -236,17 +215,11 @@ const base = import.meta.env.BASE_URL;
 
 <script>
   import { render, h } from 'preact';
-  import LiquidHero from '../components/LiquidHero.tsx';
   import ProblemScroll from '../components/ProblemScroll.tsx';
   import TimelineScroll from '../components/TimelineScroll.tsx';
   import PillarsScroll from '../components/PillarsScroll.tsx';
   import CompareScroll from '../components/CompareScroll.tsx';
   import VisitScroll from '../components/VisitScroll.tsx';
-
-  const mount = document.getElementById('liquid-hero-mount');
-  if (mount) {
-    render(h(LiquidHero, null), mount);
-  }
 
   const problemMount = document.getElementById('problem-mount');
   if (problemMount) {
@@ -429,67 +402,6 @@ const base = import.meta.env.BASE_URL;
     :global(.prb__spacer) {
       height: 300vh;
     }
-  }
-
-  .liquid-hero {
-    position: relative;
-    min-height: 85vh;
-    overflow: hidden;
-    background: var(--hero-bg) center center / cover no-repeat;
-    background-color: #0369a1;
-  }
-
-  #liquid-hero-mount {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-  }
-
-  .liquid-hero__overlay {
-    position: absolute;
-    bottom: 14%;
-    left: 0;
-    right: 0;
-    z-index: 2;
-    text-align: center;
-    padding: 0 var(--container-padding);
-  }
-
-  .liquid-hero__subtitle {
-    font-family: var(--font-body);
-    font-size: clamp(0.95rem, 1.8vw, 1.15rem);
-    color: rgba(255, 255, 255, 0.85);
-    max-width: 520px;
-    margin: 0 auto var(--space-6);
-    line-height: 1.6;
-    text-shadow: 0 1px 8px rgba(0, 40, 60, 0.3);
-  }
-
-  .liquid-hero__buttons {
-    display: flex;
-    gap: var(--space-4);
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-
-  .liquid-hero__wave {
-    position: absolute;
-    bottom: -1px;
-    left: 0;
-    right: 0;
-    z-index: 1;
-    line-height: 0;
-  }
-
-  .liquid-hero__wave svg {
-    width: 100%;
-    height: 80px;
-  }
-
-  @media (max-width: 768px) {
-    .liquid-hero { min-height: 70vh; }
-    .liquid-hero__overlay { bottom: 12%; }
-    .liquid-hero__wave svg { height: 50px; }
   }
 
   /* === Comparison Scroll Section === */
