@@ -620,9 +620,13 @@ const icons = {
       setTimeout(zoomStep, 400);
     }) as EventListener);
   }
-  // Wait for Google Maps to load (already loaded by ServiceAreaChecker)
+  // Wait for Google Maps to fully load (Map constructor available)
   const checkMaps = setInterval(() => {
-    if ((window as any).google?.maps) { clearInterval(checkMaps); initMap(); }
+    if ((window as any).google?.maps?.Map) {
+      clearInterval(checkMaps);
+      // Small delay to ensure DOM is settled
+      setTimeout(initMap, 100);
+    }
   }, 200);
 
   // City cards carousel (coastal-areas style)
