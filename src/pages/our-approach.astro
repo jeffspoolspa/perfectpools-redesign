@@ -42,141 +42,6 @@ const base = import.meta.env.BASE_URL;
     </div>
   </section>
 
-  <!-- Section 4: Coastal Expertise -->
-  <div class="coastal-wave coastal-wave--top">
-    <svg viewBox="0 0 1440 120" preserveAspectRatio="none" fill="none">
-      <path d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 60C1200 60 1320 45 1380 37.5L1440 30V120H0Z" fill="#1E3A5F"/>
-    </svg>
-  </div>
-  <section class="coastal-section">
-    <div class="container">
-      <div class="coastal-layout">
-        <!-- Left: Map graphic -->
-        <div class="coastal-map">
-          <div class="coastal-map__glow"></div>
-          <div class="coastal-map__frame">
-            <img
-              src={`${base}images/coastal-aerial.jpg`}
-              alt="Aerial view of Georgia coastal marshlands and tidal creeks"
-              class="coastal-map__img"
-            />
-            <div class="coastal-map__overlay"></div>
-          </div>
-        </div>
-
-        <!-- Right: Content -->
-        <div class="coastal-content">
-          <h2 class="coastal-content__title">
-            Engineered for<br/>the Coast
-          </h2>
-          <p class="coastal-content__desc">
-            Local environments demand local expertise. We've built our methodology
-            specifically to combat the unique challenges of coastal pool ownership.
-          </p>
-          <ul class="coastal-checklist">
-            <li class="coastal-checklist__item">
-              <div class="coastal-checklist__icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-              </div>
-              <div>
-                <strong>Salt air corrosion mitigation</strong>
-                <span>Protecting metallic components from rapid degradation.</span>
-              </div>
-            </li>
-            <li class="coastal-checklist__item">
-              <div class="coastal-checklist__icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-              </div>
-              <div>
-                <strong>High-humidity algae prevention</strong>
-                <span>Proactive chemical balancing to stop blooms before they start.</span>
-              </div>
-            </li>
-            <li class="coastal-checklist__item">
-              <div class="coastal-checklist__icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-              </div>
-              <div>
-                <strong>Pine needle skimmer optimization</strong>
-                <span>Ensuring consistent flow despite heavy seasonal debris.</span>
-              </div>
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- Service Area Carousel -->
-      <div class="coastal-areas">
-        <h3 class="coastal-areas__title">Communities We Serve</h3>
-        <div class="coastal-areas__track-wrapper">
-          <div class="coastal-areas__track" id="area-track">
-            <a href={`${base}service-areas/richmond-hill/`} class="coastal-area-card">
-              <img src={`${base}images/city-richmond-hill.jpg`} alt="Richmond Hill, Georgia" class="coastal-area-card__img" />
-              <div class="coastal-area-card__overlay"></div>
-              <div class="coastal-area-card__content">
-                <span class="coastal-area-card__label">GA</span>
-                <span class="coastal-area-card__name">Richmond Hill</span>
-              </div>
-            </a>
-            <a href={`${base}service-areas/savannah/`} class="coastal-area-card">
-              <img src={`${base}images/city-savannah.jpg`} alt="Savannah, Georgia" class="coastal-area-card__img" />
-              <div class="coastal-area-card__overlay"></div>
-              <div class="coastal-area-card__content">
-                <span class="coastal-area-card__label">GA</span>
-                <span class="coastal-area-card__name">Savannah</span>
-              </div>
-            </a>
-            <a href={`${base}service-areas/pooler/`} class="coastal-area-card">
-              <img src={`${base}images/city-pooler.webp`} alt="Pooler, Georgia" class="coastal-area-card__img" />
-              <div class="coastal-area-card__overlay"></div>
-              <div class="coastal-area-card__content">
-                <span class="coastal-area-card__label">GA</span>
-                <span class="coastal-area-card__name">Pooler</span>
-              </div>
-            </a>
-            <a href={`${base}service-areas/hinesville/`} class="coastal-area-card">
-              <img src={`${base}images/city-hinesville.jpeg`} alt="Hinesville, Georgia" class="coastal-area-card__img" />
-              <div class="coastal-area-card__overlay"></div>
-              <div class="coastal-area-card__content">
-                <span class="coastal-area-card__label">GA</span>
-                <span class="coastal-area-card__name">Hinesville</span>
-              </div>
-            </a>
-            <a href={`${base}service-areas/tybee-island/`} class="coastal-area-card">
-              <img src={`${base}images/city-tybee-island.webp`} alt="Tybee Island, Georgia" class="coastal-area-card__img" />
-              <div class="coastal-area-card__overlay"></div>
-              <div class="coastal-area-card__content">
-                <span class="coastal-area-card__label">GA</span>
-                <span class="coastal-area-card__name">Tybee Island</span>
-              </div>
-            </a>
-            <a href={`${base}service-areas/bluffton/`} class="coastal-area-card">
-              <img src={`${base}images/city-bluffton.webp`} alt="Bluffton, South Carolina" class="coastal-area-card__img" />
-              <div class="coastal-area-card__overlay"></div>
-              <div class="coastal-area-card__content">
-                <span class="coastal-area-card__label">SC</span>
-                <span class="coastal-area-card__name">Bluffton</span>
-              </div>
-            </a>
-          </div>
-        </div>
-        <div class="coastal-areas__nav">
-          <button class="coastal-areas__btn" id="area-prev" aria-label="Previous cities">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-          </button>
-          <button class="coastal-areas__btn" id="area-next" aria-label="Next cities">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-          </button>
-        </div>
-      </div>
-    </div>
-  </section>
-  <div class="coastal-wave coastal-wave--bottom">
-    <svg viewBox="0 0 1440 120" preserveAspectRatio="none" fill="none">
-      <path d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 60C1200 60 1320 45 1380 37.5L1440 30V120H0Z" fill="#1E3A5F"/>
-    </svg>
-  </div>
-
   <!-- Section 5: Anatomy of a Visit (scroll-driven timeline) -->
   <section class="section visit-section" id="visit">
     <div class="container">
@@ -274,6 +139,15 @@ const base = import.meta.env.BASE_URL;
 </script>
 
 <style>
+  /* GPU compositing hints for scroll-animated cards */
+  :global(.prb__card),
+  :global(.ps__card),
+  :global(.cs__card),
+  :global(.vs__card),
+  :global(.tl-card) {
+    will-change: opacity, transform;
+  }
+
   /* === Problem Scroll Section === */
   :global(.prb) {
     position: relative;
@@ -448,7 +322,7 @@ const base = import.meta.env.BASE_URL;
     position: relative;
   }
 
-  :global(.cs__card[style*="opacity: 1"]) {
+  :global(.cs__card.is-active) {
     pointer-events: auto;
   }
 
@@ -695,7 +569,7 @@ const base = import.meta.env.BASE_URL;
     position: relative;
   }
 
-  :global(.ps__card[style*="opacity: 1"]) {
+  :global(.ps__card.is-active) {
     pointer-events: auto;
   }
 
@@ -1273,7 +1147,7 @@ const base = import.meta.env.BASE_URL;
     position: relative;
   }
 
-  :global(.vs__card[style*="opacity: 1"]) {
+  :global(.vs__card.is-active) {
     pointer-events: auto;
   }
 

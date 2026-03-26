@@ -64,22 +64,22 @@ const icons = {
         <!-- Left: Hero Text -->
         <div>
           <div class="hero__badge">
-            <Fragment set:html={icons.star} />
-            <span>Rated 4.9/5 by 500+ customers</span>
+            <strong style="font-size: 1.1em;">#1</strong>
+            <span>Pool Service Provider Across Coastal Counties</span>
           </div>
 
           <h1>Pool care you can count on.</h1>
-          <p>Transparent pricing. Consistent visits. Real updates after every service.</p>
+          <p>Highest-quality service. Experienced technicians. Clear communication and transparent pricing.</p>
 
           <div class="hero__buttons">
-            <a href={`${import.meta.env.BASE_URL}plans`} class="btn btn--white btn--lg">View Our Services</a>
+            <button type="button" class="btn btn--white btn--lg" data-open-intake>Get a Quote</button>
             <a href="tel:9124590160" class="btn btn--cta btn--lg">Call (912) 459-0160</a>
           </div>
         </div>
 
         <!-- Right: Service Route Cards -->
         <div class="hero__cards">
-          <a href={`${import.meta.env.BASE_URL}plans`} class="route-card route-card--gradient">
+          <a href={`${import.meta.env.BASE_URL}services/residential-pool-cleaning/`} class="route-card route-card--gradient">
             <div class="route-card__inner">
               <div class="route-card__icon">
                 <Fragment set:html={icons.droplets} />
@@ -94,7 +94,7 @@ const icons = {
             </div>
           </a>
 
-          <a href={`${import.meta.env.BASE_URL}repairs`} class="route-card route-card--white">
+          <a href={`${import.meta.env.BASE_URL}service-repair/`} class="route-card route-card--white">
             <div class="route-card__inner">
               <div class="route-card__icon">
                 <Fragment set:html={icons.alertCircle} />
@@ -115,10 +115,16 @@ const icons = {
         <a href={`${import.meta.env.BASE_URL}our-approach`}>First time pool owner? Start here &rarr;</a>
       </div>
     </div>
+    <!-- Wave at bottom of hero -->
+    <div class="hero__wave">
+      <svg viewBox="0 0 1440 120" preserveAspectRatio="none" fill="none">
+        <path d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 60C1200 60 1320 45 1380 37.5L1440 30V120H0Z" fill="#0c2d4a"/>
+      </svg>
+    </div>
   </section>
 
-  <!-- ============ TRUST BADGES ============ -->
-  <section class="trust-badges">
+  <!-- ============ TRUST BADGES (dark strip between hero and methodology) ============ -->
+  <section class="trust-badges trust-badges--dark">
     <div class="container">
       <div class="trust-badges__grid">
         <div class="trust-badge">
@@ -126,12 +132,12 @@ const icons = {
           <span class="trust-badge__text">Licensed & Insured</span>
         </div>
         <div class="trust-badge">
-          <Fragment set:html={icons.clock} />
+          <Fragment set:html={icons.droplets} />
           <span class="trust-badge__text">500+ Pools Maintained</span>
         </div>
         <div class="trust-badge">
-          <Fragment set:html={icons.star} />
-          <span class="trust-badge__text">4.9&#9733; Google Rating</span>
+          <Fragment set:html={icons.clock} />
+          <span class="trust-badge__text">20+ Years Experience</span>
         </div>
       </div>
     </div>
@@ -139,6 +145,13 @@ const icons = {
 
   <!-- ============ METHODOLOGY ============ -->
   <section class="methodology methodology--water">
+    <!-- Wave inside section — badges color on top, bg image fills behind it -->
+    <div class="methodology__wave-top">
+      <svg viewBox="0 0 1440 120" preserveAspectRatio="none" fill="none">
+        <path d="M0 0H1440V30L1380 37.5C1320 45 1200 60 1080 60C960 60 840 45 720 37.5C600 30 480 30 360 45C240 60 120 90 60 105L0 120V0Z" fill="#0c2d4a"/>
+      </svg>
+    </div>
+    <div id="methodology-liquid-mount"></div>
     <div class="container">
       <div class="section-header">
         <h2>Clear water isn't luck. Here's how we keep it that way.</h2>
@@ -171,10 +184,16 @@ const icons = {
         </div>
       </div>
     </div>
+    <!-- Wave at bottom of methodology — inside section so bg fills behind it -->
+    <div class="methodology__wave-bottom">
+      <svg viewBox="0 0 1440 120" preserveAspectRatio="none" fill="none">
+        <path d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 60C1200 60 1320 45 1380 37.5L1440 30V120H0Z" fill="#1E3A5F"/>
+      </svg>
+    </div>
   </section>
 
   <!-- ============ WHAT WE DO (DARK SECTION) ============ -->
-  <section class="services-dark">
+  <section class="services-dark" style="margin-top: -1px; padding-top: 8rem;">
     <div class="container">
       <div class="section-header">
         <h2>What We Do</h2>
@@ -189,7 +208,7 @@ const icons = {
             <h3>Pool Cleaning</h3>
           </div>
 
-          <a href={`${import.meta.env.BASE_URL}plans`} class="glass-card">
+          <a href={`${import.meta.env.BASE_URL}services/residential-pool-cleaning/`} class="glass-card">
             <div class="glass-card__inner">
               <div class="glass-card__icon">
                 <Fragment set:html={icons.home} />
@@ -209,7 +228,7 @@ const icons = {
             <p class="glass-card__desc">Full service including chemical balancing, equipment checks, and detailed reports.</p>
           </a>
 
-          <a href={`${import.meta.env.BASE_URL}contact`} class="glass-card">
+          <a href={`${import.meta.env.BASE_URL}services/commercial-pool-cleaning/`} class="glass-card">
             <div class="glass-card__inner">
               <div class="glass-card__icon">
                 <Fragment set:html={icons.building} />
@@ -228,7 +247,7 @@ const icons = {
             <p class="glass-card__desc">High-traffic pool programs with compliance documentation and proactive maintenance.</p>
           </a>
 
-          <a href={`${import.meta.env.BASE_URL}plans`} class="btn btn--cta btn--lg btn--block" style="margin-top:1rem;">See Plans & Pricing</a>
+          <button type="button" class="btn btn--cta btn--lg btn--block" style="margin-top:1rem;" data-open-intake>See Plans & Pricing</button>
         </div>
 
         <!-- Right Column: Equipment & Repair -->
@@ -238,7 +257,7 @@ const icons = {
             <h3>Equipment & Repair</h3>
           </div>
 
-          <a href={`${import.meta.env.BASE_URL}repairs`} class="glass-card glass-card--sm">
+          <a href={`${import.meta.env.BASE_URL}service-repair/`} class="glass-card glass-card--sm">
             <div class="glass-card__inner">
               <div class="glass-card__icon glass-card__icon--sm">
                 <Fragment set:html={icons.thermometer} />
@@ -253,7 +272,7 @@ const icons = {
             </div>
           </a>
 
-          <a href={`${import.meta.env.BASE_URL}repairs`} class="glass-card glass-card--sm">
+          <a href={`${import.meta.env.BASE_URL}service-repair/`} class="glass-card glass-card--sm">
             <div class="glass-card__inner">
               <div class="glass-card__icon glass-card__icon--sm">
                 <Fragment set:html={icons.settings} />
@@ -268,7 +287,7 @@ const icons = {
             </div>
           </a>
 
-          <a href={`${import.meta.env.BASE_URL}repairs`} class="glass-card glass-card--sm">
+          <a href={`${import.meta.env.BASE_URL}service-repair/`} class="glass-card glass-card--sm">
             <div class="glass-card__inner">
               <div class="glass-card__icon glass-card__icon--sm">
                 <Fragment set:html={icons.cloudRain} />
@@ -283,7 +302,7 @@ const icons = {
             </div>
           </a>
 
-          <a href={`${import.meta.env.BASE_URL}repairs`} class="glass-card glass-card--sm">
+          <a href={`${import.meta.env.BASE_URL}service-repair/`} class="glass-card glass-card--sm">
             <div class="glass-card__inner">
               <div class="glass-card__icon glass-card__icon--sm">
                 <Fragment set:html={icons.zap} />
@@ -298,11 +317,18 @@ const icons = {
             </div>
           </a>
 
-          <a href={`${import.meta.env.BASE_URL}repairs`} class="btn btn--outline-white btn--lg btn--block" style="margin-top:1rem;">Schedule a Diagnosis</a>
+          <button type="button" class="btn btn--outline-white btn--lg btn--block" style="margin-top:1rem;" data-open-intake>Schedule a Diagnosis</button>
         </div>
       </div>
     </div>
   </section>
+
+  <!-- ============ WAVE: What We Do -> Partner ============ -->
+  <div class="coastal-wave coastal-wave--bottom" style="background: white;">
+    <svg viewBox="0 0 1440 120" preserveAspectRatio="none" fill="none">
+      <path d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 60C1200 60 1320 45 1380 37.5L1440 30V120H0Z" fill="#1E3A5F"/>
+    </svg>
+  </div>
 
   <!-- ============ A TRUE SERVICE PARTNER ============ -->
   <section class="partner-section">
@@ -321,71 +347,120 @@ const icons = {
     </div>
   </section>
 
-  <!-- ============ MARKETS WE SERVE ============ -->
-  <section class="section service-area-section" id="service-area">
-    <div class="container">
-      <div class="section-header">
-        <h2>Markets We Serve</h2>
-        <p>Serving coastal Georgia and the Lowcountry</p>
-      </div>
+  <!-- ============ WAVE: Partner -> Coastal ============ -->
+  <div class="coastal-wave coastal-wave--top" style="background: white;">
+    <svg viewBox="0 0 1440 120" preserveAspectRatio="none" fill="none">
+      <path d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 60C1200 60 1320 45 1380 37.5L1440 30V120H0Z" fill="#1E3A5F"/>
+    </svg>
+  </div>
 
-      <!-- Checker + Map card -->
-      <div class="service-area__card">
-        <div class="service-area__layout">
-          <div class="service-area__checker">
-            <h3>Check Your Address</h3>
-            <p>Enter your address to see if you're within our service area.</p>
+  <!-- ============ ENGINEERED FOR THE COAST (replaces Markets We Serve) ============ -->
+  <section class="coastal-section" id="service-area">
+    <div class="container">
+      <div class="coastal-layout">
+        <!-- Left: Interactive Google Map -->
+        <div class="coastal-map">
+          <div class="coastal-map__glow"></div>
+          <div class="coastal-map__frame coastal-map__frame--map">
+            <div class="service-area__map" id="service-area-map"></div>
+          </div>
+        </div>
+
+        <!-- Right: Content -->
+        <div class="coastal-content">
+          <h2 class="coastal-content__title">
+            Engineered for<br/>the Coast
+          </h2>
+          <p class="coastal-content__desc">
+            Local environments demand local expertise. We've built our methodology
+            specifically to combat the unique challenges of coastal pool ownership.
+          </p>
+
+          <!-- Address Checker -->
+          <div class="coastal-checker">
+            <h3 class="coastal-checker__title">Check Your Address</h3>
+            <p class="coastal-checker__desc">Enter your address to see if you're within our service area.</p>
             <div id="service-area-checker"></div>
           </div>
-          <div class="service-area__map" id="service-area-map"></div>
+
+          <!-- Checklist removed -->
+          </ul>
         </div>
       </div>
 
-      <!-- City cards carousel -->
-      <div class="home-cities">
-        <div class="home-cities__track">
-          <a href={`${import.meta.env.BASE_URL}service-areas/richmond-hill/`} class="home-city-card">
-            <img src={`${import.meta.env.BASE_URL}images/city-richmond-hill.jpg`} alt="Richmond Hill" />
-            <div class="home-city-card__overlay"></div>
-            <div class="home-city-card__content"><span>GA</span><strong>Richmond Hill</strong></div>
-          </a>
-          <a href={`${import.meta.env.BASE_URL}service-areas/savannah/`} class="home-city-card">
-            <img src={`${import.meta.env.BASE_URL}images/city-savannah.jpg`} alt="Savannah" />
-            <div class="home-city-card__overlay"></div>
-            <div class="home-city-card__content"><span>GA</span><strong>Savannah</strong></div>
-          </a>
-          <a href={`${import.meta.env.BASE_URL}service-areas/pooler/`} class="home-city-card">
-            <img src={`${import.meta.env.BASE_URL}images/city-pooler.webp`} alt="Pooler" />
-            <div class="home-city-card__overlay"></div>
-            <div class="home-city-card__content"><span>GA</span><strong>Pooler</strong></div>
-          </a>
-          <a href={`${import.meta.env.BASE_URL}service-areas/hinesville/`} class="home-city-card">
-            <img src={`${import.meta.env.BASE_URL}images/city-hinesville.jpeg`} alt="Hinesville" />
-            <div class="home-city-card__overlay"></div>
-            <div class="home-city-card__content"><span>GA</span><strong>Hinesville</strong></div>
-          </a>
-          <a href={`${import.meta.env.BASE_URL}service-areas/tybee-island/`} class="home-city-card">
-            <img src={`${import.meta.env.BASE_URL}images/city-tybee-island.webp`} alt="Tybee Island" />
-            <div class="home-city-card__overlay"></div>
-            <div class="home-city-card__content"><span>GA</span><strong>Tybee Island</strong></div>
-          </a>
-          <a href={`${import.meta.env.BASE_URL}service-areas/bluffton/`} class="home-city-card">
-            <img src={`${import.meta.env.BASE_URL}images/city-bluffton.webp`} alt="Bluffton" />
-            <div class="home-city-card__overlay"></div>
-            <div class="home-city-card__content"><span>SC</span><strong>Bluffton</strong></div>
-          </a>
+      <!-- Communities We Serve city cards -->
+      <div class="coastal-areas">
+        <h3 class="coastal-areas__title">Communities We Serve</h3>
+        <div class="coastal-areas__track-wrapper">
+          <div class="coastal-areas__track" id="area-track">
+            <a href={`${import.meta.env.BASE_URL}service-areas/richmond-hill/`} class="coastal-area-card">
+              <img src={`${import.meta.env.BASE_URL}images/city-richmond-hill.jpg`} alt="Richmond Hill, Georgia" class="coastal-area-card__img" />
+              <div class="coastal-area-card__overlay"></div>
+              <div class="coastal-area-card__content">
+                <span class="coastal-area-card__label">GA</span>
+                <span class="coastal-area-card__name">Richmond Hill</span>
+              </div>
+            </a>
+            <a href={`${import.meta.env.BASE_URL}service-areas/savannah/`} class="coastal-area-card">
+              <img src={`${import.meta.env.BASE_URL}images/city-savannah.jpg`} alt="Savannah, Georgia" class="coastal-area-card__img" />
+              <div class="coastal-area-card__overlay"></div>
+              <div class="coastal-area-card__content">
+                <span class="coastal-area-card__label">GA</span>
+                <span class="coastal-area-card__name">Savannah</span>
+              </div>
+            </a>
+            <a href={`${import.meta.env.BASE_URL}service-areas/pooler/`} class="coastal-area-card">
+              <img src={`${import.meta.env.BASE_URL}images/city-pooler.webp`} alt="Pooler, Georgia" class="coastal-area-card__img" />
+              <div class="coastal-area-card__overlay"></div>
+              <div class="coastal-area-card__content">
+                <span class="coastal-area-card__label">GA</span>
+                <span class="coastal-area-card__name">Pooler</span>
+              </div>
+            </a>
+            <a href={`${import.meta.env.BASE_URL}service-areas/hinesville/`} class="coastal-area-card">
+              <img src={`${import.meta.env.BASE_URL}images/city-hinesville.jpeg`} alt="Hinesville, Georgia" class="coastal-area-card__img" />
+              <div class="coastal-area-card__overlay"></div>
+              <div class="coastal-area-card__content">
+                <span class="coastal-area-card__label">GA</span>
+                <span class="coastal-area-card__name">Hinesville</span>
+              </div>
+            </a>
+            <a href={`${import.meta.env.BASE_URL}service-areas/tybee-island/`} class="coastal-area-card">
+              <img src={`${import.meta.env.BASE_URL}images/city-tybee-island.webp`} alt="Tybee Island, Georgia" class="coastal-area-card__img" />
+              <div class="coastal-area-card__overlay"></div>
+              <div class="coastal-area-card__content">
+                <span class="coastal-area-card__label">GA</span>
+                <span class="coastal-area-card__name">Tybee Island</span>
+              </div>
+            </a>
+            <a href={`${import.meta.env.BASE_URL}service-areas/bluffton/`} class="coastal-area-card">
+              <img src={`${import.meta.env.BASE_URL}images/city-bluffton.webp`} alt="Bluffton, South Carolina" class="coastal-area-card__img" />
+              <div class="coastal-area-card__overlay"></div>
+              <div class="coastal-area-card__content">
+                <span class="coastal-area-card__label">SC</span>
+                <span class="coastal-area-card__name">Bluffton</span>
+              </div>
+            </a>
+          </div>
         </div>
-        <div class="home-cities__nav">
-          <button class="home-cities__btn" id="cities-prev" aria-label="Previous">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        <div class="coastal-areas__nav">
+          <button class="coastal-areas__btn" id="cities-prev" aria-label="Previous cities">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
           </button>
-          <button class="home-cities__btn" id="cities-next" aria-label="Next">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+          <button class="coastal-areas__btn" id="cities-next" aria-label="Next cities">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </button>
         </div>
       </div>
     </div>
   </section>
+
+  <!-- ============ WAVE: Coastal -> Reviews ============ -->
+  <div class="coastal-wave coastal-wave--bottom" style="background: #F9F6F0;">
+    <svg viewBox="0 0 1440 120" preserveAspectRatio="none" fill="none">
+      <path d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 60C1200 60 1320 45 1380 37.5L1440 30V120H0Z" fill="#1E3A5F"/>
+    </svg>
+  </div>
 
   <!-- ============ SOCIAL PROOF ============ -->
   <section class="reviews-home">
@@ -401,16 +476,20 @@ const icons = {
   </section>
 
   <!-- ============ FINAL CTA WITH IMAGE ============ -->
-  <section class="cta-image">
+  <section class="cta-image cta-image--wave">
+    <!-- Wave at top — inside section so bg image fills behind it -->
+    <div class="cta-image__wave-top">
+      <svg viewBox="0 0 1440 120" preserveAspectRatio="none" fill="none">
+        <path d="M0 0H1440V30L1380 37.5C1320 45 1200 60 1080 60C960 60 840 45 720 37.5C600 30 480 30 360 45C240 60 120 90 60 105L0 120V0Z" fill="#F9F6F0"/>
+      </svg>
+    </div>
     <img src={`${import.meta.env.BASE_URL}images/coastal-pool.png`} alt="" class="cta-image__bg" loading="lazy" />
     <div class="cta-image__overlay"></div>
     <div class="container cta-image__content">
       <h2>Ready for worry-free pool care?</h2>
-      <p>This is coastal pool service built for Georgia. Not a franchise playbook.</p>
-      <p class="sub">Salt air, humidity, and storms put unique stress on Georgia pools. We know how the marsh air affects your equipment and how fast algae blooms after a week of rain.</p>
       <div class="cta-image__buttons">
-        <a href={`${import.meta.env.BASE_URL}plans`} class="btn btn--cta btn--lg">See Maintenance Plans</a>
-        <a href={`${import.meta.env.BASE_URL}repairs`} class="btn btn--outline-white btn--lg">Schedule a Repair</a>
+        <button type="button" class="btn btn--cta btn--lg" data-open-intake>Get a Quote</button>
+        <a href="tel:9124590160" class="btn btn--outline-white btn--lg">Call (912) 459-0160</a>
       </div>
     </div>
   </section>
@@ -419,9 +498,13 @@ const icons = {
 <script>
   import { render, h } from 'preact';
   import ServiceAreaChecker from '../components/ServiceAreaChecker.tsx';
+  import LiquidHero from '../components/LiquidHero.tsx';
 
   const checkerMount = document.getElementById('service-area-checker');
   if (checkerMount) render(h(ServiceAreaChecker, null), checkerMount);
+
+  const liquidMount = document.getElementById('methodology-liquid-mount');
+  if (liquidMount) render(h(LiquidHero, { showText: false }), liquidMount);
 
   // Render Google Map in the map container
   async function initMap() {
@@ -497,26 +580,44 @@ const icons = {
       }
     } catch {};
 
-    // Listen for address check — zoom in and drop pin
+    // Listen for address check — smooth zoom in and drop pin
     let marker: any = null;
     window.addEventListener('address-checked', ((e: CustomEvent) => {
       const { lat, lng, inArea } = e.detail;
       if (marker) marker.setMap(null);
-      map.panTo({ lat, lng });
-      map.setZoom(13);
-      marker = new google.maps.Marker({
-        position: { lat, lng },
-        map,
-        icon: {
-          path: google.maps.SymbolPath.CIRCLE,
-          scale: 10,
-          fillColor: inArea ? '#059669' : '#d97706',
-          fillOpacity: 1,
-          strokeColor: '#fff',
-          strokeWeight: 3,
-        },
-        animation: google.maps.Animation.DROP,
-      });
+      const target = { lat, lng };
+
+      // Step 1: Smooth pan to the area
+      map.panTo(target);
+
+      // Step 2: Gradually zoom in over time
+      const startZoom = map.getZoom() || 9;
+      const endZoom = 13;
+      let currentZoom = startZoom;
+      const zoomStep = () => {
+        if (currentZoom >= endZoom) {
+          // Step 3: Drop pin after zoom completes
+          marker = new google.maps.Marker({
+            position: target,
+            map,
+            icon: {
+              path: google.maps.SymbolPath.CIRCLE,
+              scale: 10,
+              fillColor: inArea ? '#059669' : '#d97706',
+              fillOpacity: 1,
+              strokeColor: '#fff',
+              strokeWeight: 3,
+            },
+            animation: google.maps.Animation.DROP,
+          });
+          return;
+        }
+        currentZoom += 0.5;
+        map.setZoom(Math.round(currentZoom));
+        setTimeout(zoomStep, 120);
+      };
+      // Start zooming after pan settles
+      setTimeout(zoomStep, 400);
     }) as EventListener);
   }
   // Wait for Google Maps to load (already loaded by ServiceAreaChecker)
@@ -524,14 +625,14 @@ const icons = {
     if ((window as any).google?.maps) { clearInterval(checkMaps); initMap(); }
   }, 200);
 
-  // City cards carousel
-  const citiesTrack = document.querySelector('.home-cities__track') as HTMLElement;
+  // City cards carousel (coastal-areas style)
+  const citiesTrack = document.getElementById('area-track') as HTMLElement;
   const citiesPrev = document.getElementById('cities-prev');
   const citiesNext = document.getElementById('cities-next');
   if (citiesTrack && citiesPrev && citiesNext) {
     let cityOffset = 0;
     const getCardWidth = () => {
-      const card = citiesTrack.querySelector('.home-city-card') as HTMLElement;
+      const card = citiesTrack.querySelector('.coastal-area-card') as HTMLElement;
       return card ? card.offsetWidth + 16 : 0;
     };
     const getMax = () => Math.max(0, citiesTrack.scrollWidth - (citiesTrack.parentElement as HTMLElement).offsetWidth);
@@ -545,3 +646,361 @@ const icons = {
     });
   }
 </script>
+
+<style>
+  /* ========================================
+     Wave Separators
+     ======================================== */
+  .coastal-wave {
+    position: relative;
+    z-index: 2;
+    line-height: 0;
+  }
+
+  .coastal-wave svg {
+    width: 100%;
+    height: 64px;
+    display: block;
+  }
+
+  .coastal-wave--top {
+    margin-bottom: -1px;
+  }
+
+  .coastal-wave--bottom {
+    margin-top: -1px;
+    transform: rotate(180deg);
+  }
+
+  @media (min-width: 900px) {
+    .coastal-wave svg {
+      height: 96px;
+    }
+  }
+
+  @media (min-width: 1100px) {
+    .coastal-wave svg {
+      height: 120px;
+    }
+  }
+
+  /* ========================================
+     Coastal Expertise Section
+     ======================================== */
+  .coastal-section {
+    background: #1E3A5F;
+    color: #fff;
+    padding: var(--space-16) 0;
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+  }
+
+  .coastal-layout {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3rem;
+  }
+
+  @media (min-width: 900px) {
+    .coastal-layout {
+      flex-direction: row;
+      gap: 4rem;
+    }
+  }
+
+  /* Map graphic container */
+  .coastal-map {
+    flex: 0 0 auto;
+    width: 100%;
+    max-width: 400px;
+    position: relative;
+  }
+
+  @media (min-width: 900px) {
+    .coastal-map {
+      flex: 0 0 45%;
+      max-width: none;
+    }
+  }
+
+  .coastal-map__glow {
+    position: absolute;
+    inset: -10%;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 50%;
+    filter: blur(40px);
+  }
+
+  .coastal-map__frame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    overflow: hidden;
+    border: 3px solid rgba(255, 255, 255, 0.12);
+    background: rgba(30, 40, 60, 0.5);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Override for the interactive map — organic blob shape like our-approach page */
+  .coastal-map__frame--map {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    aspect-ratio: 1;
+    border: 3px solid rgba(255, 255, 255, 0.12);
+    background: rgba(30, 40, 60, 0.5);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+  }
+
+  .coastal-map__frame--map .service-area__map {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+  }
+
+  /* Content column */
+  .coastal-content {
+    flex: 1;
+  }
+
+  .coastal-content__title {
+    font-family: var(--font-heading);
+    font-size: clamp(1.75rem, 4vw, 2.75rem);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: #fff;
+    margin-bottom: 1rem;
+  }
+
+  .coastal-content__desc {
+    font-size: clamp(0.95rem, 1.5vw, 1.1rem);
+    line-height: 1.65;
+    color: rgba(226, 232, 240, 0.9);
+    max-width: 500px;
+    margin-bottom: 2rem;
+  }
+
+  /* Address checker on dark bg */
+  .coastal-checker {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-lg);
+  }
+
+  .coastal-checker__title {
+    font-family: var(--font-heading);
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 0.35rem;
+  }
+
+  .coastal-checker__desc {
+    font-size: 0.85rem;
+    color: rgba(203, 213, 225, 0.85);
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+
+  /* Style the address checker inputs on dark bg */
+  .coastal-checker :global(input),
+  .coastal-checker :global(input[type="text"]) {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #fff !important;
+    border-radius: 8px;
+  }
+
+  .coastal-checker :global(input::placeholder) {
+    color: rgba(203, 213, 225, 0.6) !important;
+  }
+
+  .coastal-checker :global(input:focus) {
+    border-color: #E28D33 !important;
+    box-shadow: 0 0 0 3px rgba(226, 141, 51, 0.2) !important;
+  }
+
+  /* Coastal checklist */
+  .coastal-checklist {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .coastal-checklist__item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .coastal-checklist__icon {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(226, 141, 51, 0.2);
+    color: #E28D33;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2px;
+    transition: all 0.3s ease;
+  }
+
+  .coastal-checklist__item:hover .coastal-checklist__icon {
+    background: #E28D33;
+    color: #fff;
+  }
+
+  .coastal-checklist__item strong {
+    display: block;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 0.2rem;
+  }
+
+  .coastal-checklist__item span {
+    display: block;
+    font-size: 0.85rem;
+    color: rgba(203, 213, 225, 0.85);
+    line-height: 1.5;
+  }
+
+  /* ========================================
+     Communities We Serve — City Cards Carousel
+     ======================================== */
+  .coastal-areas {
+    margin-top: 3.5rem;
+  }
+
+  .coastal-areas__title {
+    font-family: var(--font-heading);
+    font-size: clamp(1.25rem, 2.5vw, 1.5rem);
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 1.25rem;
+  }
+
+  .coastal-areas__nav {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    margin-top: 1.5rem;
+  }
+
+  .coastal-areas__btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+
+  .coastal-areas__btn:hover {
+    background: rgba(255, 255, 255, 0.18);
+    color: #fff;
+    border-color: rgba(226, 141, 51, 0.5);
+  }
+
+  .coastal-areas__track-wrapper {
+    overflow: hidden;
+  }
+
+  .coastal-areas__track {
+    display: flex;
+    gap: 1rem;
+    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .coastal-area-card {
+    flex: 0 0 calc(50% - 0.5rem);
+    position: relative;
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    text-decoration: none;
+    color: #fff;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  @media (min-width: 600px) {
+    .coastal-area-card {
+      flex: 0 0 calc(33.333% - 0.67rem);
+    }
+  }
+
+  @media (min-width: 900px) {
+    .coastal-area-card {
+      flex: 0 0 calc(25% - 0.75rem);
+    }
+  }
+
+  .coastal-area-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+    color: #fff;
+  }
+
+  .coastal-area-card__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+
+  .coastal-area-card:hover .coastal-area-card__img {
+    transform: scale(1.06);
+  }
+
+  .coastal-area-card__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.1) 50%, transparent 100%);
+  }
+
+  .coastal-area-card__content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .coastal-area-card__label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #E28D33;
+  }
+
+  .coastal-area-card__name {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.25rem;
+    line-height: 1.2;
+    color: #fff;
+  }
+</style>

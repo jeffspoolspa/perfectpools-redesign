@@ -5,6 +5,7 @@ interface LiquidHeroProps {
   title?: string[];
   eyebrow?: string;
   subtitle?: string;
+  showText?: boolean;
 }
 
 declare global {
@@ -17,6 +18,7 @@ export default function LiquidHero({
   title = ["Pool care isn't", "guesswork.", "It's chemistry."],
   eyebrow = "Our Approach",
   subtitle = "Why clear water isn't luck — it's science, consistency, and accountability.",
+  showText = true,
 }: LiquidHeroProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -58,42 +60,44 @@ export default function LiquidHero({
         ctx.fillRect(0, 0, w, h);
         ctx.globalCompositeOperation = 'source-over';
 
-        // === EYEBROW ===
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
-        const eyebrowSize = Math.max(11, w * 0.009);
-        ctx.font = `600 ${eyebrowSize}px "Poppins", -apple-system, sans-serif`;
-        ctx.textAlign = 'center';
-        if ('letterSpacing' in ctx) {
-          (ctx as any).letterSpacing = '0.15em';
+        if (showText) {
+          // === EYEBROW ===
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+          const eyebrowSize = Math.max(11, w * 0.009);
+          ctx.font = `600 ${eyebrowSize}px "Poppins", -apple-system, sans-serif`;
+          ctx.textAlign = 'center';
+          if ('letterSpacing' in ctx) {
+            (ctx as any).letterSpacing = '0.15em';
+          }
+          ctx.fillText(eyebrow.toUpperCase(), w / 2, h * 0.28);
+
+          // === MAIN TITLE ===
+          ctx.fillStyle = '#ffffff';
+          ctx.globalAlpha = 1;
+          const fontSize = Math.min(w * 0.05, h * 0.07);
+          ctx.font = `700 ${fontSize}px "Poppins", -apple-system, sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          if ('letterSpacing' in ctx) {
+            (ctx as any).letterSpacing = '-0.02em';
+          }
+
+          ctx.shadowColor = 'rgba(0, 15, 40, 0.6)';
+          ctx.shadowBlur = 24;
+          ctx.shadowOffsetY = 2;
+
+          const lineHeight = fontSize * 1.2;
+          const totalHeight = title.length * lineHeight;
+          const startY = h * 0.42 - totalHeight / 2 + lineHeight / 2;
+
+          title.forEach((line, i) => {
+            ctx.fillText(line, w / 2, startY + i * lineHeight);
+          });
+
+          ctx.shadowColor = 'transparent';
+          ctx.shadowBlur = 0;
+          ctx.shadowOffsetY = 0;
         }
-        ctx.fillText(eyebrow.toUpperCase(), w / 2, h * 0.28);
-
-        // === MAIN TITLE ===
-        ctx.fillStyle = '#ffffff';
-        ctx.globalAlpha = 1;
-        const fontSize = Math.min(w * 0.05, h * 0.07);
-        ctx.font = `700 ${fontSize}px "Poppins", -apple-system, sans-serif`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        if ('letterSpacing' in ctx) {
-          (ctx as any).letterSpacing = '-0.02em';
-        }
-
-        ctx.shadowColor = 'rgba(0, 15, 40, 0.6)';
-        ctx.shadowBlur = 24;
-        ctx.shadowOffsetY = 2;
-
-        const lineHeight = fontSize * 1.2;
-        const totalHeight = title.length * lineHeight;
-        const startY = h * 0.42 - totalHeight / 2 + lineHeight / 2;
-
-        title.forEach((line, i) => {
-          ctx.fillText(line, w / 2, startY + i * lineHeight);
-        });
-
-        ctx.shadowColor = 'transparent';
-        ctx.shadowBlur = 0;
-        ctx.shadowOffsetY = 0;
 
         resolve(offscreen.toDataURL('image/png'));
       };
@@ -114,26 +118,28 @@ export default function LiquidHero({
         ctx.fillStyle = bg;
         ctx.fillRect(0, 0, w, h);
 
-        ctx.fillStyle = '#ffffff';
-        const fontSize = Math.min(w * 0.05, h * 0.07);
-        ctx.font = `700 ${fontSize}px "Poppins", -apple-system, sans-serif`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.shadowColor = 'rgba(0, 15, 40, 0.6)';
-        ctx.shadowBlur = 24;
-        const lineHeight = fontSize * 1.2;
-        const totalHeight = title.length * lineHeight;
-        const startY = h * 0.42 - totalHeight / 2 + lineHeight / 2;
-        title.forEach((line, i) => {
-          ctx.fillText(line, w / 2, startY + i * lineHeight);
-        });
+        if (showText) {
+          ctx.fillStyle = '#ffffff';
+          const fontSize = Math.min(w * 0.05, h * 0.07);
+          ctx.font = `700 ${fontSize}px "Poppins", -apple-system, sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.shadowColor = 'rgba(0, 15, 40, 0.6)';
+          ctx.shadowBlur = 24;
+          const lineHeight = fontSize * 1.2;
+          const totalHeight = title.length * lineHeight;
+          const startY = h * 0.42 - totalHeight / 2 + lineHeight / 2;
+          title.forEach((line, i) => {
+            ctx.fillText(line, w / 2, startY + i * lineHeight);
+          });
+        }
 
         resolve(offscreen.toDataURL('image/png'));
       };
 
-      img.src = assetPath('/images/pool-tile-nice.webp');
+      img.src = assetPath('/images/tile.avif');
     });
-  }, [title, eyebrow, subtitle]);
+  }, [title, eyebrow, subtitle, showText]);
 
   useEffect(() => {
     if (!canvasRef.current) return;

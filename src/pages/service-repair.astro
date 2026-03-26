@@ -109,14 +109,17 @@ const equipment = [
   <!-- ============ TECHNICAL PHILOSOPHY ============ -->
   <section class="section section--dark-diagram">
     <div class="container">
+      <div class="philosophy-header">
+        <span class="section-label section-label--light">Our approach</span>
+        <h2>Your Pool Is a System, Not a Collection of Parts</h2>
+      </div>
       <div class="philosophy-layout">
         <div class="philosophy-layout__content">
-          <span class="section-label section-label--light">Our approach</span>
-          <h2>Your Pool Is a System, Not a Collection of Parts</h2>
           <p>Most pool problems aren't what they look like on the surface. Cloudy water isn't always a chemical problem. A pump that won't prime isn't always a pump problem. A heater that shuts off mid-cycle might be a flow issue, not a heater issue.</p>
           <p>We approach every pool as an engineered system where water movement, filtration, and chlorination work together. When those three things are dialed in correctly, they do 90% of the work — and your chemical costs drop significantly. When one is off, you end up chasing symptoms with band-aid repairs that never solve the problem.</p>
         </div>
         <div class="philosophy-layout__diagram">
+          <p class="diagram-hint">Click on a piece of equipment to learn more</p>
           <div class="diagram-wrapper">
             <img
               src={`${import.meta.env.BASE_URL}images/pool-equipment-diagram.png`}
@@ -430,21 +433,41 @@ const equipment = [
   }
 
   /* ============ TECHNICAL PHILOSOPHY ============ */
+  .philosophy-header {
+    text-align: center;
+    margin-bottom: var(--space-10);
+  }
+
+  .philosophy-header h2 {
+    font-size: clamp(2rem, 4vw, 2.75rem);
+    line-height: 1.15;
+    color: white;
+    margin-top: var(--space-3);
+  }
+
   .philosophy-layout {
     display: grid;
     grid-template-columns: 1fr;
     gap: var(--space-12);
-    align-items: start;
+    align-items: center;
+  }
+
+  @media (min-width: 960px) {
+    .philosophy-layout {
+      grid-template-columns: 2fr 3fr;
+    }
+  }
+
+  .diagram-hint {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.5);
+    text-align: center;
+    margin-bottom: 0.75rem;
+    letter-spacing: 0.02em;
   }
 
   .philosophy-layout__content {
     max-width: 800px;
-  }
-
-  .philosophy-layout__content h2 {
-    font-size: clamp(2rem, 4vw, 2.75rem);
-    margin-bottom: var(--space-6);
-    line-height: 1.15;
   }
 
   .philosophy-layout__content p {

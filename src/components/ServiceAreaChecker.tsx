@@ -18,15 +18,25 @@ export default function ServiceAreaChecker() {
   const inputRef = useRef<HTMLInputElement>(null);
   const autocompleteRef = useRef<any>(null);
 
-  // Load Google Maps
+  // Load Google Maps — poll until places is ready
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    if ((window as any).google?.maps?.places) { setMapsLoaded(true); return; }
-    const s = document.createElement('script');
-    s.src = `https://maps.googleapis.com/maps/api/js?key=${GMAPS_KEY}&libraries=places&loading=async`;
-    s.async = true;
-    s.onload = () => setMapsLoaded(true);
-    document.head.appendChild(s);
+    // Add script if not already present
+    if (!document.getElementById('gmaps-script')) {
+      const s = document.createElement('script');
+      s.id = 'gmaps-script';
+      s.src = `https://maps.googleapis.com/maps/api/js?key=${GMAPS_KEY}&libraries=places&loading=async`;
+      s.async = true;
+      document.head.appendChild(s);
+    }
+    // Poll until places API is available
+    const check = setInterval(() => {
+      if ((window as any).google?.maps?.places) {
+        clearInterval(check);
+        setMapsLoaded(true);
+      }
+    }, 100);
+    return () => clearInterval(check);
   }, []);
 
   // Setup autocomplete

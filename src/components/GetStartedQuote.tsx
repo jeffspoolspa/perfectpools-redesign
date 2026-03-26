@@ -45,10 +45,13 @@ const CUSTOMER_TYPES = [
   { id: 'commercial', label: 'Commercial', desc: 'HOA, hotel, or business pool', icon: 'building' },
 ];
 
-const POOL_SIZES = [
-  { id: 'small', label: 'Small', desc: 'Under 15,000 gallons' },
-  { id: 'medium', label: 'Medium', desc: '15,000 – 30,000 gallons' },
-  { id: 'large', label: 'Large', desc: '30,000+ gallons' },
+const REFERRAL_SOURCES = [
+  { id: 'google', label: 'Google', icon: 'search' },
+  { id: 'social_media', label: 'Social Media', icon: 'share' },
+  { id: 'saw_truck', label: 'Saw Our Truck', icon: 'truck' },
+  { id: 'word_of_mouth', label: 'Word of Mouth', icon: 'users' },
+  { id: 'print_ad', label: 'Print Advertisement', icon: 'newspaper' },
+  { id: 'other', label: 'Other', icon: 'more' },
 ];
 
 const POOL_CONDITIONS = [
@@ -143,8 +146,8 @@ export interface QuoteFormData {
   phone: string;
   duplicateResolution: string;
   customerType: string;
-  poolSize: string;
   poolCondition: string;
+  referralSource: string;
   isInground: string;
   serviceType: string;
   hasExtraBody: boolean;
@@ -160,8 +163,8 @@ const DEFAULT_FORM: QuoteFormData = {
   firstName: '', lastName: '', email: '', phone: '',
   duplicateResolution: '',
   customerType: '',
-  poolSize: '',
   poolCondition: '',
+  referralSource: '',
   isInground: '',
   serviceType: 'pool', hasExtraBody: false, isBiweekly: false,
   leadContext: '',
@@ -198,6 +201,19 @@ export default function GetStartedQuote({ basePath = '/' }: { basePath?: string 
   const [commercialSubmitting, setCommercialSubmitting] = useState(false);
   const [commercialSubmitted, setCommercialSubmitted] = useState(false);
   const [commercialError, setCommercialError] = useState('');
+
+  // Lead submission state
+  const [leadId, setLeadId] = useState<string | null>(null);
+  const [leadToken, setLeadToken] = useState<string | null>(null);
+  const [leadSubmitting, setLeadSubmitting] = useState(false);
+  const [leadError, setLeadError] = useState('');
+
+  // Duplicate check state
+  const [dupChecking, setDupChecking] = useState(false);
+  const [dupMatchName, setDupMatchName] = useState('');
+  const [dupMatchPhone, setDupMatchPhone] = useState('');
+  const [dupMatchEmail, setDupMatchEmail] = useState('');
+  const [dupExistingLead, setDupExistingLead] = useState<any>(null);
 
   const updateForm = (updates: Partial<QuoteFormData>) => {
     setFormData(prev => ({ ...prev, ...updates }));
@@ -286,8 +302,67 @@ export default function GetStartedQuote({ basePath = '/' }: { basePath?: string 
     setIsOpen(false);
   }
 
-  /* ── "Get Started Now" → redirect to onboarding page ── */
-  function handleGetStartedNow() {
+  /* ── Create lead in Supabase via edge function ── */
+  async function createLead(contactPref?: 'email' | 'text'): Promise<{ id: string; token: string } | null> {
+    // Don't double-create if already submitted
+    if (leadId) return { id: leadId, token: leadToken! };
+    setLeadSubmitting(true);
+    setLeadError('');
+    try {
+      const p = calculatePrice();
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/create-lead`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          first_name: formData.firstName.trim(),
+          last_name: formData.lastName.trim(),
+          email: formData.email.trim(),
+          phone: formData.phone.trim(),
+          address_street: formData.addressStreet || null,
+          address_city: formData.addressCity || null,
+          address_state: formData.addressState || 'GA',
+          address_zip: formData.addressZip || null,
+          service_interest: 'maintenance',
+          customer_type: formData.customerType || 'residential',
+          pool_condition: formData.poolCondition || null,
+          referral_source: formData.referralSource || null,
+          is_inground: formData.isInground === 'inground' ? true : formData.isInground === 'above_ground' ? false : null,
+          service_type: formData.serviceType || null,
+          has_extra_body: formData.hasExtraBody,
+          is_biweekly: formData.isBiweekly,
+          lead_context: formData.leadContext || null,
+          contact_preference: contactPref || formData.contactPreference || null,
+          quoted_per_visit: p.perVisit,
+          quoted_monthly: p.monthly,
+          duplicate_resolution: formData.duplicateResolution || null,
+          is_existing_customer: !!formData.duplicateResolution && formData.duplicateResolution === 'confirmed_yes',
+          source: 'website',
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: 'Submission failed' }));
+        throw new Error(err.error || 'Failed to create lead');
+      }
+      const data = await res.json();
+      setLeadId(data.lead_id);
+      setLeadToken(data.resume_token);
+      // Store for onboarding page
+      try { sessionStorage.setItem('leadId', data.lead_id); } catch {}
+      try { sessionStorage.setItem('leadToken', data.resume_token); } catch {}
+      return { id: data.lead_id, token: data.resume_token };
+    } catch (e: any) {
+      console.error('createLead error:', e);
+      setLeadError(e.message || 'Something went wrong. Please try again or call us.');
+      return null;
+    } finally {
+      setLeadSubmitting(false);
+    }
+  }
+
+  /* ── "Get Started Now" → create lead + redirect to onboarding page ── */
+  async function handleGetStartedNow() {
+    const lead = await createLead();
+    if (!lead) return; // Don't redirect if lead creation failed — error is shown in UI
     // Save quote data so the onboarding page can read it
     try {
       sessionStorage.setItem('getStartedOnboarding', JSON.stringify({
@@ -295,9 +370,12 @@ export default function GetStartedQuote({ basePath = '/' }: { basePath?: string 
         quotedPerVisit: price.perVisit,
         quotedMonthly: price.monthly,
         visitsPerMonth: price.visitsPerMonth,
+        leadId: lead.id,
+        resumeToken: lead.token,
       }));
     } catch {}
-    window.location.href = assetPath('get-started/');
+    // Redirect with token
+    window.location.href = assetPath(`get-started/?token=${lead.token}`);
   }
 
   /* ── P2-2: Submit ticket (equipment / green pool) ── */
@@ -311,7 +389,8 @@ export default function GetStartedQuote({ basePath = '/' }: { basePath?: string 
     }
     setTicketSubmitting(true);
     try {
-      const res = await fetch(`${SUPABASE_URL}/functions/v1/submit-ticket`, {
+      // 1. Submit Airtable ticket (office dispatch)
+      const ticketRes = await fetch(`${SUPABASE_URL}/functions/v1/submit-ticket`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -328,10 +407,36 @@ export default function GetStartedQuote({ basePath = '/' }: { basePath?: string 
           description: ticketDescription.trim(),
         }),
       });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({ error: 'Something went wrong' }));
+      if (!ticketRes.ok) {
+        const err = await ticketRes.json().catch(() => ({ error: 'Something went wrong' }));
         throw new Error(err.error || 'Submission failed');
       }
+
+      // 2. Also create a lead record (flagged as service_needed)
+      try {
+        await fetch(`${SUPABASE_URL}/functions/v1/create-lead`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            first_name: contact.firstName.trim(),
+            last_name: contact.lastName.trim(),
+            email: contact.email.trim(),
+            phone: contact.phone.trim(),
+            address_street: formData.addressStreet || null,
+            address_city: formData.addressCity || null,
+            address_state: formData.addressState || 'GA',
+            address_zip: formData.addressZip || null,
+            service_interest: type,
+            customer_type: 'residential',
+            issue_description: ticketDescription.trim(),
+            source: 'website',
+          }),
+        });
+      } catch (e) {
+        console.error('Lead creation (non-fatal):', e);
+        // Don't fail the ticket — Airtable is the primary record for dispatch
+      }
+
       setTicketSubmitted(true);
     } catch (e: any) {
       setTicketError(e.message || 'Something went wrong. Please try again or call us.');
@@ -461,10 +566,10 @@ export default function GetStartedQuote({ basePath = '/' }: { basePath?: string 
           {currentStep === 3 && (showDupCheck ? renderDupCheck() : renderStep3())}
           {currentStep === 4 && renderStep4()}
           {currentStep === 5 && renderStep7()}
-          {currentStep === 6 && renderStep5()}
-          {currentStep === 7 && renderStep6()}
-          {currentStep === 8 && renderServiceBody()}
-          {currentStep === 9 && renderStep9()}
+          {currentStep === 6 && renderStep6()}
+          {currentStep === 7 && renderServiceBody()}
+          {currentStep === 8 && renderStep9()}
+          {currentStep === 9 && renderReferralSource()}
           {currentStep === 10 && renderQuoteDisplay()}
         </div>
       </div>
@@ -608,16 +713,44 @@ export default function GetStartedQuote({ basePath = '/' }: { basePath?: string 
           )}
         </div>
         <div class="intake-actions" style="margin-top: 1.5rem;">
-          <button type="button" class="intake-cta-btn" disabled={!isValid} onClick={() => {
-            // TODO: Replace mock with real Supabase duplicate check
-            const mockDuplicateFound = true;
-            if (mockDuplicateFound && !formData.duplicateResolution) {
-              setShowDupCheck(true);
-            } else {
+          <button type="button" class="intake-cta-btn" disabled={!isValid || dupChecking} onClick={async () => {
+            if (formData.duplicateResolution) {
               goNext();
+              return;
+            }
+            // Real duplicate check via RPC (normalizes phone formats)
+            setDupChecking(true);
+            try {
+              const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/check_duplicate_customer`, {
+                method: 'POST',
+                headers: {
+                  'apikey': SUPABASE_ANON,
+                  'Authorization': `Bearer ${SUPABASE_ANON}`,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  p_phone: formData.phone,
+                  p_address: formData.addressStreet || null,
+                }),
+              });
+              const result = res.ok ? await res.json() : { found: false };
+              if (result.found) {
+                setDupMatchName(result.display_name || 'Existing customer');
+                setDupMatchPhone(result.redacted_phone || '');
+                setDupMatchEmail(result.redacted_email || '');
+                setDupExistingLead(result.existing_lead || null);
+                setShowDupCheck(true);
+              } else {
+                goNext();
+              }
+            } catch {
+              // If check fails, just proceed — don't block the user
+              goNext();
+            } finally {
+              setDupChecking(false);
             }
           }}>
-            Continue <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+            {dupChecking ? 'Checking...' : 'Continue'} {!dupChecking && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>}
           </button>
         </div>
       </>
@@ -639,23 +772,38 @@ export default function GetStartedQuote({ basePath = '/' }: { basePath?: string 
           <p class="intake-step-subtitle">It looks like we've done work at this property before.</p>
         </div>
         <div class="gs-existing-card">
-          <div class="gs-existing-match">
-            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
-              <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--primary-light); display: flex; align-items: center; justify-content: center;">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-              </div>
-              <div>
-                <strong style="display: block;">{formData.firstName || 'Carter'} S.</strong>
-                <span style="font-size: 0.85rem; color: var(--text-light);">Phone: ***-0160</span>
-              </div>
+          <div class="gs-existing-match" style="display: flex; align-items: center; gap: 0.75rem; padding: 1rem; background: var(--primary-light, #f0f7ff); border-radius: 0.75rem;">
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--primary, #2563eb)" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             </div>
-            <p style="font-size: 0.85rem; color: var(--text-light); margin: 0;">Previous service at this address</p>
+            <div>
+              <strong style="display: block; font-size: 1rem;">{dupMatchName || `${formData.firstName} ${formData.lastName.charAt(0)}.`}</strong>
+              {dupMatchPhone && <span style="display: block; font-size: 0.85rem; color: var(--text-light);">Phone: {dupMatchPhone}</span>}
+              {dupMatchEmail && <span style="display: block; font-size: 0.85rem; color: var(--text-light);">Email: {dupMatchEmail}</span>}
+            </div>
           </div>
           <p style="text-align: center; font-weight: 500; margin: 1rem 0 0.75rem;">Is this you?</p>
           <div class="gs-existing-choices">
-            <button type="button" class="intake-cta-btn" onClick={() => { updateForm({ duplicateResolution: 'confirmed_yes' }); setShowDupCheck(false); goNext(); }}>Yes, that's me</button>
+            <button type="button" class="intake-cta-btn" onClick={() => {
+              updateForm({ duplicateResolution: 'confirmed_yes' });
+              setShowDupCheck(false);
+              // If there's an existing lead, resume it — jump to quote page
+              if (dupExistingLead?.lead_id) {
+                setLeadId(dupExistingLead.lead_id);
+                setLeadToken(dupExistingLead.resume_token);
+                try { sessionStorage.setItem('leadId', dupExistingLead.lead_id); } catch {}
+                try { sessionStorage.setItem('leadToken', dupExistingLead.resume_token); } catch {}
+                // Update form with existing quote data
+                if (dupExistingLead.service_type) updateForm({ serviceType: dupExistingLead.service_type });
+                if (dupExistingLead.has_extra_body) updateForm({ hasExtraBody: true });
+                if (dupExistingLead.is_biweekly) updateForm({ isBiweekly: true });
+                // Jump straight to quote display (step 10)
+                setCurrentStep(10);
+              } else {
+                goNext();
+              }
+            }}>Yes, that's me</button>
             <button type="button" class="intake-outline-btn" onClick={() => { updateForm({ duplicateResolution: 'confirmed_no' }); setShowDupCheck(false); goNext(); }}>No, I'm a new customer</button>
-            <button type="button" class="intake-text-btn" onClick={() => { updateForm({ duplicateResolution: 'not_sure' }); setShowDupCheck(false); goNext(); }}>Not sure</button>
           </div>
         </div>
       </>
@@ -698,36 +846,35 @@ export default function GetStartedQuote({ basePath = '/' }: { basePath?: string 
   /* ══════════════════════════════════
      Step 5 — Pool Size
      ══════════════════════════════════ */
-  function renderStep5() {
-    if (redirect === 'large_pool') {
-      return renderRedirectScreen('This Pool Needs a Custom Quote', 'Pools over 30,000 gallons require a site visit for accurate pricing.', [
-        { text: 'Free on-site evaluation', detail: 'At your convenience' },
-        { text: 'Custom pricing based on exact specs', detail: 'Bulk chemical options available' },
-      ], '/services/commercial-pool-cleaning/', 'View Large Pool Services');
-    }
-    const poolIcon = (w: number) => (
-      <img src={`${basePath}images/icon-inground-pool.svg`} alt="" width={w} height={w} style="object-fit: contain;" />
-    );
-    const iconSizes: Record<string, number> = { small: 36, medium: 52, large: 68 };
+  function renderReferralSource() {
+    const icons: Record<string, any> = {
+      search: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
+      share: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>,
+      truck: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>,
+      users: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+      newspaper: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><line x1="10" y1="6" x2="18" y2="6"/><line x1="10" y1="10" x2="18" y2="10"/><line x1="10" y1="14" x2="14" y2="14"/></svg>,
+      more: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>,
+    };
     return (
       <>
         <div class="intake-step-header">
           <div class="intake-step-icon">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/></svg>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
           </div>
-          <h2 class="intake-step-title">How large is your pool?</h2>
-          <p class="intake-step-subtitle">This helps us match you with the right service plan</p>
+          <h2 class="intake-step-title">How did you hear about us?</h2>
+          <p class="intake-step-subtitle">This helps us serve the community better</p>
         </div>
-        <div class="intake-size-list">
-          {POOL_SIZES.map(s => (
-            <button key={s.id} type="button" class={`intake-size-card intake-size-card--${s.id}`} onClick={() => {
-              updateForm({ poolSize: s.id });
-              if (s.id === 'large') setRedirect('large_pool');
-              else setTimeout(() => goNext(), 300);
+        <div class="intake-surface-list">
+          {REFERRAL_SOURCES.map(rs => (
+            <button key={rs.id} type="button" class={`intake-surface-item${formData.referralSource === rs.id ? ' selected' : ''}`} onClick={() => {
+              updateForm({ referralSource: rs.id });
+              setTimeout(() => goNext(), 300);
             }}>
-              <div class={`intake-size-icon intake-size-icon--${s.id}`}>{poolIcon(iconSizes[s.id])}</div>
-              <h3 class="intake-size-label">{s.label}</h3>
-              <p class="intake-size-desc">{s.desc}</p>
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="color: var(--color-primary); flex-shrink: 0;">{icons[rs.icon]}</div>
+                <h3>{rs.label}</h3>
+              </div>
+              <div class="intake-surface-radio" />
             </button>
           ))}
         </div>
@@ -761,7 +908,9 @@ export default function GetStartedQuote({ basePath = '/' }: { basePath?: string 
               if (pc.id === 'needs_repair') setRedirect('needs_repair');
               else setTimeout(() => goNext(), 300);
             }}>
-              <div class="intake-choice-icon intake-choice-icon--emoji">{pc.id === 'good' ? '✅' : '🔧'}</div>
+              <div class="intake-choice-icon">
+                <img src={`${basePath}images/${pc.id === 'good' ? 'icon-pool-maintenance.svg' : 'icon-leaking.svg'}`} alt={pc.label} width="56" height="56" style="object-fit: contain;" />
+              </div>
               <h3>{pc.label}</h3>
               <p>{pc.desc}</p>
             </button>
@@ -1009,18 +1158,25 @@ export default function GetStartedQuote({ basePath = '/' }: { basePath?: string 
           </div>
 
           <div class="intake-quote-actions">
-            <button type="button" class="intake-cta-btn" onClick={handleGetStartedNow}>
-              Get Started Now
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            <button type="button" class="intake-cta-btn" onClick={handleGetStartedNow} disabled={leadSubmitting}>
+              {leadSubmitting ? 'Saving...' : 'Get Started Now'}
+              {!leadSubmitting && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>}
             </button>
+            {leadError && <p style="color: #dc2626; font-size: 0.85rem; margin-top: 0.5rem;">{leadError}</p>}
             <div class="intake-btn-row">
-              <button type="button" class="intake-outline-btn" onClick={() => updateForm({ quotePath: 'email' })}>
+              <button type="button" class="intake-outline-btn" disabled={leadSubmitting} onClick={async () => {
+                const lead = await createLead('email');
+                if (lead) updateForm({ quotePath: 'email', contactPreference: 'email' });
+              }}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-                Email Quote
+                {leadSubmitting ? 'Saving...' : 'Email Quote'}
               </button>
-              <button type="button" class="intake-outline-btn" onClick={() => updateForm({ quotePath: 'text' })}>
+              <button type="button" class="intake-outline-btn" disabled={leadSubmitting} onClick={async () => {
+                const lead = await createLead('text');
+                if (lead) updateForm({ quotePath: 'text', contactPreference: 'text' });
+              }}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                Text Quote
+                {leadSubmitting ? 'Saving...' : 'Text Quote'}
               </button>
             </div>
           </div>

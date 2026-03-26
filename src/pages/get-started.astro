@@ -43,6 +43,20 @@ const schema = {
 
   const container = document.getElementById('get-started-onboarding');
   if (container) {
-    render(h(GetStartedOnboarding, null), container);
+    // Check if we have quote data (from session or URL token)
+    const hasSession = !!sessionStorage.getItem('getStartedOnboarding');
+    const hasToken = new URLSearchParams(window.location.search).has('token');
+
+    if (hasSession || hasToken) {
+      // Show onboarding form (pre-populated from session or token)
+      render(h(GetStartedOnboarding, null), container);
+    } else {
+      // No data — open the quote form from scratch
+      render(h(GetStartedOnboarding, null), container);
+      // Trigger the quote modal so user starts from step 1
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('openGetStarted'));
+      }, 100);
+    }
   }
 </script>

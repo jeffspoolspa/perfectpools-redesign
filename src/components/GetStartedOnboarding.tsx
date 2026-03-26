@@ -1,5 +1,10 @@
 import { useState, useEffect } from 'preact/hooks';
 
+const SUPABASE_URL = 'https://vvprodiuwraceabviyes.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ2cHJvZGl1d3JhY2VhYnZpeWVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5MDU4MTYsImV4cCI6MjA3MjQ4MTgxNn0.HOFTUrInpmzhxTJDSp1xKp81noC7jMuTcdxr9JqC3z0';
+// Card-vault collect app URL
+const CARD_VAULT_COLLECT_URL = 'https://secure.jeffspoolspa.com';
+
 /* ── Types ── */
 interface QuoteData {
   firstName: string;
@@ -16,10 +21,13 @@ interface QuoteData {
   quotedPerVisit: number;
   quotedMonthly: number;
   visitsPerMonth: number;
+  leadId?: string;
+  resumeToken?: string;
 }
 
 interface OnboardingData {
   isScreenedIn: string;
+  poolVolume: string;
   chlorinationSystem: string;
   filterType: string;
   vegetationLevel: string;
@@ -38,13 +46,14 @@ const SERVICE_LABELS: Record<string, string> = {
 };
 
 const DEFAULT_ONBOARDING: OnboardingData = {
-  isScreenedIn: '', chlorinationSystem: '', filterType: '', vegetationLevel: '',
+  isScreenedIn: '', poolVolume: '', chlorinationSystem: '', filterType: '', vegetationLevel: '',
   hasAutoCleaner: '', accessInstructions: '', hasDogs: '', specialInstructions: '',
   preferredStartDate: '', serviceDayPreference: '',
 };
 
 const POOL_QUESTIONS = [
   { key: 'isScreenedIn', label: 'Screened In', summaryLabel: 'Screened' },
+  { key: 'poolVolume', label: 'Pool Volume', summaryLabel: 'Gallons' },
   { key: 'chlorinationSystem', label: 'Chlorination', summaryLabel: 'Chlorination' },
   { key: 'filterType', label: 'Filter Type', summaryLabel: 'Filter' },
   { key: 'vegetationLevel', label: 'Vegetation', summaryLabel: 'Vegetation' },
@@ -57,6 +66,7 @@ const POOL_QUESTIONS = [
 
 const DISPLAY_VALUES: Record<string, Record<string, string>> = {
   isScreenedIn: { yes: 'Yes', no: 'No' },
+  poolVolume: {}, // freeform — display raw value + " gal"
   chlorinationSystem: { salt_cell: 'Salt Cell', tablet_feeder: 'Tablet Feeder' },
   filterType: { sand: 'Sand', cartridge: 'Cartridge' },
   vegetationLevel: { high: 'High', medium: 'Medium', low: 'Low' },
@@ -67,8 +77,8 @@ const DISPLAY_VALUES: Record<string, Record<string, string>> = {
 
 /* ── Top-level step labels ── */
 const TOP_STEPS = [
-  { label: 'Pool Details & Start Date', step: 1 },
-  { label: 'Payment', step: 2 },
+  { label: 'Secure Payment', step: 1 },
+  { label: 'Pool Details & Start Date', step: 2 },
   { label: 'Worry Free Pool', step: 3 },
 ];
 
@@ -76,8 +86,18 @@ const TOP_STEPS = [
 export default function GetStartedOnboarding() {
   const [quoteData, setQuoteData] = useState<QuoteData | null>(null);
   const [formData, setFormData] = useState<OnboardingData>(DEFAULT_ONBOARDING);
-  const [currentStep, setCurrentStep] = useState(1); // 1=pool info, 2=payment, 3=confirmation
+  const [currentStep, setCurrentStep] = useState(1); // 1=payment, 2=pool info, 3=confirmation
   const [poolStep, setPoolStep] = useState(0); // sub-step within pool info (0-8)
+
+  // Submission state
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+
+  // Card collection state
+  const [cardToken, setCardToken] = useState<string | null>(null);
+  const [cardTokenLoading, setCardTokenLoading] = useState(false);
+  const [cardTokenError, setCardTokenError] = useState('');
+  const [cardComplete, setCardComplete] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
   const updateForm = (updates: Partial<OnboardingData>) => {
@@ -88,15 +108,194 @@ export default function GetStartedOnboarding() {
   const nextPoolStep = () => setPoolStep(prev => Math.min(prev + 1, POOL_QUESTIONS.length - 1));
   const isLastPoolStep = poolStep === POOL_QUESTIONS.length - 1;
 
-  /* ── Load quote data from session ── */
+  /* ── Load quote data from session OR token ── */
   useEffect(() => {
+    // 1. Try sessionStorage first (same-session flow)
     try {
       const raw = sessionStorage.getItem('getStartedOnboarding');
       if (raw) {
         setQuoteData(JSON.parse(raw));
+        return;
       }
     } catch {}
+
+    // 2. Check URL for resume token (returning customer via emailed/texted link)
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    if (token) {
+      fetchLeadByToken(token);
+    }
   }, []);
+
+  async function fetchLeadByToken(token: string) {
+    try {
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/rpc/get_lead_by_token`,
+        {
+          method: 'POST',
+          headers: {
+            'apikey': SUPABASE_ANON,
+            'Authorization': `Bearer ${SUPABASE_ANON}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ p_token: token }),
+        }
+      );
+      if (!res.ok) return;
+      const lead = await res.json();
+      if (!lead || !lead.id) return;
+
+      // Map lead fields to QuoteData format
+      const visitsPerMonth = lead.is_biweekly ? 2 : 4;
+      const data: QuoteData = {
+        firstName: lead.first_name || '',
+        lastName: lead.last_name || '',
+        email: lead.email || '',
+        phone: lead.phone || '',
+        addressStreet: lead.address_street || '',
+        addressCity: lead.address_city || '',
+        addressState: lead.address_state || 'GA',
+        addressZip: lead.address_zip || '',
+        serviceType: lead.service_type || 'pool',
+        hasExtraBody: lead.has_extra_body || false,
+        isBiweekly: lead.is_biweekly || false,
+        quotedPerVisit: lead.quoted_per_visit || 0,
+        quotedMonthly: lead.quoted_monthly || 0,
+        visitsPerMonth,
+        leadId: lead.id,
+        resumeToken: lead.resume_token,
+      };
+      setQuoteData(data);
+
+      // Also save to sessionStorage so refreshes work
+      try { sessionStorage.setItem('getStartedOnboarding', JSON.stringify(data)); } catch {}
+      try { sessionStorage.setItem('leadId', lead.id); } catch {}
+      try { sessionStorage.setItem('leadToken', lead.resume_token); } catch {}
+    } catch (e) {
+      console.error('Token fetch failed:', e);
+      // Fail silently — user can start fresh
+    }
+  }
+
+  /* ── Submit onboarding to Supabase ── */
+  async function submitOnboarding() {
+    // Get leadId from quoteData or sessionStorage
+    const leadId = quoteData?.leadId || sessionStorage.getItem('leadId');
+    if (!leadId) {
+      setSubmitError('Missing lead reference. Please start over from the quote form.');
+      return;
+    }
+
+    setSubmitting(true);
+    setSubmitError('');
+
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/submit_onboarding`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_ANON,
+          'Authorization': `Bearer ${SUPABASE_ANON}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          p_lead_id: leadId,
+          p_is_screened_in: formData.isScreenedIn || null,
+          p_chlorination_system: formData.chlorinationSystem || null,
+          p_filter_type: formData.filterType || null,
+          p_vegetation_level: formData.vegetationLevel || null,
+          p_has_auto_cleaner: formData.hasAutoCleaner || null,
+          p_has_dogs: formData.hasDogs || null,
+          p_access_instructions: formData.accessInstructions || null,
+          p_special_instructions: formData.specialInstructions || null,
+          p_service_day_preference: formData.serviceDayPreference || null,
+          p_preferred_start_date: formData.preferredStartDate || null,
+          p_pool_volume: formData.poolVolume ? parseInt(formData.poolVolume, 10) : null,
+        }),
+      });
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.message || 'Submission failed');
+      }
+
+      const result = await res.json();
+      if (result.error) {
+        throw new Error(result.error);
+      }
+
+      // Success — move to confirmation step
+      setCurrentStep(3);
+
+      // Clean up session data
+      try {
+        sessionStorage.removeItem('getStartedQuote');
+        sessionStorage.removeItem('getStartedOnboarding');
+      } catch {}
+    } catch (e: any) {
+      console.error('Onboarding submission error:', e);
+      setSubmitError(e.message || 'Something went wrong. Please try again or call us at (912) 459-0160.');
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  /* ── Create card collection token when reaching payment step ── */
+  async function initCardCollection() {
+    const leadId = quoteData?.leadId || sessionStorage.getItem('leadId');
+    if (!leadId) {
+      setCardTokenError('Missing lead reference.');
+      return;
+    }
+    setCardTokenLoading(true);
+    setCardTokenError('');
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/create_card_collection_request`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_ANON,
+          'Authorization': `Bearer ${SUPABASE_ANON}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ p_lead_id: leadId }),
+      });
+      if (!res.ok) throw new Error('Failed to initialize payment');
+      const result = await res.json();
+      if (result.error) {
+        setCardTokenError(result.error);
+        return;
+      }
+      setCardToken(result.token);
+    } catch (e: any) {
+      setCardTokenError(e.message || 'Failed to set up payment. Please try again or call us.');
+    } finally {
+      setCardTokenLoading(false);
+    }
+  }
+
+  /* ── Listen for card-vault postMessage (success + resize) ── */
+  useEffect(() => {
+    function handleMessage(event: MessageEvent) {
+      if (event.data?.type === 'card-vault-success') {
+        setCardComplete(true);
+      }
+      // Auto-resize iframe to match content height
+      if (event.data?.type === 'card-vault-resize' && event.data.height) {
+        const iframe = document.getElementById('card-vault-iframe') as HTMLIFrameElement;
+        if (iframe) iframe.style.height = `${event.data.height}px`;
+      }
+    }
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
+
+  /* ── When card is complete, advance to pool details ── */
+  useEffect(() => {
+    if (cardComplete && currentStep === 1) {
+      // Short delay so user sees the success state before advancing
+      const t = setTimeout(() => setCurrentStep(2), 1200);
+      return () => clearTimeout(t);
+    }
+  }, [cardComplete]);
 
   /* Responsive: detect mobile for accordion layout */
   useEffect(() => {
@@ -117,7 +316,7 @@ export default function GetStartedOnboarding() {
         <ul class="onboard-summary-list">
           {POOL_QUESTIONS.map((q, i) => {
             const val = formData[q.key as keyof OnboardingData];
-            const display = DISPLAY_VALUES[q.key]?.[val] || (val ? val : null);
+            const display = q.key === 'poolVolume' && val ? `${Number(val).toLocaleString()} gal` : (DISPLAY_VALUES[q.key]?.[val] || (val ? val : null));
             const answered = !!val;
             const isCurrent = poolStep === i;
             return (
@@ -280,9 +479,12 @@ export default function GetStartedOnboarding() {
         })}
 
         <div class="onboard-stacked-cta">
-          <button type="button" class="intake-cta-btn" disabled={!dogsValid} onClick={() => setCurrentStep(2)}>
-            Continue to Payment <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          <button type="button" class="intake-cta-btn" disabled={!dogsValid || submitting} onClick={() => submitOnboarding()}>
+            {submitting ? 'Submitting...' : 'Complete Signup'} {!submitting && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>}
           </button>
+          {submitError && (
+            <p style="font-size: 0.8rem; color: #ef4444; text-align: center; margin-top: 0.5rem;">{submitError}</p>
+          )}
           {!dogsValid && (
             <p style="font-size: 0.8rem; color: #ef4444; text-align: center; margin-top: 0.5rem;">
               * Please answer "Dogs on Property" before continuing
@@ -324,6 +526,25 @@ export default function GetStartedOnboarding() {
         );
         case 1: return (
           <div class="onboard-question revealed" key="q1">
+            <h3 class="onboard-q-title">Est. Pool Volume</h3>
+            <p class="onboard-q-subtitle">Optional — if you know your pool's approximate size in gallons</p>
+            <div style="display: flex; align-items: center; gap: 0.5rem; max-width: 280px;">
+              <input
+                type="number"
+                class="intake-input"
+                value={formData.poolVolume}
+                onInput={(e: any) => updateForm({ poolVolume: e.target.value })}
+                placeholder="e.g., 15000"
+                min="0"
+                step="500"
+                style="flex: 1;"
+              />
+              <span style="color: var(--text-light); font-size: 0.9rem;">gallons</span>
+            </div>
+          </div>
+        );
+        case 2: return (
+          <div class="onboard-question revealed" key="q2">
             <h3 class="onboard-q-title">
               Chlorination System
               <span class="onboard-tip" data-tip="How your pool sanitizes water. Salt cells generate chlorine from salt; tablet feeders dissolve chlorine pucks.">?</span>
@@ -334,8 +555,8 @@ export default function GetStartedOnboarding() {
             </div>
           </div>
         );
-        case 2: return (
-          <div class="onboard-question revealed" key="q2">
+        case 3: return (
+          <div class="onboard-question revealed" key="q3">
             <h3 class="onboard-q-title">
               Filter Type
               <span class="onboard-tip" data-tip="Sand filters use sand to trap debris; cartridge filters use a replaceable paper element.">?</span>
@@ -346,8 +567,8 @@ export default function GetStartedOnboarding() {
             </div>
           </div>
         );
-        case 3: return (
-          <div class="onboard-question revealed" key="q3">
+        case 4: return (
+          <div class="onboard-question revealed" key="q4">
             <h3 class="onboard-q-title">Vegetation Level</h3>
             <p class="onboard-q-subtitle">How many trees and plants surround your pool?</p>
             <div class="onboard-option-grid">
@@ -357,8 +578,8 @@ export default function GetStartedOnboarding() {
             </div>
           </div>
         );
-        case 4: return (
-          <div class="onboard-question revealed" key="q4">
+        case 5: return (
+          <div class="onboard-question revealed" key="q5">
             <h3 class="onboard-q-title">Do you have an automatic pool cleaner?</h3>
             <div class="gs-radio-group" style="max-width: 320px;">
               <button type="button" class={`gs-radio-btn${formData.hasAutoCleaner === 'yes' ? ' active' : ''}`} onClick={() => { updateForm({ hasAutoCleaner: 'yes' }); nextPoolStep(); }}>Yes</button>
@@ -366,8 +587,8 @@ export default function GetStartedOnboarding() {
             </div>
           </div>
         );
-        case 5: return (
-          <div class="onboard-question revealed" key="q5">
+        case 6: return (
+          <div class="onboard-question revealed" key="q6">
             <h3 class="onboard-q-title">Are there dogs on the property? <span style="color: #ef4444;">*</span></h3>
             <p class="onboard-q-subtitle">Required for technician safety</p>
             <div class="gs-radio-group" style="max-width: 320px;">
@@ -376,8 +597,8 @@ export default function GetStartedOnboarding() {
             </div>
           </div>
         );
-        case 6: return (
-          <div class="onboard-question revealed" key="q6">
+        case 7: return (
+          <div class="onboard-question revealed" key="q7">
             <h3 class="onboard-q-title">Gate Code / Access Instructions</h3>
             <p class="onboard-q-subtitle">How do we get to your pool?</p>
             <input
@@ -390,8 +611,8 @@ export default function GetStartedOnboarding() {
             />
           </div>
         );
-        case 7: return (
-          <div class="onboard-question revealed" key="q7">
+        case 8: return (
+          <div class="onboard-question revealed" key="q8">
             <h3 class="onboard-q-title">Special Instructions</h3>
             <p class="onboard-q-subtitle">Anything else we should know?</p>
             <textarea
@@ -404,8 +625,8 @@ export default function GetStartedOnboarding() {
             />
           </div>
         );
-        case 8: return (
-          <div class="onboard-question revealed" key="q8">
+        case 9: return (
+          <div class="onboard-question revealed" key="q9">
             <h3 class="onboard-q-title">Preferred Service Day</h3>
             <p class="onboard-q-subtitle">We'll do our best to accommodate your preference</p>
             <div class="onboard-option-grid">
@@ -451,24 +672,24 @@ export default function GetStartedOnboarding() {
           )}
           {poolStep === 0 && <span />}
 
-          {/* Skip for text fields (steps 6, 7) or Next for day preference (8) */}
-          {(poolStep === 6 || poolStep === 7) && (
+          {/* Skip for pool volume (1) and text fields (7, 8) */}
+          {(poolStep === 1 || poolStep === 7 || poolStep === 8) && (
             <button type="button" class="onboard-nav-skip" onClick={() => nextPoolStep()}>
               {formData[POOL_QUESTIONS[poolStep].key as keyof OnboardingData] ? 'Next' : 'Skip'} →
             </button>
           )}
 
           {/* Service day — next/continue */}
-          {poolStep === 8 && (
-            <button type="button" class="intake-cta-btn" disabled={!dogsValid} onClick={() => setCurrentStep(2)} style="padding: 0.625rem 1.5rem; font-size: 0.9rem;">
-              Continue to Payment <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          {poolStep === 9 && (
+            <button type="button" class="intake-cta-btn" disabled={!dogsValid || submitting} onClick={() => submitOnboarding()} style="padding: 0.625rem 1.5rem; font-size: 0.9rem;">
+              {submitting ? 'Submitting...' : 'Complete Signup'} {!submitting && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>}
             </button>
           )}
         </div>
 
-        {poolStep === 8 && !dogsValid && (
+        {poolStep === 9 && !dogsValid && (
           <p style="font-size: 0.8rem; color: #ef4444; text-align: center; margin-top: 0.5rem;">
-            * Please answer <button type="button" style="color: #ef4444; text-decoration: underline; background: none; border: none; cursor: pointer; font: inherit; padding: 0;" onClick={() => setPoolStep(5)}>Dogs on Property</button> before continuing
+            * Please answer <button type="button" style="color: #ef4444; text-decoration: underline; background: none; border: none; cursor: pointer; font: inherit; padding: 0;" onClick={() => setPoolStep(6)}>Dogs on Property</button> before continuing
           </p>
         )}
       </>
@@ -479,43 +700,73 @@ export default function GetStartedOnboarding() {
      Step 2 — Payment Placeholder
      ══════════════════════════════════ */
   function renderPayment() {
+    // Initialize card collection token on first render of this step
+    if (!cardToken && !cardTokenLoading && !cardTokenError) {
+      initCardCollection();
+    }
+
     return (
-      <>
-        <button type="button" class="onboard-nav-back" onClick={() => setCurrentStep(1)} style="margin-bottom: 1rem;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-          Back to Pool Info
-        </button>
+      <div style="max-width: 420px; margin: 0 auto;">
         <div class="intake-step-header">
           <div class="intake-step-icon">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
           </div>
           <h2 class="intake-step-title">Secure Payment</h2>
-          <p class="intake-step-subtitle">Your card won't be charged until your first service</p>
+          <p class="intake-step-subtitle">Your card won't be charged until you're confirmed on a route</p>
         </div>
 
-        <div class="gs-payment-placeholder">
+        <div class="gs-quote-breakdown" style="margin: 0 0 1rem; display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; background: var(--primary-light, #f0f7ff); border-radius: 0.5rem;">
+          <span style="font-weight: 500;">First Month's Pre-Payment</span>
+          <span style="font-weight: 700; font-size: 1.1rem;">${quoteData!.quotedMonthly}</span>
+        </div>
+        <p style="font-size: 0.78rem; color: var(--text-light); margin-bottom: 1rem;">
+          A temporary pre-authorization for ${quoteData!.quotedMonthly} will be placed on your card to verify it. This is <strong>not a charge</strong> and will drop off within 3-5 business days.
+        </p>
+
+        {/* Card collection — seamless embed */}
+        {cardTokenLoading && (
           <div style="text-align: center; padding: 2rem;">
-            <div style="width: 64px; height: 64px; border-radius: 50%; background: #f3f4f6; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            </div>
-            <h3 style="color: var(--text-light); margin-bottom: 0.5rem;">Payment Form Coming Soon</h3>
-            <p style="color: var(--text-light); font-size: 0.85rem; margin-bottom: 1rem;">Secure card collection will be integrated here</p>
-            <div class="gs-quote-breakdown" style="max-width: 280px; margin: 0 auto 1.5rem;">
-              <div class="gs-quote-row gs-quote-row--total">
-                <span>Monthly Rate</span>
-                <span class="gs-quote-val">${quoteData!.quotedMonthly}/mo</span>
-              </div>
-            </div>
+            <p style="color: var(--text-light);">Setting up secure payment...</p>
           </div>
-        </div>
+        )}
 
-        <div class="intake-actions" style="margin-top: 1.5rem;">
-          <button type="button" class="intake-cta-btn" onClick={() => setCurrentStep(3)}>
-            Complete Signup (Demo) <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-          </button>
-          <p style="font-size: 0.75rem; color: var(--text-light); text-align: center; margin-top: 0.5rem;">🔒 Your payment info is encrypted and secure</p>
-        </div>
-      </>
+        {cardTokenError && (
+          <div style="text-align: center; padding: 2rem;">
+            <p style="color: #dc2626; margin-bottom: 1rem;">{cardTokenError}</p>
+            <button type="button" class="intake-outline-btn" onClick={() => { setCardTokenError(''); initCardCollection(); }}>
+              Try Again
+            </button>
+            <p style="font-size: 0.85rem; color: var(--text-light); margin-top: 1rem;">
+              Or call us at <a href="tel:9124590160" style="color: var(--primary);">(912) 459-0160</a>
+            </p>
+          </div>
+        )}
+
+        {cardToken && !cardComplete && (
+          <iframe
+            id="card-vault-iframe"
+            src={`${CARD_VAULT_COLLECT_URL}/collect?token=${cardToken}&embed=true`}
+            style={`width: 100%; border: none; height: ${isMobile ? '240px' : '260px'}; display: block; overflow: hidden;`}
+            title="Secure card entry"
+            allow="payment"
+            scrolling="no"
+          />
+        )}
+
+        {cardComplete && (
+          <div style="text-align: center; padding: 1.5rem;">
+            <div style="width: 48px; height: 48px; border-radius: 50%; background: #dcfce7; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <p style="color: #16a34a; font-weight: 500;">Card verified successfully!</p>
+            <p style="color: var(--text-light); font-size: 0.85rem; margin-top: 0.5rem;">Moving to pool details...</p>
+          </div>
+        )}
+
+        <p style="font-size: 0.75rem; color: var(--text-light); text-align: center; margin-top: 0.75rem;">
+          Your card information is encrypted before it leaves your device
+        </p>
+      </div>
     );
   }
 
@@ -625,15 +876,15 @@ export default function GetStartedOnboarding() {
 
       {/* ── Centered content: summary + card side-by-side ── */}
       <div class="onboard-center">
-        {currentStep === 1 && (
+        {currentStep === 2 && (
           <aside class="onboard-summary">{renderSummary()}</aside>
         )}
 
-        <div class={`gs-card onboard-card${currentStep !== 1 ? ' onboard-card--solo' : ''}`}>
+        <div class={`gs-card onboard-card${currentStep !== 2 ? ' onboard-card--solo' : ''}`}>
           {/* Step content */}
           <div class="intake-body gs-fade-in" key={currentStep}>
-            {currentStep === 1 && renderPoolInfo()}
-            {currentStep === 2 && renderPayment()}
+            {currentStep === 1 && renderPayment()}
+            {currentStep === 2 && renderPoolInfo()}
             {currentStep === 3 && renderConfirmation()}
           </div>
         </div>
