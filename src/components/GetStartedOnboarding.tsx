@@ -343,6 +343,16 @@ export default function GetStartedOnboarding() {
       setCardTokenError('Missing lead reference.');
       return;
     }
+    // The card-vault rejects collection requests without a pre-auth amount —
+    // we always pass the customer's first-month deposit so the row is fully
+    // authorizable. The card-vault stores amounts in CENTS (Stripe convention),
+    // so we multiply the dollar amount by 100 before sending.
+    const preAuthDollars = quoteData?.quotedMonthly || 0;
+    if (!preAuthDollars) {
+      setCardTokenError('Quote amount is missing — please reload from your quote link.');
+      return;
+    }
+    const preAuthCents = Math.round(preAuthDollars * 100);
     setCardTokenLoading(true);
     setCardTokenError('');
     try {
@@ -353,7 +363,10 @@ export default function GetStartedOnboarding() {
           'Authorization': `Bearer ${SUPABASE_ANON}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ p_lead_id: leadId }),
+        body: JSON.stringify({
+          p_lead_id: leadId,
+          p_pre_auth_amount: preAuthCents,
+        }),
       });
       if (!res.ok) throw new Error('Failed to initialize payment');
       const result = await res.json();
