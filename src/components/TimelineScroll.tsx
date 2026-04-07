@@ -1,4 +1,6 @@
 import { useEffect, useRef } from 'preact/hooks';
+import { buildCardStackTimeline } from '../utils/card-stack-timeline';
+import { getHeaderOffset } from '../utils/scroll-config';
 
 const PHASES = [
   {
@@ -67,34 +69,53 @@ export default function TimelineScroll() {
       import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => {
         gsap.registerPlugin(ScrollTrigger);
 
-        const cards = sectionRef.current!.querySelectorAll('.tl-card');
-        const markers = sectionRef.current!.querySelectorAll('.tl-marker');
+        const cards = Array.from(sectionRef.current!.querySelectorAll('.tl-card')) as HTMLElement[];
+        const markers = Array.from(sectionRef.current!.querySelectorAll('.tl-marker')) as HTMLElement[];
         if (!cards.length) return;
 
-        // Set first card and marker as active immediately
-        gsap.set(cards[0], { opacity: 1, y: 0 });
+        // Track which marker is active so we only update on change
+        let activeMarkerIndex = 0;
+
+        const setActiveMarker = (index: number) => {
+          if (index === activeMarkerIndex) return;
+          // Deactivate previous
+          gsap.to(markers[activeMarkerIndex], { scale: 1, background: '#e5e7eb', duration: 0.3 });
+          (markers[activeMarkerIndex] as HTMLElement).querySelector('.tl-numeral')!.style.color = '#6b7280';
+          // Activate new
+          gsap.to(markers[index], { scale: 1.2, background: '#145BB8', duration: 0.3 });
+          (markers[index] as HTMLElement).querySelector('.tl-numeral')!.style.color = '#fff';
+          activeMarkerIndex = index;
+        };
+
+        // Set first marker active immediately
         gsap.set(markers[0], { scale: 1.2, background: '#145BB8' });
         (markers[0] as HTMLElement).querySelector('.tl-numeral')!.style.color = '#fff';
 
-        // Build timeline starting from hold on first card
-        const tl = gsap.timeline();
-        tl.to({}, { duration: 0.8 }); // hold first card
-
-        for (let i = 1; i < cards.length; i++) {
-          tl.to(cards[i - 1], { opacity: 0, y: -20, duration: 0.3 }, `card${i}`);
-          tl.to(markers[i - 1], { scale: 1, background: '#e5e7eb', duration: 0.3, onUpdate() { (markers[i-1] as HTMLElement).querySelector('.tl-numeral')!.style.color = '#6b7280'; } }, `card${i}`);
-          tl.fromTo(cards[i], { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5 }, `card${i}`);
-          tl.to(markers[i], { scale: 1.2, background: '#145BB8', duration: 0.3, onUpdate() { (markers[i] as HTMLElement).querySelector('.tl-numeral')!.style.color = '#fff'; } }, `card${i}`);
-          tl.to({}, { duration: 0.8 }); // hold
-        }
+        const tl = buildCardStackTimeline(gsap, cards, {
+          enterStyle: 'slide-up',
+          exitStyle: 'fade-out-up',
+          enterEase: 'power2.out',
+          exitEase: 'power1.in',
+          holdDuration: 0.6,
+          crossfadeDuration: 1,
+        });
 
         ScrollTrigger.create({
           trigger: sectionRef.current,
           pin: stickyRef.current,
-          start: 'top 100px',
-          end: `+=${cards.length * 600}`,
+          start: () => `top top+=${getHeaderOffset()}`,
+          end: 'bottom bottom',
+          pinSpacing: false,
           animation: tl,
-          scrub: 0.5,
+          scrub: 1,
+          onUpdate: (self: any) => {
+            const totalCards = cards.length;
+            const index = Math.min(
+              totalCards - 1,
+              Math.floor(self.progress * totalCards)
+            );
+            setActiveMarker(index);
+          },
         });
       });
     });
@@ -102,30 +123,47 @@ export default function TimelineScroll() {
 
   return (
     <div ref={sectionRef} class="tl-scroll">
+      {/* Mobile: header scrolls naturally */}
+      <div class="section-header tl__header tl__header--mobile">
+        <span class="section-kicker">OUR STORY</span>
+        <h2>Built by Bringing the Best Together</h2>
+        <p>Five partnerships that shaped how we take care of your pool.</p>
+      </div>
+
       <div ref={stickyRef} class="tl-sticky">
-        {/* Left: markers */}
-        <div class="tl-markers">
-          <div class="tl-line"></div>
-          {PHASES.map((p, i) => (
-            <div key={i} class="tl-marker">
-              <span class="tl-numeral">{p.numeral}</span>
-            </div>
-          ))}
+        {/* Desktop: header inside sticky */}
+        <div class="section-header tl__header tl__header--desktop">
+          <span class="section-kicker">OUR STORY</span>
+          <h2>Built by Bringing the Best Together</h2>
+          <p>Five partnerships that shaped how we take care of your pool.</p>
         </div>
 
-        {/* Right: card stack */}
-        <div class="tl-card-area">
-          {PHASES.map((p, i) => (
-            <div key={i} class={`tl-card`} style={i !== 0 ? 'opacity: 0; position: absolute; top: 0; left: 0; right: 0;' : ''}>
-              <span class={`tl-badge tl-badge--${p.badgeClass || 'default'}`}>{p.badge}</span>
-              <h3>{p.title}</h3>
-              {p.content.map((para, j) => (
-                <p key={j}>{para}</p>
-              ))}
-            </div>
-          ))}
+        <div class="tl__content-row">
+          {/* Left: markers */}
+          <div class="tl-markers">
+            <div class="tl-line"></div>
+            {PHASES.map((p, i) => (
+              <div key={i} class="tl-marker">
+                <span class="tl-numeral">{p.numeral}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Right: card stack */}
+          <div class="tl-card-area">
+            {PHASES.map((p, i) => (
+              <div key={i} class={`tl-card`} style={i !== 0 ? 'opacity: 0; position: absolute; top: 0; left: 0; right: 0;' : ''}>
+                <span class={`tl-badge tl-badge--${p.badgeClass || 'default'}`}>{p.badge}</span>
+                <h3>{p.title}</h3>
+                {p.content.map((para, j) => (
+                  <p key={j}>{para}</p>
+                ))}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
+      <div className="tl__spacer" />
     </div>
   );
 }

@@ -1,8 +1,6 @@
 import { useEffect, useRef } from 'preact/hooks';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-gsap.registerPlugin(ScrollTrigger);
+import { buildCardStackTimeline } from '../utils/card-stack-timeline';
+import { getHeaderOffset } from '../utils/scroll-config';
 
 const CARDS = [
   {
@@ -52,37 +50,37 @@ export default function ProblemScroll() {
     const cards = cardsRef.current.filter(Boolean) as HTMLDivElement[];
     if (cards.length === 0) return;
 
-    const tl = gsap.timeline();
+    let trigger: any;
+    let tl: any;
 
-    cards.forEach((card, i) => {
-      if (i === 0) {
-        tl.to(card, { opacity: 1, y: 0, scale: 1, duration: 0.01 }, 0);
-        tl.to(card, { opacity: 1, y: 0, scale: 1, duration: 1 });
-        if (i < cards.length - 1) {
-          tl.to(card, { opacity: 0, y: -20, scale: 0.97, duration: 0.5 });
-        }
-      } else {
-        tl.to(card, { opacity: 1, y: 0, scale: 1, duration: 0.5 });
-        tl.to(card, { opacity: 1, y: 0, scale: 1, duration: 1 });
-        if (i < cards.length - 1) {
-          tl.to(card, { opacity: 0, y: -20, scale: 0.97, duration: 0.5 });
-        }
-      }
-    });
+    import('gsap').then(({ gsap }) => {
+      import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => {
+        gsap.registerPlugin(ScrollTrigger);
 
-    const trigger = ScrollTrigger.create({
-      trigger: container,
-      start: 'top 80px',
-      end: 'bottom bottom',
-      pin: sticky,
-      pinSpacing: false,
-      scrub: 0.5,
-      animation: tl,
+        tl = buildCardStackTimeline(gsap, cards, {
+          enterStyle: 'fade-up',
+          exitStyle: 'fade-out-up',
+          enterEase: 'power2.out',
+          exitEase: 'power1.in',
+          holdDuration: 0.8,
+          crossfadeDuration: 1,
+        });
+
+        trigger = ScrollTrigger.create({
+          trigger: container,
+          start: () => `top top+=${getHeaderOffset()}`,
+          end: 'bottom bottom',
+          pin: sticky,
+          pinSpacing: false,
+          scrub: 1,
+          animation: tl,
+        });
+      });
     });
 
     return () => {
-      trigger.kill();
-      tl.kill();
+      trigger?.kill();
+      tl?.kill();
     };
   }, []);
 

@@ -10,61 +10,58 @@ const base = import.meta.env.BASE_URL;
   canonicalPath="/our-approach"
 >
   <!-- Section 1: Problem Statement (scroll-driven cinematic) -->
-  <section class="section problem-section">
+  <section class="section problem-section oa-section" data-oa-section="1">
     <div class="container">
       <div id="problem-mount"></div>
     </div>
   </section>
 
-  <!-- Section 3: Company Timeline -->
-  <section class="section section--alt" id="our-story">
+  <!-- Section 2: Company Timeline -->
+  <section class="section section--alt oa-section" data-oa-section="2" id="our-story">
     <div class="container">
-      <div class="section-header">
-        <span class="section-kicker">OUR STORY</span>
-        <h2>Built by Bringing the Best Together</h2>
-        <p>Five partnerships that shaped how we take care of your pool.</p>
-      </div>
       <div id="timeline-mount"></div>
     </div>
   </section>
 
-  <!-- Section 4: Three Pillars Triangle (Interactive) -->
-  <section class="section pillars-section" id="pillars">
+  <!-- Section 3: Three Pillars Triangle (Interactive) -->
+  <section class="section pillars-section oa-section" data-oa-section="3" id="pillars">
     <div class="container">
       <div id="pillars-mount"></div>
     </div>
   </section>
 
-  <!-- Section 3: Industry vs Us Comparison (scroll-driven swap) -->
-  <section class="section compare-scroll-section">
+  <!-- Section 4: Industry vs Us Comparison (scroll-driven swap) -->
+  <section class="section compare-scroll-section oa-section" data-oa-section="4">
     <div class="container">
       <div id="compare-mount"></div>
     </div>
   </section>
 
   <!-- Section 5: Anatomy of a Visit (scroll-driven timeline) -->
-  <section class="section visit-section" id="visit">
+  <section class="section visit-section oa-section" data-oa-section="5" id="visit">
     <div class="container">
       <div id="visit-mount"></div>
     </div>
   </section>
 
-  <!-- Section 6: Reviews -->
-  <section class="section" id="reviews">
+  <!-- Section 6: Reviews (stagger reveal) -->
+  <section class="section oa-section oa-reveal" data-oa-section="6" id="reviews">
     <div class="container">
-      <div class="section-header">
+      <div class="section-header oa-reveal__item">
         <span class="section-kicker">WHAT OUR CLIENTS SAY</span>
         <h2>Real Reviews, Real Results.</h2>
       </div>
-      <ReviewCarousel />
-      <div style="text-align: center; margin-top: var(--space-8);">
+      <div class="oa-reveal__item">
+        <ReviewCarousel />
+      </div>
+      <div class="oa-reveal__item" style="text-align: center; margin-top: var(--space-8);">
         <a href="https://g.page/r/CVrU0W_3-NRyEAE/review" target="_blank" rel="noopener" class="btn btn--outline">Read All Reviews on Google</a>
       </div>
     </div>
   </section>
 
-  <!-- Final CTA Banner -->
-  <section class="partnership-cta">
+  <!-- Final CTA Banner (scale entrance) -->
+  <section class="partnership-cta oa-section oa-cta-entrance" data-oa-section="7">
     <div class="container">
       <div class="partnership-cta__card">
         <h2>Start Your Aquatic Partnership</h2>
@@ -136,9 +133,94 @@ const base = import.meta.env.BASE_URL;
   if (compareMount) {
     render(h(CompareScroll, null), compareMount);
   }
+
+  // --- Section Transitions ---
+  // After all Preact islands mount AND all resources load (fonts, images),
+  // set up slide-over pins and reveal animations, then refresh all triggers.
+  window.addEventListener('load', () => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        import('gsap').then(({ gsap }) => {
+          import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => {
+            gsap.registerPlugin(ScrollTrigger);
+
+            const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+            if (!prefersReduced) {
+              // Stagger reveal: Reviews section children cascade in
+              const revealItems = document.querySelectorAll('.oa-reveal__item');
+              if (revealItems.length) {
+                gsap.to(revealItems, {
+                  opacity: 1,
+                  y: 0,
+                  stagger: 0.15,
+                  ease: 'power2.out',
+                  scrollTrigger: {
+                    trigger: '#reviews',
+                    start: 'top 80%',
+                    end: 'top 30%',
+                    scrub: 1,
+                  },
+                });
+              }
+
+              // CTA scale entrance
+              const ctaCard = document.querySelector('.oa-cta-entrance .partnership-cta__card');
+              if (ctaCard) {
+                gsap.to(ctaCard, {
+                  opacity: 1,
+                  y: 0,
+                  scale: 1,
+                  ease: 'power2.out',
+                  scrollTrigger: {
+                    trigger: '.oa-cta-entrance',
+                    start: 'top 85%',
+                    end: 'top 40%',
+                    scrub: 1,
+                  },
+                });
+              }
+            } else {
+              // Reduced motion: show everything immediately
+              document.querySelectorAll('.oa-reveal__item').forEach((el) => {
+                (el as HTMLElement).style.opacity = '1';
+                (el as HTMLElement).style.transform = 'none';
+              });
+              const ctaCard = document.querySelector('.oa-cta-entrance .partnership-cta__card') as HTMLElement;
+              if (ctaCard) {
+                ctaCard.style.opacity = '1';
+                ctaCard.style.transform = 'none';
+              }
+            }
+
+            // Recalculate all trigger positions now that everything is rendered
+            ScrollTrigger.sort();
+            ScrollTrigger.refresh();
+          });
+        });
+      });
+    });
+  });
 </script>
 
 <style>
+  /* === Section Flow === */
+  .oa-section {
+    position: relative;
+  }
+
+  /* Stagger reveal items — hidden until GSAP reveals them */
+  :global(.oa-reveal__item) {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  /* CTA entrance — hidden until GSAP scales it in */
+  .oa-cta-entrance :global(.partnership-cta__card) {
+    opacity: 0;
+    transform: translateY(40px) scale(0.95);
+  }
+
   /* GPU compositing hints for scroll-animated cards */
   :global(.prb__card),
   :global(.ps__card),

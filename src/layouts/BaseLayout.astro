@@ -78,6 +78,32 @@ const ogImageUrl = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`
   <!-- Get Started Quote Modal (Preact island) -->
   <GetStartedQuote client:load basePath={import.meta.env.BASE_URL} />
 
+  <!-- Lenis smooth scroll + GSAP sync -->
+  <script>
+    import Lenis from 'lenis';
+    import { gsap } from 'gsap';
+    import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    const lenis = new Lenis({
+      duration: 1.2,
+      touchMultiplier: 2,
+    });
+
+    // Sync Lenis scroll position → ScrollTrigger
+    lenis.on('scroll', ScrollTrigger.update);
+
+    // Drive Lenis from GSAP's ticker (one unified RAF loop)
+    gsap.ticker.add((time) => {
+      lenis.raf(time * 1000);
+    });
+    gsap.ticker.lagSmoothing(0);
+
+    // Expose for modal stop/start
+    (window as any).__lenis = lenis;
+  </script>
+
   <!-- Intake form trigger + Get Started trigger + Mobile menu script -->
   <script>
     // Quote form trigger delegation — all quote/get-started buttons open the new GetStartedQuote modal

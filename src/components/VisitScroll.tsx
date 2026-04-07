@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef } from 'preact/hooks';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-gsap.registerPlugin(ScrollTrigger);
+import { buildCardStackTimeline } from '../utils/card-stack-timeline';
+import { getHeaderOffset } from '../utils/scroll-config';
 
 // SVG icons as JSX for dependency-free rendering
 const icons: Record<string, any> = {
@@ -60,6 +58,7 @@ export default function VisitScroll() {
   const [activeIndex, setActiveIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const lastIndexRef = useRef(0);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -68,45 +67,46 @@ export default function VisitScroll() {
     const cards = cardsRef.current.filter(Boolean) as HTMLDivElement[];
     if (cards.length === 0) return;
 
-    const tl = gsap.timeline();
+    let trigger: any;
+    let tl: any;
 
-    cards.forEach((card, i) => {
-      if (i === 0) {
-        tl.to(card, { opacity: 1, y: 0, scale: 1, duration: 0.01 }, 0);
-        tl.to(card, { opacity: 1, y: 0, scale: 1, duration: 1 });
-        if (i < cards.length - 1) {
-          tl.to(card, { opacity: 0, y: -20, scale: 0.97, duration: 0.5 });
-        }
-      } else {
-        tl.to(card, { opacity: 1, y: 0, scale: 1, duration: 0.5 });
-        tl.to(card, { opacity: 1, y: 0, scale: 1, duration: 1 });
-        if (i < cards.length - 1) {
-          tl.to(card, { opacity: 0, y: -20, scale: 0.97, duration: 0.5 });
-        }
-      }
-    });
+    import('gsap').then(({ gsap }) => {
+      import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => {
+        gsap.registerPlugin(ScrollTrigger);
 
-    const trigger = ScrollTrigger.create({
-      trigger: container,
-      start: 'top 80px',
-      end: 'bottom bottom',
-      pin: container.querySelector('.vs__sticky-col') as HTMLElement,
-      pinSpacing: false,
-      scrub: 0.5,
-      animation: tl,
-      onUpdate: (self) => {
-        const totalCards = STEPS.length;
-        const index = Math.min(
-          totalCards - 1,
-          Math.floor(self.progress * totalCards)
-        );
-        setActiveIndex(index);
-      },
+        tl = buildCardStackTimeline(gsap, cards, {
+          enterStyle: 'scale-fade',
+          exitStyle: 'fade-out',
+          enterEase: 'power2.out',
+          exitEase: 'power1.in',
+        });
+
+        trigger = ScrollTrigger.create({
+          trigger: container,
+          start: () => `top top+=${getHeaderOffset()}`,
+          end: 'bottom bottom',
+          pin: container.querySelector('.vs__sticky-col') as HTMLElement,
+          pinSpacing: false,
+          scrub: 1,
+          animation: tl,
+          onUpdate: (self: any) => {
+            const totalCards = STEPS.length;
+            const index = Math.min(
+              totalCards - 1,
+              Math.floor(self.progress * totalCards)
+            );
+            if (index !== lastIndexRef.current) {
+              lastIndexRef.current = index;
+              setActiveIndex(index);
+            }
+          },
+        });
+      });
     });
 
     return () => {
-      trigger.kill();
-      tl.kill();
+      trigger?.kill();
+      tl?.kill();
     };
   }, []);
 
