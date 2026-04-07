@@ -213,7 +213,6 @@ export default function GetStartedQuote({ basePath = '/' }: { basePath?: string 
   const [dupMatchName, setDupMatchName] = useState('');
   const [dupMatchPhone, setDupMatchPhone] = useState('');
   const [dupMatchEmail, setDupMatchEmail] = useState('');
-  const [dupExistingLead, setDupExistingLead] = useState<any>(null);
 
   const updateForm = (updates: Partial<QuoteFormData>) => {
     setFormData(prev => ({ ...prev, ...updates }));
@@ -310,46 +309,85 @@ export default function GetStartedQuote({ basePath = '/' }: { basePath?: string 
     setLeadError('');
     try {
       const p = calculatePrice();
-      const res = await fetch(`${SUPABASE_URL}/functions/v1/create-lead`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+
+      // ── Map old form fields → new domain model ──
+      // serviceType: 'pool' | 'spa' | 'pool_spa_combo'; hasExtraBody = fountain add-on
+      const bodies: any[] = [];
+      const st = formData.serviceType;
+      const isInground = formData.isInground === 'inground'
+        ? true
+        : formData.isInground === 'above_ground'
+          ? false
+          : null;
+      const serviceAddr = {
+        service_street: formData.addressStreet || undefined,
+        service_city: formData.addressCity || undefined,
+        service_state: formData.addressState || 'GA',
+        service_zip: formData.addressZip || undefined,
+      };
+      if (st === 'pool' || st === 'pool_spa_combo') {
+        bodies.push({ body_type: 'pool', is_primary: true, is_inground: isInground, ...serviceAddr });
+      }
+      if (st === 'spa') {
+        bodies.push({ body_type: 'spa', is_primary: true, ...serviceAddr });
+      }
+      if (st === 'pool_spa_combo') {
+        bodies.push({ body_type: 'spa', is_primary: false, ...serviceAddr });
+      }
+      if (formData.hasExtraBody) {
+        bodies.push({ body_type: 'fountain', is_primary: bodies.length === 0, ...serviceAddr });
+      }
+
+      // pool_condition: only 'good' | 'needs_repair' | 'green_pool' supported server-side.
+      // Old form uses 'good' | 'needs_repair' (needs_repair redirects before submit).
+      const poolCondition =
+        formData.poolCondition === 'needs_repair' || formData.poolCondition === 'green_pool'
+          ? formData.poolCondition
+          : 'good';
+
+      const payload = {
+        account: {
           first_name: formData.firstName.trim(),
           last_name: formData.lastName.trim(),
-          email: formData.email.trim(),
-          phone: formData.phone.trim(),
-          address_street: formData.addressStreet || null,
-          address_city: formData.addressCity || null,
-          address_state: formData.addressState || 'GA',
-          address_zip: formData.addressZip || null,
-          service_interest: 'maintenance',
-          customer_type: formData.customerType || 'residential',
-          pool_condition: formData.poolCondition || null,
-          referral_source: formData.referralSource || null,
-          is_inground: formData.isInground === 'inground' ? true : formData.isInground === 'above_ground' ? false : null,
-          service_type: formData.serviceType || null,
-          has_extra_body: formData.hasExtraBody,
-          is_biweekly: formData.isBiweekly,
-          lead_context: formData.leadContext || null,
-          contact_preference: contactPref || formData.contactPreference || null,
-          quoted_per_visit: p.perVisit,
-          quoted_monthly: p.monthly,
-          duplicate_resolution: formData.duplicateResolution || null,
-          is_existing_customer: !!formData.duplicateResolution && formData.duplicateResolution === 'confirmed_yes',
+          email: formData.email.trim() || undefined,
+          phone: formData.phone.trim() || undefined,
+          account_type: formData.customerType === 'commercial' ? 'commercial' : 'residential',
+          billing_street: formData.addressStreet || '',
+          billing_city: formData.addressCity || '',
+          billing_state: formData.addressState || 'GA',
+          billing_zip: formData.addressZip || '',
+        },
+        bodies,
+        lead: {
           source: 'website',
-        }),
+          visits_per_week: formData.isBiweekly ? 0.5 : 1,
+          pool_condition: poolCondition,
+          issue_description: poolCondition !== 'good' ? (formData.leadContext || 'Customer reported issue via website') : undefined,
+        },
+      };
+
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/website-lead-intake`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          apikey: SUPABASE_ANON,
+          Authorization: `Bearer ${SUPABASE_ANON}`,
+        },
+        body: JSON.stringify(payload),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({ error: 'Submission failed' }));
         throw new Error(err.error || 'Failed to create lead');
       }
       const data = await res.json();
-      setLeadId(data.lead_id);
-      setLeadToken(data.resume_token);
-      // Store for onboarding page
-      try { sessionStorage.setItem('leadId', data.lead_id); } catch {}
-      try { sessionStorage.setItem('leadToken', data.resume_token); } catch {}
-      return { id: data.lead_id, token: data.resume_token };
+      if (!data.ok) throw new Error(data.error || 'Failed to create lead');
+      const leadIdStr = String(data.lead_id);
+      const token = leadIdStr; // new endpoint doesn't issue a resume token; use lead_id
+      setLeadId(leadIdStr);
+      setLeadToken(token);
+      try { sessionStorage.setItem('leadId', leadIdStr); } catch {}
+      try { sessionStorage.setItem('leadToken', token); } catch {}
+      return { id: leadIdStr, token };
     } catch (e: any) {
       console.error('createLead error:', e);
       setLeadError(e.message || 'Something went wrong. Please try again or call us.');
@@ -412,30 +450,11 @@ export default function GetStartedQuote({ basePath = '/' }: { basePath?: string 
         throw new Error(err.error || 'Submission failed');
       }
 
-      // 2. Also create a lead record (flagged as service_needed)
-      try {
-        await fetch(`${SUPABASE_URL}/functions/v1/create-lead`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            first_name: contact.firstName.trim(),
-            last_name: contact.lastName.trim(),
-            email: contact.email.trim(),
-            phone: contact.phone.trim(),
-            address_street: formData.addressStreet || null,
-            address_city: formData.addressCity || null,
-            address_state: formData.addressState || 'GA',
-            address_zip: formData.addressZip || null,
-            service_interest: type,
-            customer_type: 'residential',
-            issue_description: ticketDescription.trim(),
-            source: 'website',
-          }),
-        });
-      } catch (e) {
-        console.error('Lead creation (non-fatal):', e);
-        // Don't fail the ticket — Airtable is the primary record for dispatch
-      }
+      // Note: previously this also called the legacy `create-lead` edge
+      // function with old-schema fields (address_street/etc.). That call has
+      // been removed — lead creation for green-pool / repair flows is now
+      // handled inside `website-lead-intake` whenever pool_condition !== "good".
+      // The Airtable ticket above remains the primary dispatch record.
 
       setTicketSubmitted(true);
     } catch (e: any) {
@@ -738,7 +757,6 @@ export default function GetStartedQuote({ basePath = '/' }: { basePath?: string 
                 setDupMatchName(result.display_name || 'Existing customer');
                 setDupMatchPhone(result.redacted_phone || '');
                 setDupMatchEmail(result.redacted_email || '');
-                setDupExistingLead(result.existing_lead || null);
                 setShowDupCheck(true);
               } else {
                 goNext();
@@ -787,21 +805,11 @@ export default function GetStartedQuote({ basePath = '/' }: { basePath?: string 
             <button type="button" class="intake-cta-btn" onClick={() => {
               updateForm({ duplicateResolution: 'confirmed_yes' });
               setShowDupCheck(false);
-              // If there's an existing lead, resume it — jump to quote page
-              if (dupExistingLead?.lead_id) {
-                setLeadId(dupExistingLead.lead_id);
-                setLeadToken(dupExistingLead.resume_token);
-                try { sessionStorage.setItem('leadId', dupExistingLead.lead_id); } catch {}
-                try { sessionStorage.setItem('leadToken', dupExistingLead.resume_token); } catch {}
-                // Update form with existing quote data
-                if (dupExistingLead.service_type) updateForm({ serviceType: dupExistingLead.service_type });
-                if (dupExistingLead.has_extra_body) updateForm({ hasExtraBody: true });
-                if (dupExistingLead.is_biweekly) updateForm({ isBiweekly: true });
-                // Jump straight to quote display (step 10)
-                setCurrentStep(10);
-              } else {
-                goNext();
-              }
+              // Existing-lead resume hydration was removed — the new schema
+              // exposes leads via accept tokens, not direct field reads. The
+              // user just continues through the quote flow; the backend dedup
+              // in website-lead-intake will reuse their existing account.
+              goNext();
             }}>Yes, that's me</button>
             <button type="button" class="intake-outline-btn" onClick={() => { updateForm({ duplicateResolution: 'confirmed_no' }); setShowDupCheck(false); goNext(); }}>No, I'm a new customer</button>
           </div>

@@ -15,14 +15,74 @@ interface QuoteData {
   addressCity: string;
   addressState: string;
   addressZip: string;
-  serviceType: string;
-  hasExtraBody: boolean;
-  isBiweekly: boolean;
+  serviceType: string;       // derived from bodies[]
+  hasExtraBody: boolean;     // bodies.length > 1
+  isBiweekly: boolean;       // visits_per_week === 0.5
   quotedPerVisit: number;
-  quotedMonthly: number;
+  quotedMonthly: number;     // = first_months_deposit
   visitsPerMonth: number;
-  leadId?: string;
-  resumeToken?: string;
+  leadId?: string;           // uuid
+}
+
+/** Body row as returned inside the lead by public.get_lead_by_accept_token */
+interface LeadBody {
+  id: number;
+  body_type: 'pool' | 'spa' | 'fountain';
+  is_primary: boolean;
+  is_short_term_rental: boolean;
+  is_inground: boolean | null;
+  is_screened_in: boolean | null;
+  filter_type: string | null;
+  chlorination_system: string | null;
+  vegetation_level: string | null;
+  has_auto_cleaner: boolean | null;
+  has_dogs: boolean | null;
+  pool_volume: number | null;
+  access_instructions: string | null;
+  special_instructions: string | null;
+  service_street: string;
+  service_city: string;
+  service_state: string;
+  service_zip: string;
+}
+
+/** Actual shape returned by public.get_lead_by_accept_token */
+interface LeadByTokenResponse {
+  token_expires_at: string;
+  payment_on_file: boolean;
+  lead: {
+    id: string;                   // uuid
+    account_id: number;
+    first_name: string;
+    last_name: string;
+    email: string;
+    phone: string;
+    office: string;
+    account_type: string;
+    billing_street: string;
+    billing_city: string;
+    billing_state: string;
+    billing_zip: string;
+    bodies: LeadBody[];
+    quoted_per_visit: number;
+    visits_per_week: number;      // 0.5 | 1 | 2
+    first_months_deposit: number;
+    pool_condition: string;
+    status: string;
+    onboarding: any | null;
+  };
+}
+
+/** Map a list of bodies to a legacy serviceType string for display */
+function deriveServiceType(bodies: LeadBody[]): string {
+  if (!bodies || bodies.length === 0) return 'pool';
+  const types = bodies.map(b => b.body_type);
+  const hasPool = types.includes('pool');
+  const hasSpa = types.includes('spa');
+  if (hasPool && hasSpa) return 'pool_spa_combo';
+  // Prefer the primary body's type, falling back to the first
+  const primary = bodies.find(b => b.is_primary) || bodies[0];
+  return primary.body_type;
 }
 
 interface OnboardingData {
@@ -130,7 +190,7 @@ export default function GetStartedOnboarding() {
   async function fetchLeadByToken(token: string) {
     try {
       const res = await fetch(
-        `${SUPABASE_URL}/rest/v1/rpc/get_lead_by_token`,
+        `${SUPABASE_URL}/rest/v1/rpc/get_lead_by_accept_token`,
         {
           method: 'POST',
           headers: {
@@ -142,35 +202,47 @@ export default function GetStartedOnboarding() {
         }
       );
       if (!res.ok) return;
-      const lead = await res.json();
+      const response: LeadByTokenResponse = await res.json();
+      const lead = response?.lead;
       if (!lead || !lead.id) return;
 
-      // Map lead fields to QuoteData format
-      const visitsPerMonth = lead.is_biweekly ? 2 : 4;
+      // Service address lives on the primary body, not the lead root
+      const bodies = lead.bodies || [];
+      const primaryBody = bodies.find(b => b.is_primary) || bodies[0];
+
+      // Map new schema → internal QuoteData shape
+      const isBiweekly = lead.visits_per_week === 0.5;
+      const visitsPerMonth = lead.visits_per_week * 4; // 0.5→2, 1→4, 2→8
       const data: QuoteData = {
         firstName: lead.first_name || '',
         lastName: lead.last_name || '',
         email: lead.email || '',
         phone: lead.phone || '',
-        addressStreet: lead.address_street || '',
-        addressCity: lead.address_city || '',
-        addressState: lead.address_state || 'GA',
-        addressZip: lead.address_zip || '',
-        serviceType: lead.service_type || 'pool',
-        hasExtraBody: lead.has_extra_body || false,
-        isBiweekly: lead.is_biweekly || false,
+        addressStreet: primaryBody?.service_street || lead.billing_street || '',
+        addressCity: primaryBody?.service_city || lead.billing_city || '',
+        addressState: primaryBody?.service_state || lead.billing_state || 'GA',
+        addressZip: primaryBody?.service_zip || lead.billing_zip || '',
+        serviceType: deriveServiceType(bodies),
+        hasExtraBody: bodies.length > 1,
+        isBiweekly,
         quotedPerVisit: lead.quoted_per_visit || 0,
-        quotedMonthly: lead.quoted_monthly || 0,
+        quotedMonthly: lead.first_months_deposit || 0,
         visitsPerMonth,
         leadId: lead.id,
-        resumeToken: lead.resume_token,
       };
       setQuoteData(data);
 
-      // Also save to sessionStorage so refreshes work
+      // If payment is already on file from a previous session, skip the
+      // payment step and jump straight to pool details.
+      if (response.payment_on_file) {
+        setCardComplete(true);
+        setCurrentStep(2);
+      }
+
+      // Save to sessionStorage so refreshes work. The URL token IS the access
+      // credential — no separate "resume token" to persist.
       try { sessionStorage.setItem('getStartedOnboarding', JSON.stringify(data)); } catch {}
       try { sessionStorage.setItem('leadId', lead.id); } catch {}
-      try { sessionStorage.setItem('leadToken', lead.resume_token); } catch {}
     } catch (e) {
       console.error('Token fetch failed:', e);
       // Fail silently — user can start fresh
@@ -189,8 +261,43 @@ export default function GetStartedOnboarding() {
     setSubmitting(true);
     setSubmitError('');
 
+    // Map UI string values → backend enum values per spec
+    // chlorination_system: 'tablet' | 'salt' | 'liquid' | 'other'
+    const chlorinationMap: Record<string, string> = {
+      salt_cell: 'salt',
+      tablet_feeder: 'tablet',
+    };
+    // filter_type: 'cartridge' | 'sand' | 'DE'
+    const filterMap: Record<string, string> = {
+      sand: 'sand',
+      cartridge: 'cartridge',
+    };
+
+    const yesNoToBool = (v: string): boolean | null => {
+      if (v === 'yes') return true;
+      if (v === 'no') return false;
+      return null;
+    };
+
+    const payload = {
+      preferred_start_date: formData.preferredStartDate || null,
+      service_day_preference: formData.serviceDayPreference || null,
+      pool_details: {
+        is_screened_in: yesNoToBool(formData.isScreenedIn),
+        chlorination_system: chlorinationMap[formData.chlorinationSystem] || null,
+        filter_type: filterMap[formData.filterType] || null,
+        vegetation_level: formData.vegetationLevel || null,
+        has_auto_cleaner: yesNoToBool(formData.hasAutoCleaner),
+        has_dogs: yesNoToBool(formData.hasDogs),
+        pool_volume: formData.poolVolume ? parseInt(formData.poolVolume, 10) : null,
+        access_instructions: formData.accessInstructions || null,
+        special_instructions: formData.specialInstructions || null,
+      },
+      agreed_to_terms: true,
+    };
+
     try {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/submit_onboarding`, {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/submit_maintenance_onboarding`, {
         method: 'POST',
         headers: {
           'apikey': SUPABASE_ANON,
@@ -199,27 +306,17 @@ export default function GetStartedOnboarding() {
         },
         body: JSON.stringify({
           p_lead_id: leadId,
-          p_is_screened_in: formData.isScreenedIn || null,
-          p_chlorination_system: formData.chlorinationSystem || null,
-          p_filter_type: formData.filterType || null,
-          p_vegetation_level: formData.vegetationLevel || null,
-          p_has_auto_cleaner: formData.hasAutoCleaner || null,
-          p_has_dogs: formData.hasDogs || null,
-          p_access_instructions: formData.accessInstructions || null,
-          p_special_instructions: formData.specialInstructions || null,
-          p_service_day_preference: formData.serviceDayPreference || null,
-          p_preferred_start_date: formData.preferredStartDate || null,
-          p_pool_volume: formData.poolVolume ? parseInt(formData.poolVolume, 10) : null,
+          p_payload: payload,
         }),
       });
 
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.message || 'Submission failed');
+        throw new Error(errData.message || errData.error || 'Submission failed');
       }
 
       const result = await res.json();
-      if (result.error) {
+      if (result && result.error) {
         throw new Error(result.error);
       }
 
@@ -272,11 +369,34 @@ export default function GetStartedOnboarding() {
     }
   }
 
+  /* ── Tell the backend the card is on file. Idempotent on the server. ── */
+  async function notifyPaymentOnFile() {
+    const leadId = quoteData?.leadId || sessionStorage.getItem('leadId');
+    if (!leadId) return;
+    try {
+      await fetch(`${SUPABASE_URL}/rest/v1/rpc/mark_payment_on_file`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_ANON,
+          'Authorization': `Bearer ${SUPABASE_ANON}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ p_lead_id: leadId }),
+      });
+    } catch (e) {
+      // Non-fatal — submit_maintenance_onboarding will still work; the lead
+      // just won't auto-flip to "accepted" on the form-completion side.
+      console.error('mark_payment_on_file failed:', e);
+    }
+  }
+
   /* ── Listen for card-vault postMessage (success + resize) ── */
   useEffect(() => {
     function handleMessage(event: MessageEvent) {
       if (event.data?.type === 'card-vault-success') {
         setCardComplete(true);
+        // Fire-and-forget: tell the backend the card is on file
+        notifyPaymentOnFile();
       }
       // Auto-resize iframe to match content height
       if (event.data?.type === 'card-vault-resize' && event.data.height) {
@@ -286,7 +406,7 @@ export default function GetStartedOnboarding() {
     }
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, []);
+  }, [quoteData]);
 
   /* ── When card is complete, advance to pool details ── */
   useEffect(() => {
