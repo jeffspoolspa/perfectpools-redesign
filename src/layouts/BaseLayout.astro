@@ -83,6 +83,7 @@ const ogImageUrl = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`
     import Lenis from 'lenis';
     import { gsap } from 'gsap';
     import { ScrollTrigger } from 'gsap/ScrollTrigger';
+    import { initScrollReveals } from '../utils/scroll-reveals';
 
     gsap.registerPlugin(ScrollTrigger);
 
@@ -103,17 +104,18 @@ const ogImageUrl = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`
     // Expose for modal stop/start
     (window as any).__lenis = lenis;
 
-    // Initialize [data-reveal] scroll animations after all resources have loaded
-    // so layout is settled and trigger positions are correct.
-    import('../utils/scroll-reveals').then(({ initScrollReveals }) => {
-      if (document.readyState === 'complete') {
-        requestAnimationFrame(() => requestAnimationFrame(initScrollReveals));
-      } else {
-        window.addEventListener('load', () => {
-          requestAnimationFrame(() => requestAnimationFrame(initScrollReveals));
-        }, { once: true });
-      }
-    });
+    // Initialize [data-reveal] scroll animations after all resources have
+    // loaded so layout is settled and trigger positions are correct.
+    function runReveals() {
+      initScrollReveals();
+    }
+    // setTimeout(0) — fires after current microtask queue drains, more
+    // reliable than rAF when the Lenis ticker is already hooked up.
+    if (document.readyState === 'complete') {
+      setTimeout(runReveals, 0);
+    } else {
+      window.addEventListener('load', () => setTimeout(runReveals, 0), { once: true });
+    }
   </script>
 
   <!-- Intake form trigger + Get Started trigger + Mobile menu script -->

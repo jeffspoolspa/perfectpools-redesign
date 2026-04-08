@@ -1,0 +1,109 @@
+---
+/**
+ * SectionReveal — a storytelling-friendly <section> wrapper that applies
+ * a scroll-reveal preset without any inline JS.
+ *
+ * Under the hood it just emits a <section> with the right `data-reveal*`
+ * attributes. BaseLayout's global `initScrollReveals()` picks it up on
+ * window.load and wires a ScrollTrigger for it.
+ *
+ * Use this for any section that should fade/slide/scale into view as the
+ * user scrolls to it. It's especially useful for creating a consistent
+ * narrative rhythm across a page — the preset + timing lives at the page
+ * level, not inside each section's component.
+ *
+ * ── Example ───────────────────────────────────────────────────────────
+ *   <SectionReveal id="pricing" preset="blur-in" className="section--alt">
+ *     <div class="container">
+ *       <h2>Pricing</h2>
+ *       ...
+ *     </div>
+ *   </SectionReveal>
+ *
+ * ── Pinned sections — CRITICAL RULE ───────────────────────────────────
+ * If the section contains a GSAP ScrollTrigger with `pin: ...` (i.e. any
+ * of the *Scroll.tsx Preact islands that pin a sticky child), you MUST
+ * pass `pinned` on the SectionReveal. A transform on a parent element
+ * offsets `getBoundingClientRect()` on its descendants, which breaks
+ * the inner pin's start/end measurements. Opacity-only reveals are the
+ * ONLY safe option for wrappers around a pinned trigger — the `pinned`
+ * prop enforces this by overriding any transform preset with `fade`.
+ *
+ * ── Notes ─────────────────────────────────────────────────────────────
+ *  • The first (above-the-fold) section on a page should normally use a
+ *    plain `<section>` instead of SectionReveal — hiding above-the-fold
+ *    content behind a reveal looks like a broken page load.
+ *  • Presets, modifiers, and reduced-motion handling all live in
+ *    src/utils/scroll-reveals.ts. This component is only sugar over the
+ *    underlying data-reveal attribute API.
+ */
+
+type Preset =
+  | 'fade'
+  | 'fade-up'
+  | 'fade-down'
+  | 'fade-left'
+  | 'fade-right'
+  | 'scale-in'
+  | 'blur-in'
+  | 'rise';
+
+export interface Props {
+  /** Which reveal preset to apply (default 'fade-up') */
+  preset?: Preset;
+  /** DOM id on the rendered <section> */
+  id?: string;
+  /** Additional class names — merged after `section` */
+  className?: string;
+  /** Override the ScrollTrigger start string (default 'top 85%') */
+  start?: string;
+  /** Override the ScrollTrigger end string (default 'top 55%') */
+  end?: string;
+  /** Stagger direct children instead of animating the wrapper as a whole.
+   *  Pass a delay in seconds between children (e.g. 0.12). */
+  stagger?: number | string;
+  /** Convert from one-shot to scroll-linked. 'tight' | 'loose' | true */
+  scrub?: boolean | 'tight' | 'loose';
+  /** Pre-reveal delay in seconds (one-shot reveals only) */
+  delay?: number;
+  /** Set to true if this section contains a pinned GSAP ScrollTrigger
+   *  (e.g. any *Scroll.tsx Preact island that pins a sticky child).
+   *  When true, the preset is forced to `fade` (opacity-only) because
+   *  parent transforms break child pin measurements. */
+  pinned?: boolean;
+}
+
+const {
+  preset: requestedPreset = 'fade-up',
+  id,
+  className = '',
+  start = 'top 85%',
+  end = 'top 55%',
+  stagger,
+  scrub,
+  delay,
+  pinned = false,
+} = Astro.props;
+
+// Pinned sections can only use `fade` — any transform on the wrapper
+// offsets `getBoundingClientRect()` on children, which breaks inner pin
+// measurements. If the author passed a transform preset with `pinned`,
+// quietly downgrade to `fade` so the page still works. (A dev-mode
+// warning is logged via the runtime utility.)
+const preset = pinned ? 'fade' : requestedPreset;
+
+const classList = ['section', className].filter(Boolean).join(' ');
+---
+
+<section
+  id={id}
+  class={classList}
+  data-reveal={preset}
+  data-reveal-start={start}
+  data-reveal-end={end}
+  data-reveal-stagger={stagger !== undefined ? String(stagger) : undefined}
+  data-reveal-scrub={scrub !== undefined ? String(scrub) : undefined}
+  data-reveal-delay={delay !== undefined ? String(delay) : undefined}
+>
+  <slot />
+</section>

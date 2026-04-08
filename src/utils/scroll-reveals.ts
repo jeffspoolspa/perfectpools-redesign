@@ -39,6 +39,7 @@
  */
 
 type Preset =
+  | 'fade'           // opacity-only — SAFE on wrappers containing ScrollTrigger pins
   | 'fade-up'
   | 'fade-down'
   | 'fade-left'
@@ -64,6 +65,10 @@ interface PresetDef {
 }
 
 const PRESETS: Record<Preset, PresetDef> = {
+  // Opacity-only. Use for any wrapper that contains a pinned ScrollTrigger —
+  // transforms on the wrapper offset child `getBoundingClientRect()` values
+  // and break pin measurements. Opacity is the only safe "from" state.
+  'fade':        { from: { opacity: 0 },                     to: { opacity: 1 },          duration: 0.8, ease: 'power2.out' },
   'fade-up':     { from: { opacity: 0, y: 40 },              to: { opacity: 1, y: 0 },    duration: 0.8, ease: 'power2.out' },
   'fade-down':   { from: { opacity: 0, y: -30 },             to: { opacity: 1, y: 0 },    duration: 0.7, ease: 'power2.out' },
   'fade-left':   { from: { opacity: 0, x: 60 },              to: { opacity: 1, x: 0 },    duration: 0.8, ease: 'power2.out' },

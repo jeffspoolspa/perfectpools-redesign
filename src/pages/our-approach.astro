@@ -1,7 +1,24 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ReviewCarousel from '../components/ReviewCarousel.astro';
+import SectionReveal from '../components/SectionReveal.astro';
 const base = import.meta.env.BASE_URL;
+
+/**
+ * Our Approach — page narrative rhythm
+ *
+ * Each row below owns how a section enters the viewport. Tune the whole
+ * page by editing this one table. `preset: null` means no reveal (used
+ * for above-the-fold so there's no load flash).
+ *
+ * Intensity legend:
+ *   high   — grabs attention: rise / blur-in / scale-in
+ *   medium — supporting transition: fade-up / fade-right
+ *   low    — calm transition: fade-up, no stagger
+ *
+ * The per-section narrative intent is commented so future edits have
+ * context for why a preset was chosen.
+ */
 ---
 
 <BaseLayout
@@ -9,43 +26,68 @@ const base = import.meta.env.BASE_URL;
   description="Pool care isn't guesswork — it's chemistry, consistency, and accountability. Learn how Perfect Pools keeps your water balanced year-round in coastal Georgia."
   canonicalPath="/our-approach"
 >
-  <!-- Section 1: Problem Statement (scroll-driven cinematic) -->
+  {/*
+    Section 1 — Problem Statement (cinematic card stack)
+    Above the fold: no reveal wrapper, the internal ProblemScroll timeline
+    handles all the animation. Revealing an above-the-fold section would
+    flash an empty hero on page load.
+  */}
   <section class="section problem-section oa-section" data-oa-section="1">
     <div class="container">
       <div id="problem-mount"></div>
     </div>
   </section>
 
-  <!-- Section 2: Company Timeline -->
-  <section class="section section--alt oa-section" data-oa-section="2" id="our-story">
+  {/*
+    Section 2 — Our Story (company timeline)
+    `pinned` because TimelineScroll pins a sticky child. The preset is
+    forced to opacity-only `fade` — transforms on a wrapper break the
+    child pin's getBoundingClientRect measurements. The crossfade still
+    gives a soft entrance; the pinned card-stack handles the rest.
+  */}
+  <SectionReveal pinned preset="fade" id="our-story" className="section--alt oa-section">
     <div class="container">
       <div id="timeline-mount"></div>
     </div>
-  </section>
+  </SectionReveal>
 
-  <!-- Section 3: Three Pillars Triangle (Interactive) -->
-  <section class="section pillars-section oa-section" data-oa-section="3" id="pillars">
+  {/*
+    Section 3 — Three Pillars
+    Pinned (PillarsScroll). Opacity-only fade.
+  */}
+  <SectionReveal pinned preset="fade" id="pillars" className="pillars-section oa-section">
     <div class="container">
       <div id="pillars-mount"></div>
     </div>
-  </section>
+  </SectionReveal>
 
-  <!-- Section 4: Industry vs Us Comparison (scroll-driven swap) -->
-  <section class="section compare-scroll-section oa-section" data-oa-section="4">
+  {/*
+    Section 4 — Industry vs Us Comparison
+    Pinned (CompareScroll). Opacity-only fade.
+  */}
+  <SectionReveal pinned preset="fade" className="compare-scroll-section oa-section">
     <div class="container">
       <div id="compare-mount"></div>
     </div>
-  </section>
+  </SectionReveal>
 
-  <!-- Section 5: Anatomy of a Visit (scroll-driven timeline) -->
-  <section class="section visit-section oa-section" data-oa-section="5" id="visit">
+  {/*
+    Section 5 — Anatomy of a Visit
+    Pinned (VisitScroll). Opacity-only fade.
+  */}
+  <SectionReveal pinned preset="fade" id="visit" className="visit-section oa-section">
     <div class="container">
       <div id="visit-mount"></div>
     </div>
-  </section>
+  </SectionReveal>
 
-  <!-- Section 6: Reviews — blur-in header + staggered body -->
-  <section class="section oa-section" data-oa-section="6" id="reviews">
+  {/*
+    Section 6 — Reviews
+    Low-intensity "breathing section" after the 5 pinned card stacks.
+    Wrapper uses fade-up, inner stagger on the carousel + CTA adds a
+    calm cascade that lets the user land softly before the final CTA.
+  */}
+  <SectionReveal preset="fade-up" id="reviews" className="oa-section">
     <div class="container">
       <div class="section-header" data-reveal="blur-in">
         <span class="section-kicker">WHAT OUR CLIENTS SAY</span>
@@ -58,12 +100,17 @@ const base = import.meta.env.BASE_URL;
         </div>
       </div>
     </div>
-  </section>
+  </SectionReveal>
 
-  <!-- Final CTA Banner — rise + scale entrance -->
-  <section class="partnership-cta oa-section" data-oa-section="7">
+  {/*
+    Section 7 — Final CTA
+    `scale-in` on the gradient card gives the close its own emphasis
+    moment. Wider start/end range (85% → 45%) means the card scales
+    over a longer scroll distance for weight.
+  */}
+  <SectionReveal preset="scale-in" className="partnership-cta oa-section" start="top 85%" end="top 45%">
     <div class="container">
-      <div class="partnership-cta__card" data-reveal="scale-in" data-reveal-start="top 85%" data-reveal-end="top 55%">
+      <div class="partnership-cta__card">
         <h2>Start Your Aquatic Partnership</h2>
         <p>Experience the difference of architectural-grade maintenance. We are currently accepting new clients for our exclusive service routes.</p>
         <div class="partnership-cta__buttons">
@@ -72,7 +119,7 @@ const base = import.meta.env.BASE_URL;
         </div>
       </div>
     </div>
-  </section>
+  </SectionReveal>
 </BaseLayout>
 
 <script>
