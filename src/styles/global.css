@@ -130,15 +130,27 @@ html.lenis, html.lenis body {
 [data-reveal]:not([data-reveal-initialized]) {
   opacity: 0;
 }
+/* clip-path reveals additionally need their starting clip applied. */
+[data-reveal="reveal-down"]:not([data-reveal-initialized]) {
+  clip-path: inset(0 0 100% 0);
+  -webkit-clip-path: inset(0 0 100% 0);
+}
+[data-reveal="reveal-up"]:not([data-reveal-initialized]) {
+  clip-path: inset(100% 0 0 0);
+  -webkit-clip-path: inset(100% 0 0 0);
+}
+/* Parallax elements stay fully visible — only their position shifts. */
 [data-reveal="parallax"]:not([data-reveal-initialized]),
 [data-reveal="parallax-slow"]:not([data-reveal-initialized]),
 [data-reveal="parallax-fast"]:not([data-reveal-initialized]) {
-  opacity: 1; /* parallax elements stay visible, only their position shifts */
+  opacity: 1;
 }
 /* Reduced motion: show everything immediately, ignore the pre-hide */
 @media (prefers-reduced-motion: reduce) {
   [data-reveal]:not([data-reveal-initialized]) {
     opacity: 1;
+    clip-path: none;
+    -webkit-clip-path: none;
   }
 }
 

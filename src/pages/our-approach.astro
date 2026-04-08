@@ -40,12 +40,11 @@ const base = import.meta.env.BASE_URL;
 
   {/*
     Section 2 — Our Story (company timeline)
-    `pinned` because TimelineScroll pins a sticky child. The preset is
-    forced to opacity-only `fade` — transforms on a wrapper break the
-    child pin's getBoundingClientRect measurements. The crossfade still
-    gives a soft entrance; the pinned card-stack handles the rest.
+    `pinned` because TimelineScroll pins a sticky child. `reveal-down`
+    uses clip-path to wipe the section in from the top edge — visible
+    transition without corrupting pin measurements.
   */}
-  <SectionReveal pinned preset="fade" id="our-story" className="section--alt oa-section">
+  <SectionReveal pinned preset="reveal-down" id="our-story" className="section--alt oa-section">
     <div class="container">
       <div id="timeline-mount"></div>
     </div>
@@ -53,9 +52,9 @@ const base = import.meta.env.BASE_URL;
 
   {/*
     Section 3 — Three Pillars
-    Pinned (PillarsScroll). Opacity-only fade.
+    Pinned (PillarsScroll). Clip-path wipe from the top.
   */}
-  <SectionReveal pinned preset="fade" id="pillars" className="pillars-section oa-section">
+  <SectionReveal pinned preset="reveal-down" id="pillars" className="pillars-section oa-section">
     <div class="container">
       <div id="pillars-mount"></div>
     </div>
@@ -63,9 +62,11 @@ const base = import.meta.env.BASE_URL;
 
   {/*
     Section 4 — Industry vs Us Comparison
-    Pinned (CompareScroll). Opacity-only fade.
+    Pinned (CompareScroll). `reveal-up` wipes from the bottom for
+    contrast with the surrounding `reveal-down` sections — breaks the
+    rhythm so the comparison "pops" differently from its neighbors.
   */}
-  <SectionReveal pinned preset="fade" className="compare-scroll-section oa-section">
+  <SectionReveal pinned preset="reveal-up" className="compare-scroll-section oa-section">
     <div class="container">
       <div id="compare-mount"></div>
     </div>
@@ -73,9 +74,10 @@ const base = import.meta.env.BASE_URL;
 
   {/*
     Section 5 — Anatomy of a Visit
-    Pinned (VisitScroll). Opacity-only fade.
+    Pinned (VisitScroll). Back to `reveal-down` for the final pinned
+    section.
   */}
-  <SectionReveal pinned preset="fade" id="visit" className="visit-section oa-section">
+  <SectionReveal pinned preset="reveal-down" id="visit" className="visit-section oa-section">
     <div class="container">
       <div id="visit-mount"></div>
     </div>

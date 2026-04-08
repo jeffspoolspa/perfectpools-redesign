@@ -23,11 +23,17 @@
  * ── Pinned sections — CRITICAL RULE ───────────────────────────────────
  * If the section contains a GSAP ScrollTrigger with `pin: ...` (i.e. any
  * of the *Scroll.tsx Preact islands that pin a sticky child), you MUST
- * pass `pinned` on the SectionReveal. A transform on a parent element
- * offsets `getBoundingClientRect()` on its descendants, which breaks
- * the inner pin's start/end measurements. Opacity-only reveals are the
- * ONLY safe option for wrappers around a pinned trigger — the `pinned`
- * prop enforces this by overriding any transform preset with `fade`.
+ * pass `pinned` on the SectionReveal. Transforms or filters on an
+ * ancestor corrupt the pin's start/end measurements.
+ *
+ * When `pinned` is set, only paint-only presets are allowed:
+ *   `fade`         — opacity crossfade (most subtle)
+ *   `reveal-down`  — clip-path wipe from the top (default for pinned)
+ *   `reveal-up`    — clip-path wipe from the bottom
+ *
+ * If you request a transform preset (fade-up, scale-in, etc.) with
+ * `pinned`, SectionReveal silently downgrades to `reveal-down` so the
+ * page still works.
  *
  * ── Notes ─────────────────────────────────────────────────────────────
  *  • The first (above-the-fold) section on a page should normally use a
@@ -40,6 +46,8 @@
 
 type Preset =
   | 'fade'
+  | 'reveal-down'
+  | 'reveal-up'
   | 'fade-up'
   | 'fade-down'
   | 'fade-left'
@@ -47,6 +55,9 @@ type Preset =
   | 'scale-in'
   | 'blur-in'
   | 'rise';
+
+/** Presets that are safe on ancestors of a pinned ScrollTrigger. */
+const PIN_SAFE: ReadonlySet<Preset> = new Set(['fade', 'reveal-down', 'reveal-up']);
 
 export interface Props {
   /** Which reveal preset to apply (default 'fade-up') */
@@ -85,12 +96,13 @@ const {
   pinned = false,
 } = Astro.props;
 
-// Pinned sections can only use `fade` — any transform on the wrapper
-// offsets `getBoundingClientRect()` on children, which breaks inner pin
-// measurements. If the author passed a transform preset with `pinned`,
-// quietly downgrade to `fade` so the page still works. (A dev-mode
-// warning is logged via the runtime utility.)
-const preset = pinned ? 'fade' : requestedPreset;
+// When `pinned` is set, only paint-only presets (fade / reveal-down /
+// reveal-up) are allowed. Transform presets corrupt child pin
+// measurements. If the author passed an unsafe preset, default to
+// `reveal-down` (the most visible pin-safe transition).
+const preset: Preset = pinned
+  ? (PIN_SAFE.has(requestedPreset) ? requestedPreset : 'reveal-down')
+  : requestedPreset;
 
 const classList = ['section', className].filter(Boolean).join(' ');
 ---

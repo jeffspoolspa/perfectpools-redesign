@@ -39,7 +39,17 @@
  */
 
 type Preset =
-  | 'fade'           // opacity-only — SAFE on wrappers containing ScrollTrigger pins
+  // Opacity-only. Most conservative, safe on ancestors of ScrollTrigger pins.
+  | 'fade'
+  // clip-path insets. Paint-only — doesn't corrupt getBoundingClientRect
+  // and doesn't create a containing block for fixed descendants, so
+  // these ARE safe on ancestors of ScrollTrigger pins. Use them instead
+  // of `fade-up` / `rise` / `scale-in` when you want a real "wipe"
+  // transition on a section that contains a pinned card stack.
+  | 'reveal-down'    // wipes in from the top (content appears top-first)
+  | 'reveal-up'      // wipes in from the bottom
+  // Transform-based. UNSAFE on ancestors of ScrollTrigger pins — they
+  // offset the child's bounding rect and break pin start/end measurements.
   | 'fade-up'
   | 'fade-down'
   | 'fade-left'
@@ -47,6 +57,7 @@ type Preset =
   | 'scale-in'
   | 'blur-in'
   | 'rise'
+  // Parallax runs on a decorative sibling, not a pin ancestor.
   | 'parallax'
   | 'parallax-slow'
   | 'parallax-fast';
@@ -65,10 +76,32 @@ interface PresetDef {
 }
 
 const PRESETS: Record<Preset, PresetDef> = {
-  // Opacity-only. Use for any wrapper that contains a pinned ScrollTrigger —
-  // transforms on the wrapper offset child `getBoundingClientRect()` values
-  // and break pin measurements. Opacity is the only safe "from" state.
+  // === PIN-SAFE PRESETS (no transform, no filter) ===
+  // Use these on any wrapper that contains a pinned ScrollTrigger.
+
+  // Opacity-only. Most subtle.
   'fade':        { from: { opacity: 0 },                     to: { opacity: 1 },          duration: 0.8, ease: 'power2.out' },
+
+  // clip-path wipe from the top. Content appears top-edge-first as the
+  // section scrolls into view. Combined with opacity for extra weight.
+  // clip-path is a paint-only property — it does NOT affect layout or
+  // create a containing block for fixed descendants, so it's safe on
+  // ancestors of a pinned ScrollTrigger.
+  'reveal-down': {
+    from: { opacity: 0, clipPath: 'inset(0 0 100% 0)', webkitClipPath: 'inset(0 0 100% 0)' },
+    to:   { opacity: 1, clipPath: 'inset(0 0 0% 0)',   webkitClipPath: 'inset(0 0 0% 0)' },
+    duration: 1,
+    ease: 'power2.out',
+  },
+  // clip-path wipe from the bottom. Mirror of reveal-down.
+  'reveal-up': {
+    from: { opacity: 0, clipPath: 'inset(100% 0 0 0)', webkitClipPath: 'inset(100% 0 0 0)' },
+    to:   { opacity: 1, clipPath: 'inset(0% 0 0 0)',   webkitClipPath: 'inset(0% 0 0 0)' },
+    duration: 1,
+    ease: 'power2.out',
+  },
+
+  // === TRANSFORM-BASED PRESETS — NOT pin-safe ===
   'fade-up':     { from: { opacity: 0, y: 40 },              to: { opacity: 1, y: 0 },    duration: 0.8, ease: 'power2.out' },
   'fade-down':   { from: { opacity: 0, y: -30 },             to: { opacity: 1, y: 0 },    duration: 0.7, ease: 'power2.out' },
   'fade-left':   { from: { opacity: 0, x: 60 },              to: { opacity: 1, x: 0 },    duration: 0.8, ease: 'power2.out' },
