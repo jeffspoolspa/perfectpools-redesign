@@ -1,23 +1,22 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ReviewCarousel from '../components/ReviewCarousel.astro';
-import SectionReveal from '../components/SectionReveal.astro';
 const base = import.meta.env.BASE_URL;
 
 /**
- * Our Approach — page narrative rhythm
+ * Our Approach — continuous-focus storytelling
  *
- * Each row below owns how a section enters the viewport. Tune the whole
- * page by editing this one table. `preset: null` means no reveal (used
- * for above-the-fold so there's no load flash).
+ * Design intent: the whole page reads as one continuous canvas, not a
+ * stack of separately-boxed sections. There are no alternating section
+ * backgrounds and no hard clip-path reveals. Instead, BaseLayout paints
+ * fixed-position "focus vignettes" at the top and bottom of the viewport
+ * that fade content into the body color as it approaches the edges. The
+ * user's eye stays locked on the middle of the viewport and content
+ * softly dissolves in/out at the edges as they scroll.
  *
- * Intensity legend:
- *   high   — grabs attention: rise / blur-in / scale-in
- *   medium — supporting transition: fade-up / fade-right
- *   low    — calm transition: fade-up, no stagger
- *
- * The per-section narrative intent is commented so future edits have
- * context for why a preset was chosen.
+ * Pinned sections keep their internal card-stack animations. Section
+ * wrappers stay plain <section> tags — no SectionReveal gymnastics,
+ * because the focus vignette handles all the visual emphasis.
  */
 ---
 
@@ -25,92 +24,59 @@ const base = import.meta.env.BASE_URL;
   title="Our Approach to Pool Care | Perfect Pools"
   description="Pool care isn't guesswork — it's chemistry, consistency, and accountability. Learn how Perfect Pools keeps your water balanced year-round in coastal Georgia."
   canonicalPath="/our-approach"
+  focusOverlay
 >
-  {/*
-    Section 1 — Problem Statement (cinematic card stack)
-    Above the fold: no reveal wrapper, the internal ProblemScroll timeline
-    handles all the animation. Revealing an above-the-fold section would
-    flash an empty hero on page load.
-  */}
-  <section class="section problem-section oa-section" data-oa-section="1">
+  {/* Section 1 — Problem Statement (cinematic card stack) */}
+  <section class="section problem-section oa-section">
     <div class="container">
       <div id="problem-mount"></div>
     </div>
   </section>
 
-  {/*
-    Section 2 — Our Story (company timeline)
-    `pinned` because TimelineScroll pins a sticky child. `reveal-down`
-    uses clip-path to wipe the section in from the top edge — visible
-    transition without corrupting pin measurements.
-  */}
-  <SectionReveal pinned preset="reveal-down" id="our-story" className="section--alt oa-section">
+  {/* Section 2 — Our Story (company timeline) */}
+  <section class="section oa-section" id="our-story">
     <div class="container">
       <div id="timeline-mount"></div>
     </div>
-  </SectionReveal>
+  </section>
 
-  {/*
-    Section 3 — Three Pillars
-    Pinned (PillarsScroll). Clip-path wipe from the top.
-  */}
-  <SectionReveal pinned preset="reveal-down" id="pillars" className="pillars-section oa-section">
+  {/* Section 3 — Three Pillars */}
+  <section class="section pillars-section oa-section" id="pillars">
     <div class="container">
       <div id="pillars-mount"></div>
     </div>
-  </SectionReveal>
+  </section>
 
-  {/*
-    Section 4 — Industry vs Us Comparison
-    Pinned (CompareScroll). `reveal-up` wipes from the bottom for
-    contrast with the surrounding `reveal-down` sections — breaks the
-    rhythm so the comparison "pops" differently from its neighbors.
-  */}
-  <SectionReveal pinned preset="reveal-up" className="compare-scroll-section oa-section">
+  {/* Section 4 — Industry vs Us Comparison */}
+  <section class="section compare-scroll-section oa-section">
     <div class="container">
       <div id="compare-mount"></div>
     </div>
-  </SectionReveal>
+  </section>
 
-  {/*
-    Section 5 — Anatomy of a Visit
-    Pinned (VisitScroll). Back to `reveal-down` for the final pinned
-    section.
-  */}
-  <SectionReveal pinned preset="reveal-down" id="visit" className="visit-section oa-section">
+  {/* Section 5 — Anatomy of a Visit */}
+  <section class="section visit-section oa-section" id="visit">
     <div class="container">
       <div id="visit-mount"></div>
     </div>
-  </SectionReveal>
+  </section>
 
-  {/*
-    Section 6 — Reviews
-    Low-intensity "breathing section" after the 5 pinned card stacks.
-    Wrapper uses fade-up, inner stagger on the carousel + CTA adds a
-    calm cascade that lets the user land softly before the final CTA.
-  */}
-  <SectionReveal preset="fade-up" id="reviews" className="oa-section">
+  {/* Section 6 — Reviews */}
+  <section class="section oa-section" id="reviews">
     <div class="container">
-      <div class="section-header" data-reveal="blur-in">
+      <div class="section-header">
         <span class="section-kicker">WHAT OUR CLIENTS SAY</span>
         <h2>Real Reviews, Real Results.</h2>
       </div>
-      <div data-reveal="fade-up" data-reveal-stagger="0.12">
-        <ReviewCarousel />
-        <div style="text-align: center; margin-top: var(--space-8);">
-          <a href="https://g.page/r/CVrU0W_3-NRyEAE/review" target="_blank" rel="noopener" class="btn btn--outline">Read All Reviews on Google</a>
-        </div>
+      <ReviewCarousel />
+      <div style="text-align: center; margin-top: var(--space-8);">
+        <a href="https://g.page/r/CVrU0W_3-NRyEAE/review" target="_blank" rel="noopener" class="btn btn--outline">Read All Reviews on Google</a>
       </div>
     </div>
-  </SectionReveal>
+  </section>
 
-  {/*
-    Section 7 — Final CTA
-    `scale-in` on the gradient card gives the close its own emphasis
-    moment. Wider start/end range (85% → 45%) means the card scales
-    over a longer scroll distance for weight.
-  */}
-  <SectionReveal preset="scale-in" className="partnership-cta oa-section" start="top 85%" end="top 45%">
+  {/* Section 7 — Final CTA */}
+  <section class="partnership-cta oa-section">
     <div class="container">
       <div class="partnership-cta__card">
         <h2>Start Your Aquatic Partnership</h2>
@@ -345,15 +311,9 @@ const base = import.meta.env.BASE_URL;
   }
 
   /* === Comparison Scroll Section === */
-  /* Must be :global() — the <section> element is rendered by SectionReveal,
-     not by this file, so Astro's default scoping won't attach this rule to
-     it. Same applies to every other `.*-section` wrapper below. */
-  :global(.compare-scroll-section) {
+  .compare-scroll-section {
     padding-top: var(--space-16);
     padding-bottom: var(--space-12);
-    /* Warm sand so Compare contrasts with both Pillars (white, above) and
-       Visit (white, below) — creates clear section boundaries. */
-    background: var(--color-bg-alt);
   }
 
   :global(.cs) {
@@ -539,11 +499,7 @@ const base = import.meta.env.BASE_URL;
     background: rgba(224, 182, 41, 0.6);
   }
 
-  /* === Pillars Section === */
-  /* Background intentionally left white — Our Story above uses section--alt
-     (warm sand), so Pillars needs contrast or the sections blur into one
-     continuous tan block with no visible transition boundary. */
-  :global(.pillars-section) {
+  .pillars-section {
     padding-top: var(--space-16);
     padding-bottom: var(--space-16);
   }
@@ -709,7 +665,9 @@ const base = import.meta.env.BASE_URL;
 
     :global(.ps__sticky-col) {
       top: 80px;
-      background: var(--color-bg-alt);
+      /* Background intentionally inherited from the parent section
+         (white for Pillars). A hardcoded warm-sand bg here leaked
+         tan into the otherwise-white Pillars section on desktop. */
     }
 
     :global(.ps__header--mobile) {
@@ -1153,7 +1111,7 @@ const base = import.meta.env.BASE_URL;
   /* ========================================
      Visit Section — Anatomy of a Visit
      ======================================== */
-  :global(.visit-section) {
+  .visit-section {
     padding-top: var(--space-16);
     padding-bottom: var(--space-16);
   }

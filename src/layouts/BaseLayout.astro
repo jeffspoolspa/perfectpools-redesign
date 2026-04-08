@@ -12,6 +12,13 @@ interface Props {
   canonicalPath?: string;
   ogImage?: string;
   schema?: Record<string, any> | Record<string, any>[];
+  /**
+   * Paint fixed-position gradient overlays at the top and bottom of the
+   * viewport so content softly fades into the body color near the edges.
+   * Use for storytelling pages that want a "focus on the middle of the
+   * viewport" feel without hard section boundaries.
+   */
+  focusOverlay?: boolean;
 }
 
 const {
@@ -20,6 +27,7 @@ const {
   canonicalPath = '',
   ogImage = `${import.meta.env.BASE_URL}images/pool-cleaning.jpg`,
   schema,
+  focusOverlay = false,
 } = Astro.props;
 
 const siteUrl = 'https://perfectpoolscleaning.com';
@@ -64,12 +72,18 @@ const ogImageUrl = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`
     <script type="application/ld+json" set:html={JSON.stringify(Array.isArray(schema) ? schema : schema)} />
   )}
 </head>
-<body>
+<body class={focusOverlay ? 'has-focus-overlay' : ''}>
   <TopBar />
   <Header />
   <main id="main-content">
     <slot />
   </main>
+  {focusOverlay && (
+    <>
+      <div class="focus-overlay focus-overlay--top" aria-hidden="true"></div>
+      <div class="focus-overlay focus-overlay--bottom" aria-hidden="true"></div>
+    </>
+  )}
   <Footer />
 
   <!-- Customer Intake Form (Preact island) -->

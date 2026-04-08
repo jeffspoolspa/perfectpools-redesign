@@ -123,6 +123,61 @@ html.lenis, html.lenis body {
   overflow: hidden;
 }
 
+/* --- Focus overlays — "vignette" for continuous-scroll storytelling pages ---
+   Two fixed-position layers at the top and bottom of the viewport that
+   fade content into the body background color. Used for pages where we
+   want no hard section boundaries — the user's eye stays locked on the
+   middle of the viewport and content softly dissolves at the edges.
+
+   The top overlay starts below the sticky header (so the header itself
+   stays crisp) and the bottom overlay hugs the bottom of the viewport.
+   Both are `pointer-events: none` so they don't block interaction, and
+   live above all page content but BELOW modals (z-index tuned accordingly). */
+.focus-overlay {
+  position: fixed;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+  z-index: 5; /* above content, well below modals at z-index: 100+ */
+  will-change: opacity;
+}
+
+.focus-overlay--top {
+  /* Starts just below the sticky header so the nav stays sharp. */
+  top: calc(var(--header-height, 64px) + var(--topbar-height, 40px));
+  height: 22vh;
+  background: linear-gradient(
+    to bottom,
+    var(--color-bg, #ffffff) 0%,
+    var(--color-bg, #ffffff) 15%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
+.focus-overlay--bottom {
+  bottom: 0;
+  height: 22vh;
+  background: linear-gradient(
+    to top,
+    var(--color-bg, #ffffff) 0%,
+    var(--color-bg, #ffffff) 15%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
+/* On mobile, the topbar is usually hidden, so recalc the start offset. */
+@media (max-width: 768px) {
+  .focus-overlay--top {
+    top: var(--header-height, 64px);
+    height: 18vh;
+  }
+  .focus-overlay--bottom {
+    height: 18vh;
+  }
+}
+
+/* Reduced motion: keep the overlays but don't animate anything. */
+
 /* --- Scroll reveals — pre-hide elements until JS wires them up --- */
 /* Hides immediately on first paint so there's no flash of visible content
    before the reveal animation runs. Once `initScrollReveals()` processes an
