@@ -4,19 +4,19 @@ import ReviewCarousel from '../components/ReviewCarousel.astro';
 const base = import.meta.env.BASE_URL;
 
 /**
- * Our Approach — continuous-focus storytelling
+ * Our Approach — storytelling page.
  *
- * Design intent: the whole page reads as one continuous canvas, not a
- * stack of separately-boxed sections. There are no alternating section
- * backgrounds and no hard clip-path reveals. Instead, BaseLayout paints
- * fixed-position "focus vignettes" at the top and bottom of the viewport
- * that fade content into the body color as it approaches the edges. The
- * user's eye stays locked on the middle of the viewport and content
- * softly dissolves in/out at the edges as they scroll.
+ * The 5 pinned card-stack sections (Problem / Our Story / Pillars /
+ * Compare / Visit) handle their own internal GSAP animations. The page
+ * itself is plain <section> flow with alternating backgrounds. The
+ * Reviews and final CTA get simple data-reveal entrance animations
+ * (see src/utils/scroll-reveals.ts).
  *
- * Pinned sections keep their internal card-stack animations. Section
- * wrappers stay plain <section> tags — no SectionReveal gymnastics,
- * because the focus vignette handles all the visual emphasis.
+ * Section-to-section cohesion (pinned handoffs between sections) is
+ * a larger refactor parked for later — it requires rewriting the 5
+ * scroll components to expose a shared timeline API instead of
+ * self-pinning independently. When that lands, come back here and
+ * orchestrate the sequence from one place.
  */
 ---
 
@@ -24,7 +24,6 @@ const base = import.meta.env.BASE_URL;
   title="Our Approach to Pool Care | Perfect Pools"
   description="Pool care isn't guesswork — it's chemistry, consistency, and accountability. Learn how Perfect Pools keeps your water balanced year-round in coastal Georgia."
   canonicalPath="/our-approach"
-  focusOverlay
 >
   {/* Section 1 — Problem Statement (cinematic card stack) */}
   <section class="section problem-section oa-section">
@@ -34,7 +33,7 @@ const base = import.meta.env.BASE_URL;
   </section>
 
   {/* Section 2 — Our Story (company timeline) */}
-  <section class="section oa-section" id="our-story">
+  <section class="section section--alt oa-section" id="our-story">
     <div class="container">
       <div id="timeline-mount"></div>
     </div>
@@ -64,13 +63,15 @@ const base = import.meta.env.BASE_URL;
   {/* Section 6 — Reviews */}
   <section class="section oa-section" id="reviews">
     <div class="container">
-      <div class="section-header">
+      <div class="section-header" data-reveal="fade-up">
         <span class="section-kicker">WHAT OUR CLIENTS SAY</span>
         <h2>Real Reviews, Real Results.</h2>
       </div>
-      <ReviewCarousel />
-      <div style="text-align: center; margin-top: var(--space-8);">
-        <a href="https://g.page/r/CVrU0W_3-NRyEAE/review" target="_blank" rel="noopener" class="btn btn--outline">Read All Reviews on Google</a>
+      <div data-reveal="fade-up" data-reveal-stagger="0.12">
+        <ReviewCarousel />
+        <div style="text-align: center; margin-top: var(--space-8);">
+          <a href="https://g.page/r/CVrU0W_3-NRyEAE/review" target="_blank" rel="noopener" class="btn btn--outline">Read All Reviews on Google</a>
+        </div>
       </div>
     </div>
   </section>
@@ -78,7 +79,7 @@ const base = import.meta.env.BASE_URL;
   {/* Section 7 — Final CTA */}
   <section class="partnership-cta oa-section">
     <div class="container">
-      <div class="partnership-cta__card">
+      <div class="partnership-cta__card" data-reveal="scale-in" data-reveal-start="top 85%" data-reveal-end="top 55%">
         <h2>Start Your Aquatic Partnership</h2>
         <p>Experience the difference of architectural-grade maintenance. We are currently accepting new clients for our exclusive service routes.</p>
         <div class="partnership-cta__buttons">
@@ -87,7 +88,7 @@ const base = import.meta.env.BASE_URL;
         </div>
       </div>
     </div>
-  </SectionReveal>
+  </section>
 </BaseLayout>
 
 <script>
@@ -502,6 +503,7 @@ const base = import.meta.env.BASE_URL;
   .pillars-section {
     padding-top: var(--space-16);
     padding-bottom: var(--space-16);
+    background: var(--color-bg-alt);
   }
 
   /* === Scroll-Driven Pillars (Preact-rendered, needs :global) === */
@@ -522,11 +524,8 @@ const base = import.meta.env.BASE_URL;
     position: sticky;
     top: 50px;
     z-index: 1;
+    background: var(--color-bg-alt);
     padding-bottom: 1rem;
-    /* Background intentionally inherited from the parent section so the
-       pinned sticky matches whatever the section's background is (white
-       for Pillars). A hardcoded bg here previously leaked warm sand into
-       the Pillars section even after the section bg was removed. */
   }
 
   /* Mobile: show the non-sticky header, hide the sticky one */
@@ -665,9 +664,7 @@ const base = import.meta.env.BASE_URL;
 
     :global(.ps__sticky-col) {
       top: 80px;
-      /* Background intentionally inherited from the parent section
-         (white for Pillars). A hardcoded warm-sand bg here leaked
-         tan into the otherwise-white Pillars section on desktop. */
+      background: var(--color-bg-alt);
     }
 
     :global(.ps__header--mobile) {
