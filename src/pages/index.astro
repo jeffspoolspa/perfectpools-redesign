@@ -114,52 +114,59 @@ const icons = {
       <div class="hero__footer">
         <a href={`${import.meta.env.BASE_URL}our-approach`}>First time pool owner? Start here &rarr;</a>
       </div>
-    </div>
-    <!-- Wave at bottom of hero -->
-    <div class="hero__wave">
-      <svg viewBox="0 0 1440 120" preserveAspectRatio="none" fill="none">
-        <path d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 60C1200 60 1320 45 1380 37.5L1440 30V120H0Z" fill="#0c2d4a"/>
-      </svg>
-    </div>
-  </section>
 
-  <!-- ============ TRUST BADGES (dark strip between hero and methodology) ============ -->
-  <section class="trust-badges trust-badges--dark">
-    <div class="container">
-      <div class="trust-badges__grid">
-        <div class="trust-badge">
+      <div class="hero__chips">
+        <span class="hero__chip">
           <Fragment set:html={icons.shield} />
-          <span class="trust-badge__text">Licensed & Insured</span>
-        </div>
-        <div class="trust-badge">
+          Licensed &amp; Insured
+        </span>
+        <span class="hero__chip">
           <Fragment set:html={icons.droplets} />
-          <span class="trust-badge__text">500+ Pools Maintained</span>
-        </div>
-        <div class="trust-badge">
+          500+ Pools Maintained
+        </span>
+        <span class="hero__chip">
           <Fragment set:html={icons.clock} />
-          <span class="trust-badge__text">20+ Years Experience</span>
-        </div>
+          20+ Years Experience
+        </span>
       </div>
     </div>
+    <!-- Bottom gradient fade: hero fades to the methodology's base color so the transition feels like one continuous atmosphere. -->
+    <div class="hero__fade" aria-hidden="true"></div>
   </section>
 
   <!-- ============ METHODOLOGY ============ -->
   <section class="methodology methodology--water">
-    <!-- Wave inside section — badges color on top, bg image fills behind it -->
-    <div class="methodology__wave-top">
-      <svg viewBox="0 0 1440 120" preserveAspectRatio="none" fill="none">
-        <path d="M0 0H1440V30L1380 37.5C1320 45 1200 60 1080 60C960 60 840 45 720 37.5C600 30 480 30 360 45C240 60 120 90 60 105L0 120V0Z" fill="#0c2d4a"/>
-      </svg>
-    </div>
+    <!-- Top gradient fade: methodology starts from its dark base and reveals the tile pattern — meets the hero's bottom fade in the same color. -->
+    <div class="methodology__fade-top" aria-hidden="true"></div>
     <div id="methodology-liquid-mount"></div>
     <div class="container">
       <div class="section-header">
-        <h2>Clear water isn't luck. Here's how we keep it that way.</h2>
-        <p>Our methodology separates us from every other pool company</p>
+        <h2 class="reveal-words">
+          <span style="--word-index: 0">Clear</span>{' '}
+          <span style="--word-index: 1">water</span>{' '}
+          <span style="--word-index: 2">isn't</span>{' '}
+          <span style="--word-index: 3">luck.</span>{' '}
+          <span style="--word-index: 4">Here's</span>{' '}
+          <span style="--word-index: 5">how</span>{' '}
+          <span style="--word-index: 6">we</span>{' '}
+          <span style="--word-index: 7">keep</span>{' '}
+          <span style="--word-index: 8">it</span>{' '}
+          <span style="--word-index: 9">that</span>{' '}
+          <span style="--word-index: 10">way.</span>
+        </h2>
+        <p class="reveal-up" style="--reveal-delay: 900ms">Our methodology separates us from every other pool company</p>
       </div>
 
+      <!-- Mobile-only tab bar showing there are 3 cards. Hidden on tablet+. -->
+      <div class="methodology__tabs" role="tablist" aria-label="Method cards">
+        <button type="button" class="methodology__tab is-active" data-card-index="0" aria-label="Chemistry principle"></button>
+        <button type="button" class="methodology__tab" data-card-index="1" aria-label="Problem detection principle"></button>
+        <button type="button" class="methodology__tab" data-card-index="2" aria-label="Visibility principle"></button>
+      </div>
       <div class="methodology__grid">
-        <div class="method-card">
+        <!-- Card delays start after the 11 words finish animating (~950ms),
+             with 200ms between each card. -->
+        <div class="method-card reveal-up" style="--reveal-delay: 1000ms">
           <div class="method-card__icon">
             <Fragment set:html={icons.testTube} />
           </div>
@@ -167,7 +174,7 @@ const icons = {
           <p>We test and adjust pH, alkalinity, sanitizer levels, and calcium hardness as a system—because one number out of range affects everything else.</p>
         </div>
 
-        <div class="method-card">
+        <div class="method-card reveal-up" style="--reveal-delay: 1250ms">
           <div class="method-card__icon">
             <Fragment set:html={icons.alertCircle} />
           </div>
@@ -175,7 +182,7 @@ const icons = {
           <p>Every visit includes a full equipment check. We monitor pump pressure, filter condition, and water flow to flag issues early.</p>
         </div>
 
-        <div class="method-card">
+        <div class="method-card reveal-up" style="--reveal-delay: 1500ms">
           <div class="method-card__icon">
             <Fragment set:html={icons.eye} />
           </div>
@@ -184,25 +191,28 @@ const icons = {
         </div>
       </div>
     </div>
-    <!-- Wave at bottom of methodology — inside section so bg fills behind it -->
-    <div class="methodology__wave-bottom">
-      <svg viewBox="0 0 1440 120" preserveAspectRatio="none" fill="none">
-        <path d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 60C1200 60 1320 45 1380 37.5L1440 30V120H0Z" fill="#1E3A5F"/>
-      </svg>
-    </div>
+    <!-- Bottom fade: methodology fades to the services-dark color so the transition into the next section is a smooth atmospheric blend. -->
+    <div class="methodology__fade-bottom" aria-hidden="true"></div>
   </section>
 
   <!-- ============ WHAT WE DO (DARK SECTION) ============ -->
-  <section class="services-dark" style="margin-top: -1px; padding-top: 8rem;">
+  <section class="services-dark" style="margin-top: -1px;">
+    <!-- Top gradient fade: solid services-dark at top fading to transparent,
+         meets the methodology's bottom fade in the same color for a seamless atmospheric bridge. -->
+    <div class="services-dark__fade-top" aria-hidden="true"></div>
     <div class="container">
       <div class="section-header">
-        <h2>What We Do</h2>
-        <p>Ongoing maintenance plans and on-demand repairs for residential and commercial pools.</p>
+        <h2 class="reveal-words">
+          <span style="--word-index: 0">What</span>{' '}
+          <span style="--word-index: 1">We</span>{' '}
+          <span style="--word-index: 2">Do</span>
+        </h2>
+        <p class="reveal-up" style="--reveal-delay: 300ms">Ongoing maintenance plans and on-demand repairs for residential and commercial pools.</p>
       </div>
 
       <div class="services-dark__grid">
         <!-- Left Column: Pool Cleaning -->
-        <div>
+        <div class="reveal-up" style="--reveal-delay: 600ms">
           <div class="services-dark__col-header">
             <Fragment set:html={icons.droplets} />
             <h3>Pool Cleaning</h3>
@@ -251,7 +261,7 @@ const icons = {
         </div>
 
         <!-- Right Column: Equipment & Repair -->
-        <div>
+        <div class="reveal-up" style="--reveal-delay: 900ms">
           <div class="services-dark__col-header">
             <Fragment set:html={icons.settings} />
             <h3>Equipment & Repair</h3>
@@ -333,15 +343,15 @@ const icons = {
   <!-- ============ A TRUE SERVICE PARTNER ============ -->
   <section class="partner-section">
     <div class="container max-w-4xl mx-auto text-center">
-      <h2>Complete Pool Care. Built on Local Trust.</h2>
+      <h2 class="reveal-up">Complete Pool Care. Built on Local Trust.</h2>
 
-      <p>We brought together the best local pool professionals in coastal Georgia — and gave them the resources to do even more. From weekly maintenance to full equipment service, one team that knows your pool inside and out.</p>
+      <p class="reveal-up" style="--reveal-delay: 150ms">We brought together the best local pool professionals in coastal Georgia — and gave them the resources to do even more. From weekly maintenance to full equipment service, one team that knows your pool inside and out.</p>
 
-      <p>The result is a dedicated service company with the technical depth to handle equipment, the local presence to know your pool, and the operational foundation to deliver consistent care year after year.</p>
+      <p class="reveal-up" style="--reveal-delay: 300ms">The result is a dedicated service company with the technical depth to handle equipment, the local presence to know your pool, and the operational foundation to deliver consistent care year after year.</p>
 
-      <p class="highlight">Your pool is a 15–20 year asset. It deserves a true service partner.</p>
+      <p class="highlight reveal-up" style="--reveal-delay: 450ms">Your pool is a 15–20 year asset. It deserves a true service partner.</p>
 
-      <div style="margin-top:2rem;">
+      <div class="reveal-up" style="--reveal-delay: 600ms; margin-top:2rem;">
         <a href={`${import.meta.env.BASE_URL}our-approach/#our-story`} class="btn btn--primary btn--lg">Read Our Story</a>
       </div>
     </div>
@@ -359,7 +369,7 @@ const icons = {
     <div class="container">
       <div class="coastal-layout">
         <!-- Left: Interactive Google Map -->
-        <div class="coastal-map">
+        <div class="coastal-map reveal-up">
           <div class="coastal-map__glow"></div>
           <div class="coastal-map__frame coastal-map__frame--map">
             <div class="service-area__map" id="service-area-map"></div>
@@ -368,16 +378,16 @@ const icons = {
 
         <!-- Right: Content -->
         <div class="coastal-content">
-          <h2 class="coastal-content__title">
+          <h2 class="coastal-content__title reveal-up" style="--reveal-delay: 150ms">
             Engineered for<br/>the Coast
           </h2>
-          <p class="coastal-content__desc">
+          <p class="coastal-content__desc reveal-up" style="--reveal-delay: 300ms">
             Local environments demand local expertise. We've built our methodology
             specifically to combat the unique challenges of coastal pool ownership.
           </p>
 
           <!-- Address Checker -->
-          <div class="coastal-checker">
+          <div class="coastal-checker reveal-up" style="--reveal-delay: 450ms">
             <h3 class="coastal-checker__title">Check Your Address</h3>
             <p class="coastal-checker__desc">Enter your address to see if you're within our service area.</p>
             <div id="service-area-checker"></div>
@@ -389,7 +399,7 @@ const icons = {
       </div>
 
       <!-- Communities We Serve city cards -->
-      <div class="coastal-areas">
+      <div class="coastal-areas reveal-up">
         <h3 class="coastal-areas__title">Communities We Serve</h3>
         <div class="coastal-areas__track-wrapper">
           <div class="coastal-areas__track" id="area-track">
@@ -465,11 +475,13 @@ const icons = {
   <!-- ============ SOCIAL PROOF ============ -->
   <section class="reviews-home">
     <div class="container">
-      <div class="section-header">
+      <div class="section-header reveal-up">
         <h2>What our customers say</h2>
       </div>
-      <ReviewCarousel />
-      <div class="text-center" style="margin-top:2rem;">
+      <div class="reveal-up" style="--reveal-delay: 200ms">
+        <ReviewCarousel />
+      </div>
+      <div class="text-center reveal-up" style="--reveal-delay: 400ms; margin-top:2rem;">
         <a href="https://g.page/r/CVrU0W_3-NRyEAE/review" target="_blank" rel="noopener" class="btn btn--outline">Read All Reviews on Google</a>
       </div>
     </div>
@@ -486,8 +498,8 @@ const icons = {
     <img src={`${import.meta.env.BASE_URL}images/coastal-pool.png`} alt="" class="cta-image__bg" loading="lazy" />
     <div class="cta-image__overlay"></div>
     <div class="container cta-image__content">
-      <h2>Ready for worry-free pool care?</h2>
-      <div class="cta-image__buttons">
+      <h2 class="reveal-up">Ready for worry-free pool care?</h2>
+      <div class="cta-image__buttons reveal-up" style="--reveal-delay: 200ms">
         <button type="button" class="btn btn--cta btn--lg" data-open-intake>Get a Quote</button>
         <a href="tel:9124590160" class="btn btn--outline-white btn--lg">Call (912) 459-0160</a>
       </div>
@@ -648,6 +660,87 @@ const icons = {
       cityOffset = Math.min(getMax(), cityOffset + getCardWidth());
       citiesTrack.style.transform = `translateX(-${cityOffset}px)`;
     });
+  }
+
+  // ===== Scroll-triggered reveal =====
+  // Elements with .reveal-up or .reveal-words fade/slide in when they enter
+  // the viewport. Once revealed they stay revealed (unobserve after first intersection).
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const revealEls = document.querySelectorAll('.reveal-up, .reveal-words');
+    if (revealEls.length && 'IntersectionObserver' in window) {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            io.unobserve(entry.target);
+          }
+        });
+      }, { rootMargin: '0px 0px -10% 0px', threshold: 0.15 });
+      revealEls.forEach((el) => io.observe(el));
+    } else {
+      revealEls.forEach((el) => el.classList.add('is-visible'));
+    }
+  } else {
+    document.querySelectorAll('.reveal-up, .reveal-words').forEach((el) => el.classList.add('is-visible'));
+  }
+
+  // ===== Methodology mobile carousel + tabs =====
+  // On mobile the method-cards become a horizontal scroll-snap carousel.
+  // Tabs sync with the active card, and clicking a tab scrolls to that card.
+  const methGrid = document.querySelector('.methodology__grid') as HTMLElement | null;
+  const methTabs = document.querySelectorAll<HTMLButtonElement>('.methodology__tab');
+  if (methGrid && methTabs.length > 0) {
+    const methCards = methGrid.querySelectorAll<HTMLElement>('.method-card');
+    methTabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => {
+        const card = methCards[i];
+        if (!card) return;
+        methGrid.scrollTo({ left: card.offsetLeft - (methGrid.clientWidth - card.offsetWidth) / 2, behavior: 'smooth' });
+      });
+    });
+    let methTicking = false;
+    const updateMethTabs = () => {
+      const center = methGrid.scrollLeft + methGrid.clientWidth / 2;
+      let activeIdx = 0;
+      let minDist = Infinity;
+      methCards.forEach((c, i) => {
+        const dist = Math.abs((c.offsetLeft + c.offsetWidth / 2) - center);
+        if (dist < minDist) { minDist = dist; activeIdx = i; }
+      });
+      methTabs.forEach((t, i) => t.classList.toggle('is-active', i === activeIdx));
+      methTicking = false;
+    };
+    methGrid.addEventListener('scroll', () => {
+      if (!methTicking) {
+        requestAnimationFrame(updateMethTabs);
+        methTicking = true;
+      }
+    }, { passive: true });
+    updateMethTabs();
+  }
+
+  // ===== Hero exit progress (scroll-linked) =====
+  // Exposes --hero-exit (0..1) on the hero element as the user scrolls through it.
+  // CSS uses this for parallax on the background image, content exit translation,
+  // and the fade overlay's intensity.
+  const heroExitEl = document.querySelector('.hero--image') as HTMLElement | null;
+  if (heroExitEl && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    let heroTicking = false;
+    const updateHeroExit = () => {
+      const rect = heroExitEl.getBoundingClientRect();
+      const progress = Math.max(0, Math.min(1, -rect.top / rect.height));
+      heroExitEl.style.setProperty('--hero-exit', progress.toString());
+      heroTicking = false;
+    };
+    const onHeroScroll = () => {
+      if (!heroTicking) {
+        requestAnimationFrame(updateHeroExit);
+        heroTicking = true;
+      }
+    };
+    updateHeroExit();
+    window.addEventListener('scroll', onHeroScroll, { passive: true });
+    window.addEventListener('resize', onHeroScroll, { passive: true });
   }
 </script>
 

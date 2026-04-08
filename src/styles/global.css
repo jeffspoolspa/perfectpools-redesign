@@ -808,37 +808,56 @@ p:last-child {
 /* --- Hero with Background Image --- */
 .hero--image {
   position: relative;
-  padding-block: 5rem;
-  padding-bottom: calc(10rem + 64px);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: 5rem;
+  padding-bottom: 3rem;
   overflow: hidden;
   text-align: left;
 }
 @media (min-width: 900px) {
-  .hero--image { padding-bottom: calc(12rem + 96px); }
+  .hero--image {
+    padding-top: 6rem;
+    padding-bottom: 4rem;
+  }
 }
 @media (min-width: 1100px) {
-  .hero--image { padding-bottom: calc(14rem + 120px); }
+  .hero--image {
+    padding-top: 7rem;
+    padding-bottom: 4rem;
+  }
 }
 
-/* Wave at bottom of hero — absolute positioned inside hero overflow:hidden */
-.hero__wave {
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  right: 0;
-  z-index: 2;
-  line-height: 0;
+/* Trust chips inline in hero — replaces the old trust-badges strip */
+.hero__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2rem;
+  align-items: center;
 }
-.hero__wave svg {
-  width: 100%;
-  height: 64px;
-  display: block;
+.hero__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.9rem;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
-@media (min-width: 900px) {
-  .hero__wave svg { height: 96px; }
-}
-@media (min-width: 1100px) {
-  .hero__wave svg { height: 120px; }
+.hero__chip .icon {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  color: #ffffff;
 }
 
 /* Remove gaps between dark sections */
@@ -936,9 +955,6 @@ p:last-child {
 }
 
 @media (min-width: 768px) {
-  .hero--image {
-    padding-block: 6rem;
-  }
   .hero--image h1 {
     font-size: var(--text-5xl);
   }
@@ -959,9 +975,6 @@ p:last-child {
   .hero__grid {
     grid-template-columns: 1fr 1fr;
     gap: 4rem;
-  }
-  .hero--image {
-    padding-block: 7rem;
   }
 }
 
@@ -1099,9 +1112,9 @@ p:last-child {
 }
 
 .trust-badges--dark {
-  background: #0c2d4a;
+  background: var(--color-gray-200);
   border: none;
-  padding: 0.4rem 0;
+  padding: 0.15rem 0;
   margin-top: -6px;
   margin-bottom: -6px;
   position: relative;
@@ -1112,25 +1125,25 @@ p:last-child {
 /* Badges follow the wave curvature — center has most space (highest), edges have less */
 .trust-badges--dark .trust-badge:nth-child(1) {
   /* Left edge — wave is medium height here */
-  transform: translateY(-4px);
+  transform: translateY(-2px);
 }
 .trust-badges--dark .trust-badge:nth-child(2) {
   /* Center — wave peaks, most space */
-  transform: translateY(-22px);
+  transform: translateY(-14px);
 }
 .trust-badges--dark .trust-badge:nth-child(3) {
   /* Right edge — wave dips lowest here */
-  transform: translateY(2px);
+  transform: translateY(1px);
 }
 
 .trust-badges--dark .trust-badge__text {
-  color: #ffffff;
+  color: var(--color-primary);
   font-weight: 600;
   font-size: 0.85rem;
 }
 
 .trust-badges--dark .trust-badge .icon {
-  color: #ffffff;
+  color: var(--color-primary);
   width: 1.75rem;
   height: 1.75rem;
   margin-bottom: 0.25rem;
@@ -1177,32 +1190,235 @@ p:last-child {
   gap: 1.5rem;
 }
 
+/* Mobile: cards become a horizontal swipeable carousel with scroll-snap,
+   one card at a time. The grid goes edge-to-edge of the viewport so cards
+   can peek from the sides as you swipe. */
+@media (max-width: 767px) {
+  .methodology__grid {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    overflow-y: visible;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    padding: 0.5rem var(--container-padding, 1rem) 1.5rem;
+    margin-inline: calc(var(--container-padding, 1rem) * -1);
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .methodology__grid::-webkit-scrollbar { display: none; }
+  .methodology__grid > .method-card {
+    flex: 0 0 85%;
+    min-width: 0;
+    max-width: 360px;
+    scroll-snap-align: center;
+  }
+}
+
 @media (min-width: 768px) {
   .methodology__grid {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
-/* Water background for methodology section */
+/* Mobile-only tab bar above the carousel — pill indicators showing
+   there are 3 cards. Active tab is wider + fully opaque, inactive are faded. */
+.methodology__tabs {
+  display: none;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+@media (max-width: 767px) {
+  .methodology__tabs {
+    display: flex;
+  }
+}
+.methodology__tab {
+  width: 1.75rem;
+  height: 4px;
+  border: none;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 999px;
+  padding: 0;
+  cursor: pointer;
+  transition: background 300ms ease, width 300ms ease;
+}
+.methodology__tab:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+.methodology__tab.is-active {
+  background: rgba(255, 255, 255, 0.95);
+  width: 2.25rem;
+}
+
+/* Water background for methodology section — clean rectangle, no overlap with hero.
+   padding-top is sized so the content starts AFTER the fade-top zone ends,
+   giving the atmospheric transition its own breathing room. */
 .methodology--water {
   position: relative;
   overflow: hidden;
   background: #0a3d6b;
-  padding-top: calc(2rem + 64px);
-  padding-bottom: calc(5rem + 64px);
-  margin-top: -64px;
-  margin-bottom: -64px;
+  padding: calc(9vh + 3rem) 0 calc(10vh + 6rem);
 }
 @media (min-width: 900px) {
   .methodology--water {
-    padding-top: calc(2.5rem + 96px); margin-top: -96px;
-    padding-bottom: calc(5rem + 96px); margin-bottom: -96px;
+    padding: calc(9vh + 5rem) 0 calc(10vh + 8rem);
   }
 }
-@media (min-width: 1100px) {
-  .methodology--water {
-    padding-top: calc(3rem + 120px); margin-top: -120px;
-    padding-bottom: calc(7rem + 120px); margin-bottom: -120px;
+
+/* Hero bottom fade — atmospheric transition into the methodology's base color.
+   Tall (55vh) so the darkening begins well before the boundary. The gradient
+   reaches fully solid #0a3d6b at the bottom so it matches the methodology's
+   top fade exactly at the section boundary — no visible seam. */
+.hero__fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 18vh;
+  pointer-events: none;
+  z-index: 3;
+  background: linear-gradient(
+    to bottom,
+    rgba(10, 61, 107, 0) 0%,
+    rgba(10, 61, 107, 0.2) 25%,
+    rgba(10, 61, 107, 0.5) 50%,
+    rgba(10, 61, 107, 0.8) 75%,
+    rgba(10, 61, 107, 0.95) 90%,
+    #0a3d6b 100%
+  );
+}
+
+/* Methodology top fade — atmospheric transition carrying the dark color
+   down into the tile pattern so the sections feel connected without any hard edge.
+   z-index:1 sits ABOVE the tile ::before (z-index:0) AND the liquid-mount
+   canvas (z-index:0), but in tree order comes BEFORE the content container
+   (also z-index:1) so the container text renders on top of the fade and never
+   gets obscured. */
+.methodology__fade-top {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 9vh;
+  pointer-events: none;
+  z-index: 1;
+  background: linear-gradient(
+    to bottom,
+    #0a3d6b 0%,
+    rgba(10, 61, 107, 0.75) 35%,
+    rgba(10, 61, 107, 0.3) 70%,
+    rgba(10, 61, 107, 0) 100%
+  );
+}
+
+/* Methodology bottom fade — fades the tile pattern into the services-dark
+   color (#1E3A5F) so the section exit is a smooth atmospheric transition
+   instead of a hard edge. z-index:1 sits above the tile but below content. */
+.methodology__fade-bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 10vh;
+  pointer-events: none;
+  z-index: 1;
+  background: linear-gradient(
+    to top,
+    #1E3A5F 0%,
+    rgba(30, 58, 95, 0.75) 35%,
+    rgba(30, 58, 95, 0.3) 70%,
+    rgba(30, 58, 95, 0) 100%
+  );
+}
+
+/* Services-dark top fade — solid services-dark at top fading down, meeting
+   the methodology bottom fade at the section boundary in the same color. */
+.services-dark__fade-top {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 8vh;
+  pointer-events: none;
+  z-index: 0;
+  background: linear-gradient(
+    to bottom,
+    #1E3A5F 0%,
+    rgba(30, 58, 95, 0.6) 50%,
+    rgba(30, 58, 95, 0) 100%
+  );
+}
+.services-dark { position: relative; }
+.services-dark > * { position: relative; z-index: 1; }
+.services-dark > .services-dark__fade-top { z-index: 0; }
+
+/* Hero background image parallax — the image moves slower than the page
+   as you scroll, creating a depth effect where the hero appears to "stay"
+   while the content flows past it. */
+.hero--image .hero__bg {
+  transform: translateY(calc(var(--hero-exit, 0) * 80px)) scale(calc(1 + var(--hero-exit, 0) * 0.08));
+  transform-origin: center bottom;
+  transition: transform 80ms linear;
+}
+
+/* Hero content parallax — content exits slightly faster than scroll,
+   so it feels like it "falls away" as you move past the hero. */
+.hero--image > .container {
+  transform: translateY(calc(var(--hero-exit, 0) * -60px));
+  opacity: calc(1 - var(--hero-exit, 0) * 0.5);
+  transition: transform 80ms linear, opacity 120ms linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero--image .hero__bg,
+  .hero--image > .container,
+  .hero__fade {
+    transform: none !important;
+    opacity: 1 !important;
+  }
+}
+
+/* Scroll-triggered reveal — elements fade in + rise from below when they enter the viewport.
+   Default state: hidden and pushed down. IntersectionObserver adds .is-visible to trigger the transition.
+   Respects prefers-reduced-motion by being visible immediately. */
+.reveal-up {
+  opacity: 0;
+  transform: translateY(20px);
+  /* Smoother fade — longer duration, very gentle ease-out curve. */
+  transition: opacity 900ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 900ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+.reveal-up.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Word-by-word headline reveal — each <span> inside .reveal-words animates
+   in sequence with a per-word delay based on --word-index. */
+.reveal-words span {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 750ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 750ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: calc(var(--word-index, 0) * 50ms);
+  will-change: opacity, transform;
+}
+.reveal-words.is-visible span {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-up,
+  .reveal-words span {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 }
 
@@ -1217,14 +1433,14 @@ p:last-child {
 }
 .methodology__wave-top svg {
   width: 100%;
-  height: 64px;
+  height: 40px;
   display: block;
 }
 @media (min-width: 900px) {
-  .methodology__wave-top svg { height: 96px; }
+  .methodology__wave-top svg { height: 60px; }
 }
 @media (min-width: 1100px) {
-  .methodology__wave-top svg { height: 120px; }
+  .methodology__wave-top svg { height: 75px; }
 }
 
 #methodology-liquid-mount {
@@ -1241,9 +1457,26 @@ p:last-child {
   opacity: 1;
   z-index: 0;
   pointer-events: none;
+  /* Tile stays mostly visible throughout the section; only a very subtle
+     fade at the extreme top edge lets it blend into the hero's atmospheric
+     fade without fully disappearing. */
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.35) 0,
+    rgba(0, 0, 0, 0.75) 4vh,
+    #000 8vh,
+    #000 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.35) 0,
+    rgba(0, 0, 0, 0.75) 4vh,
+    #000 8vh,
+    #000 100%
+  );
 }
 
-.methodology--water > *:not(.methodology__wave-top):not(#methodology-liquid-mount) {
+.methodology--water > *:not(#methodology-liquid-mount):not(.methodology__fade-top):not(.methodology__fade-bottom) {
   position: relative;
   z-index: 1;
 }
@@ -1271,10 +1504,19 @@ p:last-child {
   .methodology__wave-bottom svg { height: 120px; }
 }
 
+
 .methodology--water .section-header h2,
 .methodology--water .section-header p {
   color: #fff;
   text-shadow: 0 2px 12px rgba(0, 20, 40, 0.4);
+}
+.methodology--water .section-header {
+  margin-bottom: 4rem;
+}
+@media (min-width: 900px) {
+  .methodology--water .section-header {
+    margin-bottom: 5rem;
+  }
 }
 
 .method-card {
@@ -1283,12 +1525,24 @@ p:last-child {
   border-radius: var(--radius-lg);
   padding: 2rem;
   box-shadow: var(--shadow-md);
-  transition: all var(--transition-base);
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
 }
 
 .method-card:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-lg);
+}
+
+/* Higher-specificity reveal transition for method cards — must live AFTER
+   .method-card so it wins the cascade. The shorthand `transition` on
+   .method-card resets transition-delay/duration for ALL properties, so we
+   re-specify the reveal transition here with the inline --reveal-delay.
+   Smoother: longer duration + gentle cubic-bezier curve. */
+.method-card.reveal-up {
+  transition: opacity 900ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 900ms cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow var(--transition-base);
+  transition-delay: var(--reveal-delay, 0ms), var(--reveal-delay, 0ms), 0ms;
 }
 
 .method-card__icon {
