@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'preact/hooks';
 import { buildCardStackTimeline } from '../utils/card-stack-timeline';
-import { getHeaderOffset } from '../utils/scroll-config';
 
 const SIDES = [
   {
@@ -54,38 +53,17 @@ export default function CompareScroll() {
     const cards = cardsRef.current.filter(Boolean) as HTMLDivElement[];
     if (cards.length === 0) return;
 
-    let trigger: any;
-    let tl: any;
-
-    import('gsap').then(({ gsap }) => {
-      import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => {
-        gsap.registerPlugin(ScrollTrigger);
-
-        tl = buildCardStackTimeline(gsap, cards, {
-          enterStyle: 'slide-left',
-          exitStyle: 'fade-out-left',
-          enterEase: 'power3.out',
-          exitEase: 'power2.in',
-          holdDuration: 0.8,
-          crossfadeDuration: 1,
-        });
-
-        trigger = ScrollTrigger.create({
-          trigger: container,
-          start: () => `top top+=${getHeaderOffset()}`,
-          end: 'bottom bottom',
-          pin: container.querySelector('.cs__sticky') as HTMLElement,
-          pinSpacing: false,
-          scrub: 1,
-          animation: tl,
-        });
+    const buildTimeline = (gsap: any) =>
+      buildCardStackTimeline(gsap, cards, {
+        enterStyle: 'slide-left',
+        exitStyle: 'fade-out-left',
+        enterEase: 'power3.out',
+        exitEase: 'power2.in',
+        holdDuration: 0.8,
+        crossfadeDuration: 1,
       });
-    });
 
-    return () => {
-      trigger?.kill();
-      tl?.kill();
-    };
+    window.__ourApproach?.register('compare', container, buildTimeline);
   }, []);
 
   return (
@@ -138,7 +116,6 @@ export default function CompareScroll() {
         </div>
       </div>
 
-      <div className="cs__spacer" />
     </div>
   );
 }

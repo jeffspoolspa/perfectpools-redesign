@@ -2,13 +2,11 @@ import { useState, useEffect, useRef } from 'preact/hooks';
 import PillarsTriangle, { PILLARS } from './PillarsTriangle';
 import { assetPath } from '../utils/base-url';
 import { buildCardStackTimeline } from '../utils/card-stack-timeline';
-import { getHeaderOffset } from '../utils/scroll-config';
 
 export default function PillarsScroll() {
   const [activeIndex, setActiveIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
-  const lastIndexRef = useRef(0);
 
   const activePillar = PILLARS[activeIndex];
 
@@ -19,47 +17,19 @@ export default function PillarsScroll() {
     const cards = cardsRef.current.filter(Boolean) as HTMLDivElement[];
     if (cards.length === 0) return;
 
-    let trigger: any;
-    let tl: any;
-
-    import('gsap').then(({ gsap }) => {
-      import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => {
-        gsap.registerPlugin(ScrollTrigger);
-
-        tl = buildCardStackTimeline(gsap, cards, {
-          enterStyle: 'fade-up',
-          exitStyle: 'fade-out-up',
-          enterEase: 'power2.out',
-          exitEase: 'power1.in',
-        });
-
-        trigger = ScrollTrigger.create({
-          trigger: container,
-          start: () => `top top+=${getHeaderOffset()}`,
-          end: 'bottom bottom',
-          pin: container.querySelector('.ps__sticky-col') as HTMLElement,
-          pinSpacing: false,
-          scrub: 1,
-          animation: tl,
-          onUpdate: (self: any) => {
-            const totalCards = PILLARS.length;
-            const index = Math.min(
-              totalCards - 1,
-              Math.floor(self.progress * totalCards)
-            );
-            if (index !== lastIndexRef.current) {
-              lastIndexRef.current = index;
-              setActiveIndex(index);
-            }
-          },
-        });
+    // Expose a timeline factory to the page orchestrator. setActiveIndex
+    // is wired via onCardEnter so the triangle diagram re-renders on
+    // each card boundary in both scroll directions.
+    const buildTimeline = (gsap: any) =>
+      buildCardStackTimeline(gsap, cards, {
+        enterStyle: 'fade-up',
+        exitStyle: 'fade-out-up',
+        enterEase: 'power2.out',
+        exitEase: 'power1.in',
+        onCardEnter: (_card, i) => setActiveIndex(i),
       });
-    });
 
-    return () => {
-      trigger?.kill();
-      tl?.kill();
-    };
+    window.__ourApproach?.register('pillars', container, buildTimeline);
   }, []);
 
   return (
@@ -125,8 +95,6 @@ export default function PillarsScroll() {
           </div>
         </div>
       </div>
-
-      <div className="ps__spacer" />
 
       <div className="ps__mobile-diagram">
         <PillarsTriangle

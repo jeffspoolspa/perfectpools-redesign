@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'preact/hooks';
 import { buildCardStackTimeline } from '../utils/card-stack-timeline';
-import { getHeaderOffset } from '../utils/scroll-config';
 
 const CARDS = [
   {
@@ -39,49 +38,29 @@ const CARDS = [
 
 export default function ProblemScroll() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const stickyRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
     const container = containerRef.current;
-    const sticky = stickyRef.current;
-    if (!container || !sticky) return;
+    if (!container) return;
 
     const cards = cardsRef.current.filter(Boolean) as HTMLDivElement[];
     if (cards.length === 0) return;
 
-    let trigger: any;
-    let tl: any;
-
-    import('gsap').then(({ gsap }) => {
-      import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => {
-        gsap.registerPlugin(ScrollTrigger);
-
-        tl = buildCardStackTimeline(gsap, cards, {
-          enterStyle: 'fade-up',
-          exitStyle: 'fade-out-up',
-          enterEase: 'power2.out',
-          exitEase: 'power1.in',
-          holdDuration: 0.8,
-          crossfadeDuration: 1,
-        });
-
-        trigger = ScrollTrigger.create({
-          trigger: container,
-          start: () => `top top+=${getHeaderOffset()}`,
-          end: 'bottom bottom',
-          pin: sticky,
-          pinSpacing: false,
-          scrub: 1,
-          animation: tl,
-        });
+    // Expose a timeline factory via the page-level orchestrator registry.
+    // The orchestrator calls this with its gsap instance when it builds
+    // the master timeline — we no longer create our own ScrollTrigger.
+    const buildTimeline = (gsap: any) =>
+      buildCardStackTimeline(gsap, cards, {
+        enterStyle: 'fade-up',
+        exitStyle: 'fade-out-up',
+        enterEase: 'power2.out',
+        exitEase: 'power1.in',
+        holdDuration: 0.8,
+        crossfadeDuration: 1,
       });
-    });
 
-    return () => {
-      trigger?.kill();
-      tl?.kill();
-    };
+    window.__ourApproach?.register('problem', container, buildTimeline);
   }, []);
 
   return (
@@ -92,7 +71,7 @@ export default function ProblemScroll() {
         <h2>The pool industry has a service problem.</h2>
       </div>
 
-      <div className="prb__sticky" ref={stickyRef}>
+      <div className="prb__sticky">
         {/* Desktop: header inside sticky */}
         <div className="section-header prb__header prb__header--desktop">
           <span className="section-kicker">WHY WE EXIST</span>
@@ -140,7 +119,6 @@ export default function ProblemScroll() {
         </div>
       </div>
 
-      <div className="prb__spacer" />
     </div>
   );
 }
