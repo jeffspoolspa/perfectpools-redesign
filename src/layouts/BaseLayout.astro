@@ -102,6 +102,18 @@ const ogImageUrl = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`
 
     // Expose for modal stop/start
     (window as any).__lenis = lenis;
+
+    // Initialize [data-reveal] scroll animations after all resources have loaded
+    // so layout is settled and trigger positions are correct.
+    import('../utils/scroll-reveals').then(({ initScrollReveals }) => {
+      if (document.readyState === 'complete') {
+        requestAnimationFrame(() => requestAnimationFrame(initScrollReveals));
+      } else {
+        window.addEventListener('load', () => {
+          requestAnimationFrame(() => requestAnimationFrame(initScrollReveals));
+        }, { once: true });
+      }
+    });
   </script>
 
   <!-- Intake form trigger + Get Started trigger + Mobile menu script -->

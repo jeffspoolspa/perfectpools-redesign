@@ -44,26 +44,26 @@ const base = import.meta.env.BASE_URL;
     </div>
   </section>
 
-  <!-- Section 6: Reviews (stagger reveal) -->
-  <section class="section oa-section oa-reveal" data-oa-section="6" id="reviews">
+  <!-- Section 6: Reviews — blur-in header + staggered body -->
+  <section class="section oa-section" data-oa-section="6" id="reviews">
     <div class="container">
-      <div class="section-header oa-reveal__item">
+      <div class="section-header" data-reveal="blur-in">
         <span class="section-kicker">WHAT OUR CLIENTS SAY</span>
         <h2>Real Reviews, Real Results.</h2>
       </div>
-      <div class="oa-reveal__item">
+      <div data-reveal="fade-up" data-reveal-stagger="0.12">
         <ReviewCarousel />
-      </div>
-      <div class="oa-reveal__item" style="text-align: center; margin-top: var(--space-8);">
-        <a href="https://g.page/r/CVrU0W_3-NRyEAE/review" target="_blank" rel="noopener" class="btn btn--outline">Read All Reviews on Google</a>
+        <div style="text-align: center; margin-top: var(--space-8);">
+          <a href="https://g.page/r/CVrU0W_3-NRyEAE/review" target="_blank" rel="noopener" class="btn btn--outline">Read All Reviews on Google</a>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- Final CTA Banner (scale entrance) -->
-  <section class="partnership-cta oa-section oa-cta-entrance" data-oa-section="7">
+  <!-- Final CTA Banner — rise + scale entrance -->
+  <section class="partnership-cta oa-section" data-oa-section="7">
     <div class="container">
-      <div class="partnership-cta__card">
+      <div class="partnership-cta__card" data-reveal="scale-in" data-reveal-start="top 85%" data-reveal-end="top 55%">
         <h2>Start Your Aquatic Partnership</h2>
         <p>Experience the difference of architectural-grade maintenance. We are currently accepting new clients for our exclusive service routes.</p>
         <div class="partnership-cta__buttons">
@@ -134,69 +134,16 @@ const base = import.meta.env.BASE_URL;
     render(h(CompareScroll, null), compareMount);
   }
 
-  // --- Section Transitions ---
-  // After all Preact islands mount AND all resources load (fonts, images),
-  // set up slide-over pins and reveal animations, then refresh all triggers.
+  // After all Preact islands mount + resources load, refresh ScrollTrigger
+  // so the scroll-card components see the final page height. The [data-reveal]
+  // system in BaseLayout also calls refresh, but the card-stack components
+  // mount asynchronously and need their own coordinated refresh.
   window.addEventListener('load', () => {
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        import('gsap').then(({ gsap }) => {
-          import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => {
-            gsap.registerPlugin(ScrollTrigger);
-
-            const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-            if (!prefersReduced) {
-              // Stagger reveal: Reviews section children cascade in
-              const revealItems = document.querySelectorAll('.oa-reveal__item');
-              if (revealItems.length) {
-                gsap.to(revealItems, {
-                  opacity: 1,
-                  y: 0,
-                  stagger: 0.15,
-                  ease: 'power2.out',
-                  scrollTrigger: {
-                    trigger: '#reviews',
-                    start: 'top 80%',
-                    end: 'top 30%',
-                    scrub: 1,
-                  },
-                });
-              }
-
-              // CTA scale entrance
-              const ctaCard = document.querySelector('.oa-cta-entrance .partnership-cta__card');
-              if (ctaCard) {
-                gsap.to(ctaCard, {
-                  opacity: 1,
-                  y: 0,
-                  scale: 1,
-                  ease: 'power2.out',
-                  scrollTrigger: {
-                    trigger: '.oa-cta-entrance',
-                    start: 'top 85%',
-                    end: 'top 40%',
-                    scrub: 1,
-                  },
-                });
-              }
-            } else {
-              // Reduced motion: show everything immediately
-              document.querySelectorAll('.oa-reveal__item').forEach((el) => {
-                (el as HTMLElement).style.opacity = '1';
-                (el as HTMLElement).style.transform = 'none';
-              });
-              const ctaCard = document.querySelector('.oa-cta-entrance .partnership-cta__card') as HTMLElement;
-              if (ctaCard) {
-                ctaCard.style.opacity = '1';
-                ctaCard.style.transform = 'none';
-              }
-            }
-
-            // Recalculate all trigger positions now that everything is rendered
-            ScrollTrigger.sort();
-            ScrollTrigger.refresh();
-          });
+        import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => {
+          ScrollTrigger.sort();
+          ScrollTrigger.refresh();
         });
       });
     });
@@ -207,18 +154,6 @@ const base = import.meta.env.BASE_URL;
   /* === Section Flow === */
   .oa-section {
     position: relative;
-  }
-
-  /* Stagger reveal items — hidden until GSAP reveals them */
-  :global(.oa-reveal__item) {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-
-  /* CTA entrance — hidden until GSAP scales it in */
-  .oa-cta-entrance :global(.partnership-cta__card) {
-    opacity: 0;
-    transform: translateY(40px) scale(0.95);
   }
 
   /* GPU compositing hints for scroll-animated cards */

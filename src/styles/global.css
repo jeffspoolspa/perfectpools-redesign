@@ -123,6 +123,25 @@ html.lenis, html.lenis body {
   overflow: hidden;
 }
 
+/* --- Scroll reveals — pre-hide elements until JS wires them up --- */
+/* Hides immediately on first paint so there's no flash of visible content
+   before the reveal animation runs. Once `initScrollReveals()` processes an
+   element it adds `data-reveal-initialized`, which disables this rule. */
+[data-reveal]:not([data-reveal-initialized]) {
+  opacity: 0;
+}
+[data-reveal="parallax"]:not([data-reveal-initialized]),
+[data-reveal="parallax-slow"]:not([data-reveal-initialized]),
+[data-reveal="parallax-fast"]:not([data-reveal-initialized]) {
+  opacity: 1; /* parallax elements stay visible, only their position shifts */
+}
+/* Reduced motion: show everything immediately, ignore the pre-hide */
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal]:not([data-reveal-initialized]) {
+    opacity: 1;
+  }
+}
+
 body {
   font-family: var(--font-body);
   font-size: var(--text-base);
