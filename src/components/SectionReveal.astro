@@ -88,10 +88,10 @@ const {
   preset: requestedPreset = 'fade-up',
   id,
   className = '',
-  start = 'top 85%',
-  end = 'top 55%',
+  start: startOverride,
+  end: endOverride,
   stagger,
-  scrub,
+  scrub: scrubOverride,
   delay,
   pinned = false,
 } = Astro.props;
@@ -103,6 +103,16 @@ const {
 const preset: Preset = pinned
   ? (PIN_SAFE.has(requestedPreset) ? requestedPreset : 'reveal-down')
   : requestedPreset;
+
+// Pinned sections default to a SCRUB-LINKED reveal over a much wider
+// range so the wipe follows the user's scroll gesture directly. A
+// one-shot reveal on a huge pinned section is barely noticeable — the
+// animation finishes in 0.8s regardless of how fast/slow the user
+// scrolls. Scrub mode ties the clip-path progression to scroll
+// position so the user "feels" the transition as they move through it.
+const start = startOverride ?? (pinned ? 'top bottom' : 'top 85%');
+const end = endOverride ?? (pinned ? 'top 30%' : 'top 55%');
+const scrub = scrubOverride ?? (pinned ? 'tight' : undefined);
 
 const classList = ['section', className].filter(Boolean).join(' ');
 ---

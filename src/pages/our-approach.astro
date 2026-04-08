@@ -345,9 +345,15 @@ const base = import.meta.env.BASE_URL;
   }
 
   /* === Comparison Scroll Section === */
-  .compare-scroll-section {
+  /* Must be :global() — the <section> element is rendered by SectionReveal,
+     not by this file, so Astro's default scoping won't attach this rule to
+     it. Same applies to every other `.*-section` wrapper below. */
+  :global(.compare-scroll-section) {
     padding-top: var(--space-16);
     padding-bottom: var(--space-12);
+    /* Warm sand so Compare contrasts with both Pillars (white, above) and
+       Visit (white, below) — creates clear section boundaries. */
+    background: var(--color-bg-alt);
   }
 
   :global(.cs) {
@@ -534,10 +540,12 @@ const base = import.meta.env.BASE_URL;
   }
 
   /* === Pillars Section === */
-  .pillars-section {
+  /* Background intentionally left white — Our Story above uses section--alt
+     (warm sand), so Pillars needs contrast or the sections blur into one
+     continuous tan block with no visible transition boundary. */
+  :global(.pillars-section) {
     padding-top: var(--space-16);
     padding-bottom: var(--space-16);
-    background: var(--color-bg-alt);
   }
 
   /* === Scroll-Driven Pillars (Preact-rendered, needs :global) === */
@@ -558,8 +566,11 @@ const base = import.meta.env.BASE_URL;
     position: sticky;
     top: 50px;
     z-index: 1;
-    background: var(--color-bg-alt);
     padding-bottom: 1rem;
+    /* Background intentionally inherited from the parent section so the
+       pinned sticky matches whatever the section's background is (white
+       for Pillars). A hardcoded bg here previously leaked warm sand into
+       the Pillars section even after the section bg was removed. */
   }
 
   /* Mobile: show the non-sticky header, hide the sticky one */
@@ -1142,7 +1153,7 @@ const base = import.meta.env.BASE_URL;
   /* ========================================
      Visit Section — Anatomy of a Visit
      ======================================== */
-  .visit-section {
+  :global(.visit-section) {
     padding-top: var(--space-16);
     padding-bottom: var(--space-16);
   }
