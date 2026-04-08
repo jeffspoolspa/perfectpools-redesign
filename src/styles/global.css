@@ -6285,6 +6285,16 @@ p:last-child {
   position: relative;
 }
 
+.tl__spacer {
+  height: 400vh;
+}
+
+@media (min-width: 768px) {
+  .tl__spacer {
+    height: 300vh;
+  }
+}
+
 .tl-sticky {
   display: flex;
   flex-direction: column;

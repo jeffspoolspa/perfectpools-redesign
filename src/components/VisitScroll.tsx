@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { buildCardStackTimeline } from '../utils/card-stack-timeline';
+import { getHeaderOffset } from '../utils/scroll-config';
 
 // SVG icons as JSX for dependency-free rendering
 const icons: Record<string, any> = {
@@ -57,6 +58,7 @@ export default function VisitScroll() {
   const [activeIndex, setActiveIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const lastIndexRef = useRef(0);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -65,16 +67,47 @@ export default function VisitScroll() {
     const cards = cardsRef.current.filter(Boolean) as HTMLDivElement[];
     if (cards.length === 0) return;
 
-    const buildTimeline = (gsap: any) =>
-      buildCardStackTimeline(gsap, cards, {
-        enterStyle: 'scale-fade',
-        exitStyle: 'fade-out',
-        enterEase: 'power2.out',
-        exitEase: 'power1.in',
-        onCardEnter: (_card, i) => setActiveIndex(i),
-      });
+    let trigger: any;
+    let tl: any;
 
-    window.__ourApproach?.register('visit', container, buildTimeline);
+    import('gsap').then(({ gsap }) => {
+      import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => {
+        gsap.registerPlugin(ScrollTrigger);
+
+        tl = buildCardStackTimeline(gsap, cards, {
+          enterStyle: 'scale-fade',
+          exitStyle: 'fade-out',
+          enterEase: 'power2.out',
+          exitEase: 'power1.in',
+        });
+
+        trigger = ScrollTrigger.create({
+          trigger: container,
+          start: () => `top top+=${getHeaderOffset()}`,
+          end: 'bottom bottom',
+          pin: container.querySelector('.vs__sticky-col') as HTMLElement,
+          pinSpacing: false,
+          scrub: 1,
+          animation: tl,
+          onUpdate: (self: any) => {
+            const totalCards = STEPS.length;
+            const index = Math.min(
+              totalCards - 1,
+              Math.floor(self.progress * totalCards)
+            );
+            if (index !== lastIndexRef.current) {
+              lastIndexRef.current = index;
+              setActiveIndex(index);
+            }
+          },
+        });
+      });
+    });
+
+    return () => {
+      trigger?.kill();
+      tl?.kill();
+    };
   }, []);
 
   return (
@@ -150,6 +183,7 @@ export default function VisitScroll() {
         </div>
       </div>
 
+      <div className="vs__spacer" />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'preact/hooks';
 import { buildCardStackTimeline } from '../utils/card-stack-timeline';
+import { getHeaderOffset } from '../utils/scroll-config';
 
 const PHASES = [
   {
@@ -59,53 +60,65 @@ const PHASES = [
 
 export default function TimelineScroll() {
   const sectionRef = useRef<HTMLDivElement>(null);
+  const stickyRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (typeof window === 'undefined' || !sectionRef.current) return;
 
-    const section = sectionRef.current;
-    const cards = Array.from(section.querySelectorAll('.tl-card')) as HTMLElement[];
-    const markers = Array.from(section.querySelectorAll('.tl-marker')) as HTMLElement[];
-    if (!cards.length) return;
+    import('gsap').then(({ gsap }) => {
+      import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => {
+        gsap.registerPlugin(ScrollTrigger);
 
-    // Build a card-stack timeline whose onCardEnter/onCardExit callbacks
-    // also mutate the marker DOM. The orchestrator scrubs this timeline
-    // in both directions, so using the callbacks (fired on enter/leave
-    // at discrete boundaries) keeps marker state reversible.
-    const activateMarker = (index: number) => {
-      const m = markers[index];
-      if (!m) return;
-      m.style.transform = 'scale(1.2)';
-      m.style.background = '#145BB8';
-      const numeral = m.querySelector('.tl-numeral') as HTMLElement | null;
-      if (numeral) numeral.style.color = '#fff';
-    };
-    const deactivateMarker = (index: number) => {
-      const m = markers[index];
-      if (!m) return;
-      m.style.transform = 'scale(1)';
-      m.style.background = '#e5e7eb';
-      const numeral = m.querySelector('.tl-numeral') as HTMLElement | null;
-      if (numeral) numeral.style.color = '#6b7280';
-    };
+        const cards = Array.from(sectionRef.current!.querySelectorAll('.tl-card')) as HTMLElement[];
+        const markers = Array.from(sectionRef.current!.querySelectorAll('.tl-marker')) as HTMLElement[];
+        if (!cards.length) return;
 
-    // Initialize: first marker active, rest inactive.
-    activateMarker(0);
-    markers.forEach((_, i) => { if (i > 0) deactivateMarker(i); });
+        // Track which marker is active so we only update on change
+        let activeMarkerIndex = 0;
 
-    const buildTimeline = (gsap: any) =>
-      buildCardStackTimeline(gsap, cards, {
-        enterStyle: 'slide-up',
-        exitStyle: 'fade-out-up',
-        enterEase: 'power2.out',
-        exitEase: 'power1.in',
-        holdDuration: 0.6,
-        crossfadeDuration: 1,
-        onCardEnter: (_card, i) => activateMarker(i),
-        onCardExit: (_card, i) => deactivateMarker(i),
+        const setActiveMarker = (index: number) => {
+          if (index === activeMarkerIndex) return;
+          // Deactivate previous
+          gsap.to(markers[activeMarkerIndex], { scale: 1, background: '#e5e7eb', duration: 0.3 });
+          (markers[activeMarkerIndex] as HTMLElement).querySelector('.tl-numeral')!.style.color = '#6b7280';
+          // Activate new
+          gsap.to(markers[index], { scale: 1.2, background: '#145BB8', duration: 0.3 });
+          (markers[index] as HTMLElement).querySelector('.tl-numeral')!.style.color = '#fff';
+          activeMarkerIndex = index;
+        };
+
+        // Set first marker active immediately
+        gsap.set(markers[0], { scale: 1.2, background: '#145BB8' });
+        (markers[0] as HTMLElement).querySelector('.tl-numeral')!.style.color = '#fff';
+
+        const tl = buildCardStackTimeline(gsap, cards, {
+          enterStyle: 'slide-up',
+          exitStyle: 'fade-out-up',
+          enterEase: 'power2.out',
+          exitEase: 'power1.in',
+          holdDuration: 0.6,
+          crossfadeDuration: 1,
+        });
+
+        ScrollTrigger.create({
+          trigger: sectionRef.current,
+          pin: stickyRef.current,
+          start: () => `top top+=${getHeaderOffset()}`,
+          end: 'bottom bottom',
+          pinSpacing: false,
+          animation: tl,
+          scrub: 1,
+          onUpdate: (self: any) => {
+            const totalCards = cards.length;
+            const index = Math.min(
+              totalCards - 1,
+              Math.floor(self.progress * totalCards)
+            );
+            setActiveMarker(index);
+          },
+        });
       });
-
-    window.__ourApproach?.register('our-story', section, buildTimeline);
+    });
   }, []);
 
   return (
@@ -117,7 +130,7 @@ export default function TimelineScroll() {
         <p>Five partnerships that shaped how we take care of your pool.</p>
       </div>
 
-      <div class="tl-sticky">
+      <div ref={stickyRef} class="tl-sticky">
         {/* Desktop: header inside sticky */}
         <div class="section-header tl__header tl__header--desktop">
           <span class="section-kicker">OUR STORY</span>
@@ -150,6 +163,7 @@ export default function TimelineScroll() {
           </div>
         </div>
       </div>
+      <div className="tl__spacer" />
     </div>
   );
 }

@@ -4,24 +4,19 @@ import ReviewCarousel from '../components/ReviewCarousel.astro';
 const base = import.meta.env.BASE_URL;
 
 /**
- * Our Approach — Apple/Rivian-style scroll storytelling.
+ * Our Approach — storytelling page.
  *
- * The 5 card-stack sections (Problem / Our Story / Pillars / Compare /
- * Visit) are absolutely stacked inside a single `.oa-pin-stage` wrapper.
- * A page-level orchestrator (src/utils/our-approach-orchestrator.ts)
- * owns ONE master GSAP timeline driven by ONE master ScrollTrigger that
- * pins the whole stage. Each *Scroll.tsx component contributes a
- * "buildTimeline" factory via the window.__ourApproach registry; the
- * orchestrator stitches them together with handoff tweens between each
- * adjacent pair (outgoing section slides up while incoming slides up
- * from below — both visible at the crossover).
+ * The 5 pinned card-stack sections (Problem / Our Story / Pillars /
+ * Compare / Visit) handle their own internal GSAP animations. The page
+ * itself is plain <section> flow with alternating backgrounds. The
+ * Reviews and final CTA get simple data-reveal entrance animations
+ * (see src/utils/scroll-reveals.ts).
  *
- * On mobile (< 900px) the orchestrator falls back to classic per-section
- * pinning via ScrollTrigger.matchMedia. Reduced-motion users get the
- * whole thing reverted to normal document flow with no animation.
- *
- * Reviews and CTA live OUTSIDE the pin stage and get their own small
- * slide-up entrances (not pinned, not part of the master timeline).
+ * Section-to-section cohesion (pinned handoffs between sections) is
+ * a larger refactor parked for later — it requires rewriting the 5
+ * scroll components to expose a shared timeline API instead of
+ * self-pinning independently. When that lands, come back here and
+ * orchestrate the sequence from one place.
  */
 ---
 
@@ -30,60 +25,61 @@ const base = import.meta.env.BASE_URL;
   description="Pool care isn't guesswork — it's chemistry, consistency, and accountability. Learn how Perfect Pools keeps your water balanced year-round in coastal Georgia."
   canonicalPath="/our-approach"
 >
-  {/* ============================================
-       Pin Stage — 5 absolutely-stacked sections
-       ============================================ */}
-  <div class="oa-pin-stage" data-oa-pending>
-    <section class="oa-section problem-section" id="problem-section">
-      <div class="container">
-        <div id="problem-mount"></div>
-      </div>
-    </section>
-
-    <section class="oa-section oa-section--alt" id="our-story">
-      <div class="container">
-        <div id="timeline-mount"></div>
-      </div>
-    </section>
-
-    <section class="oa-section pillars-section" id="pillars">
-      <div class="container">
-        <div id="pillars-mount"></div>
-      </div>
-    </section>
-
-    <section class="oa-section compare-scroll-section" id="compare">
-      <div class="container">
-        <div id="compare-mount"></div>
-      </div>
-    </section>
-
-    <section class="oa-section visit-section" id="visit">
-      <div class="container">
-        <div id="visit-mount"></div>
-      </div>
-    </section>
-  </div>
-
-  {/* ============================================
-       Non-pinned sections — normal document flow
-       ============================================ */}
-  <section class="section" id="reviews">
+  {/* Section 1 — Problem Statement (cinematic card stack) */}
+  <section class="section problem-section oa-section">
     <div class="container">
-      <div class="section-header">
+      <div id="problem-mount"></div>
+    </div>
+  </section>
+
+  {/* Section 2 — Our Story (company timeline) */}
+  <section class="section section--alt oa-section" id="our-story">
+    <div class="container">
+      <div id="timeline-mount"></div>
+    </div>
+  </section>
+
+  {/* Section 3 — Three Pillars */}
+  <section class="section pillars-section oa-section" id="pillars">
+    <div class="container">
+      <div id="pillars-mount"></div>
+    </div>
+  </section>
+
+  {/* Section 4 — Industry vs Us Comparison */}
+  <section class="section compare-scroll-section oa-section">
+    <div class="container">
+      <div id="compare-mount"></div>
+    </div>
+  </section>
+
+  {/* Section 5 — Anatomy of a Visit */}
+  <section class="section visit-section oa-section" id="visit">
+    <div class="container">
+      <div id="visit-mount"></div>
+    </div>
+  </section>
+
+  {/* Section 6 — Reviews */}
+  <section class="section oa-section" id="reviews">
+    <div class="container">
+      <div class="section-header" data-reveal="fade-up">
         <span class="section-kicker">WHAT OUR CLIENTS SAY</span>
         <h2>Real Reviews, Real Results.</h2>
       </div>
-      <ReviewCarousel />
-      <div style="text-align: center; margin-top: var(--space-8);">
-        <a href="https://g.page/r/CVrU0W_3-NRyEAE/review" target="_blank" rel="noopener" class="btn btn--outline">Read All Reviews on Google</a>
+      <div data-reveal="fade-up" data-reveal-stagger="0.12">
+        <ReviewCarousel />
+        <div style="text-align: center; margin-top: var(--space-8);">
+          <a href="https://g.page/r/CVrU0W_3-NRyEAE/review" target="_blank" rel="noopener" class="btn btn--outline">Read All Reviews on Google</a>
+        </div>
       </div>
     </div>
   </section>
 
-  <section class="partnership-cta">
+  {/* Section 7 — Final CTA */}
+  <section class="partnership-cta oa-section">
     <div class="container">
-      <div class="partnership-cta__card">
+      <div class="partnership-cta__card" data-reveal="scale-in" data-reveal-start="top 85%" data-reveal-end="top 55%">
         <h2>Start Your Aquatic Partnership</h2>
         <p>Experience the difference of architectural-grade maintenance. We are currently accepting new clients for our exclusive service routes.</p>
         <div class="partnership-cta__buttons">
@@ -102,174 +98,74 @@ const base = import.meta.env.BASE_URL;
   import PillarsScroll from '../components/PillarsScroll.tsx';
   import CompareScroll from '../components/CompareScroll.tsx';
   import VisitScroll from '../components/VisitScroll.tsx';
-  import {
-    createOurApproachRegistry,
-    initOurApproachOrchestrator,
-  } from '../utils/our-approach-orchestrator';
 
-  // Create the global registry BEFORE mounting components so their
-  // useEffects can register their buildTimeline factories into it.
-  const registry = createOurApproachRegistry();
-
-  // Mount all 5 Preact scroll components. Each calls
-  // window.__ourApproach.register(id, el, buildTimeline) in its
-  // useEffect, populating the registry.
   const problemMount = document.getElementById('problem-mount');
-  if (problemMount) render(h(ProblemScroll, null), problemMount);
+  if (problemMount) {
+    render(h(ProblemScroll, null), problemMount);
+  }
 
   const timelineMount = document.getElementById('timeline-mount');
-  if (timelineMount) render(h(TimelineScroll, null), timelineMount);
+  if (timelineMount) {
+    render(h(TimelineScroll, null), timelineMount);
+  }
 
   const pillarsMount = document.getElementById('pillars-mount');
-  if (pillarsMount) render(h(PillarsScroll, null), pillarsMount);
-
-  const compareMount = document.getElementById('compare-mount');
-  if (compareMount) render(h(CompareScroll, null), compareMount);
+  if (pillarsMount) {
+    render(h(PillarsScroll, null), pillarsMount);
+  }
 
   const visitMount = document.getElementById('visit-mount');
-  if (visitMount) render(h(VisitScroll, null), visitMount);
+  if (visitMount) {
+    render(h(VisitScroll, null), visitMount);
+  }
 
-  const expectedIds = ['problem', 'our-story', 'pillars', 'compare', 'visit'];
-
-  /**
-   * Wait for all 5 Preact components to register their buildTimeline
-   * factories. Preact's useEffect runs after paint, which can fire
-   * AFTER the load event. Poll every 20ms via setTimeout (NOT rAF —
-   * rAF callbacks from Astro <script> blocks don't fire reliably when
-   * Lenis is driving gsap.ticker — same bug as BaseLayout), up to a
-   * 3s timeout.
-   */
-  function waitForRegistry(): Promise<Map<string, any>> {
-    return new Promise((resolve, reject) => {
-      const start = Date.now();
-      const tick = () => {
-        const reg = (window as any).__ourApproach?.registry as
-          | Map<string, any>
-          | undefined;
-        if (reg && expectedIds.every((id) => reg.has(id))) {
-          resolve(reg);
-          return;
-        }
-        if (Date.now() - start > 3000) {
-          reject(new Error('registry populate timeout'));
-          return;
-        }
-        setTimeout(tick, 20);
-      };
-      tick();
+  // Service area carousel
+  const track = document.getElementById('area-track');
+  const prevBtn = document.getElementById('area-prev');
+  const nextBtn = document.getElementById('area-next');
+  if (track && prevBtn && nextBtn) {
+    let offset = 0;
+    const getCardWidth = () => {
+      const card = track.querySelector('.coastal-area-card') as HTMLElement;
+      if (!card) return 0;
+      return card.offsetWidth + 16; // card width + gap
+    };
+    const getMaxOffset = () => {
+      const visibleWidth = (track.parentElement as HTMLElement).offsetWidth;
+      const totalWidth = track.scrollWidth;
+      return Math.max(0, totalWidth - visibleWidth);
+    };
+    prevBtn.addEventListener('click', () => {
+      offset = Math.max(0, offset - getCardWidth());
+      track.style.transform = `translateX(-${offset}px)`;
+    });
+    nextBtn.addEventListener('click', () => {
+      offset = Math.min(getMaxOffset(), offset + getCardWidth());
+      track.style.transform = `translateX(-${offset}px)`;
     });
   }
 
-  async function initOrchestrator() {
-    const pinStage = document.querySelector('.oa-pin-stage') as HTMLElement | null;
-    if (!pinStage) return;
+  const compareMount = document.getElementById('compare-mount');
+  if (compareMount) {
+    render(h(CompareScroll, null), compareMount);
+  }
 
-    let liveRegistry: Map<string, any>;
-    try {
-      liveRegistry = await waitForRegistry();
-    } catch (e) {
-      console.warn('[our-approach]', e);
-      // Bail out gracefully — the page still renders, just without the
-      // orchestrated scroll animation. Release the pre-hide attribute
-      // so the sections become visible.
-      pinStage.removeAttribute('data-oa-pending');
-      return;
-    }
-
-    const pinnedSections = expectedIds.map((id) => liveRegistry.get(id));
-
-    await initOurApproachOrchestrator({
-      pinStage,
-      pinnedSections,
-      reviewsEl: document.getElementById('reviews'),
-      ctaEl: document.querySelector('.partnership-cta'),
+  // After all Preact islands mount + resources load, refresh ScrollTrigger
+  // so the scroll-card components see the final page height.
+  window.addEventListener('load', () => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => {
+          ScrollTrigger.sort();
+          ScrollTrigger.refresh();
+        });
+      });
     });
-
-    // Once the orchestrator has set initial states, remove the
-    // pending attribute so the pre-hide CSS rule releases.
-    pinStage.removeAttribute('data-oa-pending');
-  }
-
-  if (document.readyState === 'complete') {
-    setTimeout(initOrchestrator, 0);
-  } else {
-    window.addEventListener('load', () => setTimeout(initOrchestrator, 0), { once: true });
-  }
+  });
 </script>
 
 <style>
-  /* ============================================================
-     Pin Stage — the 5 scroll sections are absolutely stacked
-     inside a single 100vh wrapper. Master ScrollTrigger (owned by
-     our-approach-orchestrator.ts) pins this wrapper and runs a
-     master timeline that brings each section into view via
-     yPercent transforms.
-     ============================================================ */
-  .oa-pin-stage {
-    position: relative;
-    height: 100vh;
-    height: 100svh;
-  }
-
-  .oa-pin-stage > .oa-section {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    isolation: isolate;
-    will-change: transform;
-  }
-
-  /* Pre-init flash guard: before the orchestrator has set initial
-     yPercent values, hide all but the first section so they don't
-     stack on top of each other visibly. The orchestrator clears
-     `data-oa-pending` once it's finished setting up. */
-  .oa-pin-stage[data-oa-pending] > .oa-section:not(:first-child) {
-    opacity: 0;
-  }
-
-  /* Per-section background colors (alternating rhythm) */
-  .oa-section--alt,
-  .oa-section.pillars-section {
-    background: var(--color-bg-alt);
-  }
-  .oa-section.problem-section,
-  .oa-section.compare-scroll-section,
-  .oa-section.visit-section {
-    background: var(--color-bg, #fff);
-  }
-
-  /* Mobile + reduced-motion fallback: revert to normal document flow.
-     The orchestrator adds the `--static` class on mobile via
-     ScrollTrigger.matchMedia and on reduced-motion at init. */
-  .oa-pin-stage--static {
-    height: auto;
-  }
-  .oa-pin-stage--static > .oa-section {
-    position: relative;
-    inset: auto;
-    height: auto;
-    overflow: visible;
-    transform: none !important;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .oa-pin-stage {
-      height: auto;
-    }
-    .oa-pin-stage > .oa-section {
-      position: relative;
-      inset: auto;
-      height: auto;
-      overflow: visible;
-      transform: none !important;
-      opacity: 1 !important;
-    }
-  }
-
-  /* Legacy .oa-section used by parent layout selectors — keep for
-     consistency with the old .section class padding when not inside
-     the pin stage. */
+  /* === Section Flow === */
   .oa-section {
     position: relative;
   }
@@ -399,10 +295,17 @@ const base = import.meta.env.BASE_URL;
     color: #E28D33;
   }
 
+  :global(.prb__spacer) {
+    height: 400vh;
+  }
+
   @media (max-width: 899px) {
     :global(.prb__card) {
       padding: 1.5rem;
       min-height: 280px;
+    }
+    :global(.prb__spacer) {
+      height: 300vh;
     }
   }
 
@@ -452,6 +355,11 @@ const base = import.meta.env.BASE_URL;
 
   :global(.cs__card.is-active) {
     pointer-events: auto;
+  }
+
+  /* Each compare side gets ~100vh of scroll distance (2 sides × 100vh = 200vh) */
+  :global(.cs__spacer) {
+    height: 200vh;
   }
 
   :global(.compare-card) {
@@ -695,6 +603,11 @@ const base = import.meta.env.BASE_URL;
     pointer-events: auto;
   }
 
+  /* Scroll spacer — creates scroll distance for the progress calculation */
+  /* Each pillar gets ~100vh of scroll distance (4 pillars × 100vh = 400vh) */
+  :global(.ps__spacer) {
+    height: 400vh;
+  }
 
   :global(.ps__card-header) {
     display: flex;
@@ -814,6 +727,9 @@ const base = import.meta.env.BASE_URL;
       font-size: 0.8rem;
     }
 
+    :global(.cs__spacer) {
+      height: 120vh;
+    }
   }
 
   /* === Mobile overrides for pillar cards (after global card styles) === */
@@ -824,6 +740,9 @@ const base = import.meta.env.BASE_URL;
       padding: 1.25rem !important;
     }
 
+    :global(.ps__spacer) {
+      height: 300vh;
+    }
 
     :global(.ps__card-header) {
       gap: 0.65rem;
@@ -1296,6 +1215,9 @@ const base = import.meta.env.BASE_URL;
     margin-bottom: 0.75rem;
   }
 
+  :global(.vs__spacer) {
+    height: 300vh;
+  }
 
   /* --- Desktop layout --- */
   @media (min-width: 900px) {
@@ -1389,6 +1311,9 @@ const base = import.meta.env.BASE_URL;
       padding: 1.25rem !important;
     }
 
+    :global(.vs__spacer) {
+      height: 200vh;
+    }
 
     :global(.vs__card-title) {
       font-size: 1rem;
