@@ -61,24 +61,38 @@ const icons = {
     <div class="hero__overlay"></div>
     <div class="container">
       <div class="hero__grid">
-        <!-- Left: Hero Text -->
+        <!-- Left: Hero Text — each piece animates in sequentially. -->
         <div>
-          <div class="hero__badge">
+          <div class="hero__badge reveal-up" style="--reveal-delay: 0ms">
             <strong style="font-size: 1.1em;">#1</strong>
             <span>Pool Service Provider Across Coastal Counties</span>
           </div>
 
-          <h1>Pool care you can count on.</h1>
-          <p>Highest-quality service. Experienced technicians. Clear communication and transparent pricing.</p>
+          <h1 class="reveal-up" style="--reveal-delay: 150ms">Pool care you can count on.</h1>
+          <p class="reveal-up" style="--reveal-delay: 300ms">Highest-quality service. Experienced technicians. Clear communication and transparent pricing.</p>
 
-          <div class="hero__buttons">
-            <button type="button" class="btn btn--white btn--lg" data-open-intake>Get a Quote</button>
+          <div class="hero__buttons reveal-up" style="--reveal-delay: 450ms">
             <a href="tel:9124590160" class="btn btn--cta btn--lg">Call (912) 459-0160</a>
+          </div>
+
+          <div class="hero__chips reveal-up" style="--reveal-delay: 600ms">
+            <span class="hero__chip">
+              <Fragment set:html={icons.shield} />
+              Licensed &amp; Insured
+            </span>
+            <span class="hero__chip">
+              <Fragment set:html={icons.droplets} />
+              500+ Pools Maintained
+            </span>
+            <span class="hero__chip">
+              <Fragment set:html={icons.clock} />
+              20+ Years Experience
+            </span>
           </div>
         </div>
 
-        <!-- Right: Service Route Cards -->
-        <div class="hero__cards">
+        <!-- Right: Mobile shows the two original route cards; desktop shows the contact form. -->
+        <div class="hero__cards reveal-up" style="--reveal-delay: 600ms">
           <a href={`${import.meta.env.BASE_URL}services/residential-pool-cleaning/`} class="route-card route-card--gradient">
             <div class="route-card__inner">
               <div class="route-card__icon">
@@ -86,7 +100,7 @@ const icons = {
               </div>
               <div>
                 <h3>Weekly Pool Care</h3>
-                <p>Ongoing maintenance starting at $45/visit <span style="font-size: 0.75em; opacity: 0.7;">plus chemicals</span></p>
+                <p>Ongoing maintenance starting from $50 plus chemicals</p>
                 <span class="route-card__link">
                   See Plans <Fragment set:html={icons.arrowRight} />
                 </span>
@@ -109,25 +123,51 @@ const icons = {
             </div>
           </a>
         </div>
+
+        <div class="hero__form-wrap reveal-up" style="--reveal-delay: 600ms">
+          <form class="hero-form" data-hero-form data-active-tab="maintenance">
+            <div class="hero-form__tabs" role="tablist" aria-label="Service type">
+              <button
+                type="button"
+                class="hero-form__tab is-active"
+                role="tab"
+                aria-selected="true"
+                data-hero-tab="maintenance"
+              >
+                <Fragment set:html={icons.droplets} />
+                <span>Weekly Pool Care</span>
+              </button>
+              <button
+                type="button"
+                class="hero-form__tab"
+                role="tab"
+                aria-selected="false"
+                data-hero-tab="repair"
+              >
+                <Fragment set:html={icons.alertCircle} />
+                <span>Equipment Repairs</span>
+              </button>
+            </div>
+
+            <div class="hero-form__body">
+              <p class="hero-form__blurb" data-hero-blurb>
+                Ongoing maintenance starting from <strong>$50</strong> plus chemicals
+              </p>
+
+              <div class="hero-form__row">
+                <input type="text" name="first_name" placeholder="First name" autocomplete="given-name" required class="hero-form__input" />
+                <input type="text" name="last_name" placeholder="Last name" autocomplete="family-name" required class="hero-form__input" />
+              </div>
+              <input type="email" name="email" placeholder="Email" autocomplete="email" required class="hero-form__input" />
+              <input type="tel" name="phone" placeholder="Phone" autocomplete="tel" required class="hero-form__input" />
+              <button type="submit" class="btn btn--lg btn--block hero-form__submit" data-hero-submit>Get a Quote</button>
+            </div>
+          </form>
+        </div>
       </div>
 
-      <div class="hero__footer">
+      <div class="hero__footer reveal-up" style="--reveal-delay: 900ms">
         <a href={`${import.meta.env.BASE_URL}our-approach`}>First time pool owner? Start here &rarr;</a>
-      </div>
-
-      <div class="hero__chips">
-        <span class="hero__chip">
-          <Fragment set:html={icons.shield} />
-          Licensed &amp; Insured
-        </span>
-        <span class="hero__chip">
-          <Fragment set:html={icons.droplets} />
-          500+ Pools Maintained
-        </span>
-        <span class="hero__chip">
-          <Fragment set:html={icons.clock} />
-          20+ Years Experience
-        </span>
       </div>
     </div>
     <!-- Bottom gradient fade: hero fades to the methodology's base color so the transition feels like one continuous atmosphere. -->
@@ -516,7 +556,12 @@ const icons = {
   if (checkerMount) render(h(ServiceAreaChecker, null), checkerMount);
 
   const liquidMount = document.getElementById('methodology-liquid-mount');
-  if (liquidMount) render(h(LiquidHero, { showText: false }), liquidMount);
+  if (liquidMount) {
+    // On mobile we use a clean white-gradient base for the liquid shader
+    // (no tile pattern). On desktop we keep the pool-tile photo background.
+    const isMobile = window.matchMedia('(max-width: 767px)').matches;
+    render(h(LiquidHero, { showText: false, whiteBackground: isMobile }), liquidMount);
+  }
 
   // Render Google Map in the map container
   async function initMap() {
@@ -682,6 +727,46 @@ const icons = {
     }
   } else {
     document.querySelectorAll('.reveal-up, .reveal-words').forEach((el) => el.classList.add('is-visible'));
+  }
+
+  // ===== Hero contact form tabs =====
+  // Switches between "Weekly Pool Care" and "Equipment Repairs" tabs.
+  // Updates: active tab class, data-active-tab (drives blue/white theming in CSS),
+  // blurb text, and submit button label. On submit, opens the intake modal.
+  const heroForm = document.querySelector('[data-hero-form]') as HTMLFormElement | null;
+  if (heroForm) {
+    const heroTabs = heroForm.querySelectorAll<HTMLButtonElement>('[data-hero-tab]');
+    const heroSubmit = heroForm.querySelector<HTMLButtonElement>('[data-hero-submit]');
+    const heroBlurb = heroForm.querySelector<HTMLElement>('[data-hero-blurb]');
+    const blurbs = {
+      maintenance: `Ongoing maintenance starting from <strong>$50</strong> plus chemicals`,
+      repair: `Need equipment repaired, replaced or installed? We diagnose most issues within <strong>48 hours</strong>.`,
+    };
+    const updateHeroTab = (type: 'maintenance' | 'repair') => {
+      heroForm.dataset.activeTab = type;
+      heroTabs.forEach((t) => {
+        const isActive = t.dataset.heroTab === type;
+        t.classList.toggle('is-active', isActive);
+        t.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      });
+      if (heroSubmit) {
+        heroSubmit.textContent = type === 'maintenance' ? 'Get a Quote' : 'Request a Call';
+      }
+      if (heroBlurb) {
+        heroBlurb.innerHTML = blurbs[type];
+      }
+    };
+    heroTabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const type = tab.dataset.heroTab as 'maintenance' | 'repair';
+        updateHeroTab(type);
+      });
+    });
+    heroForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const intakeTrigger = document.querySelector('[data-open-intake]') as HTMLButtonElement | null;
+      if (intakeTrigger) intakeTrigger.click();
+    });
   }
 
   // ===== Methodology mobile carousel + tabs =====
@@ -950,12 +1035,14 @@ const icons = {
     align-items: center;
     justify-content: center;
     margin-top: 2px;
-    transition: all 0.3s ease;
+    transition: background 200ms ease, color 200ms ease;
   }
 
-  .coastal-checklist__item:hover .coastal-checklist__icon {
-    background: #E28D33;
-    color: #fff;
+  @media (hover: hover) and (pointer: fine) {
+    .coastal-checklist__item:hover .coastal-checklist__icon {
+      background: #E28D33;
+      color: #fff;
+    }
   }
 
   .coastal-checklist__item strong {
@@ -1006,13 +1093,15 @@ const icons = {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.25s ease;
+    transition: background 200ms ease, color 200ms ease, border-color 200ms ease;
   }
 
-  .coastal-areas__btn:hover {
-    background: rgba(255, 255, 255, 0.18);
-    color: #fff;
-    border-color: rgba(226, 141, 51, 0.5);
+  @media (hover: hover) and (pointer: fine) {
+    .coastal-areas__btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+      color: #fff;
+      border-color: rgba(226, 141, 51, 0.5);
+    }
   }
 
   .coastal-areas__track-wrapper {
@@ -1022,7 +1111,7 @@ const icons = {
   .coastal-areas__track {
     display: flex;
     gap: 1rem;
-    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition: transform 300ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
 
   .coastal-area-card {
@@ -1049,10 +1138,12 @@ const icons = {
     }
   }
 
-  .coastal-area-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
-    color: #fff;
+  @media (hover: hover) and (pointer: fine) {
+    .coastal-area-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+      color: #fff;
+    }
   }
 
   .coastal-area-card__img {
@@ -1061,11 +1152,13 @@ const icons = {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.5s ease;
+    transition: transform 400ms ease-out;
   }
 
-  .coastal-area-card:hover .coastal-area-card__img {
-    transform: scale(1.06);
+  @media (hover: hover) and (pointer: fine) {
+    .coastal-area-card:hover .coastal-area-card__img {
+      transform: scale(1.06);
+    }
   }
 
   .coastal-area-card__overlay {

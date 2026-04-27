@@ -64,8 +64,10 @@ export default function CompareScroll() {
         tl = buildCardStackTimeline(gsap, cards, {
           enterStyle: 'slide-left',
           exitStyle: 'fade-out-left',
-          enterEase: 'power3.out',
-          exitEase: 'power2.in',
+          // Match the easing used by the other 4 card stacks (Problem/Timeline/
+          // Pillars/Visit) so the whole "our approach" sequence feels uniform.
+          enterEase: 'power2.out',
+          exitEase: 'power1.in',
           holdDuration: 0.8,
           crossfadeDuration: 1,
         });

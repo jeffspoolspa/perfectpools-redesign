@@ -833,31 +833,232 @@ p:last-child {
 /* Trust chips inline in hero — replaces the old trust-badges strip */
 .hero__chips {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-top: 2rem;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+  margin: 1.5rem 0 0 0;
   align-items: center;
 }
 .hero__chip {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.9rem;
+  gap: 0.4rem;
+  padding: 0.4rem 0.7rem;
   background: rgba(255, 255, 255, 0.12);
   border: 1px solid rgba(255, 255, 255, 0.25);
   border-radius: 999px;
   color: #ffffff;
-  font-size: 0.8rem;
+  font-size: 0.72rem;
   font-weight: 600;
   letter-spacing: 0.01em;
+  white-space: nowrap;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
 .hero__chip .icon {
-  width: 1rem;
-  height: 1rem;
+  width: 0.9rem;
+  height: 0.9rem;
   flex-shrink: 0;
   color: #ffffff;
+}
+
+/* ===== Hero contact form (minimal) =====
+   Placeholder-only inputs, frosted glass fields, subtle border around the
+   whole form. Background theme switches based on [data-active-tab]:
+   - maintenance → blue gradient (like route-card--gradient)
+   - repair      → white (like route-card--white) */
+.hero__form-wrap {
+  width: 100%;
+  max-width: 480px;
+}
+.hero-form {
+  border-radius: 20px;
+  overflow: hidden;
+  transition: background 400ms ease, box-shadow 400ms ease;
+}
+
+/* ---- Weekly Pool Care theme: blue gradient ---- */
+.hero-form[data-active-tab="maintenance"] {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-cyan));
+  box-shadow: 0 24px 60px -20px rgba(2, 132, 199, 0.5);
+}
+.hero-form[data-active-tab="maintenance"] .hero-form__tabs {
+  background: rgba(255, 255, 255, 0.12);
+  border-bottom-color: rgba(255, 255, 255, 0.18);
+}
+.hero-form[data-active-tab="maintenance"] .hero-form__tab {
+  color: rgba(255, 255, 255, 0.78);
+}
+.hero-form[data-active-tab="maintenance"] .hero-form__tab:hover {
+  color: #ffffff;
+}
+.hero-form[data-active-tab="maintenance"] .hero-form__tab.is-active {
+  background: #ffffff;
+  color: var(--color-primary);
+  box-shadow: 0 2px 8px rgba(0, 20, 40, 0.15);
+}
+.hero-form[data-active-tab="maintenance"] .hero-form__blurb {
+  color: rgba(255, 255, 255, 0.92);
+}
+.hero-form[data-active-tab="maintenance"] .hero-form__input {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+}
+.hero-form[data-active-tab="maintenance"] .hero-form__input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+.hero-form[data-active-tab="maintenance"] .hero-form__input:hover:not(:focus) {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+.hero-form[data-active-tab="maintenance"] .hero-form__input:focus {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.15);
+}
+.hero-form[data-active-tab="maintenance"] .hero-form__submit {
+  background: #ffffff;
+  color: var(--color-primary);
+}
+.hero-form[data-active-tab="maintenance"] .hero-form__submit:hover {
+  background: #f8fbff;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(0, 20, 40, 0.2);
+}
+
+/* ---- Equipment Repairs theme: white card ---- */
+.hero-form[data-active-tab="repair"] {
+  background: #ffffff;
+  box-shadow: 0 24px 60px -20px rgba(0, 20, 40, 0.4);
+}
+.hero-form[data-active-tab="repair"] .hero-form__tabs {
+  background: rgba(10, 30, 55, 0.04);
+  border-bottom-color: rgba(10, 30, 55, 0.08);
+}
+.hero-form[data-active-tab="repair"] .hero-form__tab {
+  color: var(--color-gray-600);
+}
+.hero-form[data-active-tab="repair"] .hero-form__tab:hover {
+  color: var(--color-primary);
+}
+.hero-form[data-active-tab="repair"] .hero-form__tab.is-active {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-cyan));
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25);
+}
+.hero-form[data-active-tab="repair"] .hero-form__blurb {
+  color: var(--color-gray-700);
+}
+.hero-form[data-active-tab="repair"] .hero-form__input {
+  background: rgba(10, 30, 55, 0.04);
+  border-color: rgba(10, 30, 55, 0.08);
+  color: var(--color-gray-900);
+}
+.hero-form[data-active-tab="repair"] .hero-form__input::placeholder {
+  color: var(--color-gray-500);
+}
+.hero-form[data-active-tab="repair"] .hero-form__input:hover:not(:focus) {
+  background: rgba(10, 30, 55, 0.06);
+  border-color: rgba(10, 30, 55, 0.14);
+}
+.hero-form[data-active-tab="repair"] .hero-form__input:focus {
+  background: #ffffff;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.12);
+}
+.hero-form[data-active-tab="repair"] .hero-form__submit {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-cyan));
+  color: #ffffff;
+}
+.hero-form[data-active-tab="repair"] .hero-form__submit:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(2, 132, 199, 0.35);
+}
+
+/* ---- Shared layout (theme-independent) ---- */
+.hero-form__tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 0.4rem;
+  gap: 0.4rem;
+  border-bottom: 1px solid transparent;
+}
+.hero-form__tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 0.75rem;
+  border: none;
+  background: transparent;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease, box-shadow 150ms ease;
+}
+.hero-form__tab .icon {
+  width: 1.1rem;
+  height: 1.1rem;
+  flex-shrink: 0;
+}
+.hero-form__body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+.hero-form__blurb {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  font-weight: 500;
+  transition: color 300ms ease;
+}
+.hero-form__blurb strong {
+  font-weight: 700;
+}
+.hero-form__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+.hero-form__input {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  border: 1px solid;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  transition: background 250ms ease, border-color 150ms ease, box-shadow 150ms ease, color 300ms ease;
+}
+.hero-form__input:focus {
+  outline: none;
+}
+.hero-form__submit {
+  margin-top: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: background 300ms ease, color 300ms ease, transform 150ms ease, box-shadow 200ms ease;
+}
+
+/* Phones only (≤500px): show the two route cards, hide the contact form.
+   Everything wider: show the contact form, hide the cards. */
+@media (max-width: 500px) {
+  .hero__form-wrap {
+    display: none;
+  }
+  .hero__cards {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+}
+@media (min-width: 501px) {
+  .hero__cards {
+    display: none;
+  }
 }
 
 /* Remove gaps between dark sections */
@@ -978,9 +1179,10 @@ p:last-child {
   }
 }
 
-/* --- Route Cards (hero intent-based routing) --- */
+/* --- Route Cards (hero intent-based routing) ---
+   Default display handled in the phone/desktop media queries at the top
+   of the hero-form section. */
 .hero__cards {
-  display: flex;
   flex-direction: column;
   gap: 2rem;
 }
@@ -990,12 +1192,14 @@ p:last-child {
   padding: 1.75rem;
   border-radius: var(--radius-lg);
   text-decoration: none;
-  transition: all var(--transition-base);
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
 }
 
-.route-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+@media (hover: hover) and (pointer: fine) {
+  .route-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  }
 }
 
 .route-card__inner {
@@ -1267,6 +1471,37 @@ p:last-child {
   }
 }
 
+/* Mobile: drop the tile photo entirely, use a clean white background.
+   The liquid canvas stays on top. Text recolors to navy for readability,
+   atmospheric fades are disabled (the section is just a white rectangle),
+   and tab indicators flip to dark for visibility. */
+@media (max-width: 767px) {
+  .methodology--water {
+    background: #ffffff;
+  }
+  .methodology--water::before {
+    display: none;
+  }
+  .methodology__fade-top,
+  .methodology__fade-bottom {
+    display: none;
+  }
+  .methodology--water .section-header h2,
+  .methodology--water .section-header p {
+    color: var(--color-primary);
+    text-shadow: none;
+  }
+  .methodology__tab {
+    background: rgba(30, 58, 95, 0.25);
+  }
+  .methodology__tab:hover {
+    background: rgba(30, 58, 95, 0.45);
+  }
+  .methodology__tab.is-active {
+    background: var(--color-primary);
+  }
+}
+
 /* Hero bottom fade — atmospheric transition into the methodology's base color.
    Tall (55vh) so the darkening begins well before the boundary. The gradient
    reaches fully solid #0a3d6b at the bottom so it matches the methodology's
@@ -1288,6 +1523,20 @@ p:last-child {
     rgba(10, 61, 107, 0.95) 90%,
     #0a3d6b 100%
   );
+}
+/* Mobile: methodology is white, so fade to white at the bottom of the hero
+   for a clean transition into the white section below. */
+@media (max-width: 767px) {
+  .hero__fade {
+    background: linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.2) 30%,
+      rgba(255, 255, 255, 0.6) 60%,
+      rgba(255, 255, 255, 0.9) 85%,
+      #ffffff 100%
+    );
+  }
 }
 
 /* Methodology top fade — atmospheric transition carrying the dark color
@@ -1386,9 +1635,9 @@ p:last-child {
 .reveal-up {
   opacity: 0;
   transform: translateY(20px);
-  /* Smoother fade — longer duration, very gentle ease-out curve. */
-  transition: opacity 900ms cubic-bezier(0.16, 1, 0.3, 1),
-              transform 900ms cubic-bezier(0.16, 1, 0.3, 1);
+  /* Crisp ease-out; under 300ms feels snappy for scroll-revealed content without feeling rushed. */
+  transition: opacity 500ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 500ms cubic-bezier(0.16, 1, 0.3, 1);
   transition-delay: var(--reveal-delay, 0ms);
   will-change: opacity, transform;
 }
@@ -1403,8 +1652,8 @@ p:last-child {
   display: inline-block;
   opacity: 0;
   transform: translateY(18px);
-  transition: opacity 750ms cubic-bezier(0.16, 1, 0.3, 1),
-              transform 750ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 500ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 500ms cubic-bezier(0.16, 1, 0.3, 1);
   transition-delay: calc(var(--word-index, 0) * 50ms);
   will-change: opacity, transform;
 }
@@ -1510,6 +1759,15 @@ p:last-child {
   color: #fff;
   text-shadow: 0 2px 12px rgba(0, 20, 40, 0.4);
 }
+/* Mobile override — must live AFTER the white-color rule above to win the cascade. */
+@media (max-width: 767px) {
+  .methodology--water .section-header h2,
+  .methodology--water .section-header h2 span,
+  .methodology--water .section-header p {
+    color: var(--color-primary);
+    text-shadow: none;
+  }
+}
 .methodology--water .section-header {
   margin-bottom: 4rem;
 }
@@ -1528,9 +1786,11 @@ p:last-child {
   transition: transform var(--transition-base), box-shadow var(--transition-base);
 }
 
-.method-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
+@media (hover: hover) and (pointer: fine) {
+  .method-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
 }
 
 /* Higher-specificity reveal transition for method cards — must live AFTER
@@ -1539,8 +1799,8 @@ p:last-child {
    re-specify the reveal transition here with the inline --reveal-delay.
    Smoother: longer duration + gentle cubic-bezier curve. */
 .method-card.reveal-up {
-  transition: opacity 900ms cubic-bezier(0.16, 1, 0.3, 1),
-              transform 900ms cubic-bezier(0.16, 1, 0.3, 1),
+  transition: opacity 500ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 500ms cubic-bezier(0.16, 1, 0.3, 1),
               box-shadow var(--transition-base);
   transition-delay: var(--reveal-delay, 0ms), var(--reveal-delay, 0ms), 0ms;
 }
@@ -1624,14 +1884,16 @@ p:last-child {
   border-radius: var(--radius-lg);
   padding: 1.5rem;
   text-decoration: none;
-  transition: all var(--transition-base);
+  transition: background var(--transition-base), border-color var(--transition-base), color var(--transition-base);
   margin-bottom: 1rem;
 }
 
-.glass-card:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.3);
-  color: var(--color-white);
+@media (hover: hover) and (pointer: fine) {
+  .glass-card:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: var(--color-white);
+  }
 }
 
 .glass-card__inner {
@@ -1765,12 +2027,14 @@ p:last-child {
   border-radius: var(--radius-lg);
   padding: 1.5rem;
   box-shadow: var(--shadow-md);
-  transition: all var(--transition-base);
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
 }
 
-.review-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
+@media (hover: hover) and (pointer: fine) {
+  .review-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+  }
 }
 
 .review-card__stars {

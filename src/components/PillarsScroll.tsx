@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'preact/hooks';
 import PillarsTriangle, { PILLARS } from './PillarsTriangle';
+import LSICalculator from './tools/LSICalculator';
+import SanitationTabs from './tools/SanitationTabs';
 import { assetPath } from '../utils/base-url';
 import { buildCardStackTimeline } from '../utils/card-stack-timeline';
 import { getHeaderOffset } from '../utils/scroll-config';
@@ -35,7 +37,11 @@ export default function PillarsScroll() {
 
         trigger = ScrollTrigger.create({
           trigger: container,
-          start: () => `top top+=${getHeaderOffset()}`,
+          // Pin with a bit of headroom (60px from viewport top) — enough to
+          // clear the site header bar, but tight enough that the content
+          // below feels centered in the remaining viewport. Matches
+          // .ps__sticky-col top: 60px on desktop.
+          start: 'top top+=60',
           end: 'bottom bottom',
           pin: container.querySelector('.ps__sticky-col') as HTMLElement,
           pinSpacing: false,
@@ -118,7 +124,13 @@ export default function PillarsScroll() {
                   </h3>
                 </div>
                 <div className="ps__card-body">
-                  <p>{p.description}</p>
+                  {p.id === 'balance' ? (
+                    <LSICalculator />
+                  ) : p.id === 'sanitation' ? (
+                    <SanitationTabs />
+                  ) : (
+                    <p>{p.description}</p>
+                  )}
                 </div>
               </div>
             ))}

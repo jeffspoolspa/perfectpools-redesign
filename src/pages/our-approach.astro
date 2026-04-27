@@ -370,7 +370,6 @@ const base = import.meta.env.BASE_URL;
     box-shadow: var(--shadow-md);
     border: 1px solid #e5e5e5;
     border-radius: var(--radius-lg);
-    animation: cardFadeIn 0.35s ease;
   }
 
   :global(.compare-side__header) {
@@ -499,7 +498,7 @@ const base = import.meta.env.BASE_URL;
   }
 
   .pillars-section {
-    padding-top: var(--space-16);
+    padding-top: var(--space-12);
     padding-bottom: var(--space-16);
     background: var(--color-bg-alt);
   }
@@ -581,26 +580,30 @@ const base = import.meta.env.BASE_URL;
     position: relative;
   }
 
+  /* Cards no longer have a container background — content sits directly in
+     the right column and GSAP crossfades between pillars as the user scrolls. */
   :global(.ps__card) {
-    background: #fff;
-    border-radius: var(--radius-lg);
-    border: 2px solid #e5e7eb;
-    padding: 2rem;
-    box-shadow: var(--shadow-md);
-    /* GSAP controls opacity/transform — just set positioning */
+    background: transparent;
+    border: none;
+    padding: 0;
+    box-shadow: none;
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     pointer-events: none;
+    z-index: 1;
   }
 
   :global(.ps__card:first-child) {
     position: relative;
   }
 
+  /* Active card sits on top of the stack AND receives pointer events,
+     so clicks hit it directly without relying on pass-through. */
   :global(.ps__card.is-active) {
     pointer-events: auto;
+    z-index: 2;
   }
 
   /* Scroll spacer — creates scroll distance for the progress calculation */
@@ -613,9 +616,9 @@ const base = import.meta.env.BASE_URL;
     display: flex;
     align-items: center;
     gap: 0.85rem;
-    margin-bottom: 1.25rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid #f0f0f0;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0;
+    border-bottom: none;
   }
 
   :global(.ps__card-icon) {
@@ -661,7 +664,7 @@ const base = import.meta.env.BASE_URL;
     }
 
     :global(.ps__sticky-col) {
-      top: 80px;
+      top: 60px;
       background: var(--color-bg-alt);
     }
 
@@ -676,13 +679,15 @@ const base = import.meta.env.BASE_URL;
 
     :global(.ps__content-row) {
       flex-direction: row;
-      align-items: center;
+      align-items: stretch;
+      min-height: 480px;
       gap: 2rem;
     }
 
     :global(.ps__diagram) {
       flex: 0 0 50%;
       max-width: none;
+      align-self: center;
     }
 
     :global(.ps__card-stack) {
@@ -905,6 +910,12 @@ const base = import.meta.env.BASE_URL;
     50% { opacity: 0.5; transform: scale(1.5); }
   }
 
+  @media (prefers-reduced-motion: reduce) {
+    .coastal-map__pulse {
+      animation: none;
+    }
+  }
+
   /* Content */
   .coastal-content {
     flex: 1;
@@ -954,12 +965,14 @@ const base = import.meta.env.BASE_URL;
     align-items: center;
     justify-content: center;
     margin-top: 2px;
-    transition: all 0.3s ease;
+    transition: background 200ms ease, color 200ms ease;
   }
 
-  .coastal-checklist__item:hover .coastal-checklist__icon {
-    background: #E28D33;
-    color: #fff;
+  @media (hover: hover) and (pointer: fine) {
+    .coastal-checklist__item:hover .coastal-checklist__icon {
+      background: #E28D33;
+      color: #fff;
+    }
   }
 
   .coastal-checklist__item strong {
@@ -1008,13 +1021,15 @@ const base = import.meta.env.BASE_URL;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.25s ease;
+    transition: background 200ms ease, color 200ms ease, border-color 200ms ease;
   }
 
-  .coastal-areas__btn:hover {
-    background: rgba(255, 255, 255, 0.18);
-    color: #fff;
-    border-color: rgba(226, 141, 51, 0.5);
+  @media (hover: hover) and (pointer: fine) {
+    .coastal-areas__btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+      color: #fff;
+      border-color: rgba(226, 141, 51, 0.5);
+    }
   }
 
   .coastal-areas__track-wrapper {
@@ -1024,7 +1039,7 @@ const base = import.meta.env.BASE_URL;
   .coastal-areas__track {
     display: flex;
     gap: 1rem;
-    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition: transform 300ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
 
   .coastal-area-card {
@@ -1051,10 +1066,12 @@ const base = import.meta.env.BASE_URL;
     }
   }
 
-  .coastal-area-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
-    color: #fff;
+  @media (hover: hover) and (pointer: fine) {
+    .coastal-area-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+      color: #fff;
+    }
   }
 
   .coastal-area-card__img {
@@ -1063,11 +1080,13 @@ const base = import.meta.env.BASE_URL;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.5s ease;
+    transition: transform 400ms ease-out;
   }
 
-  .coastal-area-card:hover .coastal-area-card__img {
-    transform: scale(1.06);
+  @media (hover: hover) and (pointer: fine) {
+    .coastal-area-card:hover .coastal-area-card__img {
+      transform: scale(1.06);
+    }
   }
 
   .coastal-area-card__overlay {
@@ -1263,7 +1282,7 @@ const base = import.meta.env.BASE_URL;
       align-items: center;
       gap: 0.75rem;
       transform: translateY(-50%);
-      transition: all 0.3s ease;
+      transition: color 250ms ease;
     }
 
     :global(.vs__timeline-dot) {
@@ -1276,7 +1295,7 @@ const base = import.meta.env.BASE_URL;
       align-items: center;
       justify-content: center;
       color: #9ca3af;
-      transition: all 0.3s ease;
+      transition: background 250ms ease, border-color 250ms ease, color 250ms ease, box-shadow 250ms ease;
       z-index: 1;
       flex-shrink: 0;
     }
@@ -1364,4 +1383,1685 @@ const base = import.meta.env.BASE_URL;
       padding: 3rem 1.5rem;
     }
   }
+
+  /* ============ LSI Calculator (inside Water Balance pillar card) ============ */
+  :global(.lsi-calc) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    color: var(--color-text);
+  }
+  :global(.lsi-calc__intro) {
+    font-size: 0.82rem;
+    line-height: 1.55;
+    color: var(--color-text);
+    font-weight: 600;
+    margin: 0;
+  }
+  :global(.lsi-calc__intro strong) {
+    color: var(--color-primary);
+    font-weight: 700;
+  }
+
+  /* 4×1 horizontal dial row. */
+  :global(.lsi-calc__dials) {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+  }
+
+  :global(.lsi-dial) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    min-width: 0;
+  }
+  :global(.lsi-dial__label) {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-primary);
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+  :global(.lsi-dial__wheel) {
+    position: relative;
+    width: 100%;
+    max-width: 110px;
+    aspect-ratio: 1 / 1;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-cyan));
+    border-radius: 50%;
+    touch-action: none;
+    user-select: none;
+    box-shadow: 0 4px 14px rgba(2, 132, 199, 0.28), inset 0 2px 4px rgba(255, 255, 255, 0.15);
+    transition: box-shadow 300ms ease, transform 150ms ease;
+  }
+  /* Per-dial health glow — outer halo changes color based on whether the
+     individual reading is ideal (green), acceptable (amber), or bad (red). */
+  :global(.lsi-dial__wheel--ideal) {
+    box-shadow:
+      0 0 0 3px rgba(16, 185, 129, 0.35),
+      0 4px 14px rgba(16, 185, 129, 0.3),
+      inset 0 2px 4px rgba(255, 255, 255, 0.15);
+  }
+  :global(.lsi-dial__wheel--ok) {
+    box-shadow:
+      0 0 0 3px rgba(245, 158, 11, 0.4),
+      0 4px 14px rgba(245, 158, 11, 0.3),
+      inset 0 2px 4px rgba(255, 255, 255, 0.15);
+  }
+  :global(.lsi-dial__wheel--bad) {
+    box-shadow:
+      0 0 0 3px rgba(220, 38, 38, 0.45),
+      0 4px 18px rgba(220, 38, 38, 0.4),
+      inset 0 2px 4px rgba(255, 255, 255, 0.15);
+    animation: lsi-dial-pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes lsi-dial-pulse {
+    0%, 100% {
+      box-shadow:
+        0 0 0 3px rgba(220, 38, 38, 0.45),
+        0 4px 18px rgba(220, 38, 38, 0.4),
+        inset 0 2px 4px rgba(255, 255, 255, 0.15);
+    }
+    50% {
+      box-shadow:
+        0 0 0 5px rgba(220, 38, 38, 0.55),
+        0 6px 24px rgba(220, 38, 38, 0.55),
+        inset 0 2px 4px rgba(255, 255, 255, 0.15);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :global(.lsi-dial__wheel--bad) {
+      animation: none;
+    }
+  }
+  :global(.lsi-dial__wheel:hover) {
+    box-shadow: 0 5px 14px rgba(2, 132, 199, 0.35), inset 0 2px 4px rgba(255, 255, 255, 0.15);
+  }
+  :global(.lsi-dial__wheel.is-dragging) {
+    cursor: grabbing;
+    transform: scale(1.03);
+  }
+  :global(.lsi-dial__svg),
+  :global(.lsi-dial__svg *) {
+    pointer-events: none;
+  }
+  :global(.lsi-dial__svg) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+
+  /* Indicator dot is rendered as SVG inside .lsi-dial__svg — no DOM handle needed. */
+  :global(.lsi-dial__center) {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 60%;
+    aspect-ratio: 1 / 1;
+    background: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.4), 0 2px 6px rgba(0, 20, 40, 0.15);
+    pointer-events: none;
+  }
+  :global(.lsi-dial__value) {
+    font-family: var(--font-heading, inherit);
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--color-gray-900);
+    line-height: 1;
+    transition: color 200ms ease;
+  }
+  :global(.lsi-dial__value--ideal) { color: #059669; }
+  :global(.lsi-dial__value--ok) { color: #d97706; }
+  :global(.lsi-dial__value--bad) { color: #dc2626; }
+  :global(.lsi-dial__unit) {
+    font-size: 0.55rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-gray-500);
+    margin-top: 0.1rem;
+  }
+
+  /* Dynamic caption under each dial — changes based on the current reading
+     (too low, ideal, too high). Tinted to match the dial's health color. */
+  :global(.lsi-dial__why) {
+    margin: 0.4rem 0 0 0;
+    font-size: 0.62rem;
+    line-height: 1.35;
+    text-align: center;
+    transition: color 300ms ease;
+  }
+  :global(.lsi-dial__why--ideal) {
+    color: var(--color-text-light);
+  }
+  :global(.lsi-dial__why--ok) {
+    color: #b45309;
+  }
+  :global(.lsi-dial__why--bad) {
+    color: #b91c1c;
+    font-weight: 600;
+  }
+
+  /* Result strip — callouts + single-row LSI/gauge/reset. */
+  :global(.lsi-calc__result) {
+    padding: 0.6rem 0.75rem;
+    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(10, 30, 55, 0.03), rgba(6, 182, 212, 0.04));
+    border: 1.5px solid rgba(10, 30, 55, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    transition: background 300ms ease, border-color 300ms ease;
+  }
+  :global(.lsi-calc__result--balanced) {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(6, 182, 212, 0.05));
+    border-color: rgba(16, 185, 129, 0.3);
+  }
+  :global(.lsi-calc__result--corrosive) {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(251, 146, 60, 0.05));
+    border-color: rgba(239, 68, 68, 0.3);
+  }
+  :global(.lsi-calc__result--scaling) {
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.08), rgba(249, 115, 22, 0.05));
+    border-color: rgba(251, 191, 36, 0.35);
+  }
+  /* Callout row — holds the LSI callout and (optionally) the out-of-range warning.
+     When only the callout is present it takes full width; when the warning appears,
+     they split the row 50/50. */
+  :global(.lsi-calc__callout-row) {
+    display: flex;
+    gap: 0.5rem;
+    align-items: stretch;
+  }
+  :global(.lsi-calc__callout-row > *) {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* LSI status callout — changes tone + copy based on current LSI state. */
+  :global(.lsi-calc__callout) {
+    padding: 0.65rem 0.8rem;
+    border-radius: 10px;
+    border: 1.5px solid transparent;
+    transition: background 300ms ease, border-color 300ms ease;
+  }
+  :global(.lsi-calc__callout--corrosive),
+  :global(.lsi-calc__callout--scaling) {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.35);
+  }
+  :global(.lsi-calc__callout--balanced) {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.4);
+  }
+  :global(.lsi-calc__callout-label) {
+    font-size: 0.78rem;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+    letter-spacing: 0.01em;
+  }
+  :global(.lsi-calc__callout--corrosive .lsi-calc__callout-label),
+  :global(.lsi-calc__callout--scaling .lsi-calc__callout-label) {
+    color: #dc2626;
+  }
+  :global(.lsi-calc__callout--balanced .lsi-calc__callout-label) {
+    color: #059669;
+  }
+  :global(.lsi-calc__callout-detail) {
+    font-size: 0.75rem;
+    line-height: 1.55;
+    color: var(--color-text-light);
+    margin: 0;
+  }
+
+  /* Readings callout — right side of the callout row. Green when every dial
+     is inside its acceptable band, red when at least one is out of range.
+     Matches the visual weight and layout of the LSI callout on the left. */
+  :global(.lsi-calc__readings-callout) {
+    padding: 0.65rem 0.8rem;
+    border-radius: 10px;
+    border: 1.5px solid transparent;
+    transition: background 300ms ease, border-color 300ms ease;
+  }
+  :global(.lsi-calc__readings-callout--good) {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.4);
+  }
+  :global(.lsi-calc__readings-callout--bad) {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.4);
+  }
+  :global(.lsi-calc__readings-callout-label) {
+    font-size: 0.78rem;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+    letter-spacing: 0.01em;
+  }
+  :global(.lsi-calc__readings-callout--good .lsi-calc__readings-callout-label) {
+    color: #059669;
+  }
+  :global(.lsi-calc__readings-callout--bad .lsi-calc__readings-callout-label) {
+    color: #dc2626;
+  }
+  :global(.lsi-calc__readings-callout-detail) {
+    font-size: 0.72rem;
+    line-height: 1.5;
+    color: var(--color-text-light);
+  }
+
+  :global(.lsi-calc__result-top) {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  :global(.lsi-calc__lsi) {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+  }
+  :global(.lsi-calc__lsi-label) {
+    font-size: 0.62rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-gray-600);
+  }
+  :global(.lsi-calc__lsi-value) {
+    font-family: var(--font-heading, inherit);
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    line-height: 1;
+  }
+  :global(.lsi-calc__status) {
+    font-size: 0.8rem;
+    font-weight: 700;
+    flex: 1;
+  }
+  :global(.lsi-calc__result--balanced .lsi-calc__status) { color: #059669; }
+  :global(.lsi-calc__result--corrosive .lsi-calc__status) { color: #dc2626; }
+  :global(.lsi-calc__result--scaling .lsi-calc__status) { color: #d97706; }
+  :global(.lsi-calc__reset) {
+    background: transparent;
+    border: 1px solid rgba(10, 30, 55, 0.2);
+    color: var(--color-primary);
+    padding: 0.3rem 0.65rem;
+    border-radius: 999px;
+    font-family: inherit;
+    font-size: 0.65rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 150ms ease, border-color 150ms ease;
+    flex-shrink: 0;
+  }
+  :global(.lsi-calc__reset:hover) {
+    background: rgba(10, 30, 55, 0.05);
+    border-color: rgba(10, 30, 55, 0.35);
+  }
+
+  /* Gauge track */
+  :global(.lsi-calc__gauge-track) {
+    position: relative;
+    height: 8px;
+    border-radius: 999px;
+    overflow: hidden;
+    display: flex;
+  }
+  :global(.lsi-calc__gauge-zone) { height: 100%; }
+  :global(.lsi-calc__gauge-zone--corrosive) {
+    flex: 4;
+    background: linear-gradient(to right, #ef4444, #f87171);
+  }
+  :global(.lsi-calc__gauge-zone--balanced) {
+    flex: 2;
+    background: #10b981;
+  }
+  :global(.lsi-calc__gauge-zone--scaling) {
+    flex: 4;
+    background: linear-gradient(to right, #fbbf24, #f97316);
+  }
+  :global(.lsi-calc__gauge-marker) {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 14px;
+    height: 14px;
+    background: #ffffff;
+    border: 3px solid var(--color-primary);
+    border-radius: 50%;
+    /* Use transform instead of animating `left` — translateX skips layout/paint
+       and runs on the GPU. --pos is set inline by the component (0–100). */
+    transform: translate(calc(var(--pos, 50) * 1% - 50%), -50%);
+    box-shadow: 0 2px 5px rgba(0, 20, 40, 0.3);
+    transition: transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    will-change: transform;
+  }
+  :global(.lsi-calc__gauge-labels) {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.58rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-gray-500);
+  }
+
+  /* ============ Sanitation pillar: Tesla-style tab switcher ============ */
+  /* Pill-shaped segmented control with a sliding indicator that translates
+     between tab positions. Inspired by Tesla's in-car drive-mode selector. */
+  :global(.sp-tabs) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  :global(.sp-tabs__switcher) {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: rgba(10, 30, 55, 0.08);
+    border-radius: 999px;
+    padding: 3px;
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+  :global(.sp-tabs__indicator) {
+    position: absolute;
+    top: 3px;
+    bottom: 3px;
+    left: 3px;
+    width: calc(50% - 3px);
+    background: var(--color-primary);
+    border-radius: 999px;
+    transition: transform 260ms cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 0;
+  }
+  :global(.sp-tabs__btn) {
+    position: relative;
+    z-index: 1;
+    padding: 0.42rem 0.75rem;
+    background: transparent;
+    border: none;
+    color: var(--color-gray-600);
+    font-family: inherit;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: color 200ms ease;
+  }
+  :global(.sp-tabs__btn.is-active) {
+    color: #ffffff;
+  }
+  :global(.sp-tabs__panel) {
+    /* Panels are hard-swapped (no crossfade), keeping state isolated */
+  }
+
+  /* ============ HOCl Waterfall (Sanitation · Tab 1) ============ */
+  :global(.hwf) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    color: var(--color-text);
+  }
+  :global(.hwf__intro) {
+    font-size: 0.7rem;
+    line-height: 1.4;
+    margin: 0;
+    color: var(--color-text);
+    font-weight: 500;
+  }
+  :global(.hwf__intro em) {
+    font-style: italic;
+    color: var(--color-primary);
+    font-weight: 700;
+  }
+  :global(.hwf__intro strong) {
+    color: var(--color-primary);
+    font-weight: 800;
+  }
+  /* Chart wrapper — holds tooltip zone (above) + SVG (below).
+     onMouseLeave on the wrapper keeps hover persistent as the cursor
+     moves from a bar up into the tooltip zone. */
+  :global(.hwf__chart-wrap) {
+    position: relative;
+    width: 100%;
+  }
+  :global(.hwf__chart) {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  /* Segment hit areas — subtle hover highlight so it's clear what's
+     being hovered without washing out the color coding. */
+  :global(.hwf__seg) {
+    cursor: help;
+    transition: filter 180ms ease;
+  }
+  :global(.hwf__seg.is-hover) {
+    filter: brightness(1.08) drop-shadow(0 0 4px rgba(10, 30, 55, 0.2));
+  }
+
+  /* ======= Hover tooltip popovers ======= */
+  /* Pinned to the TOP-RIGHT corner of the chart wrapper. Width is capped
+     at ~35% of the container so the left edge of the tooltip never
+     reaches col1 or col2 — it lives in col3's empty upper area. Height
+     is unconstrained; taller tooltips (like Bound with its action button)
+     extend DOWN past the chart into the meter area, which the user
+     explicitly said is fine ("can overlap other content, not graph content"). */
+  :global(.hwf__tip) {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 35%;
+    min-width: 140px;
+    max-width: 210px;
+    padding: 0.42rem 0.55rem 0.5rem;
+    background: #ffffff;
+    border: 1.5px solid rgba(10, 30, 55, 0.14);
+    border-radius: 10px;
+    box-shadow: 0 10px 26px rgba(0, 20, 40, 0.2);
+    z-index: 10;
+    pointer-events: auto;
+    opacity: 0;
+    animation: hwf-tip-in 180ms ease-out forwards;
+  }
+  @keyframes hwf-tip-in {
+    to { opacity: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :global(.hwf__tip) {
+      animation: none;
+      opacity: 1;
+    }
+  }
+  :global(.hwf__tip-title) {
+    margin: 0 0 0.2rem 0;
+    font-size: 0.64rem;
+    font-weight: 800;
+    color: var(--color-primary);
+    letter-spacing: 0.01em;
+  }
+  :global(.hwf__tip-body) {
+    margin: 0;
+    font-size: 0.6rem;
+    line-height: 1.4;
+    color: var(--color-gray-700, #334155);
+  }
+  :global(.hwf__tip-body strong) {
+    font-weight: 800;
+    color: var(--color-primary);
+  }
+  :global(.hwf__tip-body em) {
+    font-style: italic;
+    color: var(--color-primary);
+    font-weight: 700;
+  }
+  :global(.hwf__tip-btn) {
+    margin-top: 0.35rem;
+    padding: 0.22rem 0.55rem;
+    background: var(--color-primary);
+    border: none;
+    border-radius: 999px;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 0.55rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: background 150ms ease-out, transform 150ms ease-out;
+  }
+  :global(.hwf__tip-btn:hover) {
+    background: var(--color-primary-dark, #0a1e37);
+    transform: translateX(2px);
+  }
+
+  /* Accent bar on the left edge — colors the tooltip by segment identity */
+  :global(.hwf__tip--ocl) { border-left: 4px solid #cbd5e1; }
+  :global(.hwf__tip--hocl) { border-left: 4px solid #06b6d4; }
+  :global(.hwf__tip--bound) { border-left: 4px solid #94a3b8; }
+  :global(.hwf__tip--active) { border-left: 4px solid #10b981; }
+  /* Zoomed floor meter — shows the tiny Active HOCl value against the
+     0.05 ppm algae floor on an auto-scaling 0-to-max scale. */
+  :global(.hwf__meter) {
+    width: 100%;
+    height: auto;
+    display: block;
+    margin-top: -0.3rem;
+  }
+  /* Status callout — Protected / Deficient badge + margin to floor */
+  :global(.hwf__status) {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 0.65rem;
+    border-radius: 10px;
+    border: 1.5px solid transparent;
+    font-size: 0.7rem;
+    line-height: 1.35;
+  }
+  :global(.hwf__status.is-safe) {
+    background: rgba(16, 185, 129, 0.08);
+    border-color: rgba(16, 185, 129, 0.35);
+    color: #065f46;
+  }
+  :global(.hwf__status.is-unsafe) {
+    background: rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.38);
+    color: #991b1b;
+  }
+  /* Animation-running state — blue tint, pulsing badge */
+  :global(.hwf__status.is-animating) {
+    background: rgba(14, 165, 233, 0.08);
+    border-color: rgba(14, 165, 233, 0.38);
+    color: #075985;
+  }
+  :global(.hwf__status.is-animating .hwf__status-badge) {
+    background: #0ea5e9;
+    color: #ffffff;
+    animation: hwf-pulse 1.2s ease-in-out infinite;
+  }
+  @keyframes hwf-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.55; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :global(.hwf__status.is-animating .hwf__status-badge) {
+      animation: none;
+    }
+  }
+  /* Post-animation "exhausted" state — dark red tint + reset button */
+  :global(.hwf__status.is-depleted) {
+    background: rgba(127, 29, 29, 0.08);
+    border-color: rgba(127, 29, 29, 0.35);
+    color: #7f1d1d;
+  }
+  :global(.hwf__status.is-depleted .hwf__status-badge) {
+    background: #7f1d1d;
+    color: #ffffff;
+  }
+  /* Paused mid-playback state — gray tint, reset available */
+  :global(.hwf__status.is-stopped) {
+    background: rgba(71, 85, 105, 0.08);
+    border-color: rgba(71, 85, 105, 0.35);
+    color: #334155;
+  }
+  :global(.hwf__status.is-stopped .hwf__status-badge) {
+    background: #475569;
+    color: #ffffff;
+  }
+  /* Inline "crossed the floor" marker — shown during animation and
+     preserved in the stopped/depleted states as a remembered moment. */
+  :global(.hwf__status-mark) {
+    font-weight: 800;
+    color: #b91c1c;
+  }
+  /* Stop button — appears in the animating status, cancels playback */
+  :global(.hwf__stop-btn) {
+    flex: 0 0 auto;
+    padding: 0.2rem 0.6rem;
+    background: transparent;
+    border: 1.5px solid rgba(14, 165, 233, 0.5);
+    border-radius: 999px;
+    color: #0369a1;
+    font-family: inherit;
+    font-size: 0.62rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
+  }
+  :global(.hwf__stop-btn:hover) {
+    background: #0ea5e9;
+    color: #ffffff;
+    border-color: #0ea5e9;
+  }
+  :global(.hwf__reset-btn) {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-left: 0.4rem;
+    padding: 0.15rem 0.55rem;
+    background: transparent;
+    border: 1.5px solid rgba(127, 29, 29, 0.6);
+    border-radius: 999px;
+    color: #7f1d1d;
+    font-family: inherit;
+    font-size: 0.62rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
+  }
+  :global(.hwf__reset-btn:hover) {
+    background: #7f1d1d;
+    color: #ffffff;
+    border-color: #7f1d1d;
+  }
+  /* Resume button — pairs with Reset in the stopped state */
+  :global(.hwf__resume-btn) {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-left: 0.4rem;
+    padding: 0.18rem 0.6rem;
+    background: #10b981;
+    border: 1.5px solid #10b981;
+    border-radius: 999px;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 0.62rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    transition: background 150ms ease-out, border-color 150ms ease-out, transform 150ms ease-out;
+  }
+  :global(.hwf__resume-btn:hover) {
+    background: #059669;
+    border-color: #059669;
+    transform: translateX(1px);
+  }
+  /* Secondary hint text inside the idle status — shows min FC needed */
+  :global(.hwf__status-hint) {
+    display: inline-block;
+    margin-left: 0.1rem;
+    padding: 0.06rem 0.38rem;
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(245, 158, 11, 0.45);
+    border-radius: 999px;
+    color: #92400e;
+    font-size: 0.6rem;
+    font-weight: 700;
+  }
+  :global(.hwf__status-hint strong) {
+    font-weight: 800;
+    color: #78350f;
+  }
+
+  /* ======= Next-step CTA (below protected status) =======
+     "Once you know the right level, the next question is whether your
+     equipment can maintain it." — links to Tab 2 (Daily Protection). */
+  :global(.hwf__next-step) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    padding: 0.45rem 0.7rem;
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.08), rgba(6, 182, 212, 0.1));
+    border: 1.5px solid rgba(14, 165, 233, 0.3);
+    border-radius: 10px;
+    margin-top: -0.15rem;
+  }
+  :global(.hwf__next-step-text) {
+    flex: 1;
+    margin: 0;
+    font-size: 0.68rem;
+    line-height: 1.4;
+    color: var(--color-primary);
+    font-weight: 500;
+  }
+  :global(.hwf__next-btn) {
+    flex: 0 0 auto;
+    padding: 0.35rem 0.8rem;
+    background: var(--color-primary);
+    border: none;
+    border-radius: 999px;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 0.62rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: background 150ms ease-out, transform 150ms ease-out;
+    white-space: nowrap;
+  }
+  :global(.hwf__next-btn:hover) {
+    background: var(--color-primary-dark, #0a1e37);
+    transform: translateX(2px);
+  }
+  :global(.hwf__status-badge) {
+    display: inline-block;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    flex: 0 0 auto;
+  }
+  :global(.hwf__status.is-safe .hwf__status-badge) {
+    background: #10b981;
+    color: #ffffff;
+  }
+  :global(.hwf__status.is-unsafe .hwf__status-badge) {
+    background: #dc2626;
+    color: #ffffff;
+  }
+  :global(.hwf__status-text) {
+    flex: 1;
+    min-width: 0;
+  }
+  :global(.hwf__status-text strong) {
+    font-weight: 800;
+  }
+  /* Inputs — FC + pH + CYA sliders in a 3-col grid */
+  :global(.hwf__inputs) {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.4rem 0.85rem;
+    padding-top: 0.15rem;
+    transition: opacity 220ms ease;
+  }
+  /* While the depletion animation is running, dim the sliders and
+     disable interaction so the user can't fight the playback. */
+  :global(.hwf__inputs.is-locked) {
+    pointer-events: none;
+    opacity: 0.45;
+  }
+  @media (max-width: 680px) {
+    :global(.hwf__inputs) {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (max-width: 440px) {
+    :global(.hwf__inputs) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ============ HOCl Time-Series Calculator (Sanitation pillar) ============ */
+  :global(.hocl-calc) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    color: var(--color-text);
+  }
+  :global(.hocl-calc__intro) {
+    font-size: 0.72rem;
+    line-height: 1.4;
+    color: var(--color-text);
+    font-weight: 500;
+    margin: 0;
+  }
+  :global(.hocl-calc__intro em) {
+    font-style: italic;
+    color: var(--color-primary);
+    font-weight: 700;
+  }
+  :global(.hocl-calc__disclaimer) {
+    display: inline;
+    font-style: italic;
+    color: var(--color-gray-500);
+    font-weight: 500;
+  }
+
+  /* ======= Top row: chem header + day/night toggle ======= */
+  :global(.hocl-calc__top-row) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+  :global(.hocl-calc__intro) {
+    font-size: 0.65rem;
+    line-height: 1.5;
+    color: var(--color-gray-500);
+    margin: 0 0 0.4rem;
+  }
+  :global(.hocl-calc__chem) {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  :global(.hocl-calc__chem-item) {
+    display: flex;
+    align-items: baseline;
+    gap: 0.35rem;
+  }
+  :global(.hocl-calc__chem-label) {
+    font-size: 0.55rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-gray-500);
+  }
+  :global(.hocl-calc__chem-value) {
+    font-family: var(--font-heading, inherit);
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--color-primary);
+  }
+  :global(.hocl-calc__chem-unit) {
+    font-size: 0.6rem;
+    font-weight: 600;
+    color: var(--color-gray-500);
+  }
+  /* chem-from removed — intro paragraph provides context */
+
+  /* ======= FC IN / FC OUT budget blocks ======= */
+  :global(.hocl-budget-row) {
+    display: flex;
+    gap: 0.4rem;
+  }
+  :global(.hocl-budget-row > .hocl-budget) {
+    flex: 1;
+    min-width: 0;
+  }
+  :global(.hocl-budget__sliders--stacked) {
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+  :global(.hocl-budget) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: 0.45rem 0.6rem;
+    border-radius: 8px;
+    border: 1px solid rgba(10, 30, 55, 0.08);
+  }
+  :global(.hocl-budget--in) {
+    background: rgba(16, 185, 129, 0.04);
+    border-color: rgba(16, 185, 129, 0.2);
+  }
+  :global(.hocl-budget--out) {
+    background: rgba(239, 68, 68, 0.04);
+    border-color: rgba(239, 68, 68, 0.2);
+  }
+  :global(.hocl-budget__heading) {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.4rem;
+  }
+  :global(.hocl-budget__heading-left) {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+  }
+  :global(.hocl-budget__heading-total) {
+    font-family: var(--font-heading, inherit);
+    font-size: 0.72rem;
+    font-weight: 800;
+  }
+  :global(.hocl-budget__heading-total--in) { color: #047857; }
+  :global(.hocl-budget__heading-total--out) { color: #b91c1c; }
+  :global(.hocl-budget__title) {
+    font-size: 0.6rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  :global(.hocl-budget--in .hocl-budget__title) { color: #047857; }
+  :global(.hocl-budget--out .hocl-budget__title) { color: #b91c1c; }
+  :global(.hocl-budget__subtitle) {
+    font-size: 0.5rem;
+    font-weight: 600;
+    color: var(--color-gray-400);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  :global(.hocl-budget__sliders) {
+    display: flex;
+    gap: 1rem;
+  }
+  :global(.hocl-budget__sliders .hocl-slider) {
+    flex: 1;
+  }
+  /* total-unit is reused inside heading-total */
+  :global(.hocl-budget__total-unit) {
+    font-size: 0.52rem;
+    font-weight: 700;
+    color: var(--color-gray-500);
+  }
+
+  /* ======= Day / Night mini-pill toggle ======= */
+  :global(.hocl-timeview) {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: rgba(10, 30, 55, 0.06);
+    border-radius: 999px;
+    padding: 2px;
+    width: fit-content;
+    margin: 0;
+  }
+  :global(.hocl-timeview__indicator) {
+    position: absolute;
+    top: 2px;
+    bottom: 2px;
+    left: 2px;
+    width: calc(50% - 2px);
+    background: var(--color-primary);
+    border-radius: 999px;
+    transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  :global(.hocl-timeview__btn) {
+    position: relative;
+    z-index: 1;
+    padding: 0.25rem 0.65rem;
+    background: transparent;
+    border: none;
+    font-family: inherit;
+    font-size: 0.58rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-gray-500);
+    cursor: pointer;
+    transition: color 200ms ease;
+  }
+  :global(.hocl-timeview__btn.is-active) {
+    color: #ffffff;
+  }
+
+  /* ======= FC label on cards ======= */
+  :global(.hocl-card__fc-label) {
+    font-size: 0.5rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-gray-500);
+  }
+
+  /* ======= Budget comparison bars (in status section) ======= */
+  :global(.hocl-budget-comparison) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    margin-top: 0.35rem;
+  }
+  :global(.hocl-budget-bar) {
+    height: 16px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    padding: 0 0.4rem;
+    min-width: 50px;
+  }
+  :global(.hocl-budget-bar--in) {
+    background: rgba(16, 185, 129, 0.2);
+    border: 1px solid rgba(16, 185, 129, 0.4);
+  }
+  :global(.hocl-budget-bar--out) {
+    background: rgba(239, 68, 68, 0.2);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+  }
+  :global(.hocl-budget-bar__label) {
+    font-size: 0.5rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+  :global(.hocl-budget-bar--in .hocl-budget-bar__label) { color: #047857; }
+  :global(.hocl-budget-bar--out .hocl-budget-bar__label) { color: #b91c1c; }
+  :global(.hocl-budget-net) {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.52rem;
+    font-weight: 700;
+    color: var(--color-gray-500);
+    text-align: right;
+  }
+
+  /* ======= Demand source rows ======= */
+  :global(.hocl-demand-sources) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  :global(.hocl-demand-row) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.4rem;
+    min-height: 24px;
+  }
+  :global(.hocl-demand-row__left) {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex: 1;
+    min-width: 0;
+  }
+  :global(.hocl-demand-row__icon) {
+    font-size: 0.8rem;
+    flex: 0 0 auto;
+  }
+  :global(.hocl-demand-row__label) {
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-primary);
+    flex: 0 0 auto;
+  }
+  :global(.hocl-demand-row__rate) {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.56rem;
+    font-weight: 700;
+    color: #b91c1c;
+  }
+  :global(.hocl-demand-row__rate-unit) {
+    font-size: 0.46rem;
+    font-weight: 600;
+    color: var(--color-gray-500);
+  }
+  /* Info (i) icon — tooltip trigger */
+  :global(.hocl-demand-row__info) {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: rgba(10, 30, 55, 0.08);
+    cursor: help;
+    flex: 0 0 auto;
+    outline: none;
+  }
+  :global(.hocl-demand-row__info-icon) {
+    font-size: 0.5rem;
+    font-weight: 800;
+    color: var(--color-gray-500);
+    font-style: italic;
+  }
+  :global(.hocl-demand-row__tip) {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: -60px;
+    width: 260px;
+    max-width: calc(100vw - 3rem);
+    padding: 0.55rem 0.65rem;
+    background: #ffffff;
+    border: 1.5px solid rgba(10, 30, 55, 0.12);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 20, 40, 0.18);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(4px);
+    transition: opacity 150ms ease, transform 150ms ease;
+    z-index: 25;
+  }
+  :global(.hocl-demand-row__info:hover .hocl-demand-row__tip),
+  :global(.hocl-demand-row__info:focus-visible .hocl-demand-row__tip) {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+  :global(.hocl-demand-row__tip-title) {
+    font-size: 0.62rem;
+    font-weight: 800;
+    color: var(--color-primary);
+    margin: 0 0 0.25rem;
+  }
+  :global(.hocl-demand-row__tip-body) {
+    font-size: 0.55rem;
+    line-height: 1.55;
+    color: var(--color-text-light, #64748b);
+    font-weight: 500;
+    margin: 0;
+  }
+
+  /* Minimal HOCl curve at the top — no container, no borders, just the line. */
+  :global(.hocl-minichart) {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* ======= Hour labels row =======
+     Sits directly between the chart and the card timeline. Uses the EXACT
+     same flex template as .hocl-timeline (flex-1 labels + fixed 34px spacers
+     where deltas live) so labels land precisely above their cards at every
+     viewport width. */
+  :global(.hocl-hours) {
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+    width: 100%;
+    padding: 0 0 0.15rem;
+  }
+  :global(.hocl-hours__label) {
+    flex: 1 1 0;
+    text-align: center;
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-gray-500);
+    min-width: 0;
+  }
+  :global(.hocl-hours__spacer) {
+    flex: 0 0 auto;
+    width: 34px;
+  }
+
+  /* ======= Timeline row ======= */
+  /* Renders as: card · delta · card · delta · card · delta · card · delta · card
+     Five 3-hour cards span 6am → 6pm; delta chips sit between them and pop
+     out a source breakdown on hover. */
+  :global(.hocl-timeline) {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 0.2rem;
+    width: 100%;
+    padding: 0.1rem 0;
+  }
+
+  /* Individual weather-style card — icon, FC, HOCl.
+     No background tint, no internal hour label (hours live in the
+     .hocl-hours row above, aligned via the same flex template). */
+  :global(.hocl-card) {
+    position: relative;
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.4rem 0.25rem;
+    min-width: 0;
+  }
+  :global(.hocl-card__tag) {
+    position: absolute;
+    top: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.38rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-gray-400);
+    line-height: 1;
+  }
+  :global(.hocl-card__icon) {
+    font-size: 1.15rem;
+    line-height: 1;
+    color: #f59e0b;
+    text-shadow: 0 0 12px rgba(251, 191, 36, 0.5);
+  }
+  :global(.hocl-card__fc) {
+    font-family: var(--font-heading, inherit);
+    font-size: 1.1rem;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--color-primary);
+  }
+  :global(.hocl-card__hocl) {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.56rem;
+    font-weight: 600;
+    line-height: 1;
+  }
+  :global(.hocl-card__hocl.is-safe) {
+    color: #059669;
+  }
+  :global(.hocl-card__hocl.is-unsafe) {
+    color: #dc2626;
+  }
+
+  /* Delta chip between two cards — hoverable, pops source breakdown */
+  :global(.hocl-delta) {
+    position: relative;
+    flex: 0 0 auto;
+    width: 34px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0.2rem 0;
+    border-radius: 8px;
+    cursor: help;
+    outline: none;
+    transition: background 150ms ease;
+  }
+  :global(.hocl-delta:hover),
+  :global(.hocl-delta:focus-visible) {
+    background: rgba(15, 23, 42, 0.04);
+  }
+  :global(.hocl-delta__arrow) {
+    font-size: 0.85rem;
+    line-height: 1;
+    font-weight: 700;
+  }
+  :global(.hocl-delta__value) {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.55rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-top: 0.1rem;
+  }
+  :global(.hocl-delta.is-up .hocl-delta__arrow),
+  :global(.hocl-delta.is-up .hocl-delta__value) {
+    color: #047857;
+  }
+  :global(.hocl-delta.is-down .hocl-delta__arrow),
+  :global(.hocl-delta.is-down .hocl-delta__value) {
+    color: #b91c1c;
+  }
+
+  /* Delta popover — shown on hover/focus, source breakdown as percentages */
+  :global(.hocl-delta__pop) {
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    min-width: 140px;
+    padding: 0.45rem 0.55rem;
+    background: #ffffff;
+    border: 1.5px solid rgba(10, 30, 55, 0.12);
+    border-radius: 8px;
+    box-shadow: 0 8px 20px rgba(0, 20, 40, 0.15);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 150ms ease, transform 150ms ease;
+    z-index: 20;
+  }
+  :global(.hocl-delta:hover .hocl-delta__pop),
+  :global(.hocl-delta:focus-visible .hocl-delta__pop) {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  :global(.hocl-delta__pop::after) {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: #ffffff;
+    filter: drop-shadow(0 1px 0 rgba(10, 30, 55, 0.12));
+  }
+  :global(.hocl-delta__pop-head) {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding-bottom: 0.3rem;
+    margin-bottom: 0.3rem;
+    border-bottom: 1px solid rgba(10, 30, 55, 0.08);
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--color-gray-500);
+    white-space: nowrap;
+  }
+  :global(.hocl-delta__pop-net) {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--color-primary);
+  }
+  :global(.hocl-delta__pop-row) {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.1rem 0;
+    font-size: 0.62rem;
+    line-height: 1.2;
+  }
+  :global(.hocl-delta__pop-icon) {
+    width: 14px;
+    text-align: center;
+    flex: 0 0 auto;
+  }
+  :global(.hocl-delta__pop-label) {
+    flex: 1;
+    font-weight: 600;
+    color: var(--color-gray-600);
+  }
+  :global(.hocl-delta__pop-pct) {
+    font-family: var(--font-mono, monospace);
+    font-weight: 800;
+  }
+  :global(.hocl-delta__pop-row--in .hocl-delta__pop-pct) {
+    color: #047857;
+  }
+  :global(.hocl-delta__pop-row--out .hocl-delta__pop-pct) {
+    color: #b91c1c;
+  }
+
+  /* Status row — badge + in/out/net inline */
+  :global(.hocl-calc__status) {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.5rem;
+    border-radius: 10px;
+    background: rgba(10, 30, 55, 0.03);
+    border: 1.5px solid rgba(10, 30, 55, 0.08);
+    /* Matches status-bar-fill (300ms) so the container and its bars re-tint together. */
+    transition: background 300ms cubic-bezier(0.16, 1, 0.3, 1), border-color 300ms cubic-bezier(0.16, 1, 0.3, 1);
+    flex-wrap: wrap;
+  }
+  :global(.hocl-calc__status--protected) {
+    background: rgba(16, 185, 129, 0.08);
+    border-color: rgba(16, 185, 129, 0.35);
+  }
+  :global(.hocl-calc__status--thin) {
+    background: rgba(245, 158, 11, 0.1);
+    border-color: rgba(245, 158, 11, 0.4);
+  }
+  :global(.hocl-calc__status--vulnerable) {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.4);
+  }
+  :global(.hocl-calc__safe-badge) {
+    display: inline-block;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+  }
+  :global(.hocl-calc__safe-badge--safe) {
+    background: #10b981;
+    color: #ffffff;
+  }
+  :global(.hocl-calc__safe-badge--unsafe) {
+    background: #dc2626;
+    color: #ffffff;
+  }
+  :global(.hocl-calc__status-bars) {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+  }
+  :global(.hocl-calc__status-bar) {
+    position: relative;
+    height: 16px;
+    border-radius: 8px;
+    background: rgba(10, 30, 55, 0.06);
+    overflow: hidden;
+  }
+  :global(.hocl-calc__status-bar-fill) {
+    position: absolute;
+    inset: 0;
+    border-radius: 5px;
+    /* Scale from left instead of animating width — transform stays on the GPU. */
+    transform-origin: left center;
+    transform: scaleX(var(--fill, 0));
+    transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform;
+  }
+  :global(.hocl-calc__status-bar--in .hocl-calc__status-bar-fill) {
+    background: #10b981;
+  }
+  :global(.hocl-calc__status-bar--out .hocl-calc__status-bar-fill) {
+    background: #ef4444;
+  }
+  :global(.hocl-calc__status-bar-label) {
+    position: absolute;
+    left: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.5rem;
+    font-weight: 800;
+    color: #fff;
+    white-space: nowrap;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  }
+  :global(.hocl-calc__status-net) {
+    font-size: 0.52rem;
+    font-weight: 700;
+    color: var(--color-gray-500);
+    font-family: var(--font-mono, monospace);
+    white-space: nowrap;
+  }
+  /* ======= Inputs — slider rows ======= */
+  /* Slider row, hover-select, and custom slider component. Used by both
+     the FC IN budget block and the FC OUT demand rows.
+     Tablet:  two columns, Use wraps below
+     Mobile:  single column stack */
+  /* Slider row — label + value on top, slider below */
+  :global(.hocl-slider) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.05rem;
+  }
+  :global(.hocl-slider__head) {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+  :global(.hocl-slider__label) {
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-primary);
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  /* Live-computed subtitle next to the label (e.g. "0.42 ppm/hr" on the
+     cell slider, "8A–4P" on the pump slider). */
+  :global(.hocl-slider__sub) {
+    font-size: 0.55rem;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--color-gray-500);
+    font-family: var(--font-mono, monospace);
+  }
+  :global(.hocl-slider__value) {
+    font-family: var(--font-heading, inherit);
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--color-gray-900);
+  }
+  :global(.hocl-slider__unit) {
+    font-size: 0.55rem;
+    font-weight: 600;
+    color: var(--color-gray-500);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  /* ======= Hover-select (3-option categorical input) =======
+     Default state: tiny pill showing the current selection.
+     Hover/focus:   popover reveals all three options above the pill. */
+  :global(.hocl-hselect) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    min-height: 22px;
+  }
+  :global(.hocl-hselect__label) {
+    flex: 0 0 auto;
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-primary);
+  }
+  :global(.hocl-hselect__control) {
+    position: relative;
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 999px;
+    background: #ffffff;
+    border: 1.5px solid rgba(10, 30, 55, 0.15);
+    cursor: pointer;
+    outline: none;
+    transition: border-color 150ms ease, background 150ms ease;
+  }
+  :global(.hocl-hselect__control:hover),
+  :global(.hocl-hselect__control:focus-visible) {
+    border-color: var(--color-primary);
+    background: rgba(10, 30, 55, 0.03);
+  }
+  :global(.hocl-hselect__current) {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    white-space: nowrap;
+  }
+  :global(.hocl-hselect__icon) {
+    font-size: 0.75rem;
+    line-height: 1;
+  }
+  :global(.hocl-hselect__text) {
+    line-height: 1;
+  }
+
+  /* The popover — three option buttons, shown on hover/focus-within */
+  :global(.hocl-hselect__pop) {
+    position: absolute;
+    bottom: calc(100% + 6px);
+    right: 0;
+    display: flex;
+    gap: 0.2rem;
+    padding: 0.3rem;
+    background: #ffffff;
+    border: 1.5px solid rgba(10, 30, 55, 0.12);
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(0, 20, 40, 0.15);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(4px);
+    transition: opacity 150ms ease, transform 150ms ease;
+    z-index: 15;
+  }
+  :global(.hocl-hselect__control:hover .hocl-hselect__pop),
+  :global(.hocl-hselect__control:focus-within .hocl-hselect__pop),
+  :global(.hocl-hselect__control:focus-visible .hocl-hselect__pop) {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+  :global(.hocl-hselect__opt) {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.1rem;
+    padding: 0.3rem 0.45rem;
+    border-radius: 6px;
+    border: 1.5px solid transparent;
+    background: transparent;
+    color: var(--color-gray-600);
+    font-family: inherit;
+    font-size: 0.58rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+    min-width: 46px;
+  }
+  :global(.hocl-hselect__opt:hover) {
+    background: rgba(10, 30, 55, 0.05);
+    color: var(--color-primary);
+  }
+  :global(.hocl-hselect__opt.is-active) {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: #ffffff;
+  }
+  :global(.hocl-hselect__opt-icon) {
+    font-size: 0.9rem;
+    line-height: 1;
+  }
+  :global(.hocl-hselect__opt-label) {
+    line-height: 1;
+  }
+
+  /* Responsive — stack budget sliders on narrow screens */
+  @media (max-width: 400px) {
+    :global(.hocl-budget__sliders) {
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+  }
+
+  /* Custom slider component (replaces native range input). */
+  :global(.pp-slider) {
+    position: relative;
+    width: 100%;
+    height: 22px;
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+  }
+  :global(.pp-slider.is-dragging) {
+    cursor: grabbing;
+  }
+  :global(.pp-slider__track) {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 6px;
+    margin-top: -3px;
+    background: rgba(10, 30, 55, 0.1);
+    border-radius: 999px;
+    pointer-events: none;
+  }
+  :global(.pp-slider__fill) {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    height: 6px;
+    margin-top: -3px;
+    background: linear-gradient(to right, var(--color-primary), var(--color-cyan));
+    border-radius: 999px;
+    pointer-events: none;
+  }
+  :global(.pp-slider__thumb) {
+    position: absolute;
+    top: 50%;
+    width: 18px;
+    height: 18px;
+    margin-left: -9px;
+    margin-top: -9px;
+    background: #ffffff;
+    border: 3px solid var(--color-primary);
+    border-radius: 50%;
+    box-shadow: 0 2px 6px rgba(0, 20, 40, 0.3);
+    pointer-events: none;
+    transition: transform 120ms ease, box-shadow 120ms ease;
+  }
+  :global(.pp-slider:hover .pp-slider__thumb) {
+    transform: scale(1.1);
+  }
+  :global(.pp-slider.is-dragging .pp-slider__thumb) {
+    transform: scale(1.15);
+    box-shadow: 0 3px 10px rgba(0, 20, 40, 0.4);
+  }
+
 </style>

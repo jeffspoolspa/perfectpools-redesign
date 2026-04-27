@@ -6,6 +6,11 @@ interface LiquidHeroProps {
   eyebrow?: string;
   subtitle?: string;
   showText?: boolean;
+  /** When true, the shader's base image is a clean white gradient instead of
+   *  the tile photo. The liquid distortion still runs (so ripples are visible)
+   *  but there's no busy pool-tile pattern underneath. Useful for mobile
+   *  variants of the methodology section. */
+  whiteBackground?: boolean;
 }
 
 declare global {
@@ -19,6 +24,7 @@ export default function LiquidHero({
   eyebrow = "Our Approach",
   subtitle = "Why clear water isn't luck — it's science, consistency, and accountability.",
   showText = true,
+  whiteBackground = false,
 }: LiquidHeroProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -27,6 +33,27 @@ export default function LiquidHero({
       const dpr = window.devicePixelRatio || 1;
       const w = window.innerWidth;
       const h = window.innerHeight;
+
+      // White-background variant: skip the tile image and paint a flat white
+      // canvas (with a very subtle blue-tinted gradient for the shader to
+      // refract). The liquid distortion still produces ripples, but there's
+      // no underlying pool-tile pattern.
+      if (whiteBackground) {
+        const offscreen = document.createElement('canvas');
+        offscreen.width = w * dpr;
+        offscreen.height = h * dpr;
+        const ctx = offscreen.getContext('2d');
+        if (!ctx) { resolve(null); return; }
+        ctx.scale(dpr, dpr);
+        const grad = ctx.createLinearGradient(0, 0, 0, h);
+        grad.addColorStop(0, '#ffffff');
+        grad.addColorStop(0.5, '#f4faff');
+        grad.addColorStop(1, '#ffffff');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, w, h);
+        resolve(offscreen.toDataURL('image/png'));
+        return;
+      }
 
       const img = new Image();
       img.onload = () => {
@@ -139,7 +166,7 @@ export default function LiquidHero({
 
       img.src = assetPath('/images/tile.avif');
     });
-  }, [title, eyebrow, subtitle, showText]);
+  }, [title, eyebrow, subtitle, showText, whiteBackground]);
 
   useEffect(() => {
     if (!canvasRef.current) return;
