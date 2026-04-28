@@ -118,8 +118,8 @@ const schema = [
             <div class="pricing-card__plan" id="res-pricing-config-weekly"></div>
             <div class="pricing-card__chemicals">
               <div class="chem-header">
-                <span class="chem-kicker">HOW CHEMICALS WORK</span>
-                <h4>True Cost Pricing</h4>
+                <span class="chem-kicker">HOW CHEMICALS BILL</span>
+                <h4>Itemized Chemicals</h4>
                 <p>Your bill reflects your pool, not an average.</p>
               </div>
               <div id="res-chem-chart-weekly"></div>
@@ -136,10 +136,41 @@ const schema = [
                 <p style="color: #1E3A5F; font-weight: 700;">Anyone who's maintained a pool in coastal weather knows — two weeks is too long in the heat.</p>
               </div>
               <div class="biweekly-section__title">The Lawn Analogy</div>
-              <div class="biweekly-cards">
-                <div class="biweekly-card biweekly-card--good"><span class="biweekly-card__emoji">🌿</span><strong>Weekly</strong><span>Like mowing every week — stays level, no surprises.</span></div>
-                <div class="biweekly-card biweekly-card--warn"><span class="biweekly-card__emoji">🌾</span><strong>Bi-weekly</strong><span>Tall grass, weeds taking hold, harder to cut through.</span></div>
-                <div class="biweekly-card biweekly-card--bad"><span class="biweekly-card__emoji">🟢</span><strong>Green pool</strong><span>The overgrown yard — needs specialized equipment to recover.</span></div>
+              <div class="lawn-tabs" data-lawn-tabs data-active="weekly">
+                <div class="lawn-tabs__card">
+                  <div class="lawn-tabs__bubble-stack" aria-hidden="true">
+                    <span class="lawn-tabs__bubble is-active" data-lawn-bubble="weekly">🌿</span>
+                    <span class="lawn-tabs__bubble" data-lawn-bubble="biweekly">🌾</span>
+                    <span class="lawn-tabs__bubble" data-lawn-bubble="green">🟢</span>
+                  </div>
+                  <div class="lawn-tabs__copy-stack">
+                    <div class="lawn-tabs__copy is-active" data-lawn-copy="weekly" role="tabpanel">
+                      <span class="lawn-tabs__h">Like mowing every week.</span>
+                      <span class="lawn-tabs__b">Stays level, no surprises.</span>
+                    </div>
+                    <div class="lawn-tabs__copy" data-lawn-copy="biweekly" role="tabpanel">
+                      <span class="lawn-tabs__h">Tall grass, weeds taking hold.</span>
+                      <span class="lawn-tabs__b">Harder to cut through.</span>
+                    </div>
+                    <div class="lawn-tabs__copy" data-lawn-copy="green" role="tabpanel">
+                      <span class="lawn-tabs__h">The overgrown yard.</span>
+                      <span class="lawn-tabs__b">Needs specialized equipment to recover.</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="lawn-tabs__track" aria-hidden="true">
+                  <div class="lawn-tabs__rail"><div class="lawn-tabs__rail-fill"></div></div>
+                  <div class="lawn-tabs__nodes">
+                    <span class="lawn-tabs__node is-active"><span class="lawn-tabs__node-dot"></span></span>
+                    <span class="lawn-tabs__node"><span class="lawn-tabs__node-dot"></span></span>
+                    <span class="lawn-tabs__node"><span class="lawn-tabs__node-dot"></span></span>
+                  </div>
+                </div>
+                <div class="lawn-tabs__switcher" role="tablist" aria-label="Lawn analogy">
+                  <button type="button" class="lawn-tabs__btn is-active" data-lawn="weekly" role="tab" aria-selected="true">Weekly</button>
+                  <button type="button" class="lawn-tabs__btn" data-lawn="biweekly" role="tab" aria-selected="false">Bi-weekly</button>
+                  <button type="button" class="lawn-tabs__btn" data-lawn="green" role="tab" aria-selected="false">Green pool</button>
+                </div>
               </div>
               <p class="biweekly-story__kicker">Algae slows in winter just like grass — which is why bi-weekly works September through March.</p>
               <div class="biweekly-section__title">The Data Shows the Strain</div>
@@ -165,7 +196,7 @@ const schema = [
       <div class="text-center" style="margin-top: 2rem;">
         <a href={`${base}get-started/`} class="btn btn--cta btn--lg">Get Started</a>
         <p style="margin-top: 1rem; color: var(--color-text-light); font-size: 0.85rem;">
-          Chemicals billed separately at transparent cost-plus pricing. <a href={`${base}plans/`} style="color: var(--color-primary); text-decoration: underline;">See full pricing details</a>
+          Chemicals billed separately. <a href={`${base}plans/`} style="color: var(--color-primary); text-decoration: underline;">See full pricing details</a>
         </p>
       </div>
     </div>
@@ -228,59 +259,268 @@ const schema = [
     </div>
   </section>
 
-  <!-- Green Free Guarantee -->
+  <!-- Mastery Through Visibility — bento grid (placeholder content; copy
+       and visuals to be filled in per card) -->
   <section class="section section--alt">
     <div class="container">
-      <div class="guarantee-banner">
-        <div class="guarantee-banner__icon">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>
-        </div>
-        <h3>Green Free Guarantee</h3>
-        <p>If your pool turns green while you're on weekly service, we handle the recovery at no charge. Period.</p>
-      </div>
-    </div>
-  </section>
+      <div class="bento">
+        <header class="bento__header">
+          <h2 class="bento__title">Master Your Pool Without Lifting A Finger</h2>
+          <p class="bento__subtitle">
+            Experience the new standard of pool care. From automated billing to instant service photos, we handle the technical precision so you can focus on the swimming.
+          </p>
+        </header>
 
-  <!-- Why Perfect Pools -->
-  <section class="section">
-    <div class="container">
-      <div class="benefits-layout">
-        <div class="benefits-layout__image">
-          <img src={`${base}images/pool-cleaning-action.jpg`} alt="Perfect Pools technician cleaning a residential pool with a skimmer" loading="lazy" />
-        </div>
+        <div class="bento__grid">
+          {/* Card 1 — Digital Service Logs. ~67% wide on desktop. */}
+          <article class="bento__card bento__card--col-4">
+            <div class="bento__icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
+                <line x1="10" y1="9" x2="8" y2="9" />
+              </svg>
+            </div>
+            <div class="bento__body">
+              <h3 class="bento__h">Digital Service Logs</h3>
+              <p class="bento__p">
+                Access a forensic history of every chemical balance, equipment calibration, and
+                filter clean — plus everything we add to your pool. Complete transparency for
+                total peace of mind.
+              </p>
+            </div>
+            {/* Visit metadata strip — sits in the white space above the panel. */}
+            <div class="dsl-meta" aria-hidden="true">
+              <div class="dsl-meta__field">
+                <span class="dsl-meta__label">Time in</span>
+                <span class="dsl-meta__value">1:50 PM</span>
+              </div>
+              <div class="dsl-meta__field">
+                <span class="dsl-meta__label">Time out</span>
+                <span class="dsl-meta__value">2:14 PM</span>
+              </div>
+              <div class="dsl-meta__field">
+                <span class="dsl-meta__label">Technician</span>
+                <span class="dsl-meta__value">Carlos M.</span>
+              </div>
+            </div>
 
-        <div class="benefits-layout__content">
-          <h2>Why Perfect Pools?</h2>
+            {/* Tabbed log panel — Chemistry / Service / Added to pool. */}
+            <div class="dsl-tabs" data-dsl-tabs data-active="chemistry">
+              <div class="dsl-tabs__switcher" role="tablist" aria-label="Service log sections">
+                <button type="button" class="dsl-tabs__btn is-active" data-dsl="chemistry" role="tab" aria-selected="true">Chemistry</button>
+                <button type="button" class="dsl-tabs__btn" data-dsl="service" role="tab" aria-selected="false">Service checklist</button>
+                <button type="button" class="dsl-tabs__btn" data-dsl="added" role="tab" aria-selected="false">Added to pool</button>
+              </div>
 
-          <div class="benefit-row">
-            <div class="benefit-row__icon benefit-row__icon--blue">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg>
-            </div>
-            <div>
-              <h3>Chemistry done right</h3>
-              <p>We test your water every visit and dose to the exact reading—not a pre-packaged treatment plan. That's how we keep your water balanced, prevent algae, and avoid over-dosing that causes cloudy water.</p>
-            </div>
-          </div>
+              <div class="dsl-tabs__panels">
+                <div class="dsl-tabs__panel is-active" data-dsl-panel="chemistry" role="tabpanel">
+                <div class="dsl-panel__rows">
+                  <div class="dsl-panel__row">
+                    <span class="dsl-panel__k">pH</span>
+                    <span class="dsl-panel__v dsl-panel__v--ok">7.4 · BALANCED</span>
+                  </div>
+                  <div class="dsl-panel__row">
+                    <span class="dsl-panel__k">Free chlorine</span>
+                    <span class="dsl-panel__v">3.0 PPM</span>
+                  </div>
+                  <div class="dsl-panel__row">
+                    <span class="dsl-panel__k">Alkalinity</span>
+                    <span class="dsl-panel__v">80 PPM</span>
+                  </div>
+                  <div class="dsl-panel__row">
+                    <span class="dsl-panel__k">Stabilizer</span>
+                    <span class="dsl-panel__v">70 PPM</span>
+                  </div>
+                  <div class="dsl-panel__row">
+                    <span class="dsl-panel__k">Calcium</span>
+                    <span class="dsl-panel__v">250 PPM</span>
+                  </div>
+                  <div class="dsl-panel__row">
+                    <span class="dsl-panel__k">Filter PSI</span>
+                    <span class="dsl-panel__v">18 PSI</span>
+                  </div>
+                </div>
+              </div>
 
-          <div class="benefit-row">
-            <div class="benefit-row__icon benefit-row__icon--orange">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 18v-1"/><path d="M14 18v-3"/><path d="M10 13v-1"/></svg>
-            </div>
-            <div>
-              <h3>No surprise bills</h3>
-              <p>Chemicals and extras like salt cell or filter cleans are billed separately and itemized. We ask before performing extras—so you see exactly what's added and why, with <strong>transparent pricing</strong> every time.</p>
-            </div>
-          </div>
+              <div class="dsl-tabs__panel" data-dsl-panel="service" role="tabpanel">
+                <ul class="dsl-checklist">
+                  {[
+                    'Pump serviced',
+                    'Pool vacuumed',
+                    'Pool brushed',
+                    'Pump baskets emptied',
+                    'Skimmer baskets emptied',
+                    'Cleaner bag emptied',
+                  ].map((item) => (
+                    <li class="dsl-checklist__item">
+                      <span class="dsl-checklist__check" aria-hidden="true">
+                        <svg width="11" height="11" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M3.5 7.2 6 9.5 10.5 4.5" />
+                        </svg>
+                      </span>
+                      <span class="dsl-checklist__label">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
-          <div class="benefit-row">
-            <div class="benefit-row__icon benefit-row__icon--green">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>
+              <div class="dsl-tabs__panel" data-dsl-panel="added" role="tabpanel">
+                <ul class="dsl-added">
+                  <li class="dsl-added__item">
+                    <span class="dsl-added__icon dsl-added__icon--blue" aria-hidden="true">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2.6c.4 0 .7.2.9.5 1.6 2.5 6.6 10.3 6.6 14a7.5 7.5 0 1 1-15 0c0-3.7 5-11.5 6.6-14 .2-.3.5-.5.9-.5z" />
+                      </svg>
+                    </span>
+                    <div class="dsl-added__body">
+                      <span class="dsl-added__name">Liquid chlorine</span>
+                      <span class="dsl-added__purpose">Sanitizer</span>
+                    </div>
+                    <span class="dsl-added__qty">2 gal</span>
+                  </li>
+                  <li class="dsl-added__item">
+                    <span class="dsl-added__icon dsl-added__icon--cyan" aria-hidden="true">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 14 12 8 18 14" />
+                      </svg>
+                    </span>
+                    <div class="dsl-added__body">
+                      <span class="dsl-added__name">Sodium bicarbonate</span>
+                      <span class="dsl-added__purpose">Alkalinity up</span>
+                    </div>
+                    <span class="dsl-added__qty">1 lb</span>
+                  </li>
+                  <li class="dsl-added__item">
+                    <span class="dsl-added__icon dsl-added__icon--green" aria-hidden="true">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
+                      </svg>
+                    </span>
+                    <div class="dsl-added__body">
+                      <span class="dsl-added__name">Stabilizer</span>
+                      <span class="dsl-added__purpose">UV protection</span>
+                    </div>
+                    <span class="dsl-added__qty">8 oz</span>
+                  </li>
+                  <li class="dsl-added__item">
+                    <span class="dsl-added__icon dsl-added__icon--amber" aria-hidden="true">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 10 12 16 18 10" />
+                      </svg>
+                    </span>
+                    <div class="dsl-added__body">
+                      <span class="dsl-added__name">Muriatic acid</span>
+                      <span class="dsl-added__purpose">pH down</span>
+                    </div>
+                    <span class="dsl-added__qty">4 oz</span>
+                  </li>
+                </ul>
+              </div>
+              </div>
             </div>
-            <div>
-              <h3>Expert support</h3>
-              <p>Weekly service customers get preferred access to our repair department. Whether it's equipment troubleshooting or a pump replacement, same transparent pricing and same reliable service.</p>
+          </article>
+
+          {/* Card 2 — Instant Photos. ~33% wide (narrower so the portrait
+              photo fits the card's aspect ratio without stretching the row
+              tall). Photo fills the entire card background; toggle swaps
+              between Before and After. */}
+          <article class="bento__card bento__card--col-2 ba-card" data-ba-tabs data-active="before">
+            <div class="ba-card__bg">
+              <div class="ba-card__panel is-active" data-ba-panel="before">
+                <img
+                  src={`${base}images/before-after/leaf-before.webp`}
+                  alt="Pool before service: leaves and debris on the surface"
+                  loading="lazy"
+                />
+              </div>
+              <div class="ba-card__panel" data-ba-panel="after">
+                <img
+                  src={`${base}images/before-after/leaf-after.webp`}
+                  alt="Pool after service: clear water, debris removed"
+                  loading="lazy"
+                />
+              </div>
             </div>
-          </div>
+            <div class="ba-card__overlay" aria-hidden="true"></div>
+
+            <div class="ba-card__top">
+              <div class="bento__icon bento__icon--light" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                  <circle cx="12" cy="13" r="4" />
+                </svg>
+              </div>
+              <div class="ba-card__copy">
+                <h3 class="bento__h">Instant Photos</h3>
+                <p class="bento__p">
+                  Receive visual verification of your clean pool immediately after each
+                  technician visit.
+                </p>
+              </div>
+            </div>
+
+            <div class="ba-card__bottom">
+              <div class="ba-tabs__switcher" role="tablist" aria-label="Before and after">
+                <button type="button" class="ba-tabs__btn is-active" data-ba="before" role="tab" aria-selected="true">Before</button>
+                <button type="button" class="ba-tabs__btn" data-ba="after" role="tab" aria-selected="false">After</button>
+              </div>
+            </div>
+          </article>
+
+          {/* Card 3 — Automated Billing. */}
+          <article class="bento__card bento__card--col-2">
+            <div class="bento__icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="5" width="20" height="14" rx="2" />
+                <line x1="2" y1="10" x2="22" y2="10" />
+              </svg>
+            </div>
+            <div class="bento__body">
+              <h3 class="bento__h">Automated Billing</h3>
+              <p class="bento__p">
+                Seamless, paperless invoicing and secure payment management. Focus on the
+                water, not the paperwork.
+              </p>
+            </div>
+            <div class="bento__chips">
+              <span class="bento__chip bento__chip--active">Auto-pay Active</span>
+              <span class="bento__chip">Visa •••• 4492</span>
+            </div>
+          </article>
+
+          {/* Card 4 — Green Free Guarantee. */}
+          <article class="bento__card bento__card--col-4 gfg-card">
+            <div class="gfg-card__bg" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
+              </svg>
+            </div>
+            <div class="gfg-card__head">
+              <div class="bento__icon bento__icon--light" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
+                </svg>
+              </div>
+              <span class="gfg-card__kicker">THE PROMISE</span>
+            </div>
+            <div class="gfg-card__body">
+              <h3 class="bento__h">Green Free Guarantee</h3>
+              <p class="bento__p">
+                If your pool turns green while you're on weekly service,
+                <strong>we waive the labor</strong> on the recovery — typically the
+                majority of the cost — and get your pool swim-ready quickly.
+              </p>
+            </div>
+            <ul class="gfg-card__features">
+              <li>Labor at no charge</li>
+              <li>~$85 per visit covered</li>
+              <li>Majority of the cost</li>
+              <li>Quick recovery</li>
+            </ul>
+          </article>
         </div>
       </div>
     </div>
@@ -382,6 +622,48 @@ const schema = [
 </BaseLayout>
 
 <script>
+  // Service log tab switcher (Chemistry / Service / Added to pool)
+  document.querySelectorAll<HTMLElement>('[data-dsl-tabs]').forEach((tabs) => {
+    const buttons = tabs.querySelectorAll<HTMLButtonElement>('.dsl-tabs__btn');
+    const panels = tabs.querySelectorAll<HTMLElement>('.dsl-tabs__panel');
+    buttons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const target = btn.dataset.dsl;
+        if (!target) return;
+        tabs.dataset.active = target;
+        buttons.forEach((b) => {
+          const active = b.dataset.dsl === target;
+          b.classList.toggle('is-active', active);
+          b.setAttribute('aria-selected', String(active));
+        });
+        panels.forEach((p) => {
+          p.classList.toggle('is-active', p.dataset.dslPanel === target);
+        });
+      });
+    });
+  });
+
+  // Before/After toggle on the Instant Photos bento card
+  document.querySelectorAll<HTMLElement>('[data-ba-tabs]').forEach((card) => {
+    const buttons = card.querySelectorAll<HTMLButtonElement>('.ba-tabs__btn');
+    const panels = card.querySelectorAll<HTMLElement>('.ba-card__panel');
+    buttons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const target = btn.dataset.ba;
+        if (!target) return;
+        card.dataset.active = target;
+        buttons.forEach((b) => {
+          const active = b.dataset.ba === target;
+          b.classList.toggle('is-active', active);
+          b.setAttribute('aria-selected', String(active));
+        });
+        panels.forEach((p) => {
+          p.classList.toggle('is-active', p.dataset.baPanel === target);
+        });
+      });
+    });
+  });
+
   // Pricing tabs
   const tabs = document.querySelectorAll('.pricing-tab');
   const contents = document.querySelectorAll('.pricing-card__content');
@@ -435,20 +717,28 @@ const schema = [
   .res-hero {
     position: relative;
     padding: var(--space-16) 0;
-    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-dark-blue) 100%);
+    background: var(--color-dark-blue);
     color: white;
     overflow: hidden;
   }
 
+  /* Photo background + dark gradient overlay layered above for text
+     legibility. Stack order in `background:` is top-to-bottom, so the
+     gradient renders on top of the image. */
   .res-hero__bg {
     position: absolute;
     inset: 0;
-    opacity: 0.1;
-    background: radial-gradient(circle at 50% 120%, rgba(255,255,255,0.1), rgba(0,0,0,0));
+    background-image:
+      linear-gradient(135deg, rgba(30, 58, 95, 0.32) 0%, rgba(11, 19, 32, 0.55) 100%),
+      url('/images/hero-residential-pool.webp');
+    background-size: cover;
+    background-position: center 75%;
+    background-repeat: no-repeat;
   }
 
   .res-hero__content {
     position: relative;
+    z-index: 1;
     max-width: 720px;
   }
 
@@ -689,106 +979,624 @@ const schema = [
     line-height: 1.6;
   }
 
-  /* Green Free Guarantee Banner */
-  .guarantee-banner {
-    background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
-    border: 2px solid #22c55e;
-    border-radius: var(--radius-xl);
-    padding: var(--space-8);
-    text-align: center;
-  }
-
-  .guarantee-banner__icon {
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    background: #22c55e;
+  /* Bento grid — 4 cards in a 2×2 layout. Top row: wide(~62%) + narrow(~38%).
+     Bottom row mirrors as narrow + wide. Stacks 1-col under 720px. */
+  .bento {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto var(--space-4);
+    flex-direction: column;
+    gap: 2.5rem;
   }
-
-  .guarantee-banner h3 {
-    font-size: var(--text-2xl);
-    font-weight: 700;
-    color: #14532d;
-    margin-bottom: var(--space-3);
-  }
-
-  .guarantee-banner p {
-    font-size: var(--text-lg);
-    color: #14532d;
-    max-width: 640px;
+  .bento__header {
+    text-align: center;
+    max-width: 720px;
     margin: 0 auto;
+  }
+  .bento__title {
+    font-family: var(--font-heading);
+    font-size: clamp(1.9rem, 3.6vw, 2.5rem);
+    font-weight: 700;
+    color: var(--color-gray-900);
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    margin: 0 0 0.75rem;
+  }
+  .bento__subtitle {
+    font-size: 0.95rem;
     line-height: 1.6;
+    color: var(--color-text-light);
+    margin: 0;
   }
 
-  /* Benefits Layout (Why Perfect Pools) */
-  .benefits-layout {
+  .bento__grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: var(--space-12);
-    align-items: center;
+    gap: 1rem;
   }
-
-  @media (min-width: 768px) {
-    .benefits-layout {
-      grid-template-columns: 1fr 1fr;
+  @media (min-width: 720px) {
+    .bento__grid {
+      /* 6-col grid lets us mix 50/50 (3+3) and 33/66 (2+4) rows. */
+      grid-template-columns: repeat(6, 1fr);
+      gap: 1.25rem;
     }
+    .bento__card--col-2 { grid-column: span 2; }
+    .bento__card--col-3 { grid-column: span 3; }
+    .bento__card--col-4 { grid-column: span 4; }
   }
 
-  .benefits-layout__image {
-    overflow: hidden;
-    border-radius: 1rem;
-  }
-
-  .benefits-layout__image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    border-radius: 1rem;
-  }
-
-  .benefits-layout h2 {
-    font-size: clamp(2rem, 4vw, 3rem);
-    margin-bottom: var(--space-8);
-  }
-
-  .benefit-row {
+  .bento__card {
+    position: relative;
+    background: #fff;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
     display: flex;
-    gap: var(--space-6);
-    margin-bottom: var(--space-8);
+    flex-direction: column;
+    gap: 1rem;
+    overflow: hidden;
+  }
+  .bento__card--dark {
+    background: linear-gradient(135deg, #1E3A5F 0%, #0B1320 100%);
+    border-color: transparent;
+    color: #fff;
   }
 
-  .benefit-row:last-child {
-    margin-bottom: 0;
-  }
-
-  .benefit-row__icon {
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
+  .bento__icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--color-light-bg, #f3f0ea);
+    color: var(--color-primary);
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
   }
-
-  .benefit-row__icon--blue { background: #dbeafe; color: var(--color-primary); }
-  .benefit-row__icon--orange { background: #ffedd5; color: #ea580c; }
-  .benefit-row__icon--green { background: #dcfce7; color: #16a34a; }
-
-  .benefit-row h3 {
-    font-size: var(--text-xl);
-    font-weight: 700;
-    margin-bottom: var(--space-2);
+  .bento__icon--light {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
   }
 
-  .benefit-row p {
-    color: var(--color-gray-700);
-    line-height: 1.7;
+  .bento__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+  .bento__h {
+    font-family: var(--font-heading);
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.25;
+    color: var(--color-gray-900);
+  }
+  .bento__card--dark .bento__h { color: #fff; }
+  .bento__p {
+    font-size: 0.9rem;
+    line-height: 1.55;
+    color: var(--color-text-light);
+    margin: 0;
+  }
+  .bento__card--dark .bento__p {
+    color: rgba(255, 255, 255, 0.78);
+  }
+
+  .bento__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 0.5rem;
+    color: #7dd3fc;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    align-self: flex-start;
+  }
+  .bento__link:hover { text-decoration: underline; }
+
+  /* Instant Photos card — photo fills the whole background, content
+     overlays it via z-index layering. Aspect ratio matches the source
+     photos (3:4 portrait) so the image fits without cropping. */
+  .ba-card {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    padding: 0;
+    border: 0;
+    color: #fff;
+    background: #0B1320;
+    aspect-ratio: 3 / 4;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 0;
+  }
+  /* Background photo layer */
+  .ba-card__bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+  .ba-card__panel {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 280ms ease;
+    pointer-events: none;
+  }
+  .ba-card__panel.is-active {
+    opacity: 1;
+  }
+  .ba-card__panel img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .ba-card__placeholder {
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 0.9rem;
+    font-style: italic;
+    text-align: center;
+    padding: 2rem;
+    letter-spacing: 0.01em;
+  }
+  /* Gradient overlay for legibility */
+  .ba-card__overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient(
+      180deg,
+      rgba(11, 19, 32, 0.5) 0%,
+      rgba(11, 19, 32, 0) 35%,
+      rgba(11, 19, 32, 0) 70%,
+      rgba(11, 19, 32, 0.55) 100%
+    );
+    pointer-events: none;
+  }
+  /* Foreground content. Icon sits on the left, title and description
+     stack vertically next to it. Smaller type so both fit on one row. */
+  .ba-card__top {
+    position: relative;
+    z-index: 2;
+    padding: 1.1rem 1.1rem 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.7rem;
+  }
+  .ba-card__copy {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-width: 0;
+  }
+  .ba-card .bento__h {
+    font-size: 1.05rem;
+    line-height: 1.2;
+  }
+  .ba-card .bento__p {
+    font-size: 0.78rem;
+    line-height: 1.4;
+  }
+  .ba-card__bottom {
+    position: relative;
+    z-index: 2;
+    padding: 1rem 1.5rem 1.25rem;
+    display: flex;
+    justify-content: flex-start;
+  }
+  /* Inside .ba-card the bento heading and copy are over a dark image */
+  .ba-card .bento__h { color: #fff; }
+  .ba-card .bento__p { color: rgba(255, 255, 255, 0.85); }
+
+  /* Pill-style Before/After switcher (Tesla-style indicator slide) */
+  .ba-tabs__switcher {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: rgba(0, 0, 0, 0.45);
+    border-radius: 99px;
+    padding: 3px;
+    width: 100%;
+    max-width: 240px;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  .ba-tabs__switcher::before {
+    content: '';
+    position: absolute;
+    top: 3px;
+    bottom: 3px;
+    left: 3px;
+    width: calc(50% - 3px);
+    background: rgba(255, 255, 255, 0.92);
+    border-radius: 99px;
+    transition: transform 260ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .ba-card[data-active="after"] .ba-tabs__switcher::before {
+    transform: translateX(100%);
+  }
+  .ba-tabs__btn {
+    position: relative;
+    z-index: 1;
+    padding: 0.5rem 0.85rem;
+    background: transparent;
+    border: 0;
+    color: rgba(255, 255, 255, 0.78);
+    font-family: inherit;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    border-radius: 99px;
+    transition: color 220ms ease;
+  }
+  .ba-tabs__btn.is-active {
+    color: #0B1320;
+  }
+
+  /* Digital Service Logs — visit metadata strip above the tabbed panel. */
+  .dsl-meta {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    padding: 0.55rem 0.85rem;
+    background: rgba(11, 19, 32, 0.04);
+    border-radius: 10px;
+  }
+  .dsl-meta__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+  }
+  .dsl-meta__label {
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+  .dsl-meta__value {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--color-gray-900);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Tabbed service-log panel — flex-grows to fill the card's remaining
+     height so all tab contents have the same vertical space to spread
+     into. */
+  .dsl-tabs {
+    background: var(--color-light-bg, #f9f6f0);
+    border-radius: 12px;
+    padding: 0.65rem 0.85rem 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-top: auto;
+    flex: 1;
+    min-height: 0;
+  }
+  .dsl-tabs__switcher {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    background: rgba(11, 19, 32, 0.06);
+    border-radius: 99px;
+    padding: 3px;
+  }
+  .dsl-tabs__switcher::before {
+    content: '';
+    position: absolute;
+    top: 3px;
+    bottom: 3px;
+    left: 3px;
+    width: calc(33.333% - 2px);
+    background: #fff;
+    border-radius: 99px;
+    box-shadow: 0 2px 8px rgba(11, 19, 32, 0.08);
+    transition: transform 240ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .dsl-tabs[data-active="service"] .dsl-tabs__switcher::before {
+    transform: translateX(100%);
+  }
+  .dsl-tabs[data-active="added"] .dsl-tabs__switcher::before {
+    transform: translateX(200%);
+  }
+  .dsl-tabs__btn {
+    position: relative;
+    z-index: 1;
+    padding: 0.4rem 0.5rem;
+    background: transparent;
+    border: 0;
+    color: var(--color-text-light);
+    font-family: inherit;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    border-radius: 99px;
+    transition: color 200ms ease;
+  }
+  .dsl-tabs__btn.is-active {
+    color: var(--color-gray-900);
+  }
+  /* Stack all panels in one grid cell so the wrapper height matches the
+     tallest panel. Wrapper grows to fill the .dsl-tabs container so each
+     panel's content has the full available space to spread into. */
+  .dsl-tabs__panels {
+    display: grid;
+    flex: 1;
+    min-height: 0;
+  }
+  .dsl-tabs__panel {
+    grid-area: 1 / 1;
+    visibility: hidden;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+  }
+  .dsl-tabs__panel.is-active {
+    visibility: visible;
+    pointer-events: auto;
+  }
+  /* Each panel's inner list/grid stretches to fill height and distributes
+     its items vertically so it fills regardless of item count. */
+  .dsl-panel__rows {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    justify-content: space-between;
+  }
+  .dsl-panel__row {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.3rem 0;
+    border-bottom: 1px solid var(--color-border);
+    font-size: 0.78rem;
+  }
+  .dsl-panel__row:last-child { border-bottom: none; }
+  .dsl-panel__k {
+    color: var(--color-text-light);
+  }
+  .dsl-panel__v {
+    color: var(--color-gray-900);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .dsl-panel__v--ok { color: var(--color-success, #059669); }
+
+  /* Added to pool — 2-column grid of card-style items with chemical
+     icon, name + purpose, and a quantity pill. */
+  .dsl-added {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-auto-rows: 1fr;
+    gap: 0.5rem 0.75rem;
+    flex: 1;
+  }
+  @media (min-width: 720px) {
+    .dsl-added {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .dsl-added__item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.5rem 0.7rem;
+    background: #fff;
+    border: 1px solid var(--color-border);
+    border-radius: 9px;
+  }
+  .dsl-added__icon {
+    width: 26px;
+    height: 26px;
+    border-radius: 7px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .dsl-added__icon--blue { background: #dbeafe; color: #1d4ed8; }
+  .dsl-added__icon--cyan { background: #cffafe; color: #0e7490; }
+  .dsl-added__icon--green { background: #dcfce7; color: #166534; }
+  .dsl-added__icon--amber { background: #fef3c7; color: #92400e; }
+  .dsl-added__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.05rem;
+    min-width: 0;
+    flex: 1;
+  }
+  .dsl-added__name {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-gray-900);
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .dsl-added__purpose {
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+  .dsl-added__qty {
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: var(--color-gray-900);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    padding: 0.2rem 0.55rem;
+    background: rgba(11, 19, 32, 0.06);
+    border-radius: 99px;
+  }
+
+  /* Service checklist — 2-column grid of pill-card items with green
+     filled-circle check on the left, label on the right. Fills the
+     panel space and reads more like a completed task list. */
+  .dsl-checklist {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-auto-rows: 1fr;
+    gap: 0.45rem 0.75rem;
+    flex: 1;
+  }
+  @media (min-width: 720px) {
+    .dsl-checklist {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .dsl-checklist__item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.55rem 0.75rem;
+    background: rgba(34, 197, 94, 0.09);
+    border: 1px solid rgba(34, 197, 94, 0.18);
+    border-radius: 9px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--color-gray-900);
+    line-height: 1.3;
+  }
+  .dsl-checklist__check {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #22c55e;
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 1px 4px rgba(22, 163, 74, 0.35);
+  }
+  .dsl-checklist__label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Chips */
+  .bento__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: auto;
+  }
+  .bento__chip {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.3rem 0.65rem;
+    border-radius: 99px;
+    background: var(--color-light-bg, #f3f0ea);
+    color: var(--color-text-light);
+  }
+  .bento__chip--active {
+    background: rgba(34, 197, 94, 0.12);
+    color: #15803d;
+  }
+
+  /* Green Free Guarantee card — dark green, white text, with a subtle
+     oversized shield watermark in the background and a green CTA pill.
+     Tighter internal spacing than the default bento card so the row
+     doesn't get pushed taller than the Automated Billing sibling. */
+  .gfg-card {
+    background: linear-gradient(135deg, #166534 0%, #14532d 100%);
+    border-color: transparent;
+    color: #fff;
+    overflow: hidden;
+    gap: 0.6rem;
+    align-self: start;
+  }
+  .gfg-card__bg {
+    position: absolute;
+    right: -2rem;
+    bottom: -3rem;
+    width: 240px;
+    height: 240px;
+    color: rgba(255, 255, 255, 0.06);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .gfg-card__bg svg {
+    width: 100%;
+    height: 100%;
+  }
+  .gfg-card > *:not(.gfg-card__bg) {
+    position: relative;
+    z-index: 1;
+  }
+  .gfg-card__head {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+  .gfg-card__kicker {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.7);
+  }
+  .gfg-card__body { display: flex; flex-direction: column; gap: 0.4rem; }
+  .gfg-card .bento__h {
+    font-size: 1.5rem;
+    color: #fff;
+    line-height: 1.2;
+  }
+  .gfg-card .bento__p {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.92rem;
+    line-height: 1.55;
+  }
+  .gfg-card .bento__p strong { color: #fff; font-weight: 700; }
+  .gfg-card__features {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem 1.25rem;
+  }
+  .gfg-card__features li {
+    position: relative;
+    padding-left: 1.4rem;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.95);
+    font-weight: 500;
+  }
+  .gfg-card__features li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.25rem;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.95);
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 14 14' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3.5 7.2 6 9.5 10.5 4.5' stroke='%2314532d' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E");
+    background-size: 12px 12px;
+    background-position: center;
+    background-repeat: no-repeat;
   }
 
   /* Stats Banner */

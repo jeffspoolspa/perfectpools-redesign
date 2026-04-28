@@ -13,7 +13,7 @@ const schema = {
     "telephone": "(912) 459-0160"
   },
   "areaServed": "Richmond Hill, Savannah, and Coastal Georgia",
-  "description": "Weekly pool maintenance at $50 per visit ($200/month). Bi-weekly winter option available. Cost Plus Chemicals pricing for full transparency."
+  "description": "Weekly pool maintenance at $50 per visit ($200/month). Bi-weekly winter option available. Itemized chemical billing for full transparency."
 };
 
 const checkSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon--check"><polyline points="20 6 9 17 4 12"/></svg>';
@@ -22,7 +22,7 @@ const xSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-
 
 <BaseLayout
   title="Pool Service Plans & Pricing | Weekly & Bi-Weekly | Perfect Pools"
-  description="Weekly pool maintenance at $50/visit ($200/month). Clear, transparent pricing with Cost Plus Chemicals. No contracts. Serving Richmond Hill, Savannah & Coastal Georgia."
+  description="Weekly pool maintenance at $50/visit ($200/month). Clear, transparent pricing with itemized chemical billing. No contracts. Serving Richmond Hill, Savannah & Coastal Georgia."
   canonicalPath="/plans"
   schema={schema}
 >
@@ -117,7 +117,7 @@ const xSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-
             </li>
             <li class="plan-card__feature--muted">
               <Fragment set:html={xSvg} />
-              <span>Chemicals billed separately (see Cost Plus Chemicals below)</span>
+              <span>Chemicals billed separately (itemized on each report)</span>
             </li>
           </ul>
 
@@ -236,7 +236,7 @@ const xSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-
 
           <div class="not-included__item">
             <h4>Chemicals</h4>
-            <p>Pool chemicals are billed separately from service visits. We offer transparent Cost Plus Chemicals pricing where you pay our wholesale cost. See our <a href={`${base}chemicals/`}>Chemicals page</a> for complete details on every chemical we use, what it does, and what it costs.</p>
+            <p>Pool chemicals are billed separately from service visits. Every chemical we add is itemized on your service report so you see exactly what was used and why. See our <a href={`${base}chemicals/`}>Chemicals page</a> for complete details on every chemical we use, what it does, and what it costs.</p>
           </div>
 
           <div class="not-included__item">
@@ -278,39 +278,6 @@ const xSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-
               </div>
               <div class="accordion-card__callout accordion-card__callout--amber">
                 <p><strong>Note:</strong> Most customers stay on weekly service year-round for best results. Bi-weekly service requires you to manage chemicals between visits.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Cost Plus Chemicals -->
-        <div class="accordion-card">
-          <button class="accordion-card__trigger" aria-expanded="false">
-            <h3>Cost Plus Chemicals Mode</h3>
-            <svg class="accordion-card__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
-          <div class="accordion-card__content" hidden>
-            <div class="accordion-card__body">
-              <p>Cost Plus Chemicals is an alternative pricing model where you purchase chemicals separately from us at our cost, and pay only for the service itself.</p>
-              <div>
-                <h4>How It Works:</h4>
-                <ul class="bullet-list">
-                  <li>We buy chemicals at wholesale prices and pass those costs directly to you</li>
-                  <li>You see exactly what chemicals were used and their cost on each service report</li>
-                  <li>Chemical costs vary based on your pool's needs each week</li>
-                  <li>You're billed for chemicals used in addition to the service fee</li>
-                </ul>
-              </div>
-              <div>
-                <h4>Who Should Choose This:</h4>
-                <ul class="bullet-list">
-                  <li>Pools that need minimal chemicals (well-maintained, covered, etc.)</li>
-                  <li>Customers who want full transparency on chemical costs</li>
-                  <li>Those who prefer variable billing based on actual usage</li>
-                </ul>
-              </div>
-              <div class="accordion-card__callout accordion-card__callout--blue">
-                <p><strong>Most customers prefer all-inclusive pricing</strong> for predictable monthly bills. Contact us if you'd like to discuss Cost Plus Chemicals for your pool.</p>
               </div>
             </div>
           </div>

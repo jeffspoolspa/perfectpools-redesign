@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'preact/hooks';
 import PillarsTriangle, { PILLARS } from './PillarsTriangle';
 import LSICalculator from './tools/LSICalculator';
 import SanitationTabs from './tools/SanitationTabs';
+import FiltrationDiagram from './tools/FiltrationDiagram';
 import { assetPath } from '../utils/base-url';
 import { buildCardStackTimeline } from '../utils/card-stack-timeline';
 import { getHeaderOffset } from '../utils/scroll-config';
@@ -128,6 +129,8 @@ export default function PillarsScroll() {
                     <LSICalculator />
                   ) : p.id === 'sanitation' ? (
                     <SanitationTabs />
+                  ) : p.id === 'filtration' ? (
+                    <FiltrationDiagram />
                   ) : (
                     <p>{p.description}</p>
                   )}

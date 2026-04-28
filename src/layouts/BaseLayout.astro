@@ -167,6 +167,54 @@ const ogImageUrl = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`
         }
       });
     });
+
+    // Lawn-analogy tabs. Card stays in place; only the bubble icon and
+    // copy cross-fade between states. Pill switcher at the bottom drives
+    // the active state.
+    document.querySelectorAll<HTMLElement>('[data-lawn-tabs]').forEach((tabs) => {
+      const buttons = tabs.querySelectorAll<HTMLButtonElement>('.lawn-tabs__btn');
+      const bubbles = tabs.querySelectorAll<HTMLElement>('.lawn-tabs__bubble');
+      const copies = tabs.querySelectorAll<HTMLElement>('.lawn-tabs__copy');
+      const nodes = tabs.querySelectorAll<HTMLElement>('.lawn-tabs__node');
+      const fill = tabs.querySelector<HTMLElement>('.lawn-tabs__rail-fill');
+      const order = Array.from(buttons).map((b) => b.dataset.lawn || '');
+      const total = order.length;
+      const indexOfKey = (key: string) => {
+        const i = order.indexOf(key);
+        return i < 0 ? 0 : i;
+      };
+
+      function setActive(target: string) {
+        const idx = indexOfKey(target);
+        tabs.dataset.active = order[idx];
+        buttons.forEach((b) => {
+          const active = b.dataset.lawn === order[idx];
+          b.classList.toggle('is-active', active);
+          b.setAttribute('aria-selected', String(active));
+        });
+        bubbles.forEach((bb) => {
+          bb.classList.toggle('is-active', bb.dataset.lawnBubble === order[idx]);
+        });
+        copies.forEach((c) => {
+          const i = indexOfKey(c.dataset.lawnCopy || '');
+          c.classList.remove('is-active', 'is-off-left');
+          if (i === idx) c.classList.add('is-active');
+          else if (i < idx) c.classList.add('is-off-left');
+        });
+        nodes.forEach((n, i) => {
+          n.classList.toggle('is-active', i === idx);
+          n.classList.toggle('is-passed', i < idx);
+        });
+        if (fill) fill.style.width = total > 1 ? `${(idx / (total - 1)) * 100}%` : '0%';
+      }
+
+      setActive(tabs.dataset.active || order[0] || '');
+      buttons.forEach((b) => {
+        b.addEventListener('click', () => {
+          if (b.dataset.lawn) setActive(b.dataset.lawn);
+        });
+      });
+    });
   </script>
 </body>
 </html>

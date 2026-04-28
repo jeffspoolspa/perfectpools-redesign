@@ -219,11 +219,11 @@ const city = {
             <!-- Left: Plan configurator (Preact island) -->
             <div class="pricing-card__plan" id="pricing-config-weekly"></div>
 
-            <!-- Right: Cost Plus Chemicals -->
+            <!-- Right: Chemical pricing -->
             <div class="pricing-card__chemicals">
               <div class="chem-header">
-                <span class="chem-kicker">HOW CHEMICALS WORK</span>
-                <h4>True Cost Pricing</h4>
+                <span class="chem-kicker">HOW CHEMICALS BILL</span>
+                <h4>Itemized Chemicals</h4>
                 <p>Your bill reflects your pool, not an average.</p>
               </div>
 
@@ -246,23 +246,42 @@ const city = {
                 <p style="color: #1E3A5F; font-weight: 700;">Anyone who's maintained a pool in coastal weather knows — two weeks is too long in the heat.</p>
               </div>
 
-              <!-- 1. Lawn analogy -->
+              <!-- 1. Lawn analogy (tabbed) -->
               <div class="biweekly-section__title">The Lawn Analogy</div>
-              <div class="biweekly-cards">
-                <div class="biweekly-card biweekly-card--good">
-                  <span class="biweekly-card__emoji">🌿</span>
-                  <strong>Weekly</strong>
-                  <span>Like mowing every week — stays level, no surprises.</span>
+              <div class="lawn-tabs" data-lawn-tabs data-active="weekly">
+                <div class="lawn-tabs__card">
+                  <div class="lawn-tabs__bubble-stack" aria-hidden="true">
+                    <span class="lawn-tabs__bubble is-active" data-lawn-bubble="weekly">🌿</span>
+                    <span class="lawn-tabs__bubble" data-lawn-bubble="biweekly">🌾</span>
+                    <span class="lawn-tabs__bubble" data-lawn-bubble="green">🟢</span>
+                  </div>
+                  <div class="lawn-tabs__copy-stack">
+                    <div class="lawn-tabs__copy is-active" data-lawn-copy="weekly" role="tabpanel">
+                      <span class="lawn-tabs__h">Like mowing every week.</span>
+                      <span class="lawn-tabs__b">Stays level, no surprises.</span>
+                    </div>
+                    <div class="lawn-tabs__copy" data-lawn-copy="biweekly" role="tabpanel">
+                      <span class="lawn-tabs__h">Tall grass, weeds taking hold.</span>
+                      <span class="lawn-tabs__b">Harder to cut through.</span>
+                    </div>
+                    <div class="lawn-tabs__copy" data-lawn-copy="green" role="tabpanel">
+                      <span class="lawn-tabs__h">The overgrown yard.</span>
+                      <span class="lawn-tabs__b">Needs specialized equipment to recover.</span>
+                    </div>
+                  </div>
                 </div>
-                <div class="biweekly-card biweekly-card--warn">
-                  <span class="biweekly-card__emoji">🌾</span>
-                  <strong>Bi-weekly</strong>
-                  <span>Tall grass, weeds taking hold, harder to cut through.</span>
+                <div class="lawn-tabs__track" aria-hidden="true">
+                  <div class="lawn-tabs__rail"><div class="lawn-tabs__rail-fill"></div></div>
+                  <div class="lawn-tabs__nodes">
+                    <span class="lawn-tabs__node is-active"><span class="lawn-tabs__node-dot"></span></span>
+                    <span class="lawn-tabs__node"><span class="lawn-tabs__node-dot"></span></span>
+                    <span class="lawn-tabs__node"><span class="lawn-tabs__node-dot"></span></span>
+                  </div>
                 </div>
-                <div class="biweekly-card biweekly-card--bad">
-                  <span class="biweekly-card__emoji">🟢</span>
-                  <strong>Green pool</strong>
-                  <span>The overgrown yard — needs specialized equipment to recover.</span>
+                <div class="lawn-tabs__switcher" role="tablist" aria-label="Lawn analogy">
+                  <button type="button" class="lawn-tabs__btn is-active" data-lawn="weekly" role="tab" aria-selected="true">Weekly</button>
+                  <button type="button" class="lawn-tabs__btn" data-lawn="biweekly" role="tab" aria-selected="false">Bi-weekly</button>
+                  <button type="button" class="lawn-tabs__btn" data-lawn="green" role="tab" aria-selected="false">Green pool</button>
                 </div>
               </div>
               <p class="biweekly-story__kicker">Algae slows in winter just like grass — which is why bi-weekly works September through March.</p>
@@ -318,7 +337,7 @@ const city = {
       <div class="text-center" style="margin-top: 2rem;">
         <a href={`${base}get-started/`} class="btn btn--cta btn--lg">Get Started</a>
         <p style="margin-top: 1rem; color: var(--color-text-light); font-size: 0.85rem;">
-          Chemicals billed separately at transparent cost-plus pricing. <a href={`${base}plans/`} style="color: var(--color-primary); text-decoration: underline;">See full pricing details</a>
+          Chemicals billed separately. <a href={`${base}plans/`} style="color: var(--color-primary); text-decoration: underline;">See full pricing details</a>
         </p>
       </div>
     </div>

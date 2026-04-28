@@ -8,7 +8,7 @@ const schema = {
   "@context": "https://schema.org",
   "@type": "ItemList",
   "name": "Pool Chemicals",
-  "description": "Professional-grade pool chemicals with transparent cost-plus pricing. Every chemical we use, what it does, and what it costs.",
+  "description": "Professional-grade pool chemicals, billed transparently. Every chemical we use, what it does, and what it costs.",
   "itemListElement": Object.values(chemicals).map((chem, i) => ({
     "@type": "ListItem",
     "position": i + 1,
@@ -27,7 +27,7 @@ const checkSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
 
 <BaseLayout
   title="Pool Chemicals We Use & Their Costs | Perfect Pools"
-  description="Every chemical we use in your pool, what it does, why it matters, and what it costs. Transparent cost-plus pricing on professional-grade chemicals."
+  description="Every chemical we use in your pool, what it does, why it matters, and what it costs. Transparent itemized billing on professional-grade chemicals."
   canonicalPath="/chemicals"
   schema={schema}
 >
@@ -36,7 +36,7 @@ const checkSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
     <div class="container">
       <div class="chem-hero__content">
         <h1>Pool chemistry is complicated.<br/><span class="chem-hero__accent">Your bill shouldn't be.</span></h1>
-        <p class="chem-hero__sub">Formulations that provide sustained water quality using transparent, cost-plus pricing on professional-grade chemicals.</p>
+        <p class="chem-hero__sub">Formulations that provide sustained water quality, with every chemical we add itemized on your service report.</p>
         <div class="chem-hero__note">
           <svg class="chem-hero__shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
           <p>We test your water every visit. What we add depends entirely on what we find.</p>

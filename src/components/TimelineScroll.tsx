@@ -1,8 +1,29 @@
-import { useEffect, useRef } from 'preact/hooks';
-import { buildCardStackTimeline } from '../utils/card-stack-timeline';
+/**
+ * TimelineScroll — Our Story horizontal-card timeline
+ *
+ * The section pins for the duration of the timeline. As the user scrolls,
+ * we snap to discrete card indices (0..N-1). Each card transition is a
+ * directional horizontal slide (CSS, ease-in-out cubic) so the card looks
+ * like it's traveling left or right depending on scroll direction.
+ *
+ * Why snap instead of scrub: pure scrub means the card is mid-slide while
+ * scrolling — feels broken. Snap lets the discrete CSS transition play
+ * out cleanly between states. Rail fill + dot scaling are also CSS
+ * transitions, so they sync with the card on the same easing curve.
+ */
+
+import { useEffect, useRef, useState } from 'preact/hooks';
 import { getHeaderOffset } from '../utils/scroll-config';
 
-const PHASES = [
+interface Phase {
+  numeral: string;
+  badge: string;
+  badgeClass: '' | 'blue' | 'green' | 'orange' | 'teal';
+  title: string;
+  content: string[];
+}
+
+const PHASES: Phase[] = [
   {
     numeral: 'I',
     badge: 'New Beginning',
@@ -28,7 +49,7 @@ const PHASES = [
     numeral: 'III',
     badge: 'Perfect Pools',
     badgeClass: 'green',
-    title: 'Expanding Up the Coast',
+    title: 'Expanding up the coast',
     content: [
       "PSAC's next partnership came with Perfect Pools, expanding the company's footprint up the Georgia coast to Richmond Hill and Savannah. Erin founded the company ~20 years ago and under her leadership, Perfect Pools built a reputation for meticulous attention to detail and a strong commitment to service quality.",
       'The company specialized in servicing high-end residential pools, commercial properties, property managers, and HOAs while bringing this professional level of service to residential customers.',
@@ -49,7 +70,7 @@ const PHASES = [
     numeral: 'V',
     badge: 'Savannah Branch',
     badgeClass: 'teal',
-    title: 'Opening of the Savannah Hub',
+    title: 'Opening of the Savannah hub',
     content: [
       "The next stage of growth is the opening of the Perfect Pools Savannah branch, which serves as a centralized operations hub for the region. This location brings together the best practices and operational strengths developed across the company's other branches.",
       'The location is strategically positioned and designed for efficient service across Savannah, Tybee Island, Skidaway Island, Pooler, and Bluffton within roughly a 30-minute service radius. The facility is designed for operational excellence on fleet and inventory management, employee training, and prompt dispatch.',
@@ -61,109 +82,148 @@ const PHASES = [
 export default function TimelineScroll() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const stickyRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const prevIndexRef = useRef(0);
+  const stRef = useRef<any>(null);
 
   useEffect(() => {
     if (typeof window === 'undefined' || !sectionRef.current) return;
 
-    import('gsap').then(({ gsap }) => {
-      import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => {
+    let cleanup = () => {};
+
+    Promise.all([import('gsap'), import('gsap/ScrollTrigger')]).then(
+      ([{ gsap }, { ScrollTrigger }]) => {
         gsap.registerPlugin(ScrollTrigger);
 
-        const cards = Array.from(sectionRef.current!.querySelectorAll('.tl-card')) as HTMLElement[];
-        const markers = Array.from(sectionRef.current!.querySelectorAll('.tl-marker')) as HTMLElement[];
-        if (!cards.length) return;
+        const total = PHASES.length;
 
-        // Track which marker is active so we only update on change
-        let activeMarkerIndex = 0;
-
-        const setActiveMarker = (index: number) => {
-          if (index === activeMarkerIndex) return;
-          // Deactivate previous
-          gsap.to(markers[activeMarkerIndex], { scale: 1, background: '#e5e7eb', duration: 0.3 });
-          (markers[activeMarkerIndex] as HTMLElement).querySelector('.tl-numeral')!.style.color = '#6b7280';
-          // Activate new
-          gsap.to(markers[index], { scale: 1.2, background: '#145BB8', duration: 0.3 });
-          (markers[index] as HTMLElement).querySelector('.tl-numeral')!.style.color = '#fff';
-          activeMarkerIndex = index;
-        };
-
-        // Set first marker active immediately
-        gsap.set(markers[0], { scale: 1.2, background: '#145BB8' });
-        (markers[0] as HTMLElement).querySelector('.tl-numeral')!.style.color = '#fff';
-
-        const tl = buildCardStackTimeline(gsap, cards, {
-          enterStyle: 'slide-up',
-          exitStyle: 'fade-out-up',
-          enterEase: 'power2.out',
-          exitEase: 'power1.in',
-          holdDuration: 0.6,
-          crossfadeDuration: 1,
-        });
-
-        ScrollTrigger.create({
-          trigger: sectionRef.current,
-          pin: stickyRef.current,
+        const st = ScrollTrigger.create({
+          trigger: sectionRef.current!,
+          pin: stickyRef.current!,
           start: () => `top top+=${getHeaderOffset()}`,
           end: 'bottom bottom',
           pinSpacing: false,
-          animation: tl,
-          scrub: 1,
+          scrub: false,
+          snap: {
+            snapTo: (value: number) => Math.round(value * (total - 1)) / (total - 1),
+            duration: { min: 0.2, max: 0.5 },
+            ease: 'power2.inOut',
+          },
           onUpdate: (self: any) => {
-            const totalCards = cards.length;
-            const index = Math.min(
-              totalCards - 1,
-              Math.floor(self.progress * totalCards)
-            );
-            setActiveMarker(index);
+            const idx = Math.min(total - 1, Math.round(self.progress * (total - 1)));
+            if (idx !== prevIndexRef.current) {
+              prevIndexRef.current = idx;
+              setActiveIndex(idx);
+            }
           },
         });
-      });
-    });
+
+        stRef.current = st;
+        cleanup = () => {
+          stRef.current = null;
+          st.kill();
+        };
+      },
+    );
+
+    return () => cleanup();
   }, []);
+
+  // Jump scroll to the pin range position for index i. Instant scroll (not
+  // smooth) so the page doesn't drag through intermediate snap points
+  // mid-scroll, which would flicker the card through II/III when going
+  // I→IV. The section is pinned, so the user sees only the CSS card slide,
+  // not the underlying scroll-position jump. Uses ScrollTrigger's own
+  // start/end (not raw rect math) so the target lands exactly on a snap.
+  const goTo = (i: number) => {
+    if (i === activeIndex) return;
+    const st = stRef.current;
+    if (!st || typeof window === 'undefined') return;
+
+    prevIndexRef.current = i;
+    setActiveIndex(i);
+
+    const target = st.start + (i / (PHASES.length - 1)) * (st.end - st.start);
+    window.scrollTo({ top: target, behavior: 'instant' });
+  };
+
+  const fillPct = (activeIndex / (PHASES.length - 1)) * 100;
 
   return (
     <div ref={sectionRef} class="tl-scroll">
-      {/* Mobile: header scrolls naturally */}
       <div class="section-header tl__header tl__header--mobile">
         <span class="section-kicker">OUR STORY</span>
-        <h2>Built by Bringing the Best Together</h2>
+        <h2>Built by bringing the best together.</h2>
         <p>Five partnerships that shaped how we take care of your pool.</p>
       </div>
 
       <div ref={stickyRef} class="tl-sticky">
-        {/* Desktop: header inside sticky */}
         <div class="section-header tl__header tl__header--desktop">
           <span class="section-kicker">OUR STORY</span>
-          <h2>Built by Bringing the Best Together</h2>
+          <h2>Built by bringing the best together.</h2>
           <p>Five partnerships that shaped how we take care of your pool.</p>
         </div>
 
-        <div class="tl__content-row">
-          {/* Left: markers */}
-          <div class="tl-markers">
-            <div class="tl-line"></div>
-            {PHASES.map((p, i) => (
-              <div key={i} class="tl-marker">
-                <span class="tl-numeral">{p.numeral}</span>
-              </div>
-            ))}
+        <div class="tl-track">
+          <div class="tl-track__rail">
+            <div
+              class="tl-track__rail-fill"
+              style={{ width: `${fillPct}%` }}
+            />
           </div>
-
-          {/* Right: card stack */}
-          <div class="tl-card-area">
+          <div class="tl-track__nodes">
             {PHASES.map((p, i) => (
-              <div key={i} class={`tl-card`} style={i !== 0 ? 'opacity: 0; position: absolute; top: 0; left: 0; right: 0;' : ''}>
-                <span class={`tl-badge tl-badge--${p.badgeClass || 'default'}`}>{p.badge}</span>
-                <h3>{p.title}</h3>
-                {p.content.map((para, j) => (
-                  <p key={j}>{para}</p>
-                ))}
-              </div>
+              <button
+                key={i}
+                type="button"
+                class={`tl-node ${i === activeIndex ? 'is-active' : ''} ${
+                  i < activeIndex ? 'is-passed' : ''
+                }`}
+                aria-label={`Go to ${p.title}`}
+                onClick={() => goTo(i)}
+              >
+                <span class="tl-node__dot" />
+              </button>
             ))}
           </div>
         </div>
+
+        <div class="tl-stage">
+          <div class="tl-card-wrap">
+            {PHASES.map((p, i) => {
+              const isActive = i === activeIndex;
+              let stateClass = '';
+              if (isActive) {
+                stateClass = 'is-active';
+              } else if (i < activeIndex) {
+                stateClass = 'is-off-left';
+              } else {
+                stateClass = 'is-off-right';
+              }
+              return (
+                <article
+                  key={i}
+                  class={`tl-card ${stateClass}`}
+                  aria-hidden={!isActive}
+                >
+                  <div class="tl-card__row">
+                    <span class="tl-card__numeral">{p.numeral}</span>
+                    <span class={`tl-badge tl-badge--${p.badgeClass || 'default'}`}>
+                      {p.badge}
+                    </span>
+                  </div>
+                  <h3>{p.title}</h3>
+                  {p.content.map((para, j) => (
+                    <p key={j}>{para}</p>
+                  ))}
+                </article>
+              );
+            })}
+          </div>
+        </div>
       </div>
-      <div className="tl__spacer" />
+
+      <div class="tl__spacer" />
     </div>
   );
 }

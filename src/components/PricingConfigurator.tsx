@@ -107,7 +107,7 @@ export default function PricingConfigurator({ frequency, ctaHref }: PricingConfi
       <ul class="pricing-card__includes">
         {isWeekly && (
           <li class="pricing-card__green-guarantee" dangerouslySetInnerHTML={{
-            __html: GREEN_CHECK + '<span>Green Free Guarantee <span class="tooltip-trigger">?<span class="tooltip">If your pool turns green between weekly visits, we fix it at no additional labor cost. Chemicals used for recovery are billed at standard cost-plus rates.</span></span></span>'
+            __html: GREEN_CHECK + '<span>Green Free Guarantee <span class="tooltip-trigger">?<span class="tooltip">If your pool turns green between weekly visits, we fix it at no additional labor cost — typically the majority of recovery cost. You only pay for chemicals used.</span></span></span>'
           }} />
         )}
         {!isWeekly && (

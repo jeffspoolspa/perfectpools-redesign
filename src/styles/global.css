@@ -37,6 +37,11 @@
   --color-success: #059669;
   --color-border: #e5e7eb;
 
+  /* Filtration diagram (our-approach > filtration pillar) */
+  --p-dissolved: #1e6047;
+  --arrow-stroke: #B7BFC6;
+  --tick-line: #C7CCD2;
+
   /* Typography — Plus Jakarta Sans */
   --font-heading: 'Plus Jakarta Sans', system-ui, sans-serif;
   --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
@@ -6801,16 +6806,17 @@ p:last-child {
 /* --- Timeline Scroll --- */
 .tl-scroll {
   position: relative;
+  --tl-ease: cubic-bezier(.645, .045, .355, 1);
+  --tl-card-radius: 20px;
+  --tl-dot-size: 18px;
+  --tl-dot-active-size: 26px;
+  --tl-track-color: #e5e7eb;
+  --tl-track-fill: linear-gradient(90deg, #7dd3fc 0%, #0284c7 100%);
 }
 
-.tl__spacer {
-  height: 400vh;
-}
-
+.tl__spacer { height: 500vh; }
 @media (min-width: 768px) {
-  .tl__spacer {
-    height: 300vh;
-  }
+  .tl__spacer { height: 400vh; }
 }
 
 .tl-sticky {
@@ -6818,147 +6824,211 @@ p:last-child {
   flex-direction: column;
   max-width: 900px;
   margin: 0 auto;
-  /* Center vertically in available viewport (below header) */
   min-height: calc(100vh - var(--header-height, 64px) - var(--topbar-height, 40px) - 4rem);
   justify-content: center;
+  gap: 2.5rem;
 }
 
 .tl-sticky .tl__header--desktop {
-  margin-bottom: var(--space-8);
+  margin-bottom: var(--space-2, 0.5rem);
 }
 
-.tl__content-row {
-  display: flex;
-  gap: 3rem;
-  align-items: flex-start;
-}
-
-/* Mobile/desktop header visibility */
 .tl__header--mobile { display: block; margin-bottom: var(--space-6); }
 .tl__header--desktop { display: none; }
-
 @media (min-width: 900px) {
   .tl__header--mobile { display: none; }
   .tl__header--desktop { display: block; }
 }
 
-.tl-markers {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.5rem;
+.tl-stage {
   position: relative;
-  padding: 0.5rem 0;
-  flex-shrink: 0;
-}
-
-.tl-line {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  width: 2px;
-  background: #e5e7eb;
-  transform: translateX(-50%);
-}
-
-.tl-marker {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: #e5e7eb;
+  min-height: 360px;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-  z-index: 1;
-  transition: all 0.3s ease;
 }
-
-.tl-numeral {
-  font-size: 0.85rem;
-  font-weight: 800;
-  color: #6b7280;
-  font-family: serif;
-  letter-spacing: 0.02em;
-}
-
-.tl-card-area {
-  flex: 1;
+.tl-card-wrap {
+  width: 100%;
+  max-width: 760px;
   position: relative;
-  min-height: 350px;
+  min-height: 320px;
+  margin: 0 auto;
 }
 
 .tl-card {
+  position: absolute;
+  inset: 0;
   background: #fff;
-  border-radius: 20px;
-  padding: 2rem 2.5rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--pp-border, #e5e7eb);
+  border-radius: var(--tl-card-radius);
+  padding: clamp(1.5rem, 3vw, 2.25rem) clamp(1.5rem, 3.5vw, 2.75rem);
   box-shadow: 0 10px 40px rgba(30, 58, 95, 0.06);
+  opacity: 0;
+  transform: translateX(0) scale(0.97);
+  filter: blur(2px);
+  pointer-events: none;
+  transition:
+    opacity 480ms var(--tl-ease),
+    transform 520ms var(--tl-ease),
+    filter 400ms var(--tl-ease);
+  will-change: opacity, transform, filter;
+}
+.tl-card.is-off-left {
+  opacity: 0;
+  transform: translateX(-160px) scale(0.97);
+  filter: blur(2px);
+  transition:
+    opacity 380ms var(--tl-ease),
+    transform 440ms var(--tl-ease),
+    filter 340ms var(--tl-ease);
+}
+.tl-card.is-off-right {
+  opacity: 0;
+  transform: translateX(160px) scale(0.97);
+  filter: blur(2px);
+  transition:
+    opacity 380ms var(--tl-ease),
+    transform 440ms var(--tl-ease),
+    filter 340ms var(--tl-ease);
+}
+.tl-card.is-active {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+  filter: blur(0);
+  pointer-events: auto;
+  position: relative;
+  z-index: 2;
+}
+
+.tl-card__row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+.tl-card__numeral {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0284c7, #06b6d4);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-family: 'Poppins', serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  box-shadow: 0 6px 18px rgba(2, 132, 199, 0.25);
+  flex-shrink: 0;
 }
 
 .tl-badge {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   font-size: 0.7rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  padding: 0.25rem 0.75rem;
+  letter-spacing: 0.07em;
+  padding: 0.3rem 0.75rem;
   border-radius: 99px;
-  margin-bottom: 0.75rem;
   background: #f3f4f6;
   color: #6b7280;
+  white-space: nowrap;
 }
-
 .tl-badge--blue { background: #dbeafe; color: #1d4ed8; }
 .tl-badge--green { background: #dcfce7; color: #166534; }
 .tl-badge--orange { background: #ffedd5; color: #c2410c; }
 .tl-badge--teal { background: #ccfbf1; color: #0d9488; }
 
 .tl-card h3 {
-  font-size: 1.35rem;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.45rem;
   font-weight: 700;
   color: #1E3A5F;
-  margin-bottom: 0.75rem;
-  line-height: 1.25;
+  line-height: 1.2;
+  margin: 0 0 1rem;
+  letter-spacing: -0.005em;
 }
-
 .tl-card p {
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   color: #637388;
   line-height: 1.7;
-  margin-bottom: 0.75rem;
+  margin: 0 0 0.85rem;
 }
+.tl-card p:last-child { margin-bottom: 0; }
 
-.tl-card p:last-child {
-  margin-bottom: 0;
+.tl-track {
+  position: relative;
+  height: 56px;
+  margin: 0 auto;
+  max-width: 700px;
+  width: 100%;
 }
-
-@media (max-width: 768px) {
-  .tl__content-row {
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-  .tl-markers {
-    flex-direction: row;
-    gap: 0.5rem;
-  }
-  .tl-line {
-    top: 50%;
-    left: 0;
-    right: 0;
-    bottom: auto;
-    width: auto;
-    height: 2px;
-    transform: translateY(-50%);
-  }
-  .tl-marker {
-    width: 36px;
-    height: 36px;
-  }
-  .tl-card {
-    padding: 1.5rem;
-  }
+.tl-track__rail {
+  position: absolute;
+  top: 50%;
+  left: calc(var(--tl-dot-active-size) / 2);
+  right: calc(var(--tl-dot-active-size) / 2);
+  height: 4px;
+  transform: translateY(-50%);
+  background: var(--tl-track-color);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.tl-track__rail-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0%;
+  background: var(--tl-track-fill);
+  border-radius: 99px;
+  transition: width 520ms var(--tl-ease);
+}
+.tl-track__nodes {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+}
+.tl-node {
+  position: relative;
+  width: var(--tl-dot-active-size);
+  height: var(--tl-dot-active-size);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  z-index: 2;
+}
+.tl-node__dot {
+  width: var(--tl-dot-size);
+  height: var(--tl-dot-size);
+  border-radius: 50%;
+  background: #d6dde6;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 1px var(--pp-border, #e5e7eb);
+  transition:
+    transform 480ms var(--tl-ease),
+    background 480ms var(--tl-ease),
+    box-shadow 480ms var(--tl-ease);
+}
+.tl-node.is-passed .tl-node__dot {
+  background: #7dd3fc;
+  box-shadow: 0 0 0 1px #7dd3fc;
+}
+.tl-node.is-active .tl-node__dot {
+  background: #0284c7;
+  transform: scale(1.35);
+  box-shadow: 0 0 0 6px rgba(2, 132, 199, 0.18), 0 0 0 1px #0284c7;
+}
+@media (max-width: 720px) {
+  .tl-stage { min-height: 480px; }
+  .tl-card-wrap { min-height: 460px; }
 }
 
   /* --- Pricing --- */
@@ -7535,7 +7605,251 @@ p:last-child {
     margin: 0 0 0.25rem;
   }
 
-  /* === True Cost Pricing === */
+  /* === Lawn analogy tabs — matches the reference video ===
+     Layout: card with bubble icon overlapping the top + 2 lines of
+     content → thin slider track with 3 dots → 3-icon pill switcher.
+     Animation uses `cubic-bezier(.645, .045, .355, 1)` at 1.5× the
+     timeline's durations. */
+  .lawn-tabs {
+    --lawn-ease: cubic-bezier(0.645, 0.045, 0.355, 1);
+    --lawn-track-color: #e5e7eb;
+    --lawn-track-fill: linear-gradient(90deg, #7dd3fc 0%, #0284c7 100%);
+    --lawn-dot-size: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin: 0 0 0.6rem;
+  }
+
+  /* Card travels horizontally between 3 positions. Card is 40% of
+     container, track is 60% — dots at 20% / 50% / 80% of container
+     align with the card centre as it translates 0 → 75% → 150% of its
+     own width. Card never leaves the screen. */
+  .lawn-tabs__card {
+    position: relative;
+    width: 40%;
+    align-self: flex-start;
+    background: #fff;
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 0.9rem 0.85rem 0.75rem;
+    box-shadow: 0 4px 12px rgba(30, 58, 95, 0.05);
+    margin-top: 14px;
+    transform: translateX(0);
+    transition: transform 720ms var(--lawn-ease);
+  }
+  .lawn-tabs[data-active="biweekly"] .lawn-tabs__card {
+    transform: translateX(75%);
+  }
+  .lawn-tabs[data-active="green"] .lawn-tabs__card {
+    transform: translateX(150%);
+  }
+  /* Bubble icon stack — centered on top of the card, half above and
+     half inside the card edge (matches the video). */
+  .lawn-tabs__bubble-stack {
+    position: absolute;
+    top: -16px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 34px;
+    height: 34px;
+    z-index: 3;
+  }
+  .lawn-tabs__bubble {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: #e0f2fe;
+    border: 3px solid #fff;
+    box-shadow: 0 3px 10px rgba(2, 132, 199, 0.18);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.92rem;
+    line-height: 1;
+    opacity: 0;
+    transform: scale(0.7);
+    transition:
+      opacity 600ms var(--lawn-ease),
+      transform 600ms var(--lawn-ease);
+  }
+  .lawn-tabs__bubble.is-active {
+    opacity: 1;
+    transform: scale(1);
+  }
+  /* Copy stack — content centered in the card. All 3 copies share the
+     same slot; inactive ones fade. */
+  .lawn-tabs__copy-stack {
+    position: relative;
+    min-height: 56px;
+    margin-top: 0.4rem;
+    text-align: center;
+  }
+  .lawn-tabs__copy {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    opacity: 0;
+    transform: translateX(12px);
+    transition:
+      opacity 720ms var(--lawn-ease),
+      transform 780ms var(--lawn-ease);
+    pointer-events: none;
+  }
+  .lawn-tabs__copy.is-active {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+  }
+  .lawn-tabs__copy.is-off-left { transform: translateX(-12px); }
+  .lawn-tabs__h {
+    font-family: var(--font-heading);
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: #1E3A5F;
+    line-height: 1.3;
+    text-align: center;
+  }
+  .lawn-tabs__b {
+    font-size: 0.64rem;
+    line-height: 1.45;
+    color: #4b5563;
+    text-align: center;
+  }
+
+  /* Thin slider track — 3 unlabeled dots on a rail. Track is 60% wide
+     and centered so dots sit at 20%, 50%, 80% of the container — the
+     same horizontal positions the card's centre travels through. */
+  .lawn-tabs__track {
+    position: relative;
+    height: 16px;
+    width: 60%;
+    margin: 0 auto;
+  }
+  .lawn-tabs__rail {
+    position: absolute;
+    top: 50%;
+    left: calc(var(--lawn-dot-size) / 2);
+    right: calc(var(--lawn-dot-size) / 2);
+    height: 3px;
+    transform: translateY(-50%);
+    background: var(--lawn-track-color);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .lawn-tabs__rail-fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 0%;
+    background: var(--lawn-track-fill);
+    border-radius: 99px;
+    transition: width 540ms var(--lawn-ease);
+  }
+  .lawn-tabs__nodes {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+  }
+  .lawn-tabs__node {
+    position: relative;
+    width: var(--lawn-dot-size);
+    height: var(--lawn-dot-size);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+  }
+  .lawn-tabs__node-dot {
+    width: var(--lawn-dot-size);
+    height: var(--lawn-dot-size);
+    border-radius: 50%;
+    background: #d6dde6;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 1px var(--color-border);
+    transition:
+      transform 480ms var(--lawn-ease),
+      background 480ms var(--lawn-ease),
+      box-shadow 480ms var(--lawn-ease);
+  }
+  .lawn-tabs__node.is-passed .lawn-tabs__node-dot {
+    background: #7dd3fc;
+    box-shadow: 0 0 0 1px #7dd3fc;
+  }
+  .lawn-tabs__node.is-active .lawn-tabs__node-dot {
+    background: #0284c7;
+    transform: scale(1.25);
+    box-shadow: 0 0 0 1px #0284c7;
+  }
+
+  /* Pill switcher — 3 text-label buttons in a compact pill. Now that
+     the icons are gone, the pill can shrink to its content width and
+     sit centered under the track. */
+  .lawn-tabs__switcher {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    background: rgba(11, 19, 32, 0.06);
+    border-radius: 99px;
+    padding: 4px;
+    width: max-content;
+    margin: 0 auto;
+    gap: 4px;
+  }
+  .lawn-tabs__switcher::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    left: 4px;
+    width: calc((100% - 8px) / 3);
+    background: #fff;
+    border-radius: 99px;
+    box-shadow: 0 2px 8px rgba(11, 19, 32, 0.08);
+    transition: transform 540ms var(--lawn-ease);
+  }
+  .lawn-tabs[data-active="biweekly"] .lawn-tabs__switcher::before {
+    transform: translateX(calc(100% + 4px));
+  }
+  .lawn-tabs[data-active="green"] .lawn-tabs__switcher::before {
+    transform: translateX(calc(200% + 8px));
+  }
+  .lawn-tabs__btn {
+    position: relative;
+    z-index: 1;
+    background: transparent;
+    border: 0;
+    border-radius: 99px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 0.45rem 0.5rem;
+    font-family: inherit;
+    font-size: 0.74rem;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--color-text-light);
+    transition: color 480ms var(--lawn-ease);
+  }
+  .lawn-tabs__btn-icon {
+    font-size: 0.95rem;
+    line-height: 1;
+  }
+  .lawn-tabs__btn-label {
+    white-space: nowrap;
+  }
+  .lawn-tabs__btn.is-active {
+    color: var(--color-gray-900);
+  }
+
+  /* === Itemized Chemicals === */
   .pricing-card__chemicals {
     display: flex;
     flex-direction: column;

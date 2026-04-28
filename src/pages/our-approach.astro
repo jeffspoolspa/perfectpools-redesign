@@ -170,8 +170,17 @@ const base = import.meta.env.BASE_URL;
     position: relative;
   }
 
+  /* The "Why We Exist" section is a full-bleed dark stage; cancel the
+     section's vertical padding so the dark gradient meets the header. */
+  .problem-section {
+    padding-block: 0;
+  }
+  .problem-section > .container {
+    max-width: none;
+    padding-inline: 0;
+  }
+
   /* GPU compositing hints for scroll-animated cards */
-  :global(.prb__card),
   :global(.ps__card),
   :global(.cs__card),
   :global(.vs__card),
@@ -179,134 +188,268 @@ const base = import.meta.env.BASE_URL;
     will-change: opacity, transform;
   }
 
-  /* === Problem Scroll Section === */
+  /* === "Why We Exist" Disconnected → Connected Scroll Section === */
+  /* Full-bleed: escapes the .container's max-width so the dark gradient
+     fills the viewport edge to edge. */
   :global(.prb) {
     position: relative;
-  }
-
-  :global(.prb__header--mobile) { display: block; margin-bottom: var(--space-6); }
-  :global(.prb__header--desktop) { display: none; }
-
-  @media (min-width: 900px) {
-    :global(.prb__header--mobile) { display: none; }
-    :global(.prb__header--desktop) { display: block; margin-bottom: var(--space-8); }
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
   }
 
   :global(.prb__sticky) {
-    min-height: 60vh;
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    background: radial-gradient(ellipse at 50% 50%, #0c4a6e 0%, #0a1929 80%);
+    color: #fff;
+    overflow: hidden;
+  }
+
+  :global(.prb__progress) {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 2px;
+    width: 0%;
+    background: linear-gradient(90deg, #7dd3fc, #0284c7);
+    z-index: 10;
+  }
+
+  :global(.prb__fg) {
+    position: absolute;
+    inset: 0;
     display: flex;
     flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 6vh 2rem 0;
+    text-align: center;
+    pointer-events: none;
   }
 
-  :global(.prb__card-stack) {
+  :global(.prb__kicker) {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #7dd3fc;
+    margin-bottom: 1rem;
+  }
+
+  :global(.prb__headlines) {
     position: relative;
-    flex: 1;
+    max-width: 880px;
+    min-height: 130px;
+    width: 100%;
   }
+  :global(.prb__headline) {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  :global(.prb__headline h2) {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: clamp(2rem, 3.6vw, 3rem);
+    line-height: 1.1;
+    margin: 0 0 0.75rem;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+    color: #fff;
+  }
+  :global(.prb__headline p) {
+    font-size: clamp(0.95rem, 1.1vw, 1.05rem);
+    line-height: 1.5;
+    margin: 0;
+    max-width: 600px;
+    color: rgba(255, 255, 255, 0.78);
+  }
+  :global(.prb__headline em) {
+    font-style: normal;
+  }
+  :global(.prb__headline--bad em) { color: #fca5a5; }
+  :global(.prb__headline--good em) { color: #7dd3fc; }
+  :global(.prb__headline--good) { opacity: 0; }
 
-  :global(.prb__card) {
-    border-radius: 20px;
-    padding: 2.5rem;
-    min-height: 320px;
+  :global(.prb__stage) {
+    position: absolute;
+    inset: 0;
     display: flex;
     align-items: center;
     justify-content: center;
   }
-
-  :global(.prb__card--dark) {
-    background: #0B1320;
-    color: #fff;
+  :global(.prb__canvas) {
+    position: relative;
+    width: min(900px, 90vw);
+    height: min(540px, 60vh);
+  }
+  :global(.prb__svg) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: visible;
+  }
+  :global(.prb__svg path) {
+    stroke: #7dd3fc;
+    stroke-width: 1.5;
+    fill: none;
+    stroke-dasharray: 4 6;
+    opacity: 0;
   }
 
-  :global(.prb__card--resolve) {
-    background: linear-gradient(135deg, #145BB8 0%, #1E3A5F 100%);
-    color: #fff;
-  }
-
-  /* Cinematic cards — bold, centered, minimal */
-  :global(.prb__cinematic) {
-    text-align: center;
-    max-width: 640px;
-  }
-
-  :global(.prb__cinematic-headline) {
-    font-size: clamp(1.75rem, 4vw, 2.75rem);
-    font-weight: 800;
-    line-height: 1.15;
-    margin-bottom: 0.5rem;
-    letter-spacing: -0.02em;
-  }
-
-  :global(.prb__cinematic-subline) {
-    font-size: clamp(1.1rem, 2vw, 1.35rem);
-    font-weight: 500;
-    color: rgba(255, 255, 255, 0.65);
-    margin-bottom: 1.25rem;
-  }
-
-  :global(.prb__cinematic-body) {
-    font-size: clamp(0.9rem, 1.5vw, 1.05rem);
-    line-height: 1.7;
-    color: rgba(255, 255, 255, 0.5);
-    max-width: 520px;
-    margin: 0 auto;
-  }
-
-  /* Resolution card — content-rich */
-  :global(.prb__resolve) {
-    max-width: 560px;
-  }
-
-  :global(.prb__resolve-headline) {
-    font-size: clamp(1.5rem, 3vw, 2.25rem);
-    font-weight: 800;
-    line-height: 1.2;
-    margin-bottom: 1rem;
-    letter-spacing: -0.02em;
-  }
-
-  :global(.prb__resolve-body) {
-    font-size: clamp(0.9rem, 1.5vw, 1.05rem);
-    line-height: 1.7;
-    color: rgba(255, 255, 255, 0.8);
-    margin-bottom: 1.5rem;
-  }
-
-  :global(.prb__resolve-bullets) {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+  :global(.prb__node) {
+    position: absolute;
+    width: 188px;
+    height: 90px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 14px;
+    padding: 13px 14px;
+    text-align: left;
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    justify-content: space-between;
+    transition: border-color 0.6s, background 0.6s, box-shadow 0.6s;
+    will-change: transform, opacity;
   }
-
-  :global(.prb__resolve-bullets li) {
+  :global(.prb__node-row) {
     display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-    font-size: 0.95rem;
-    font-weight: 500;
-    color: rgba(255, 255, 255, 0.9);
+    align-items: center;
+    gap: 0.55rem;
   }
-
-  :global(.prb__resolve-bullets svg) {
+  :global(.prb__node-icon) {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: rgba(125, 211, 252, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #7dd3fc;
     flex-shrink: 0;
-    margin-top: 0.15rem;
-    color: #E28D33;
+    transition: background 0.6s, color 0.6s;
+  }
+  :global(.prb__node-icon svg) {
+    width: 16px;
+    height: 16px;
+  }
+  :global(.prb__node-title) {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #fff;
+    line-height: 1.1;
+  }
+  :global(.prb__node-cap) {
+    position: relative;
+    height: 16px;
+  }
+  :global(.prb__node-cap-bad),
+  :global(.prb__node-cap-good) {
+    position: absolute;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.74rem;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: opacity 0.45s;
+  }
+  :global(.prb__node-cap-bad) { color: #fca5a5; }
+  :global(.prb__node-cap-good) { color: #86efac; opacity: 0; }
+  :global(.prb__node-dot) {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  :global(.prb__node-dot--bad) {
+    background: #ef4444;
+    box-shadow: 0 0 6px #ef4444;
+  }
+  :global(.prb__node-dot--good) {
+    background: #22c55e;
+    box-shadow: 0 0 6px #22c55e;
   }
 
-  :global(.prb__spacer) {
-    height: 400vh;
+  :global(.prb__node.is-good) {
+    background: rgba(125, 211, 252, 0.08);
+    border-color: rgba(125, 211, 252, 0.4);
+    box-shadow: 0 0 24px rgba(125, 211, 252, 0.15);
+  }
+  :global(.prb__node.is-good .prb__node-cap-bad) { opacity: 0; }
+  :global(.prb__node.is-good .prb__node-cap-good) { opacity: 1; }
+  :global(.prb__node.is-good .prb__node-icon) {
+    background: rgba(34, 197, 94, 0.18);
+    color: #86efac;
   }
 
+  :global(.prb__hub) {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) scale(0.6);
+    width: 240px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.8s, transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1);
+    pointer-events: none;
+    gap: 0.5rem;
+  }
+  :global(.prb__hub.is-on) {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  :global(.prb__hub-logo) {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 0 22px rgba(125, 211, 252, 0.18));
+  }
+
+  :global(.prb__hint) {
+    position: absolute;
+    bottom: 4vh;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.55);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: opacity 0.4s;
+  }
+  :global(.prb__hint.is-hidden) { opacity: 0; }
+  :global(.prb__hint svg) {
+    width: 14px;
+    height: 14px;
+    animation: prb-bob 1.6s ease-in-out infinite;
+  }
+  @keyframes prb-bob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(3px); }
+  }
+
+  :global(.prb__spacer) { height: 400vh; }
   @media (max-width: 899px) {
-    :global(.prb__card) {
-      padding: 1.5rem;
-      min-height: 280px;
-    }
-    :global(.prb__spacer) {
-      height: 300vh;
-    }
+    :global(.prb__spacer) { height: 300vh; }
   }
 
   /* === Comparison Scroll Section === */
@@ -1759,6 +1902,112 @@ const base = import.meta.env.BASE_URL;
     text-transform: uppercase;
     letter-spacing: 0.04em;
     color: var(--color-gray-500);
+  }
+
+  /* ============ Filtration pillar: schematic diagram ============ */
+  /* Side-by-side comparison split by a vertical filter bar. Sits inside
+     the Filtration pillar card the same way LSI / SanitationTabs do —
+     no card chrome, just stacked content. */
+  :global(.filt) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    color: var(--color-text);
+  }
+  :global(.filt__intro) {
+    font-size: 0.82rem;
+    line-height: 1.55;
+    color: var(--color-text);
+    font-weight: 500;
+    margin: 0;
+  }
+  :global(.filt__intro strong) {
+    color: var(--color-primary);
+    font-weight: 700;
+  }
+
+  :global(.filt__svg-wrap) {
+    width: 100%;
+    aspect-ratio: 1000 / 560;
+  }
+  :global(.filt__svg) {
+    width: 100%;
+    height: 100%;
+    display: block;
+    overflow: visible;
+  }
+
+  :global(.filt__col-title) {
+    font-size: 16px;
+    font-weight: 600;
+    fill: var(--color-text-muted);
+    letter-spacing: 0.02em;
+  }
+  :global(.filt__particle-label) {
+    font-size: 14px;
+    fill: var(--color-gray-700);
+    font-weight: 500;
+  }
+  :global(.filt__filter-label) {
+    font-size: 14px;
+    fill: var(--color-text-muted);
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  :global(.filt__particle) {
+    transition: transform 320ms cubic-bezier(0.34, 1.56, 0.64, 1), filter 200ms ease;
+    transform-origin: center;
+    transform-box: fill-box;
+  }
+  :global(.filt__particle--callout circle) {
+    stroke: rgba(0, 0, 0, 0.18);
+    stroke-width: 1;
+  }
+  :global(.filt__callout-line) {
+    stroke: var(--tick-line);
+    stroke-width: 1;
+    stroke-dasharray: 3 4;
+  }
+
+  :global(.filt__flow) {
+    fill: none;
+    stroke: var(--arrow-stroke);
+    stroke-width: 1.2;
+    stroke-linecap: round;
+    opacity: 0.7;
+  }
+
+  :global(.filt__caption) {
+    margin-top: 0.5rem;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 1rem;
+    align-items: stretch;
+    font-size: 0.78rem;
+    line-height: 1.5;
+    color: var(--color-gray-700);
+  }
+  :global(.filt__caption-side) {
+    text-align: center;
+  }
+  :global(.filt__caption-side strong) {
+    color: var(--color-gray-900);
+    font-weight: 700;
+  }
+  :global(.filt__caption-divider) {
+    width: 1px;
+    align-self: stretch;
+    background: var(--color-border);
+  }
+
+  @media (max-width: 899px) {
+    :global(.filt__caption) {
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+    }
+    :global(.filt__caption-divider) { display: none; }
   }
 
   /* ============ Sanitation pillar: Tesla-style tab switcher ============ */
