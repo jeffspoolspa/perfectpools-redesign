@@ -135,57 +135,86 @@ const schema = [
                 <h4>Weekly vs. Bi-Weekly</h4>
                 <p style="color: #1E3A5F; font-weight: 700;">Anyone who's maintained a pool in coastal weather knows — two weeks is too long in the heat.</p>
               </div>
-              <div class="biweekly-section__title lawn-tabs__title">The Lawn Analogy</div>
-              <div class="lawn-tabs lawn-tabs--single" data-lawn-tabs data-active="weekly">
-                <div class="lawn-tabs__card">
-                  <div class="lawn-tabs__copy-stack">
-                    <div class="lawn-tabs__copy is-active" data-lawn-copy="weekly" role="tabpanel">
-                      <span class="lawn-tabs__h">Weekly</span>
-                      <span class="lawn-tabs__b">Stays level, no surprises.</span>
-                      <img src={`${base}images/lawn-analogy/green-pool.svg`} width="72" height="72" alt="" />
-                    </div>
-                    <div class="lawn-tabs__copy" data-lawn-copy="biweekly" role="tabpanel">
-                      <span class="lawn-tabs__h">Bi-weekly</span>
-                      <span class="lawn-tabs__b">Tall grass, weeds taking hold.</span>
-                      <img src={`${base}images/lawn-analogy/weekly.svg`} width="72" height="72" alt="" />
-                    </div>
-                    <div class="lawn-tabs__copy" data-lawn-copy="green" role="tabpanel">
-                      <span class="lawn-tabs__h">Green pool</span>
-                      <span class="lawn-tabs__b">The overgrown yard.</span>
-                      <img src={`${base}images/lawn-analogy/biweekly.svg`} width="72" height="72" alt="" />
-                    </div>
-                  </div>
-                </div>
-                <div class="lawn-tabs__track">
-                  <div class="lawn-tabs__rail"><div class="lawn-tabs__rail-fill"></div></div>
-                  <div class="lawn-tabs__nodes" role="tablist" aria-label="Lawn analogy">
-                    <button type="button" class="lawn-tabs__node lawn-tabs__btn is-active" data-lawn="weekly" role="tab" aria-selected="true" aria-label="Weekly">
-                      <span class="lawn-tabs__node-dot"></span>
-                    </button>
-                    <button type="button" class="lawn-tabs__node lawn-tabs__btn" data-lawn="biweekly" role="tab" aria-selected="false" aria-label="Bi-weekly">
-                      <span class="lawn-tabs__node-dot"></span>
-                    </button>
-                    <button type="button" class="lawn-tabs__node lawn-tabs__btn" data-lawn="green" role="tab" aria-selected="false" aria-label="Green pool">
-                      <span class="lawn-tabs__node-dot"></span>
-                    </button>
-                  </div>
-                </div>
-                <p class="lawn-tabs__hint">Tap a point to compare</p>
-              </div>
+              <div class="biweekly-section__title">The Lawn Analogy</div>
               <p class="biweekly-story__kicker">Algae slows in winter just like grass — which is why bi-weekly works September through March.</p>
-              <div class="biweekly-section__title">The Data Shows the Strain</div>
-              <div class="biweekly-compare">
-                <div class="biweekly-compare__bars">
-                  <div class="biweekly-compare__row"><span class="biweekly-compare__label">Weekly</span><div class="biweekly-compare__bar-track"><div class="biweekly-compare__bar biweekly-compare__bar--weekly" style="width: 80%;"></div></div><span class="biweekly-compare__value">$25/visit</span></div>
-                  <div class="biweekly-compare__row"><span class="biweekly-compare__label">Bi-Weekly</span><div class="biweekly-compare__bar-track"><div class="biweekly-compare__bar biweekly-compare__bar--biweekly" style="width: 100%;"></div></div><span class="biweekly-compare__value" style="color: #d97706; font-weight: 800;">$31/visit</span></div>
+              <div class="lawn-trio">
+                <div class="lawn-trio__item">
+                  <span class="lawn-trio__h">Weekly</span>
+                  <img src={`${base}images/lawn-analogy/green-pool.svg`} width="72" height="72" alt="" />
+                  <span class="lawn-trio__lead">Like mowing every week.</span>
+                  <span class="lawn-trio__b">Stays level, no surprises.</span>
                 </div>
-                <p class="biweekly-compare__note">24% more chemicals per visit just to play catch-up — which is why we no longer offer bi-weekly in summer.</p>
+                <div class="lawn-trio__item">
+                  <span class="lawn-trio__h">Bi-weekly</span>
+                  <img src={`${base}images/lawn-analogy/weekly.svg`} width="72" height="72" alt="" />
+                  <span class="lawn-trio__lead">Tall grass, weeds taking hold.</span>
+                  <span class="lawn-trio__b">Harder to cut through.</span>
+                </div>
+                <div class="lawn-trio__item">
+                  <span class="lawn-trio__h">Green pool</span>
+                  <img src={`${base}images/lawn-analogy/biweekly.svg`} width="72" height="72" alt="" />
+                  <span class="lawn-trio__lead">The overgrown yard.</span>
+                  <span class="lawn-trio__b">Requires specialized equipment to recover.</span>
+                </div>
               </div>
-              <div class="biweekly-section__title">What Happens in Two Weeks</div>
-              <div class="biweekly-cards">
-                <div class="biweekly-card biweekly-card--bad"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M12 2v10M12 22a10 10 0 0 1 0-20"/><circle cx="12" cy="12" r="2" fill="#ef4444"/></svg><strong>Chlorine bottoms out</strong><span>Degrades to zero in 10–14 days.</span></div>
-                <div class="biweekly-card biweekly-card--warn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 6v6l4 2"/></svg><strong>Phosphate buildup</strong><span>Debris breaks down into algae food.</span></div>
-                <div class="biweekly-card biweekly-card--warn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg><strong>Equipment unmonitored</strong><span>Failures run 12+ days undetected.</span></div>
+              <div class="strain-section" data-strain-active="weekly">
+                <div class="strain-section__head">
+                  <div class="biweekly-section__title">The Data Shows the Strain</div>
+                  <div class="strain-toggle" role="tablist" aria-label="Service frequency">
+                    <span class="strain-toggle__pill" aria-hidden="true"></span>
+                    <button type="button" class="strain-toggle__btn is-active" data-strain="weekly" role="tab" aria-selected="true">Weekly</button>
+                    <button type="button" class="strain-toggle__btn" data-strain="biweekly" role="tab" aria-selected="false">Bi-Weekly</button>
+                  </div>
+                </div>
+                <div class="strain-panel">
+                <div class="strain-bar">
+                  <div class="strain-bar__row">
+                    <div class="strain-bar__track"><div class="strain-bar__fill"></div></div>
+                    <span class="strain-bar__value">
+                      <span class="strain-bar__amount">$25</span>
+                      <span class="strain-bar__unit">/visit</span>
+                    </span>
+                  </div>
+                </div>
+                <p class="strain-bar__note strain-bar__note--weekly">Steady chemistry. Costs scale to your pool, not catch-up doses.</p>
+                <p class="strain-bar__note strain-bar__note--biweekly">24% more chemicals per visit just to play catch-up — which is why we no longer offer bi-weekly in summer.</p>
+                <div class="strain-points">
+                  <div class="strain-points__group" data-strain-group="weekly">
+                    <div class="strain-point">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12c3 0 3-3 6-3s3 3 6 3 3-3 6-3"/><path d="M3 18c3 0 3-3 6-3s3 3 6 3 3-3 6-3"/></svg>
+                      <strong>Proper flow maintained</strong>
+                      <span>Skimmer baskets emptied regularly.</span>
+                    </div>
+                    <div class="strain-point">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19.2 2.5c1 1.5 1.8 3 1.8 6.5 0 6-3.86 11-9 11-2.45 0-3.96-.49-5-1"/></svg>
+                      <strong>Debris removed</strong>
+                      <span>Pulled out before it breaks down.</span>
+                    </div>
+                    <div class="strain-point">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                      <strong>Chlorine stays level</strong>
+                      <span>Prevents algae from taking hold.</span>
+                    </div>
+                  </div>
+                  <div class="strain-points__group" data-strain-group="biweekly">
+                    <div class="strain-point">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v10"/><path d="M12 22a10 10 0 0 1 0-20"/><circle cx="12" cy="12" r="2" fill="#ef4444"/></svg>
+                      <strong>Chlorine bottoms out</strong>
+                      <span>Degrades to zero in 10–14 days.</span>
+                    </div>
+                    <div class="strain-point">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                      <strong>Phosphate buildup</strong>
+                      <span>Debris breaks down into algae food.</span>
+                    </div>
+                    <div class="strain-point">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+                      <strong>Equipment unmonitored</strong>
+                      <span>Failures run 12+ days undetected.</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
               </div>
               <p class="chem-data-note" style="margin-top: 0.5rem;">Chemical data from customers who remained on bi-weekly last summer.</p>
             </div>
@@ -272,8 +301,8 @@ const schema = [
         </header>
 
         <div class="bento__grid">
-          {/* Card 1 — Digital Service Logs. ~67% wide on desktop. */}
-          <article class="bento__card bento__card--col-4">
+          {/* Card 1 — Digital Service Logs. 50% wide on desktop. */}
+          <article class="bento__card bento__card--col-3 dsl-card">
             <div class="bento__icon" aria-hidden="true">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
@@ -423,11 +452,10 @@ const schema = [
             </div>
           </article>
 
-          {/* Card 2 — Instant Photos. ~33% wide (narrower so the portrait
-              photo fits the card's aspect ratio without stretching the row
-              tall). Photo fills the entire card background; toggle swaps
-              between Before and After. */}
-          <article class="bento__card bento__card--col-2 ba-card" data-ba-tabs data-active="before">
+          {/* Card 2 — Instant Photos. 50% wide on desktop; height stretches
+              to match the Digital Service Logs card via grid. Photo fills the
+              entire card background; toggle swaps between Before and After. */}
+          <article class="bento__card bento__card--col-3 ba-card" data-ba-tabs data-active="before">
             <div class="ba-card__bg">
               <div class="ba-card__panel is-active" data-ba-panel="before">
                 <img
@@ -674,6 +702,32 @@ const schema = [
       tab.classList.add('pricing-tab--active');
       contents.forEach((c) => {
         c.classList.toggle('pricing-card__content--active', (c as HTMLElement).dataset.content === target);
+      });
+    });
+  });
+
+  // Strain toggle (Weekly vs Bi-Weekly comparison inside the bi-weekly tab)
+  document.querySelectorAll<HTMLElement>('.strain-section').forEach((section) => {
+    const buttons = section.querySelectorAll<HTMLButtonElement>('.strain-toggle__btn');
+    const amountEl = section.querySelector<HTMLElement>('.strain-bar__amount');
+    const amounts = { weekly: '$25', biweekly: '$31' };
+    buttons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const target = btn.dataset.strain as 'weekly' | 'biweekly' | undefined;
+        if (!target) return;
+        section.dataset.strainActive = target;
+        buttons.forEach((b) => {
+          const active = b.dataset.strain === target;
+          b.classList.toggle('is-active', active);
+          b.setAttribute('aria-selected', String(active));
+        });
+        if (amountEl) {
+          amountEl.textContent = amounts[target];
+          amountEl.classList.remove('is-popping');
+          // Force reflow so the animation re-fires.
+          void amountEl.offsetWidth;
+          amountEl.classList.add('is-popping');
+        }
       });
     });
   });
@@ -1094,8 +1148,12 @@ const schema = [
   .bento__link:hover { text-decoration: underline; }
 
   /* Instant Photos card — photo fills the whole background, content
-     overlays it via z-index layering. Aspect ratio matches the source
-     photos (3:4 portrait) so the image fits without cropping. */
+     overlays it via z-index layering. The card aspect ratio matches the
+     source photo (3:4 portrait) so the image fills without cropping.
+     At narrow desktop widths (~720–1099) the card is 50% wide and the
+     row stretches to whichever is taller; at wide desktop (≥1100) the
+     row swaps to 4+2 so the photo card is narrower and its natural 3:4
+     height comes close to matching the service log card without crop. */
   .ba-card {
     position: relative;
     isolation: isolate;
@@ -1109,6 +1167,21 @@ const schema = [
     flex-direction: column;
     justify-content: space-between;
     gap: 0;
+  }
+  @media (min-width: 720px) and (max-width: 1099px) {
+    /* Narrow desktop: drop the aspect ratio so grid can pick the row
+       height; minor cropping is acceptable at this width since the
+       card aspect is already close to portrait. */
+    .ba-card {
+      aspect-ratio: auto;
+    }
+  }
+  @media (min-width: 1100px) {
+    /* Wide desktop: revert to 4+2 row so the photo card is narrower and
+       its natural 3:4 aspect lines up with the service log card height
+       without forcing a crop. */
+    .dsl-card { grid-column: span 4; }
+    .ba-card { grid-column: span 2; }
   }
   /* Background photo layer */
   .ba-card__bg {
@@ -1236,6 +1309,14 @@ const schema = [
   }
   .ba-tabs__btn.is-active {
     color: #0B1320;
+  }
+
+  /* Digital Service Logs card. Container queries let inner grids adapt
+     to the card's own width (which now varies based on the viewport
+     since the card sits in a 50/50 row). */
+  .dsl-card {
+    container-type: inline-size;
+    container-name: dsl;
   }
 
   /* Digital Service Logs — visit metadata strip above the tabbed panel. */
@@ -1386,7 +1467,7 @@ const schema = [
     gap: 0.5rem 0.75rem;
     flex: 1;
   }
-  @media (min-width: 720px) {
+  @container dsl (min-width: 500px) {
     .dsl-added {
       grid-template-columns: 1fr 1fr;
     }
@@ -1460,7 +1541,7 @@ const schema = [
     gap: 0.45rem 0.75rem;
     flex: 1;
   }
-  @media (min-width: 720px) {
+  @container dsl (min-width: 500px) {
     .dsl-checklist {
       grid-template-columns: 1fr 1fr;
     }
