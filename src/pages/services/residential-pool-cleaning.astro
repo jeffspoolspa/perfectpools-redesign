@@ -135,42 +135,42 @@ const schema = [
                 <h4>Weekly vs. Bi-Weekly</h4>
                 <p style="color: #1E3A5F; font-weight: 700;">Anyone who's maintained a pool in coastal weather knows — two weeks is too long in the heat.</p>
               </div>
-              <div class="biweekly-section__title">The Lawn Analogy</div>
-              <div class="lawn-tabs" data-lawn-tabs data-active="weekly">
+              <div class="biweekly-section__title lawn-tabs__title">The Lawn Analogy</div>
+              <div class="lawn-tabs lawn-tabs--single" data-lawn-tabs data-active="weekly">
                 <div class="lawn-tabs__card">
-                  <div class="lawn-tabs__bubble-stack" aria-hidden="true">
-                    <span class="lawn-tabs__bubble is-active" data-lawn-bubble="weekly">🌿</span>
-                    <span class="lawn-tabs__bubble" data-lawn-bubble="biweekly">🌾</span>
-                    <span class="lawn-tabs__bubble" data-lawn-bubble="green">🟢</span>
-                  </div>
                   <div class="lawn-tabs__copy-stack">
                     <div class="lawn-tabs__copy is-active" data-lawn-copy="weekly" role="tabpanel">
-                      <span class="lawn-tabs__h">Like mowing every week.</span>
+                      <span class="lawn-tabs__h">Weekly</span>
                       <span class="lawn-tabs__b">Stays level, no surprises.</span>
+                      <img src={`${base}images/lawn-analogy/green-pool.svg`} width="72" height="72" alt="" />
                     </div>
                     <div class="lawn-tabs__copy" data-lawn-copy="biweekly" role="tabpanel">
-                      <span class="lawn-tabs__h">Tall grass, weeds taking hold.</span>
-                      <span class="lawn-tabs__b">Harder to cut through.</span>
+                      <span class="lawn-tabs__h">Bi-weekly</span>
+                      <span class="lawn-tabs__b">Tall grass, weeds taking hold.</span>
+                      <img src={`${base}images/lawn-analogy/weekly.svg`} width="72" height="72" alt="" />
                     </div>
                     <div class="lawn-tabs__copy" data-lawn-copy="green" role="tabpanel">
-                      <span class="lawn-tabs__h">The overgrown yard.</span>
-                      <span class="lawn-tabs__b">Needs specialized equipment to recover.</span>
+                      <span class="lawn-tabs__h">Green pool</span>
+                      <span class="lawn-tabs__b">The overgrown yard.</span>
+                      <img src={`${base}images/lawn-analogy/biweekly.svg`} width="72" height="72" alt="" />
                     </div>
                   </div>
                 </div>
-                <div class="lawn-tabs__track" aria-hidden="true">
+                <div class="lawn-tabs__track">
                   <div class="lawn-tabs__rail"><div class="lawn-tabs__rail-fill"></div></div>
-                  <div class="lawn-tabs__nodes">
-                    <span class="lawn-tabs__node is-active"><span class="lawn-tabs__node-dot"></span></span>
-                    <span class="lawn-tabs__node"><span class="lawn-tabs__node-dot"></span></span>
-                    <span class="lawn-tabs__node"><span class="lawn-tabs__node-dot"></span></span>
+                  <div class="lawn-tabs__nodes" role="tablist" aria-label="Lawn analogy">
+                    <button type="button" class="lawn-tabs__node lawn-tabs__btn is-active" data-lawn="weekly" role="tab" aria-selected="true" aria-label="Weekly">
+                      <span class="lawn-tabs__node-dot"></span>
+                    </button>
+                    <button type="button" class="lawn-tabs__node lawn-tabs__btn" data-lawn="biweekly" role="tab" aria-selected="false" aria-label="Bi-weekly">
+                      <span class="lawn-tabs__node-dot"></span>
+                    </button>
+                    <button type="button" class="lawn-tabs__node lawn-tabs__btn" data-lawn="green" role="tab" aria-selected="false" aria-label="Green pool">
+                      <span class="lawn-tabs__node-dot"></span>
+                    </button>
                   </div>
                 </div>
-                <div class="lawn-tabs__switcher" role="tablist" aria-label="Lawn analogy">
-                  <button type="button" class="lawn-tabs__btn is-active" data-lawn="weekly" role="tab" aria-selected="true">Weekly</button>
-                  <button type="button" class="lawn-tabs__btn" data-lawn="biweekly" role="tab" aria-selected="false">Bi-weekly</button>
-                  <button type="button" class="lawn-tabs__btn" data-lawn="green" role="tab" aria-selected="false">Green pool</button>
-                </div>
+                <p class="lawn-tabs__hint">Tap a point to compare</p>
               </div>
               <p class="biweekly-story__kicker">Algae slows in winter just like grass — which is why bi-weekly works September through March.</p>
               <div class="biweekly-section__title">The Data Shows the Strain</div>
