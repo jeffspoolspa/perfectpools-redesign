@@ -1,0 +1,1016 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import WhyWeExistTwoActs from '../components/experiments/WhyWeExistTwoActs.astro';
+const base = import.meta.env.BASE_URL;
+
+/**
+ * Section Sandbox
+ * ===============
+ *
+ * This page used to be a "complete redesign of /our-approach." That
+ * experiment ran into the limits of my whole-page composition skills
+ * (see /patterns/02-COMBINED-PAGE-RATIONALE.md for the postmortem).
+ *
+ * It is now a SANDBOX. The job here is:
+ *   1. Develop / iterate on individual sections in isolation.
+ *   2. When a section is approved, plan how to integrate it into an
+ *      existing page (most often /our-approach).
+ *   3. Never compose a whole replacement page here — that exercise
+ *      doesn't produce useful work.
+ *
+ * The four working scroll patterns live at /demos/*. They are confirmed
+ * smooth and reusable. New section experiments will be slotted in below
+ * as we develop them.
+ */
+
+const PATTERNS = [
+  {
+    slug: 'progress-text',
+    name: 'Progress Text',
+    pattern: 'Word-by-word scroll-linked opacity',
+    status: 'Confirmed smooth',
+  },
+  {
+    slug: 'split-text',
+    name: 'Split Text',
+    pattern: 'Line-by-line type-rises-from-mask reveal',
+    status: 'Confirmed smooth',
+  },
+  {
+    slug: 'marquee',
+    name: 'Velocity Marquee',
+    pattern: 'Horizontal infinite scroll, scroll-velocity-aware',
+    status: 'Confirmed smooth',
+  },
+  {
+    slug: 'horizontal',
+    name: 'Horizontal Scroll',
+    pattern: 'Vertical scroll → horizontal panel translation (pinned)',
+    status: 'Confirmed smooth',
+  },
+];
+---
+
+<BaseLayout
+  title="Section Sandbox | Perfect Pools"
+  description="Internal staging page for section experiments before integration into the live site."
+  canonicalPath="/our-approach-v2"
+>
+  <article class="sb">
+
+    <header class="sb__hero fluid-grid">
+      <div class="col-full dt-col-2-12">
+        <span class="sb__eyebrow">Internal · Section Sandbox</span>
+        <h1 class="sb__h">A staging ground for section experiments.</h1>
+        <p class="sb__lede">
+          Sections we're developing for the live site are tested here in isolation
+          first. Once a pattern is approved, we plan its integration into an
+          existing page (usually <a href={`${base}our-approach/`}><code>/our-approach</code></a>) — never as a wholesale page replacement.
+        </p>
+      </div>
+    </header>
+
+    <section class="sb__patterns fluid-grid">
+      <h2 class="sb__h2 col-full dt-col-2-9">Confirmed scroll patterns</h2>
+      <p class="sb__sublede col-full dt-col-2-9">
+        Adapted character-by-character from <code>darkroomengineering/satus</code>
+        and <code>darkroomengineering/lenis</code> source. Each is a self-contained
+        Preact island that can be dropped into any page.
+      </p>
+      <ol class="sb__list col-full dt-col-2-12">
+        {PATTERNS.map((p, i) => (
+          <li class="sb__row">
+            <a href={`${base}demos/${p.slug}/`} class="sb__link">
+              <span class="sb__num">0{i + 1}</span>
+              <span class="sb__name">{p.name}</span>
+              <span class="sb__pattern">{p.pattern}</span>
+              <span class="sb__status">{p.status}</span>
+              <span class="sb__arrow">→</span>
+            </a>
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    <section class="sb__experiments fluid-grid">
+      <h2 class="sb__h2 col-full dt-col-2-9">Active experiments</h2>
+      <p class="sb__sublede col-full dt-col-2-9">
+        Each experiment ports a real component from <code>/our-approach</code>
+        with a single change. Scroll through to feel the difference vs v1.
+        Approve → port the change to v1. Reject → leave v1 alone.
+      </p>
+
+      <div class="sb__exp col-full dt-col-2-12">
+        <header class="sb__exp-header">
+          <span class="sb__exp-tag">Hero alt · Two Acts</span>
+          <h3 class="sb__exp-h">Why we exist: Disconnected → Under one roof</h3>
+          <p class="sb__exp-desc">
+            <strong>What it is:</strong> alternate hero treatment for <code>/our-approach</code>.
+            Stage 1 shows nine scattered "fragmentation" artifacts (unread customer text,
+            23-day-old chemistry, missed visit, $544 across four invoices, stalled repair,
+            algae photo, sticky note, work order, missed calls) tied together with dashed
+            red connectors. Stage 2 resolves into a Customer-360 dashboard window with
+            schedule / service log / activity feed columns.
+            <br /><br />
+            <strong>Status:</strong> static port from the design bundle
+            (<code>references/why-we-exist-design/website/project/</code>). No animation
+            yet — see how the static composition reads first; we'll layer scroll-driven
+            transitions on top once the layout is approved.
+          </p>
+        </header>
+        <WhyWeExistTwoActs />
+      </div>
+
+      <div class="sb__exp col-full dt-col-2-12">
+        <header class="sb__exp-header">
+          <span class="sb__exp-tag sb__exp-tag--shipped">B3 · Shipped to v1</span>
+          <h3 class="sb__exp-h">Timeline scrub: 0.4 (was snap)</h3>
+          <p class="sb__exp-desc">
+            <strong>Status:</strong> ported to v1's TimelineScroll on this commit.
+            Snap config removed; scrub is now 0.4. <code>goTo()</code> dot clicks
+            now use <code>lenis.scrollTo</code>. The sandbox version below is left
+            here for reference / before-after comparison.
+          </p>
+        </header>
+        <div id="exp-timeline-mount"></div>
+      </div>
+
+      <div class="sb__exp col-full dt-col-2-12">
+        <header class="sb__exp-header">
+          <span class="sb__exp-tag">v1 · Pinned crossfade</span>
+          <h3 class="sb__exp-h">Picture-pinned, text-crossfades (first attempt)</h3>
+          <p class="sb__exp-desc">
+            <strong>What it does:</strong> text fades in/out in place; image crossfades
+            in place. Each step is centered in its column the whole time.
+            <strong>What's missing per the brief:</strong> no continuous scroll feel —
+            text just appears, doesn't roll past. No 45-minute timeline.
+            See the v2 below for the corrected version.
+          </p>
+        </header>
+        <div id="exp-pinned-mount"></div>
+      </div>
+
+      <div class="sb__exp col-full dt-col-2-12">
+        <header class="sb__exp-header">
+          <span class="sb__exp-tag">v2 · Pinned media wheel</span>
+          <h3 class="sb__exp-h">45-minute timeline + scrolling text wheel</h3>
+          <p class="sb__exp-desc">
+            <strong>What changed:</strong> text on the left now <em>rolls</em> upward
+            continuously as you scroll (like a wheel/ticker), with new text entering from
+            below the viewport and old text leaving at the top. A vertical 45-minute
+            timeline sits on the far left with ticks at 00:00 / 15:00 / 30:00 / 45:00 and
+            an "elapsed" counter that ticks up as the user scrolls.
+            <br /><br />
+            <strong>Image flip:</strong> the right-side image crossfades discretely each
+            time the active text segment crosses the wheel center. So the image change is
+            in sync with the moment the text "rolls over" past center.
+            <br /><br />
+            <strong>Techniques used:</strong>
+            <code>ScrollTrigger.create()</code> pins the section.
+            <code>onUpdate</code> reads scroll progress 0→1.
+            Wheel inner-stack gets <code>translateY = baseOffset − progress × totalDistance</code>
+            so block 0 is centered at progress 0, block 1 at progress 0.5, block 2 at progress 1.
+            Wheel viewport uses <code>mask-image: linear-gradient(transparent → black → transparent)</code>
+            so off-screen text fades rather than hard-clips.
+            Image flip uses <code>Math.round(progress × (N − 1))</code> so the index changes at
+            exactly the points where the wheel is between two blocks.
+          </p>
+        </header>
+        <div id="exp-wheel-mount"></div>
+      </div>
+
+      <div class="sb__exp col-full dt-col-2-12">
+        <header class="sb__exp-header">
+          <span class="sb__exp-tag">Section alt · Our Story split</span>
+          <h3 class="sb__exp-h">Our Story: split-screen with cycling partner cards</h3>
+          <p class="sb__exp-desc">
+            <strong>What it is:</strong> alternate "Our Story" treatment for <code>/our-approach</code>
+            (currently a 5-phase pinned timeline). Compresses the same content into a single-viewport
+            split layout: PSAC formation copy on the left, vertical stack of partner cards on the right
+            (JPS, Perfect Pools, PSP, Savannah) — one expanded at a time.
+            <br /><br />
+            <strong>Cycle:</strong> auto-advances every 5 seconds. Hovering or focusing a card
+            locks it as active and pauses the cycle. Mouse-leave on the right column resumes.
+            The 4 roster pills at the bottom-left mirror state and let users click to lock.
+            <br /><br />
+            <strong>Status:</strong> staged here for review. The live page still uses the
+            5-phase pinned <code>TimelineScroll</code>; once approved, this swaps in.
+          </p>
+        </header>
+        <div id="exp-our-story-split-mount"></div>
+      </div>
+
+      <div class="sb__exp col-full dt-col-2-12">
+        <header class="sb__exp-header">
+          <span class="sb__exp-tag">Section alt · Pillars cinematic</span>
+          <h3 class="sb__exp-h">Three Pillars: pinned cinematic scroll</h3>
+          <p class="sb__exp-desc">
+            <strong>What it is:</strong> alternate Three Pillars treatment for <code>/our-approach</code>.
+            500vh pinned section, 4 phases:
+            <br />
+            <strong>(A) Reveal</strong> — pool image grows from inset frame to full bleed; title + diagram fade in centered.
+            <br />
+            <strong>(B) Transition</strong> — image dims, title fades, diagram tweens from center to top-left corner.
+            <br />
+            <strong>(C) Deep dives</strong> — three full-area pillar panels (Sanitation → Filtration → Balance) crossfade through, each centered to the right of the now-persistent diagram. The diagram's active slice updates in sync.
+            <br /><br />
+            <strong>Status:</strong> staged for review. Live page still uses the inline-header layout
+            from <code>PillarsScroll</code>; once approved, this swaps in.
+          </p>
+        </header>
+        <div id="exp-pillars-cinematic-mount"></div>
+      </div>
+    </section>
+
+  </article>
+</BaseLayout>
+
+<script>
+  import { render, h } from 'preact';
+  import TimelineScrollScrub from '../components/experiments/TimelineScrollScrub.tsx';
+  import PinnedMediaScroll from '../components/experiments/PinnedMediaScroll.tsx';
+  import PinnedMediaWheel from '../components/experiments/PinnedMediaWheel.tsx';
+  import OurStorySplit from '../components/OurStorySplit.tsx';
+  import PillarsCinematic from '../components/experiments/PillarsCinematic.tsx';
+
+  const tlMount = document.getElementById('exp-timeline-mount');
+  if (tlMount) {
+    render(h(TimelineScrollScrub, null), tlMount);
+  }
+
+  const pmMount = document.getElementById('exp-pinned-mount');
+  if (pmMount) {
+    render(h(PinnedMediaScroll, null), pmMount);
+  }
+
+  const pwMount = document.getElementById('exp-wheel-mount');
+  if (pwMount) {
+    render(h(PinnedMediaWheel, null), pwMount);
+  }
+
+  const ossMount = document.getElementById('exp-our-story-split-mount');
+  if (ossMount) {
+    render(h(OurStorySplit, null), ossMount);
+  }
+
+  const pcMount = document.getElementById('exp-pillars-cinematic-mount');
+  if (pcMount) {
+    render(h(PillarsCinematic, null), pcMount);
+  }
+</script>
+
+<style>
+  :global(.sb) {
+    background: var(--color-bg);
+    color: var(--color-text);
+    overflow-x: hidden;
+  }
+  :global(.sb__hero) {
+    padding-top: var(--fluid-180);
+    padding-bottom: var(--fluid-80);
+  }
+  :global(.sb__eyebrow) {
+    display: block;
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: var(--fluid-fs-eyebrow);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--color-text-muted);
+    margin-bottom: var(--fluid-32);
+  }
+  :global(.sb__h) {
+    font-family: var(--font-heading);
+    font-size: var(--fluid-fs-h1);
+    font-weight: 600;
+    line-height: 1.04;
+    letter-spacing: -0.025em;
+    margin: 0 0 var(--fluid-32);
+    max-width: 22ch;
+  }
+  @media (min-width: 800px) {
+    :global(.sb__h) { font-size: calc(var(--fluid) * 64); }
+  }
+  :global(.sb__lede),
+  :global(.sb__sublede) {
+    margin: 0 0 var(--fluid-32);
+    font-size: var(--fluid-fs-lead);
+    line-height: 1.55;
+    color: var(--color-text-light);
+    max-width: 60ch;
+  }
+  :global(.sb__lede code),
+  :global(.sb__sublede code) {
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 0.92em;
+    background: color-mix(in srgb, var(--color-text) 6%, transparent);
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+  :global(.sb__lede a) {
+    color: var(--color-deep-blue);
+  }
+
+  :global(.sb__patterns),
+  :global(.sb__experiments) {
+    padding-top: var(--fluid-80);
+    padding-bottom: var(--fluid-80);
+  }
+  :global(.sb__h2) {
+    font-family: var(--font-heading);
+    font-size: var(--fluid-fs-h2);
+    font-weight: 500;
+    line-height: 1.08;
+    letter-spacing: -0.022em;
+    margin: 0 0 var(--fluid-24);
+    color: var(--color-text);
+  }
+  @media (min-width: 800px) {
+    :global(.sb__h2) { font-size: calc(var(--fluid) * 40); }
+  }
+
+  :global(.sb__list) {
+    list-style: none;
+    margin: var(--fluid-40) 0 0;
+    padding: 0;
+    border-top: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);
+  }
+  :global(.sb__row) {
+    border-bottom: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);
+  }
+  :global(.sb__link) {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-rows: auto auto;
+    column-gap: var(--fluid-16);
+    row-gap: var(--fluid-4);
+    padding: var(--fluid-24) 0;
+    text-decoration: none;
+    color: inherit;
+    transition: opacity 0.4s var(--ease-out-expo);
+  }
+  @media (min-width: 800px) {
+    :global(.sb__link) {
+      grid-template-columns: calc(var(--fluid) * 60) calc(var(--fluid) * 240) 1fr calc(var(--fluid) * 200) calc(var(--fluid) * 32);
+      grid-template-rows: auto;
+      align-items: baseline;
+      gap: calc(var(--fluid) * 32);
+      padding: calc(var(--fluid) * 32) 0;
+    }
+  }
+  :global(.sb__link:hover) { opacity: 0.55; }
+  :global(.sb__num) {
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: var(--fluid-fs-eyebrow);
+    color: var(--color-text-muted);
+    grid-row: 1 / 2;
+  }
+  :global(.sb__name) {
+    font-family: var(--font-heading);
+    font-size: var(--fluid-fs-h3);
+    font-weight: 500;
+    grid-row: 1 / 2;
+  }
+  @media (min-width: 800px) {
+    :global(.sb__name) { font-size: calc(var(--fluid) * 24); }
+  }
+  :global(.sb__pattern) {
+    font-size: var(--fluid-fs-body);
+    color: var(--color-text-light);
+    grid-row: 2 / 3;
+    grid-column: 2 / 4;
+  }
+  @media (min-width: 800px) {
+    :global(.sb__pattern) {
+      font-size: calc(var(--fluid) * 16);
+      grid-row: 1 / 2;
+      grid-column: auto;
+    }
+  }
+  :global(.sb__status) {
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: var(--fluid-fs-eyebrow);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--color-deep-blue);
+    grid-row: 2 / 3;
+    grid-column: 1 / 4;
+  }
+  @media (min-width: 800px) {
+    :global(.sb__status) { grid-row: 1 / 2; grid-column: auto; }
+  }
+  :global(.sb__arrow) {
+    font-size: var(--fluid-fs-h3);
+    color: var(--color-text-muted);
+    grid-row: 1 / 2;
+    grid-column: 3 / 4;
+    text-align: right;
+    align-self: center;
+  }
+  @media (min-width: 800px) {
+    :global(.sb__arrow) { grid-column: auto; }
+  }
+
+  :global(.sb__empty) {
+    padding: var(--fluid-40) 0;
+    border-top: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);
+    margin-top: var(--fluid-40);
+  }
+  :global(.sb__empty-mark) {
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: var(--fluid-fs-eyebrow);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--color-text-muted);
+  }
+
+  /* === Experiment wrapper ============================================
+     Frames each ported experiment with a clear label + description. The
+     experiment itself uses its existing class names (.tl-* etc.) so the
+     visuals match v1 except for the one changed config. */
+  :global(.sb__exp) {
+    margin-top: var(--fluid-48);
+    padding-top: var(--fluid-32);
+    border-top: 2px solid var(--color-deep-blue);
+  }
+  :global(.sb__exp-header) {
+    margin-bottom: var(--fluid-48);
+    max-width: 64ch;
+  }
+  :global(.sb__exp-tag) {
+    display: inline-block;
+    margin-bottom: var(--fluid-16);
+    padding: 4px 10px;
+    background: var(--color-deep-blue);
+    color: var(--color-bg);
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    border-radius: 3px;
+  }
+  :global(.sb__exp-h) {
+    font-family: var(--font-heading);
+    font-size: var(--fluid-fs-h2);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.022em;
+    margin: 0 0 var(--fluid-16);
+  }
+  @media (min-width: 800px) {
+    :global(.sb__exp-h) { font-size: calc(var(--fluid) * 40); }
+  }
+  :global(.sb__exp-desc) {
+    margin: 0;
+    font-size: var(--fluid-fs-body);
+    line-height: 1.55;
+    color: var(--color-text-light);
+  }
+  :global(.sb__exp-desc code) {
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 0.92em;
+    background: color-mix(in srgb, var(--color-text) 6%, transparent);
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+  :global(.sb__exp-desc strong) {
+    color: var(--color-text);
+    font-weight: 600;
+  }
+  :global(.sb__exp-desc a) {
+    color: var(--color-deep-blue);
+  }
+  :global(.sb__exp-tag--shipped) {
+    background: var(--color-success, #059669) !important;
+  }
+
+  /* ============================================================
+     PinnedMediaScroll — Rivian-style picture-pinned text-scrolls
+     ============================================================ */
+  :global(.pms) {
+    position: relative;
+    /* Sets the gradient background that flows behind the pinned content,
+       similar to Rivian's pale-blue-to-white gradient. */
+    background: linear-gradient(180deg, #f4f8fc 0%, #ffffff 100%);
+  }
+  :global(.pms__sticky) {
+    height: 100vh;
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  :global(.pms__inner) {
+    width: 100%;
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 0 var(--safe);
+    display: grid;
+    grid-template-columns: 1fr;
+    column-gap: var(--gap);
+    align-items: center;
+    height: calc(100vh - 120px);
+  }
+  @media (min-width: 800px) {
+    :global(.pms__inner) {
+      grid-template-columns: 5fr 7fr;
+      column-gap: calc(var(--fluid) * 64);
+    }
+  }
+
+  /* === LEFT — text column ============================================ */
+  :global(.pms__text-col) {
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  /* Each step is absolutely stacked on top of the others. Only the
+     active one is opacity:1; others are 0. CSS transition handles the
+     crossfade. */
+  :global(.pms__step) {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    opacity: 0;
+    transform: translateY(20px);
+    transition:
+      opacity 0.7s var(--ease-out-expo),
+      transform 0.7s var(--ease-out-expo);
+    pointer-events: none;
+  }
+  :global(.pms__step.is-active) {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+  :global(.pms__step-num) {
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-deep-blue);
+    margin-bottom: var(--fluid-16);
+  }
+  :global(.pms__step-eyebrow) {
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    margin-bottom: var(--fluid-12);
+  }
+  :global(.pms__step-heading) {
+    font-family: var(--font-heading);
+    font-size: var(--fluid-fs-h2);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    color: var(--color-text);
+    margin: 0 0 var(--fluid-24);
+    max-width: 14ch;
+  }
+  @media (min-width: 800px) {
+    :global(.pms__step-heading) {
+      font-size: calc(var(--fluid) * 56);
+    }
+  }
+  :global(.pms__step-body) {
+    margin: 0;
+    font-size: var(--fluid-fs-lead);
+    line-height: 1.5;
+    color: var(--color-text-light);
+    max-width: 44ch;
+  }
+  @media (min-width: 800px) {
+    :global(.pms__step-body) {
+      font-size: calc(var(--fluid) * 18);
+    }
+  }
+
+  /* Step indicator dots — sit at the bottom of the text column */
+  :global(.pms__dots) {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 8px;
+  }
+  :global(.pms__dot) {
+    width: 24px;
+    height: 4px;
+    border-radius: 2px;
+    background: color-mix(in srgb, var(--color-text) 15%, transparent);
+    transition: background 0.4s var(--ease-out-expo);
+  }
+  :global(.pms__dot.is-passed) {
+    background: color-mix(in srgb, var(--color-deep-blue) 60%, transparent);
+  }
+  :global(.pms__dot.is-active) {
+    background: var(--color-deep-blue);
+  }
+
+  /* === RIGHT — media column ========================================== */
+  :global(.pms__media-col) {
+    position: relative;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  :global(.pms__media-stack) {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow:
+      0 24px 64px rgba(30, 58, 95, 0.15),
+      0 0 0 1px rgba(30, 58, 95, 0.06);
+  }
+  /* Each media element absolutely stacked, only active one fades to 1 */
+  :global(.pms__media) {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    opacity: 0;
+    transform: scale(1.04);
+    transition:
+      opacity 0.7s var(--ease-out-expo),
+      transform 0.9s var(--ease-out-expo);
+  }
+  :global(.pms__media.is-active) {
+    opacity: 1;
+    transform: scale(1);
+  }
+  :global(.pms__media img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  /* Mini caption at the corner (bottom-left of the media stack) */
+  :global(.pms__caption) {
+    position: absolute;
+    bottom: var(--fluid-24);
+    left: var(--fluid-24);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(8px);
+    border-radius: 999px;
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-text);
+    z-index: 2;
+  }
+  :global(.pms__caption-mark) {
+    color: var(--color-deep-blue);
+    font-size: 6px;
+  }
+
+  /* Spacer = 3 viewports of scroll. Each step holds for ~1 viewport. */
+  :global(.pms__spacer) {
+    height: 300vh;
+  }
+
+  /* Mobile: single column, media on top, text below. No pin. */
+  @media (max-width: 799px) {
+    :global(.pms__sticky) {
+      height: auto;
+      padding: var(--fluid-80) 0;
+    }
+    :global(.pms__inner) {
+      height: auto;
+      grid-template-columns: 1fr;
+      gap: var(--fluid-32);
+    }
+    :global(.pms__text-col) {
+      height: auto;
+    }
+    :global(.pms__step) {
+      position: relative;
+      inset: auto;
+      opacity: 1;
+      transform: none;
+      pointer-events: auto;
+      margin-bottom: var(--fluid-48);
+    }
+    :global(.pms__dots) { display: none; }
+    :global(.pms__spacer) { height: 0; }
+  }
+
+  /* ============================================================
+     PinnedMediaWheel — 45-minute timeline + scrolling text wheel
+     CSS values for blockHeight/gap MUST stay in sync with the
+     `vh * 0.6` and `vh * 0.16` constants in the JS onUpdate.
+     ============================================================ */
+  :global(.pmw) {
+    position: relative;
+    background: linear-gradient(180deg, #f4f8fc 0%, #ffffff 100%);
+  }
+  :global(.pmw__sticky) {
+    height: 100vh;
+    overflow: hidden;
+    position: relative;
+  }
+  :global(.pmw__layout) {
+    width: 100%;
+    height: 100%;
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 0 var(--safe);
+    display: grid;
+    grid-template-columns: 1fr;
+    column-gap: var(--gap);
+  }
+  @media (min-width: 800px) {
+    :global(.pmw__layout) {
+      /* 80px timeline rail | 5fr text | 7fr media */
+      grid-template-columns: 88px 5fr 7fr;
+      column-gap: calc(var(--fluid) * 56);
+    }
+  }
+
+  /* === FAR LEFT — 45-minute timeline rail ============================ */
+  :global(.pmw__timeline) {
+    position: relative;
+    height: 100%;
+    padding: 80px 0;
+  }
+  :global(.pmw__timeline-track) {
+    position: absolute;
+    top: 80px;
+    bottom: 80px;
+    left: 14px;
+    width: 2px;
+  }
+  :global(.pmw__timeline-rail) {
+    position: absolute;
+    inset: 0;
+    background: color-mix(in srgb, var(--color-text) 12%, transparent);
+  }
+  :global(.pmw__timeline-fill) {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 0;
+    background: var(--color-deep-blue);
+    transition: height 0.1s linear; /* near-instant; scrub does the smoothing */
+    will-change: height;
+  }
+  :global(.pmw__timeline-marks) {
+    position: absolute;
+    top: 80px;
+    bottom: 80px;
+    left: 0;
+    right: 0;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  :global(.pmw__timeline-mark) {
+    position: absolute;
+    left: 0;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  :global(.pmw__timeline-tick) {
+    display: block;
+    width: 14px;
+    height: 1px;
+    background: var(--color-text);
+    margin-left: 8px;
+  }
+  :global(.pmw__timeline-label) {
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    color: var(--color-text-muted);
+  }
+  :global(.pmw__timeline-now) {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  :global(.pmw__timeline-now-label) {
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+  :global(.pmw__timeline-now-value) {
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--color-deep-blue);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+
+  /* === LEFT-CENTER — text wheel ===================================== */
+  :global(.pmw__wheel) {
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+    /* Gradient mask: text fades at top + bottom edges of the wheel
+       window, so off-screen blocks dissolve rather than hard-clip. */
+    -webkit-mask-image: linear-gradient(
+      180deg,
+      transparent 0%,
+      black 18%,
+      black 82%,
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      180deg,
+      transparent 0%,
+      black 18%,
+      black 82%,
+      transparent 100%
+    );
+  }
+  :global(.pmw__wheel-inner) {
+    /* Initial transform — JS overrides each frame.
+       Block height = 60vh, gap = 16vh (must match JS constants). */
+    transform: translate3d(0, 20vh, 0);
+    will-change: transform;
+  }
+  :global(.pmw__step) {
+    height: 60vh;
+    margin-bottom: 16vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* Inactive blocks dim slightly so the centered "active" reads
+       as the focal point. Subtle — they're already mask-faded. */
+    opacity: 0.45;
+    transition: opacity 0.6s var(--ease-out-expo);
+  }
+  :global(.pmw__step.is-active) {
+    opacity: 1;
+  }
+  :global(.pmw__step:last-child) {
+    margin-bottom: 0;
+  }
+  :global(.pmw__step-meta) {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: var(--fluid-12);
+  }
+  :global(.pmw__step-num) {
+    font-family: var(--font-heading);
+    font-size: var(--fluid-fs-h2);
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.025em;
+    color: var(--color-deep-blue);
+  }
+  @media (min-width: 800px) {
+    :global(.pmw__step-num) { font-size: calc(var(--fluid) * 80); }
+  }
+  :global(.pmw__step-duration) {
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+  :global(.pmw__step-eyebrow) {
+    display: block;
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    margin-bottom: var(--fluid-12);
+  }
+  :global(.pmw__step-heading) {
+    font-family: var(--font-heading);
+    font-size: var(--fluid-fs-h2);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    color: var(--color-text);
+    margin: 0 0 var(--fluid-24);
+    max-width: 14ch;
+  }
+  @media (min-width: 800px) {
+    :global(.pmw__step-heading) { font-size: calc(var(--fluid) * 48); }
+  }
+  :global(.pmw__step-body) {
+    margin: 0;
+    font-size: var(--fluid-fs-lead);
+    line-height: 1.5;
+    color: var(--color-text-light);
+    max-width: 44ch;
+  }
+  @media (min-width: 800px) {
+    :global(.pmw__step-body) { font-size: calc(var(--fluid) * 18); }
+  }
+
+  /* === RIGHT — pinned image (crossfade on step flip) =============== */
+  :global(.pmw__media) {
+    position: relative;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    padding: 80px 0;
+  }
+  :global(.pmw__media-stack) {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    max-height: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow:
+      0 24px 64px rgba(30, 58, 95, 0.18),
+      0 0 0 1px rgba(30, 58, 95, 0.06);
+  }
+  :global(.pmw__media-frame) {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    opacity: 0;
+    transform: scale(1.04);
+    transition:
+      opacity 0.65s var(--ease-out-expo),
+      transform 0.85s var(--ease-out-expo);
+  }
+  :global(.pmw__media-frame.is-active) {
+    opacity: 1;
+    transform: scale(1);
+  }
+  :global(.pmw__media-frame img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  :global(.pmw__media-caption) {
+    position: absolute;
+    bottom: var(--fluid-24);
+    left: var(--fluid-24);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    border-radius: 999px;
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-text);
+    z-index: 2;
+  }
+  :global(.pmw__media-caption-mark) {
+    color: var(--color-deep-blue);
+    font-size: 6px;
+  }
+
+  /* Mobile: timeline rail hidden, two-column collapses to stacked */
+  @media (max-width: 799px) {
+    :global(.pmw__sticky) {
+      height: auto;
+      padding: var(--fluid-80) 0;
+    }
+    :global(.pmw__timeline) { display: none; }
+    :global(.pmw__wheel) {
+      height: auto;
+      mask-image: none;
+      -webkit-mask-image: none;
+    }
+    :global(.pmw__wheel-inner) {
+      transform: none !important;
+    }
+    :global(.pmw__step) {
+      height: auto;
+      opacity: 1;
+      margin-bottom: var(--fluid-48);
+    }
+    :global(.pmw__media) {
+      height: auto;
+      padding: var(--fluid-32) 0;
+    }
+  }
+</style>

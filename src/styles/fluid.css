@@ -1,0 +1,144 @@
+/*
+ * Fluid Responsive Token System
+ * ==============================
+ *
+ * Adapted from `darkroomengineering/satus` (lib/styles/css/root.css).
+ * See /patterns/00-FINDINGS.md for the full rationale.
+ *
+ * The core idea: every spacing/sizing/typography value is expressed as
+ * `calc(N / DESIGN_VW * 100vw)` so it scales proportionally with the
+ * viewport width. At the design viewport (375px mobile / 1440px desktop)
+ * the value is exactly N pixels. At any other viewport, it scales linearly.
+ *
+ * Result: the same design renders consistently across every screen size
+ * because visual proportions are preserved — never per-breakpoint micro-tuning.
+ *
+ * Usage in a component:
+ *   .my-section {
+ *     padding: var(--fluid-80);
+ *     gap: var(--fluid-24);
+ *     font-size: var(--fluid-fs-display);
+ *   }
+ *
+ * Or compose your own:
+ *   .my-thing { padding: calc(var(--fluid) * 64); }
+ *
+ * Where `var(--fluid)` = `(1 / device-w) * 100vw` (one design pixel in vw).
+ */
+
+:root {
+  /* --- Design viewport --- */
+  --device-w: 375;          /* Mobile design viewport */
+  --columns: 4;             /* Mobile column count */
+
+  /* --- One "design pixel" in vw at the current viewport --- */
+  --fluid: calc(100vw / var(--device-w));
+
+  /* --- Layout primitives (mirror Satus exactly) --- */
+  --gap: calc(16 * var(--fluid));        /* gutter between columns */
+  --safe: calc(16 * var(--fluid));       /* page-edge safe area */
+  --layout-w: calc(100vw - 2 * var(--safe));
+  --column-w: calc((var(--layout-w) - (var(--columns) - 1) * var(--gap)) / var(--columns));
+
+  /* --- Common fluid sizes (named scale) --- */
+  /* Mobile: at 375px viewport, these equal their N-px design values */
+  --fluid-4:   calc(4 * var(--fluid));
+  --fluid-8:   calc(8 * var(--fluid));
+  --fluid-10:  calc(10 * var(--fluid));
+  --fluid-12:  calc(12 * var(--fluid));
+  --fluid-14:  calc(14 * var(--fluid));
+  --fluid-16:  calc(16 * var(--fluid));
+  --fluid-20:  calc(20 * var(--fluid));
+  --fluid-24:  calc(24 * var(--fluid));
+  --fluid-28:  calc(28 * var(--fluid));
+  --fluid-32:  calc(32 * var(--fluid));
+  --fluid-40:  calc(40 * var(--fluid));
+  --fluid-48:  calc(48 * var(--fluid));
+  --fluid-56:  calc(56 * var(--fluid));
+  --fluid-64:  calc(64 * var(--fluid));
+  --fluid-80:  calc(80 * var(--fluid));
+  --fluid-96:  calc(96 * var(--fluid));
+  --fluid-120: calc(120 * var(--fluid));
+  --fluid-140: calc(140 * var(--fluid));
+  --fluid-180: calc(180 * var(--fluid));
+
+  /* --- Fluid typography scale (mobile design @ 375px) --- */
+  --fluid-fs-eyebrow:    calc(11 * var(--fluid));
+  --fluid-fs-body:       calc(16 * var(--fluid));
+  --fluid-fs-lead:       calc(18 * var(--fluid));
+  --fluid-fs-h3:         calc(24 * var(--fluid));
+  --fluid-fs-h2:         calc(36 * var(--fluid));
+  --fluid-fs-h1:         calc(56 * var(--fluid));
+  --fluid-fs-display:    calc(72 * var(--fluid));
+  --fluid-fs-mega:       calc(120 * var(--fluid));
+
+  /* --- Easing tokens (full ladder from Satus) --- */
+  --ease-in-quad:       cubic-bezier(0.55, 0.085, 0.68, 0.53);
+  --ease-in-cubic:      cubic-bezier(0.55, 0.055, 0.675, 0.19);
+  --ease-in-quart:      cubic-bezier(0.895, 0.03, 0.685, 0.22);
+  --ease-in-quint:      cubic-bezier(0.755, 0.05, 0.855, 0.06);
+  --ease-in-expo:       cubic-bezier(0.95, 0.05, 0.795, 0.035);
+  --ease-in-circ:       cubic-bezier(0.6, 0.04, 0.98, 0.335);
+  --ease-out-quad:      cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-out-cubic:     cubic-bezier(0.215, 0.61, 0.355, 1);
+  --ease-out-quart:    cubic-bezier(0.165, 0.84, 0.44, 1);
+  --ease-out-quint:     cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-out-expo:      cubic-bezier(0.19, 1, 0.22, 1);
+  --ease-out-circ:      cubic-bezier(0.075, 0.82, 0.165, 1);
+  --ease-in-out-quad:   cubic-bezier(0.455, 0.03, 0.515, 0.955);
+  --ease-in-out-cubic:  cubic-bezier(0.645, 0.045, 0.355, 1);
+  --ease-in-out-quart:  cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-in-out-quint:  cubic-bezier(0.86, 0, 0.07, 1);
+  --ease-in-out-expo:   cubic-bezier(1, 0, 0, 1);
+  --ease-in-out-circ:   cubic-bezier(0.785, 0.135, 0.15, 0.86);
+  --ease-gleasing:      cubic-bezier(0.4, 0, 0, 1);
+}
+
+/* Desktop design viewport at 800px+. All --fluid-* tokens automatically
+   recalculate because they all derive from --device-w. */
+@media (min-width: 800px) {
+  :root {
+    --device-w: 1440;
+    --columns: 12;
+  }
+}
+
+/*
+ * Layout grid utility — adapted from Satus's `dr-layout-grid`.
+ * Drop on any <section> to opt into 12-column desktop / 4-column mobile
+ * grid with proper gutters and safe-area padding.
+ */
+.fluid-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--columns), 1fr);
+  column-gap: var(--gap);
+  padding-left: var(--safe);
+  padding-right: var(--safe);
+}
+
+/*
+ * Column-span utilities (mobile-first).
+ * On mobile (4 cols), col-span-full is 4. On desktop (12 cols), col-span-full is 12.
+ */
+.col-full      { grid-column: 1 / -1; }
+.col-span-2    { grid-column: span 2; }
+.col-span-3    { grid-column: span 3; }
+.col-span-4    { grid-column: span 4; }
+
+@media (min-width: 800px) {
+  /* Desktop column spans — explicit start/end for asymmetric layouts */
+  .dt-col-1-13   { grid-column: 1 / 13; }
+  .dt-col-2-12   { grid-column: 2 / 12; }
+  .dt-col-2-9    { grid-column: 2 / 9; }
+  .dt-col-2-8    { grid-column: 2 / 8; }
+  .dt-col-2-7    { grid-column: 2 / 7; }
+  .dt-col-3-11   { grid-column: 3 / 11; }
+  .dt-col-3-10   { grid-column: 3 / 10; }
+  .dt-col-4-10   { grid-column: 4 / 10; }
+  .dt-col-5-13   { grid-column: 5 / 13; }
+  .dt-col-7-12   { grid-column: 7 / 12; }
+  .dt-col-7-13   { grid-column: 7 / 13; }
+  .dt-col-8-13   { grid-column: 8 / 13; }
+  .dt-col-9-13   { grid-column: 9 / 13; }
+  .dt-col-10-13  { grid-column: 10 / 13; }
+}

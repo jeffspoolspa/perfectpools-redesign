@@ -1,22 +1,29 @@
 /**
- * TimelineScroll — Our Story horizontal-card timeline
+ * TimelineScrollScrub — sandbox experiment
+ * =========================================
  *
- * The section pins for the duration of the timeline. As the user scrolls,
- * activeIndex flips discretely via Math.round so cards are never visually
- * mid-transition; each card swap is a clean CSS slide.
+ * EXPERIMENT — not for production. This is a port of
+ * `src/components/TimelineScroll.tsx` with one change:
  *
- * NOTE — scrub:0.4 (was: scrub:false + snap config)
- * Originally this used scrub:false + a `snap` config to force the scroll
- * to land at exact card boundaries. After the global Lenis switch from
- * `duration:1.2` to `lerp:0.1` (in BaseLayout), scrub feels smoother and
- * less constraining. The card never appears mid-transition because
- * Math.round still discretizes activeIndex; the only difference is the
- * user can stop scrolling between cards instead of being pulled to the
- * next snap point. Sandbox-validated at /our-approach-v2 (B3 experiment).
+ *   - Original: `scrub: false` + `snap: { ... }` — the section pins,
+ *     scroll snaps to card boundaries, transitions are discrete.
+ *
+ *   - This version: `scrub: 0.4` + no snap — the section pins, scroll
+ *     drives index continuously with 0.4s smoothing, no forced snap.
+ *     User can linger between cards; activeIndex still flips discretely
+ *     via Math.round so cards never end up "mid-slide" visually.
+ *
+ * The point of this experiment: feel how the timeline navigates with
+ * scrub instead of snap. The author of v1 chose snap because they
+ * felt scrub was "broken" at the time. With Lenis lerp:0.1 in BaseLayout
+ * (instead of duration:1.2), scrub may feel different now.
+ *
+ * Identical content, identical CSS classes (`.tl-*` are in global.css
+ * so they're portable). Only the ScrollTrigger config differs.
  */
 
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { getHeaderOffset } from '../utils/scroll-config';
+import { getHeaderOffset } from '../../utils/scroll-config';
 
 interface Phase {
   numeral: string;
@@ -82,7 +89,7 @@ const PHASES: Phase[] = [
   },
 ];
 
-export default function TimelineScroll() {
+export default function TimelineScrollScrub() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const stickyRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -100,6 +107,11 @@ export default function TimelineScroll() {
 
         const total = PHASES.length;
 
+        // ▼ EXPERIMENTAL CHANGE — was: scrub: false + snap config
+        // Now: scrub: 0.4 (smoothed scroll-bound), no snap.
+        // activeIndex still flips discretely (Math.round) so cards never
+        // mid-transition; the difference is whether scroll position
+        // is forced to snap points or stays where the user leaves it.
         const st = ScrollTrigger.create({
           trigger: sectionRef.current!,
           pin: stickyRef.current!,
@@ -115,6 +127,7 @@ export default function TimelineScroll() {
             }
           },
         });
+        // ▲ END EXPERIMENTAL CHANGE
 
         stRef.current = st;
         cleanup = () => {
@@ -127,11 +140,6 @@ export default function TimelineScroll() {
     return () => cleanup();
   }, []);
 
-  // Click a dot → smooth-scroll to the corresponding pin position via
-  // Lenis (matches the surrounding scroll feel). Uses ScrollTrigger's
-  // own start/end (not raw rect math) so the target lands exactly on the
-  // index position. Falls back to native instant scroll if Lenis isn't
-  // available.
   const goTo = (i: number) => {
     if (i === activeIndex) return;
     const st = stRef.current;
@@ -141,6 +149,8 @@ export default function TimelineScroll() {
     setActiveIndex(i);
 
     const target = st.start + (i / (PHASES.length - 1)) * (st.end - st.start);
+    // Use lenis.scrollTo if available so the navigation matches the
+    // surrounding smooth-scroll feel.
     const lenis = (window as any).__lenis;
     if (lenis?.scrollTo) {
       lenis.scrollTo(target, { duration: 1.0, lock: false });
@@ -154,14 +164,14 @@ export default function TimelineScroll() {
   return (
     <div ref={sectionRef} class="tl-scroll">
       <div class="section-header tl__header tl__header--mobile">
-        <span class="section-kicker">OUR STORY</span>
+        <span class="section-kicker">EXPERIMENT · scrub 0.4</span>
         <h2>Built by bringing the best together.</h2>
         <p>Five partnerships that shaped how we take care of your pool.</p>
       </div>
 
       <div ref={stickyRef} class="tl-sticky">
         <div class="section-header tl__header tl__header--desktop">
-          <span class="section-kicker">OUR STORY</span>
+          <span class="section-kicker">EXPERIMENT · scrub 0.4 (vs v1's snap)</span>
           <h2>Built by bringing the best together.</h2>
           <p>Five partnerships that shaped how we take care of your pool.</p>
         </div>

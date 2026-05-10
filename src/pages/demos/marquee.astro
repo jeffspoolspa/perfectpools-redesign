@@ -1,0 +1,243 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Marquee from '../../components/demos/Marquee.tsx';
+---
+
+<BaseLayout
+  title="Marquee Demo | Perfect Pools"
+  description="Velocity-aware horizontal infinite marquee. Adapted from darkroomengineering/satus components/ui/marquee/."
+  canonicalPath="/demos/marquee"
+>
+  <article class="d-marq">
+
+    <header class="d-marq__hero fluid-grid">
+      <div class="col-full dt-col-2-9">
+        <a href="/demos/" class="d-marq__back">← Demos</a>
+        <h1 class="d-marq__h">Velocity Marquee</h1>
+        <p class="d-marq__lede">
+          A row of cards translated horizontally on every animation frame.
+          The base speed is constant, but when the page is scrolling fast,
+          the marquee accelerates proportionally — Lenis exposes the scroll
+          velocity, the Marquee reads it on the next tick, and adds it to
+          its translation delta. Try scrolling fast through the section.
+        </p>
+        <p class="d-marq__source">
+          Source: <code>references/satus/components/ui/marquee/</code>
+        </p>
+      </div>
+    </header>
+
+    {/* Demo 1 — service-area cards scrolling left */}
+    <section class="d-marq__section">
+      <span class="d-marq__eyebrow fluid-grid">
+        <span class="col-full dt-col-2-12">01 — Service areas (forward)</span>
+      </span>
+      <Marquee client:load className="d-marq__row" speed={1} repeat={4}>
+        <div class="d-marq__card">Richmond Hill</div>
+        <div class="d-marq__card">Savannah</div>
+        <div class="d-marq__card">Tybee Island</div>
+        <div class="d-marq__card">Bluffton</div>
+        <div class="d-marq__card">Pooler</div>
+        <div class="d-marq__card">Hinesville</div>
+        <div class="d-marq__card">Hilton Head</div>
+        <div class="d-marq__card">Skidaway Island</div>
+      </Marquee>
+    </section>
+
+    {/* Demo 2 — reversed direction, smaller cards, slower */}
+    <section class="d-marq__section">
+      <span class="d-marq__eyebrow fluid-grid">
+        <span class="col-full dt-col-2-12">02 — What we service (reversed, slower)</span>
+      </span>
+      <Marquee
+        client:load
+        className="d-marq__row d-marq__row--small"
+        speed={0.6}
+        reversed
+        repeat={5}
+      >
+        <span class="d-marq__pill">Pumps</span>
+        <span class="d-marq__pill">Heaters</span>
+        <span class="d-marq__pill">Salt cells</span>
+        <span class="d-marq__pill">Filtration</span>
+        <span class="d-marq__pill">Lighting</span>
+        <span class="d-marq__pill">Automation</span>
+        <span class="d-marq__pill">Tile work</span>
+        <span class="d-marq__pill">Acid wash</span>
+        <span class="d-marq__pill">Resurfacing</span>
+        <span class="d-marq__pill">Equipment install</span>
+      </Marquee>
+    </section>
+
+    {/* Demo 3 — pause-on-hover, image cards */}
+    <section class="d-marq__section">
+      <span class="d-marq__eyebrow fluid-grid">
+        <span class="col-full dt-col-2-12">03 — Pause on hover, photo cards</span>
+      </span>
+      <Marquee
+        client:load
+        className="d-marq__row"
+        speed={0.4}
+        pauseOnHover
+        repeat={3}
+      >
+        <figure class="d-marq__photo">
+          <img src="/images/hero-residential-pool.webp" alt="" loading="lazy" />
+          <figcaption>Residential / weekly</figcaption>
+        </figure>
+        <figure class="d-marq__photo">
+          <img src="/images/coastal-pool.png" alt="" loading="lazy" />
+          <figcaption>Coastal home</figcaption>
+        </figure>
+        <figure class="d-marq__photo">
+          <img src="/images/pool-cleaning.jpg" alt="" loading="lazy" />
+          <figcaption>Service in progress</figcaption>
+        </figure>
+        <figure class="d-marq__photo">
+          <img src="/images/pool-cleaning-action.jpg" alt="" loading="lazy" />
+          <figcaption>Brushing &amp; vacuum</figcaption>
+        </figure>
+      </Marquee>
+    </section>
+
+  </article>
+</BaseLayout>
+
+<style>
+  :global(.d-marq) {
+    background: var(--color-bg);
+    color: var(--color-text);
+    overflow-x: hidden;
+  }
+
+  :global(.d-marq__hero) {
+    padding-top: var(--fluid-180);
+    padding-bottom: var(--fluid-80);
+  }
+  :global(.d-marq__back) {
+    display: inline-block;
+    margin-bottom: var(--fluid-40);
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: var(--fluid-fs-eyebrow);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+  :global(.d-marq__h) {
+    font-family: var(--font-heading);
+    font-size: var(--fluid-fs-h1);
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    line-height: 1.02;
+    margin: 0 0 var(--fluid-32);
+  }
+  @media (min-width: 800px) {
+    :global(.d-marq__h) { font-size: calc(var(--fluid) * 80); }
+  }
+  :global(.d-marq__lede) {
+    margin: 0 0 var(--fluid-16);
+    font-size: var(--fluid-fs-lead);
+    line-height: 1.55;
+    color: var(--color-text-light);
+    max-width: 64ch;
+  }
+  :global(.d-marq__source code) {
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 0.92em;
+    background: color-mix(in srgb, var(--color-text) 6%, transparent);
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+  :global(.d-marq__source) {
+    margin: 0;
+    font-size: var(--fluid-fs-eyebrow);
+    color: var(--color-text-muted);
+  }
+
+  :global(.d-marq__section) {
+    padding-top: var(--fluid-80);
+    padding-bottom: var(--fluid-80);
+  }
+  :global(.d-marq__eyebrow) {
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: var(--fluid-fs-eyebrow);
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--color-text-muted);
+    display: block;
+    margin-bottom: var(--fluid-32);
+  }
+
+  :global(.d-marq__row) {
+    width: 100%;
+  }
+  :global(.d-marq__card) {
+    flex-shrink: 0;
+    padding: 0 var(--fluid-48);
+    font-family: var(--font-heading);
+    font-size: var(--fluid-fs-h2);
+    font-weight: 500;
+    letter-spacing: -0.025em;
+    color: var(--color-text);
+    line-height: 1;
+    white-space: nowrap;
+  }
+  @media (min-width: 800px) {
+    :global(.d-marq__card) {
+      font-size: calc(var(--fluid) * 120);
+      padding: 0 calc(var(--fluid) * 64);
+    }
+  }
+  :global(.d-marq__pill) {
+    flex-shrink: 0;
+    margin-right: var(--fluid-16);
+    padding: var(--fluid-12) var(--fluid-24);
+    border: 1px solid color-mix(in srgb, var(--color-text) 18%, transparent);
+    border-radius: 999px;
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: var(--fluid-fs-body);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-text);
+    white-space: nowrap;
+  }
+  @media (min-width: 800px) {
+    :global(.d-marq__pill) {
+      padding: calc(var(--fluid) * 14) calc(var(--fluid) * 28);
+      font-size: calc(var(--fluid) * 14);
+    }
+  }
+  :global(.d-marq__photo) {
+    flex-shrink: 0;
+    margin: 0 var(--fluid-24) 0 0;
+    width: calc(var(--fluid) * 360);
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    position: relative;
+    border-radius: var(--fluid-12);
+  }
+  @media (min-width: 800px) {
+    :global(.d-marq__photo) {
+      width: calc(var(--fluid) * 420);
+      margin-right: calc(var(--fluid) * 32);
+    }
+  }
+  :global(.d-marq__photo img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  :global(.d-marq__photo figcaption) {
+    position: absolute;
+    bottom: var(--fluid-12);
+    left: var(--fluid-12);
+    color: #fff;
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: var(--fluid-fs-eyebrow);
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45);
+  }
+</style>

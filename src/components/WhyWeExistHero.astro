@@ -1,0 +1,305 @@
+---
+/**
+ * WhyWeExistHero — production hero for /our-approach.
+ *
+ * Wraps the sandbox-validated WhyWeExistTwoActs component in a pinned,
+ * scroll-driven animation:
+ *
+ *   • Section is 200vh tall; inner container is sticky 100vh.
+ *   • As the user scrolls through that 100vh:
+ *       - Stage 1 (artifacts + "too many handoffs" header) drifts UP
+ *         and fades out.
+ *       - Stage 2 (Customer-360 dashboard + "nothing falls through"
+ *         header) slides UP from bottom-center and fades in.
+ *       - The two headers crossfade between 0.3 → 0.7 progress so
+ *         the headline change reads as the centerpiece.
+ *
+ * The sandbox component's .ww-bridge ("Pulled together") and
+ * .ww-caption ("One team · One schedule · One bill") are hidden in
+ * hero mode — they only made sense in the static stacked sandbox
+ * preview.
+ *
+ * Hero mode is opt-in: applying the .ww-hero wrapper around
+ * WhyWeExistTwoActs is what triggers the absolute-positioning
+ * overrides below. The component itself stays a pure render of
+ * "stage 1 + bridge + stage 2"; this file repositions everything.
+ */
+
+import WhyWeExistTwoActs from './experiments/WhyWeExistTwoActs.astro';
+---
+
+<section class="ww-hero oa-section" id="problem" data-next-label="Our story">
+  <div class="ww-hero__pin" data-ww-hero-pin>
+    <WhyWeExistTwoActs />
+  </div>
+</section>
+
+<script>
+  /**
+   * Scroll-driven animation for the WhyWeExistHero.
+   *
+   * Wires GSAP ScrollTrigger to a single pin on the section, then
+   * uses onUpdate to drive transforms on the two stages and the
+   * two headers based on a 0→1 progress value.
+   *
+   * Why onUpdate (not a tweened timeline)?
+   *   - We're scrubbing scroll position 1:1 to the animation.
+   *   - The animation is short (one viewport) and doesn't need
+   *     multiple keyframes — explicit math is more legible than
+   *     gsap.timeline() with .to() chains for this case.
+   *
+   * The stage and header elements are queried after DOM ready, so
+   * we wait for window load to make sure the WhyWeExistTwoActs
+   * component has fully rendered (its inner fit-script also runs
+   * after layout).
+   */
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  gsap.registerPlugin(ScrollTrigger);
+
+  function initHero() {
+    const hero = document.querySelector('.ww-hero');
+    if (!hero) return;
+    const pin = hero.querySelector('[data-ww-hero-pin]');
+    const root = hero.querySelector('.ww-root');
+    if (!pin || !root) return;
+
+    // Sync --ww-site-nav to the distance between document top and the
+    // hero's natural top (= space taken up by site header + any
+    // banners / spacing above it). The hero's height calcs subtract
+    // this once for the TOP buffer (so stages start below the sticky
+    // nav once pinned) and once for the BOTTOM buffer (so before the
+    // pin engages — when section.top is still that-many-px below
+    // viewport top — the stage doesn't overflow the visible area).
+    const heroEl = hero as HTMLElement;
+    const heroTopFromDoc = heroEl.getBoundingClientRect().top + window.scrollY;
+    heroEl.style.setProperty('--ww-site-nav', `${Math.max(0, Math.round(heroTopFromDoc))}px`);
+
+    const headerBad = root.querySelector('[data-ww-header="bad"]');
+    const headerGood = root.querySelector('[data-ww-header="good"]');
+    const stage1 = root.querySelector('.ww-stage-shell');
+    const stage2 = root.querySelector('.ww-shell');
+
+    if (!headerBad || !headerGood || !stage1 || !stage2) return;
+
+    // Initial state — set explicitly so first-paint matches what
+    // ScrollTrigger will compute on first onUpdate.
+    headerBad.style.opacity = '1';
+    headerGood.style.opacity = '0';
+    stage1.style.transform = 'translate(-50%, 0) scale(1)';
+    stage1.style.opacity = '1';
+    stage2.style.transform = 'translate(-50%, 100vh)';
+    stage2.style.opacity = '0';
+
+    ScrollTrigger.create({
+      trigger: hero,
+      // Pin engages the moment the user lands on the page. Without
+      // this, the user has to scroll past the site nav (~104px) before
+      // the pin activates — which would let the hero header scroll up
+      // out of view briefly before snapping back.
+      // 'top top+=heroTop' fires when the section's top hits its own
+      // natural document offset (= scrollY 0 since section.top equals
+      // heroTopFromDoc at scroll=0).
+      start: () => `top top+=${heroEl.getBoundingClientRect().top + window.scrollY}`,
+      end: '+=100%',
+      pin: pin,
+      pinSpacing: true,
+      scrub: 0.4,
+      onUpdate: (self) => {
+        const p = self.progress;
+
+        // --- Stage 1 (artifacts) — drift up and fade out -----------
+        // Stays mostly put until p=0.1, then accelerates upward and
+        // fades. By p=0.7 it's gone.
+        const s1 = Math.max(0, (p - 0.1) / 0.6);
+        const s1Y = -s1 * 60; // up to 60vh upward
+        const s1Scale = 1 - s1 * 0.05; // very slight zoom-out
+        stage1.style.transform = `translate(-50%, ${s1Y}vh) scale(${s1Scale})`;
+        stage1.style.opacity = String(Math.max(0, 1 - s1 * 1.4));
+
+        // --- Stage 2 (dashboard) — slide up from bottom -----------
+        // Most of the rise happens between p=0.3 and p=0.85 so the
+        // dashboard "lands" before the user finishes scrolling.
+        const s2Rise = Math.min(1, p / 0.85);
+        const s2Y = (1 - s2Rise) * 100; // 100vh → 0
+        stage2.style.transform = `translate(-50%, ${s2Y}vh)`;
+        stage2.style.opacity = String(Math.min(1, p * 1.3));
+
+        // --- Headers — crossfade in the middle window 0.3 → 0.7 ---
+        const headerP = Math.max(0, Math.min(1, (p - 0.3) / 0.4));
+        headerBad.style.opacity = String(1 - headerP);
+        headerGood.style.opacity = String(headerP);
+      },
+    });
+  }
+
+  // Run after the WhyWeExistTwoActs inner script has set canvas scales.
+  if (document.readyState === 'complete') {
+    initHero();
+  } else {
+    window.addEventListener('load', initHero, { once: true });
+  }
+</script>
+
+<style is:global>
+  /* ====================================================================
+     WhyWeExistHero — hero-mode overrides for WhyWeExistTwoActs.
+     The sandbox component is designed to render as a static stacked
+     page (header → artifacts → bridge → header → dashboard → caption).
+     Inside .ww-hero we re-arrange it so both stages occupy the same
+     viewport, then the JS slides them past each other on scroll.
+     ==================================================================== */
+
+  .ww-hero {
+    /* Layout tokens — these reserve fixed-height bands inside the
+       pinned viewport so the header always has padding to the artifacts
+       below, and the artifacts can never overflow the viewport.
+         --ww-site-nav:    height of the sticky site nav above the
+                           hero. Reserved at the TOP of the pin so the
+                           hero header isn't hidden behind the nav once
+                           the pin activates. Also reserved at the
+                           BOTTOM of the pin so before the pin engages
+                           (when section.top is still 64px below
+                           viewport top), the stage doesn't overflow
+                           the visible area.
+         --ww-edge-pad:    breathing room at top/bottom of pin.
+         --ww-header-zone: vertical band reserved for kicker + headline
+                           + subhead — large enough for 2-line headline
+                           + 2-line subhead at desktop type sizes.
+         --ww-stage-pad:   gap between bottom of header band and top of
+                           the stage canvas.
+       Using clamp() so they scale gracefully between phone and desktop. */
+    --ww-site-nav: 64px;
+    --ww-edge-pad: clamp(12px, 2vh, 28px);
+    --ww-header-zone: clamp(150px, 22vh, 200px);
+    --ww-stage-pad: clamp(16px, 3vh, 32px);
+
+    /* 200vh tall: 100vh of "pin scroll" room + section reveal. */
+    position: relative;
+    height: 200vh;
+    /* Match the sandbox's dark gradient so the section looks the same
+       at rest as it did in the sandbox preview. */
+    background: radial-gradient(ellipse at 50% 30%, #0c4a6e 0%, #0a1929 70%);
+    color: #fff;
+    overflow: clip;
+  }
+  .ww-hero__pin {
+    /* The actual viewport-sized container that ScrollTrigger pins. */
+    position: relative;
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  /* Strip .ww-root of its sandbox decorations — its width, padding,
+     bg and overflow are all already covered by the parent .ww-hero. */
+  .ww-hero .ww-root {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    overflow: visible;
+    position: relative;
+  }
+
+  /* Hide the sandbox-only bridge and caption — they made sense only
+     in the static stacked layout. */
+  .ww-hero .ww-bridge,
+  .ww-hero .ww-caption {
+    display: none !important;
+  }
+
+  /* === Headers — pinned in the top header zone, both stacked, JS
+       controls opacity for crossfade. The header zone has a fixed
+       height that the stage will never enter.
+       The pin element is locked at viewport y=site_nav (right below
+       the sticky site nav), so content positions inside the pin start
+       from pin coord y=0 — no need to add the site_nav as a buffer
+       inside the pin's coordinate system. ============= */
+  .ww-hero .ww-header {
+    position: absolute;
+    top: var(--ww-edge-pad);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 92%;
+    max-width: 820px;
+    height: var(--ww-header-zone);
+    margin: 0;
+    z-index: 5;
+    pointer-events: none;
+    will-change: opacity;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+
+  /* === Stage 1 — artifacts canvas, lives BELOW the header zone =====
+     Override the sandbox's aspect-ratio so the shell is sized to the
+     available viewport space instead. The fit script in
+     WhyWeExistTwoActs.astro considers BOTH shell width AND shell
+     height when computing scale, so the inner 1280×680 wrap shrinks
+     uniformly until it fits both dimensions.
+     Height calc subtracts --ww-site-nav once: the pin sits at viewport
+     y=site_nav (locked there from page load), so the visible window
+     inside the pin = 100vh - site_nav. ============= */
+  .ww-hero .ww-stage-shell {
+    position: absolute;
+    left: 50%;
+    top: calc(var(--ww-edge-pad) + var(--ww-header-zone) + var(--ww-stage-pad));
+    width: min(94%, 1180px);
+    height: calc(100vh
+      - var(--ww-site-nav)
+      - var(--ww-edge-pad) * 2
+      - var(--ww-header-zone)
+      - var(--ww-stage-pad));
+    /* Cap so we don't scale past the design's natural canvas height. */
+    max-height: 580px;
+    margin: 0;
+    /* Override the sandbox's aspect-ratio: 1280 / 680 — height now wins. */
+    aspect-ratio: auto;
+    transform: translate(-50%, 0);
+    transform-origin: center top;
+    will-change: transform, opacity;
+  }
+
+  /* Center the inner 1280×680 wrap within the shell. Its scale is
+     controlled by --ww-s (set by fit()); we just need to keep the
+     scaled rect centered in the shell so a width- or height-bound
+     scale doesn't leave it stuck in the top-left corner. */
+  .ww-hero .ww-stage-shell .ww-stage-wrap {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform-origin: center;
+    transform: translate(-50%, -50%) scale(var(--ww-s, 1));
+  }
+
+  /* === Stage 2 — dashboard window, mirror of Stage 1 — same height
+       budget, overrides aspect-ratio: 1280/740 from sandbox. ======= */
+  .ww-hero .ww-shell {
+    position: absolute;
+    left: 50%;
+    top: calc(var(--ww-edge-pad) + var(--ww-header-zone) + var(--ww-stage-pad));
+    width: min(94%, 1180px);
+    height: calc(100vh
+      - var(--ww-site-nav)
+      - var(--ww-edge-pad) * 2
+      - var(--ww-header-zone)
+      - var(--ww-stage-pad));
+    max-height: 580px;
+    margin: 0;
+    aspect-ratio: auto;
+    transform: translate(-50%, 100vh);
+    opacity: 0;
+    will-change: transform, opacity;
+  }
+  .ww-hero .ww-shell .ww-frame {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: 0;
+    transform-origin: center;
+    transform: translate(-50%, -50%) scale(var(--ww-s, 1));
+  }
+</style>

@@ -5,6 +5,12 @@ import Footer from '../components/Footer.astro';
 import CustomerIntakeForm from '../components/CustomerIntakeForm.tsx';
 import GetStartedQuote from '../components/GetStartedQuote.tsx';
 import '../styles/global.css';
+import '../styles/fluid.css';
+// Component-tool styles for the LSI calculator, sanitation tabs,
+// filtration diagram, and HOCl time-series. These used to live in
+// /our-approach.astro's scoped style block but the tool components
+// are reusable across pages, so the styles ship globally now.
+import '../styles/pool-tools.css';
 
 interface Props {
   title: string;
@@ -65,6 +71,14 @@ const ogImageUrl = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`
   )}
 </head>
 <body>
+  <!--
+    C1: Top scroll progress bar.
+    1px hairline that fills left→right based on document scroll. Lives at
+    the top of the viewport on every page. Driven by the Lenis 'scroll'
+    event so it stays in sync with the smoothed scroll position.
+  -->
+  <div id="pp-scroll-progress" aria-hidden="true"></div>
+
   <TopBar />
   <Header />
   <main id="main-content">
@@ -88,12 +102,47 @@ const ogImageUrl = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`
     gsap.registerPlugin(ScrollTrigger);
 
     const lenis = new Lenis({
-      duration: 1.2,
+      // A2: lerp instead of duration. Lerp = each frame moves N% toward
+      // target. Gives the "weighted, viscous" feel Studio Freight uses by
+      // default. duration mode is more snappy/predictable; lerp is more
+      // premium-feeling.
+      lerp: 0.1,
+      // A3: wheelMultiplier 1.2 — Mac trackpads under-deliver wheel
+      // velocity. Small bump makes scroll respond more eagerly without
+      // feeling skittish.
+      wheelMultiplier: 1.2,
       touchMultiplier: 2,
+      // A1: Lenis intercepts every <a href="#section-id"> click and
+      // smooth-scrolls to the anchor. Replaces native instant jumps.
+      // Affects every nav link site-wide.
+      anchors: true,
     });
 
     // Sync Lenis scroll position → ScrollTrigger
     lenis.on('scroll', ScrollTrigger.update);
+
+    // Sync ScrollTrigger refreshes → Lenis. When GSAP adds or removes a
+    // pin-spacer (e.g., a pinned section mounts), the document scroll
+    // height changes. Lenis caches `dimensions` and won't notice unless
+    // we tell it.
+    ScrollTrigger.addEventListener('refresh', () => lenis.resize());
+
+    // Belt-and-suspenders: a ResizeObserver on the documentElement
+    // catches ANY body-height change — including async pin-spacer
+    // insertion that doesn't fire the ScrollTrigger refresh event in
+    // the order we expect. Without this, mounting multiple pinned
+    // Preact islands can leave Lenis with a stale scroll limit.
+    if ('ResizeObserver' in window) {
+      let lastHeight = document.documentElement.scrollHeight;
+      const ro = new ResizeObserver(() => {
+        const h = document.documentElement.scrollHeight;
+        if (Math.abs(h - lastHeight) > 1) {
+          lastHeight = h;
+          lenis.resize();
+        }
+      });
+      ro.observe(document.documentElement);
+    }
 
     // Drive Lenis from GSAP's ticker (one unified RAF loop)
     gsap.ticker.add((time) => {
@@ -103,6 +152,16 @@ const ogImageUrl = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`
 
     // Expose for modal stop/start
     (window as any).__lenis = lenis;
+
+    // C1: Wire the top scroll progress bar to Lenis's smoothed scroll
+    // position. Read .progress directly (0→1) so the bar stays in sync
+    // with the visual scroll, not the native scroll position.
+    const progressEl = document.getElementById('pp-scroll-progress');
+    if (progressEl) {
+      lenis.on('scroll', (e: any) => {
+        progressEl.style.transform = `scaleX(${e.progress})`;
+      });
+    }
 
     // Initialize [data-reveal] scroll animations after all resources have
     // loaded so layout is settled and trigger positions are correct.
@@ -216,5 +275,26 @@ const ogImageUrl = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`
       });
     });
   </script>
+
+  <style is:global>
+    /* C1 — Top scroll progress bar.
+       Fixed at the very top of the viewport (above the topbar). 1.5px hairline,
+       deep-blue accent. Uses `transform: scaleX(progress)` so the animation
+       is GPU-composited and never reflows. transform-origin: left so it
+       grows from the left edge as the user scrolls down. */
+    #pp-scroll-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--color-deep-blue, #145BB8);
+      transform: scaleX(0);
+      transform-origin: 0 0;
+      z-index: 9999;
+      pointer-events: none;
+      will-change: transform;
+    }
+  </style>
 </body>
 </html>

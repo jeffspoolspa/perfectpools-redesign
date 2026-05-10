@@ -29,6 +29,13 @@ Full website rebuild for perfectpoolscleaning.com — migrating from WordPress/E
 - `npm run build` — Production build to `dist/`
 - `npm run preview` — Preview production build
 
+## Reference docs
+- **[docs/scroll-animations.md](docs/scroll-animations.md)** — Lenis +
+  ScrollTrigger patterns, pin behavior, crossfade techniques,
+  "element-emerges-from-X" effect, multi-phase scroll animations.
+  **Read this before adding any scroll-driven section** — captures
+  hard-won lessons (pin containing-block gotchas, lenis.resize, etc.).
+
 ## File Structure
 ```
 src/

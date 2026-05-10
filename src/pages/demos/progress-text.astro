@@ -1,0 +1,172 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProgressText from '../../components/demos/ProgressText.tsx';
+---
+
+<BaseLayout
+  title="Progress Text Demo | Perfect Pools"
+  description="Word-by-word scroll-linked text reveal. Adapted from darkroomengineering/satus components/effects/progress-text/."
+  canonicalPath="/demos/progress-text"
+>
+  <article class="d-progress">
+
+    <header class="d-progress__hero fluid-grid">
+      <div class="col-full dt-col-2-9">
+        <a href="/demos/" class="d-progress__back">← Demos</a>
+        <h1 class="d-progress__h">Progress Text</h1>
+        <p class="d-progress__lede">
+          Each paragraph below has its words start at <code>opacity: 0.25</code>.
+          As you scroll the section through the viewport, words light up to full
+          opacity sequentially — word <em>i</em> turns on when scroll progress
+          exceeds <code>i / total_words</code>.
+        </p>
+        <p class="d-progress__source">
+          Source: <code>references/satus/components/effects/progress-text/</code>
+        </p>
+      </div>
+    </header>
+
+    {/* Demo 1: A pool-chemistry primer paragraph */}
+    <section class="d-progress__section fluid-grid">
+      <div class="col-full dt-col-3-11">
+        <span class="d-progress__eyebrow">01 — Chemistry primer</span>
+        <ProgressText
+          client:load
+          as="p"
+          className="d-progress__paragraph"
+          text="The free chlorine reading on your test kit isn't actually what's killing the algae in your pool. The killing form is hypochlorous acid — HOCl — and only a fraction of your free chlorine is in that form at any given moment. The fraction depends on three numbers: pH, cyanuric acid level, and water temperature. Most pool services measure the wrong number, dose to the wrong target, and call it done. We measure the active number, dose to a verified floor, and document each visit with a photographed bar chart so you can read the chemistry yourself."
+        />
+      </div>
+    </section>
+
+    {/* Demo 2: Why-we-exist statement */}
+    <section class="d-progress__section fluid-grid">
+      <div class="col-full dt-col-3-11">
+        <span class="d-progress__eyebrow">02 — Why we exist</span>
+        <ProgressText
+          client:load
+          as="p"
+          className="d-progress__paragraph d-progress__paragraph--display"
+          text="Pool service in coastal Georgia is fragmented across cleaners, repairmen, billing departments, and call centers that stop answering by Friday afternoon. We exist because every one of those handoffs is a place where your pool falls through the cracks. We did the boring work of bringing them all under one roof so the next time something breaks at six on a Saturday, one number gets you one team that already knows your pool."
+        />
+      </div>
+    </section>
+
+    {/* Demo 3: A short, punchier paragraph */}
+    <section class="d-progress__section fluid-grid">
+      <div class="col-full dt-col-3-11">
+        <span class="d-progress__eyebrow">03 — Short form</span>
+        <ProgressText
+          client:load
+          as="p"
+          className="d-progress__paragraph d-progress__paragraph--display"
+          text="One team. One standard. End-to-end accountability for every part of caring for your pool."
+        />
+      </div>
+    </section>
+
+  </article>
+</BaseLayout>
+
+<style>
+  :global(.d-progress) {
+    background: var(--color-bg);
+    color: var(--color-text);
+    overflow-x: hidden;
+  }
+
+  :global(.d-progress__hero) {
+    padding-top: var(--fluid-180);
+    padding-bottom: var(--fluid-80);
+  }
+  :global(.d-progress__back) {
+    display: inline-block;
+    margin-bottom: var(--fluid-40);
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: var(--fluid-fs-eyebrow);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    transition: color 0.3s var(--ease-out-expo);
+  }
+  :global(.d-progress__back:hover) {
+    color: var(--color-text);
+  }
+  :global(.d-progress__h) {
+    font-family: var(--font-heading);
+    font-size: var(--fluid-fs-h1);
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    line-height: 1.02;
+    margin: 0 0 var(--fluid-32);
+  }
+  @media (min-width: 800px) {
+    :global(.d-progress__h) { font-size: calc(var(--fluid) * 80); }
+  }
+  :global(.d-progress__lede) {
+    margin: 0 0 var(--fluid-16);
+    font-size: var(--fluid-fs-lead);
+    line-height: 1.55;
+    color: var(--color-text-light);
+    max-width: 64ch;
+  }
+  :global(.d-progress__lede code),
+  :global(.d-progress__source code) {
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 0.92em;
+    background: color-mix(in srgb, var(--color-text) 6%, transparent);
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+  :global(.d-progress__source) {
+    margin: 0;
+    font-size: var(--fluid-fs-eyebrow);
+    color: var(--color-text-muted);
+  }
+
+  /* === The actual progress-text section spacing === */
+  :global(.d-progress__section) {
+    /* Each section gets a tall padding so the scroll-driven reveal has
+       room to breathe — 100vh-ish so the user spends real time scrolling
+       through it. */
+    padding-top: 50vh;
+    padding-bottom: 50vh;
+  }
+  :global(.d-progress__eyebrow) {
+    display: block;
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: var(--fluid-fs-eyebrow);
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--color-text-muted);
+    margin-bottom: var(--fluid-32);
+  }
+  :global(.d-progress__paragraph) {
+    font-family: var(--font-heading);
+    font-size: var(--fluid-fs-h3);
+    line-height: 1.4;
+    letter-spacing: -0.012em;
+    font-weight: 400;
+    margin: 0;
+    color: var(--color-text);
+  }
+  @media (min-width: 800px) {
+    :global(.d-progress__paragraph) {
+      font-size: calc(var(--fluid) * 28);
+      line-height: 1.4;
+    }
+  }
+  :global(.d-progress__paragraph--display) {
+    font-size: var(--fluid-fs-h2);
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: 1.18;
+  }
+  @media (min-width: 800px) {
+    :global(.d-progress__paragraph--display) {
+      font-size: calc(var(--fluid) * 56);
+      line-height: 1.16;
+    }
+  }
+</style>

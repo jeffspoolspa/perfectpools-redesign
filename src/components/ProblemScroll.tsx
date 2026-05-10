@@ -2,10 +2,17 @@
  * ProblemScroll — "Why We Exist" disconnected → connected hero.
  *
  * 5 system cards begin scattered with red "problem" captions, then drift
- * into an evenly spaced ring around the Perfect Pools logo as the user
- * scrolls. Dashed connector lines draw outward from the hub, captions flip
+ * into a halo arc above and around a pool image as the user scrolls.
+ * Dashed connector lines draw outward from the pool, captions flip
  * red→green, and the headline crossfades from "too many handoffs" to
  * "nothing falls through".
+ *
+ * Final layout (matches design vision):
+ *   • Repairs       — top center
+ *   • Maintenance   — upper-left of arc
+ *   • Communication — upper-right of arc
+ *   • Expertise     — far lower-left, beside the pool
+ *   • Billing       — far lower-right, beside the pool
  *
  * The animation is purely scroll-scrubbed (scrub: 0.6 for cinematic
  * inertia). State lives in the DOM via direct mutations from applyState —
@@ -63,40 +70,52 @@ const NODES: NodeData[] = [
 
 const NODE_W = 188;
 const NODE_H = 90;
-const CX = 450;
-const CY = 270;
-const HUB_RX = 130;
-const HUB_RY = 88;
-const SPOKE_LEN = 70;
-const RING_ANGLES = [-90, -18, 54, 126, 198].map((a) => (a * Math.PI) / 180);
 
-function ellipseRadiusAt(a: number) {
-  const ux = Math.cos(a);
-  const uy = Math.sin(a);
-  return 1 / Math.sqrt((ux * ux) / (HUB_RX * HUB_RX) + (uy * uy) / (HUB_RY * HUB_RY));
-}
+// Canvas (logical px, scaled by CSS) — wider than tall so the arc has room.
+const CANVAS_W = 1100;
+const CANVAS_H = 680;
 
-const FINAL_POSITIONS = RING_ANGLES.map((a) => {
-  const ux = Math.cos(a);
-  const uy = Math.sin(a);
-  const hubEdge = ellipseRadiusAt(a);
-  const halfExtent = Math.min(
-    NODE_W / 2 / Math.abs(ux || 1e-6),
-    NODE_H / 2 / Math.abs(uy || 1e-6),
-  );
-  const distToCenter = hubEdge + SPOKE_LEN + halfExtent;
+// Logo centerpiece. Sits low-center; cards arc above and around it on a
+// horizontal-major ellipse (wider than tall), so the side cards extend
+// further out than the top card — matches the visual shape the design
+// vision calls for.
+const HUB_CX = CANVAS_W / 2; // 550
+const HUB_CY = 460;
+const ARC_RX = 440;
+const ARC_RY = 280;
+
+// Cards sit on the ellipse at parameter values 45° apart. With t as the
+// ellipse's parametric angle (NOT the real polar angle), cards land at
+// t = 0°, 45°, 90°, 135°, 180° — five cards on the upper half of the line.
+// Listed in NODES order: Maintenance, Repairs, Communication, Billing, Expertise.
+const CARD_ANGLES_DEG = [
+  135, // Maintenance — upper-left
+  90, // Repairs — top of ellipse
+  45, // Communication — upper-right
+  0, // Billing — far right (level with logo)
+  180, // Expertise — far left (level with logo)
+];
+
+const FINAL_CENTERS = CARD_ANGLES_DEG.map((deg) => {
+  const t = (deg * Math.PI) / 180;
   return {
-    x: CX + ux * distToCenter - NODE_W / 2,
-    y: CY + uy * distToCenter - NODE_H / 2,
+    cx: HUB_CX + ARC_RX * Math.cos(t),
+    cy: HUB_CY - ARC_RY * Math.sin(t),
   };
 });
 
+const FINAL_POSITIONS = FINAL_CENTERS.map(({ cx, cy }) => ({
+  x: cx - NODE_W / 2,
+  y: cy - NODE_H / 2,
+}));
+
+// Scattered start positions (pre-scroll). Cards drift toward FINAL_POSITIONS.
 const START_POSITIONS = [
-  { x: 320, y: 40, rot: -4, scale: 0.96 },
-  { x: 640, y: 150, rot: 6, scale: 0.96 },
-  { x: 580, y: 410, rot: -5, scale: 0.95 },
-  { x: 90, y: 400, rot: 5, scale: 0.94 },
-  { x: 60, y: 150, rot: -7, scale: 0.95 },
+  { x: 230, y: 60, rot: -6, scale: 0.94 }, // Maintenance
+  { x: 760, y: 90, rot: 5, scale: 0.95 }, // Repairs
+  { x: 870, y: 470, rot: -4, scale: 0.94 }, // Communication
+  { x: 180, y: 500, rot: 7, scale: 0.93 }, // Billing
+  { x: 50, y: 220, rot: -8, scale: 0.95 }, // Expertise
 ];
 
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
@@ -105,13 +124,39 @@ const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 export default function ProblemScroll() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const stickyRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLDivElement>(null);
   const nodeRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const lineRefs = useRef<(SVGPathElement | null)[]>([]);
   const hubRef = useRef<HTMLDivElement>(null);
+  const arcRef = useRef<SVGSVGElement>(null);
   const headBadRef = useRef<HTMLDivElement>(null);
   const headGoodRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
   const hintRef = useRef<HTMLDivElement>(null);
+
+  // Fit the fixed-design canvas into whatever space the stage gives it.
+  useEffect(() => {
+    if (typeof window === 'undefined' || !stageRef.current || !canvasRef.current) return;
+    const stage = stageRef.current;
+    const canvas = canvasRef.current;
+    const fit = () => {
+      const cs = getComputedStyle(stage);
+      const padX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
+      const padY = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+      const availW = Math.max(0, stage.clientWidth - padX);
+      const availH = Math.max(0, stage.clientHeight - padY);
+      const scale = Math.min(availW / CANVAS_W, availH / CANVAS_H, 1);
+      canvas.style.setProperty('--prb-scale', String(scale));
+    };
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(stage);
+    window.addEventListener('resize', fit);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', fit);
+    };
+  }, []);
 
   useEffect(() => {
     if (typeof window === 'undefined' || !scrollRef.current) return;
@@ -130,22 +175,9 @@ export default function ProblemScroll() {
         n.style.transform = `rotate(${lerp(s.rot, 0, ease)}deg) scale(${lerp(s.scale, 1, ease)})`;
       });
 
-      const lineProgress = clamp01((p - 0.55) / 0.25);
-      lineRefs.current.forEach((ln, i) => {
-        if (!ln) return;
-        const a = RING_ANGLES[i];
-        const ux = Math.cos(a);
-        const uy = Math.sin(a);
-        const hubEdge = ellipseRadiusAt(a);
-        const fx = CX + ux * hubEdge;
-        const fy = CY + uy * hubEdge;
-        const ex = fx + ux * SPOKE_LEN * lineProgress;
-        const ey = fy + uy * SPOKE_LEN * lineProgress;
-        ln.setAttribute('d', `M ${fx} ${fy} L ${ex} ${ey}`);
-        ln.style.opacity = String(lineProgress * 0.9);
-      });
-
-      hubRef.current?.classList.toggle('is-on', p > 0.7);
+      const isOn = p > 0.55;
+      hubRef.current?.classList.toggle('is-on', isOn);
+      arcRef.current?.classList.toggle('is-on', isOn);
 
       nodeRefs.current.forEach((n, i) => {
         if (!n) return;
@@ -233,23 +265,22 @@ export default function ProblemScroll() {
           </div>
         </div>
 
-        <div class="prb__stage">
-          <div class="prb__canvas">
+        <div ref={stageRef} class="prb__stage">
+          <div ref={canvasRef} class="prb__canvas">
+            {/* Hidden semicircle "shelf" — the cards sit on this elliptical arc.
+                Path traces the upper half of an ellipse with rx=ARC_RX, ry=ARC_RY
+                centered at (HUB_CX, HUB_CY): from (HUB_CX-ARC_RX, HUB_CY) to
+                (HUB_CX+ARC_RX, HUB_CY) sweeping over the top. */}
             <svg
-              class="prb__svg"
-              viewBox="0 0 900 540"
+              ref={arcRef}
+              class="prb__arc"
+              viewBox={`0 0 ${CANVAS_W} ${CANVAS_H}`}
               preserveAspectRatio="none"
               aria-hidden="true"
             >
-              {RING_ANGLES.map((_, i) => (
-                <path
-                  key={i}
-                  ref={(el: SVGPathElement | null) => {
-                    lineRefs.current[i] = el;
-                  }}
-                  d="M 0 0 L 0 0"
-                />
-              ))}
+              <path
+                d={`M ${HUB_CX - ARC_RX} ${HUB_CY} A ${ARC_RX} ${ARC_RY} 0 0 1 ${HUB_CX + ARC_RX} ${HUB_CY}`}
+              />
             </svg>
 
             <div ref={hubRef} class="prb__hub">

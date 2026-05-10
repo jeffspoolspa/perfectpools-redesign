@@ -1,0 +1,1586 @@
+---
+/**
+ * WhyWeExistTwoActs — sandbox experiment
+ * =======================================
+ *
+ * Direct port of the design bundle:
+ *   - references/why-we-exist-design/website/project/Why We Exist · Act 1 · Disconnected.html
+ *   - references/why-we-exist-design/website/project/Why We Exist · Act 2 · Under One Roof.html
+ *
+ * Combined under a single shared header per the user's brief
+ * ("keeping the same header content but taking the artifacts in act 1
+ * that transitions into the clean dashboard for the organized state").
+ *
+ * Two stages stacked vertically inside a dark-gradient wrapper:
+ *
+ *   Stage 1 — Act 1 · Disconnected
+ *     9 artifacts scattered across a 1280×780 canvas with dashed red
+ *     connector lines between them. Each artifact tells a piece of the
+ *     "things slipping through the cracks" story (4-day-unanswered text,
+ *     23-day-old chemistry, missed visit, $544 of bills from 4 vendors,
+ *     12-day-stalled repair, algae photo, "forgot to tell" sticky note,
+ *     5-step work order with 4 deferred items, 3 missed calls).
+ *
+ *   Stage 2 — Act 2 · Under One Roof
+ *     A "Customer 360" dashboard window with Perfect Pools chrome.
+ *     Three columns: Schedule (next visit + this-week timeline) ·
+ *     Service log (chemistry stat tiles + work order + parts) ·
+ *     Activity (Sarah's text → Marcus's reply → repair scheduled →
+ *     consolidated invoice).
+ *
+ * The CSS uses the `.ww-` prefix throughout so it can't collide with
+ * anything else in the project. All styling is `is:global` because the
+ * classnames have to match the design bundle's HTML structure.
+ *
+ * Logo asset: served from /images/perfect-pools-logo.png (already
+ * present in public/ from the existing project).
+ */
+
+const base = import.meta.env.BASE_URL;
+const logoSrc = `${base}images/perfect-pools-logo.png`;
+---
+
+<div class="ww-root">
+  {/* ============================================================
+       STAGE 1 — "Disconnected" header + scattered artifacts
+       Header copy mirrors the v1 ProblemScroll bad-state copy
+       (kicker / headline / subhead) so the page can later flip
+       between this and the resolved Stage 2 header.
+       ============================================================ */}
+  <header class="ww-header" data-ww-header="bad">
+    <div class="ww-kicker">Why we exist</div>
+    <h2 class="ww-headline">
+      The pool industry has <em class="ww-headline__bad">too many handoffs.</em>
+    </h2>
+    <p class="ww-subhead">
+      Maintenance, repairs, communication, and billing usually live in different places —
+      or fall through the cracks entirely.
+    </p>
+  </header>
+
+  <div class="ww-stage-shell">
+    <div class="ww-stage-wrap" data-ww-stage="act1">
+      <svg class="ww-connectors" viewBox="0 0 1280 680" preserveAspectRatio="none">
+        {/* Dashed-red connectors weaving between scattered artifacts —
+            each suggests a fragile "ad-hoc handoff" line. Coords are
+            approximate; the connectors should never pass through the
+            interior of an artifact, only between/around them. */}
+        {/* Top row weaves: text → chem → parts */}
+        <path d="M 330 100 C 420 70, 510 60, 580 80" />
+        <path d="M 840 130 C 900 135, 970 140, 1000 140" />
+        {/* Top-right vertical: parts → checklist */}
+        <path d="M 1100 230 C 1100 250, 1100 270, 1100 290" />
+        {/* Diagonal: text → photo (customer text references the algae) */}
+        <path d="M 330 200 C 400 250, 460 290, 500 310" />
+        {/* Diagonal: note → photo (forgot-to-mention → the bloom) */}
+        <path d="M 200 380 C 300 370, 400 360, 500 365" />
+        {/* Diagonal: photo → checklist (photo of issue → work order) */}
+        <path d="M 720 360 C 800 370, 880 380, 930 390" />
+        {/* Bottom horizontals: cal → invoice → call */}
+        <path d="M 300 560 C 320 560, 350 560, 370 560" />
+        <path d="M 700 580 C 730 580, 760 580, 770 580" />
+        {/* Mid-right vertical: checklist → call */}
+        <path d="M 1000 510 C 1000 520, 1000 530, 970 540" />
+      </svg>
+
+      <div class="ww-stage">
+        {/* 1. Customer text — 4-day-unread thread */}
+        <div class="ww-art ww-art-text">
+          <div class="ww-art-text__head">
+            <span class="ww-art-text__avatar"></span>
+            Sarah · Mon 8:42 AM
+            <span style="margin-left:auto;color:#dc2626;font-weight:700;font-size:.62rem;letter-spacing:.1em">UNREAD · 4d</span>
+          </div>
+          <div class="ww-art-text__body" style="margin-bottom:8px">
+            Hey — pump's making a weird grinding sound. Should we be worried before the pool party Saturday?
+          </div>
+          <div class="ww-art-text__body" style="font-size:.82rem;color:#5b6b80;margin-bottom:6px">↑ Tue 11:14 AM   "Hello? Anyone there?"</div>
+          <div class="ww-art-text__body" style="font-size:.82rem;color:#5b6b80">↑ Thu 6:02 PM   "Guess we'll find someone else."</div>
+        </div>
+
+        {/* 2. Chemistry reading — 23 days old */}
+        <div class="ww-art ww-art-chem">
+          <div class="ww-art-chem__head">
+            <strong>Water chemistry</strong>
+            <span style="color:#dc2626;font-weight:700">23 DAYS OLD</span>
+          </div>
+          <div class="ww-art-chem__rows">
+            <div class="ww-art-chem__row ww-bad"><span>Free chlorine</span><span>0.2</span></div>
+            <div class="ww-art-chem__row ww-bad"><span>pH</span><span>8.4</span></div>
+            <div class="ww-art-chem__row ww-warn"><span>Alkalinity</span><span>180</span></div>
+            <div class="ww-art-chem__row ww-bad"><span>Cyanuric acid</span><span>112</span></div>
+            <div class="ww-art-chem__row"><span>Calcium</span><span>—</span></div>
+          </div>
+        </div>
+
+        {/* 3. Calendar — missed visit */}
+        <div class="ww-art ww-art-cal">
+          <div class="ww-art-cal__head" style="background:#dc2626">Missed</div>
+          <div class="ww-art-cal__date">
+            <strong style="color:#dc2626">Tue</strong>
+            <span>Aug 6 · No-show</span>
+          </div>
+          <div class="ww-art-cal__slot">
+            <span style="text-decoration:line-through;color:var(--ww-text-light)">Visit</span>
+            <span style="color:#dc2626">Skipped</span>
+          </div>
+          <div class="ww-art-cal__slot ww-art-cal__slot--booked">
+            <span>Last visit</span>
+            <span>26d ago</span>
+          </div>
+        </div>
+
+        {/* 4. Invoice — 4 vendors, $544 past due */}
+        <div class="ww-art ww-art-invoice">
+          <div class="ww-art-invoice__head" style="background:#fee2e2">
+            <strong style="color:#dc2626">Invoice #4218 · Aqua Co.</strong>
+            <span style="color:#dc2626;font-weight:700;letter-spacing:.06em">PAST DUE 47d</span>
+          </div>
+          <div class="ww-art-invoice__rows">
+            <div class="ww-art-invoice__row"><span>Weekly service · Aqua Co.</span><span>$165</span></div>
+            <div class="ww-art-invoice__row"><span>Diagnostic · ProPump</span><span>$95</span></div>
+            <div class="ww-art-invoice__row"><span>Chems · Coastal</span><span>$64.50</span></div>
+            <div class="ww-art-invoice__row"><span>After-hrs · Rapid</span><span>$220</span></div>
+          </div>
+          <div class="ww-art-invoice__total">
+            <strong>4 separate bills</strong>
+            <span style="color:#dc2626">$ 544.50</span>
+          </div>
+        </div>
+
+        {/* 5. Equipment parts — 12 days waiting */}
+        <div class="ww-art ww-art--dark ww-art-parts">
+          <div class="ww-art-parts__head">
+            <span>Repair · Pump</span>
+            <span style="color:#fca5a5">DAY 12</span>
+          </div>
+          <div class="ww-art-parts__title">Pentair WhisperFlo 1.5 HP</div>
+          <div class="ww-art-parts__model">Ordered from 3rd-party · ETA unknown</div>
+          <div class="ww-art-parts__status" style="background:rgba(239,68,68,.16);color:#fca5a5">Backordered · no callback</div>
+        </div>
+
+        {/* 6. Service photo — algae bloom */}
+        <div class="ww-art ww-art-photo">
+          <div class="ww-art-photo__inner" style="background:linear-gradient(135deg,rgba(0,0,0,.15),rgba(0,0,0,0)),linear-gradient(180deg,#7a9b56 0%,#3f5c2a 60%,#1f3315 100%)">
+            <div class="ww-art-photo__caption">
+              <span>3 weeks since service</span>
+              <span style="color:#fca5a5">Algae bloom</span>
+            </div>
+          </div>
+        </div>
+
+        {/* 7. Sticky note — forgotten message */}
+        <div class="ww-art ww-art--note ww-art-note" style="transform:rotate(-7deg);width:180px">
+          <div class="ww-art-note__title" style="color:#b54708">!! Forgot to tell</div>
+          Heater quit Tues —<br/>Mike's on vacation
+        </div>
+
+        {/* 8. Work-order checklist — stalled, reassigned 3× */}
+        <div class="ww-art ww-art--dark ww-art-checklist">
+          <div class="ww-art-checklist__head">
+            <span style="color:#fca5a5">Work order · stalled</span>
+            <span>WO-1187 · reassigned 3×</span>
+          </div>
+          <div class="ww-art-checklist__list">
+            <div class="ww-art-checklist__item ww-done">
+              <span class="ww-art-checklist__check"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6.5 5 9l4.5-5"/></svg></span>
+              Skim &amp; vacuum
+            </div>
+            <div class="ww-art-checklist__item" style="color:#fca5a5">
+              <span class="ww-art-checklist__check" style="border-color:#f87171"></span>
+              Backwash filter — deferred
+            </div>
+            <div class="ww-art-checklist__item" style="color:#fca5a5">
+              <span class="ww-art-checklist__check" style="border-color:#f87171"></span>
+              Balance chemistry — "not my route"
+            </div>
+            <div class="ww-art-checklist__item" style="color:#fca5a5">
+              <span class="ww-art-checklist__check" style="border-color:#f87171"></span>
+              Replace impeller — call other co.
+            </div>
+            <div class="ww-art-checklist__item" style="color:#fca5a5">
+              <span class="ww-art-checklist__check" style="border-color:#f87171"></span>
+              Reply to Sarah — ?
+            </div>
+          </div>
+        </div>
+
+        {/* 9. Missed calls */}
+        <div class="ww-art ww-art-call">
+          <div class="ww-art-call__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.37 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.33 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          </div>
+          <div class="ww-art-call__body">
+            <strong style="color:#dc2626">3 missed calls</strong>
+            <span>Voicemail full · no callback</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {/* Connecting beat between the acts */}
+  <div class="ww-bridge">
+    <div class="ww-bridge__line"></div>
+    <div class="ww-bridge__pill">↓&nbsp;&nbsp;Pulled together&nbsp;&nbsp;↓</div>
+    <div class="ww-bridge__line"></div>
+  </div>
+
+  {/* ============================================================
+       STAGE 2 — "Under one roof" header + dashboard window
+       Header copy mirrors the v1 ProblemScroll good-state copy.
+       In the live integration this is the second half of a
+       crossfade — same kicker, headline + subhead swap.
+       ============================================================ */}
+  <header class="ww-header ww-header--good" data-ww-header="good">
+    <div class="ww-kicker">Why we exist</div>
+    <h2 class="ww-headline">
+      We bring them together so <em class="ww-headline__good">nothing falls through.</em>
+    </h2>
+    <p class="ww-subhead">
+      One team. One standard. End-to-end accountability for every part of caring for your pool.
+    </p>
+  </header>
+
+  <div class="ww-shell">
+    <div class="ww-frame" data-ww-frame="act2">
+      <div class="ww-window">
+        {/* Chrome bar */}
+        <div class="ww-chrome">
+          <img class="ww-chrome__logo" src={logoSrc} alt="Perfect Pools" />
+          <div class="ww-chrome__divider"></div>
+          <div class="ww-chrome__nav">
+            <a href="#" class="ww-active">Service</a>
+            <a href="#">Chemistry</a>
+            <a href="#">Repairs</a>
+            <a href="#">Billing</a>
+            <a href="#">Inbox</a>
+          </div>
+          <div class="ww-chrome__customer">
+            <div class="ww-chrome__avatar">SC</div>
+            <div>
+              <div class="ww-chrome__customer-name">Sarah Chen</div>
+              <div class="ww-chrome__customer-addr">4118 Coral Way · Pinecrest, FL</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Sub-bar */}
+        <div class="ww-subbar">
+          <div class="ww-subbar__left">
+            <div class="ww-subbar__title">Customer 360 · This week</div>
+            <div class="ww-subbar__pill">Active</div>
+          </div>
+          <div class="ww-subbar__right">
+            <div>Last visit · <strong>Tue 3:42 PM</strong></div>
+            <div>Next visit · <strong>Sat 9:00 AM</strong></div>
+            <div>Open tickets · <strong>1</strong></div>
+          </div>
+        </div>
+
+        <div class="ww-grid">
+          {/* LEFT col: Schedule */}
+          <div class="ww-col">
+            <div class="ww-col__head">
+              <div class="ww-col__title">Schedule</div>
+              <div class="ww-col__meta">WK · 33</div>
+            </div>
+
+            <div class="ww-panel">
+              <div class="ww-next-visit__head">
+                <div class="ww-next-visit__day">
+                  <span>Next visit</span>
+                  Sat
+                </div>
+                <div class="ww-next-visit__when">
+                  Aug 17
+                  <strong>9:00 AM</strong>
+                </div>
+              </div>
+              <div class="ww-next-visit__tech">
+                <div class="ww-next-visit__avatar">MR</div>
+                <div>
+                  <div class="ww-next-visit__tech-name">Marcus Reyes</div>
+                  <div class="ww-next-visit__tech-meta">Lead tech · 8 yrs</div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div class="ww-col__title" style="margin-bottom:14px">This week</div>
+              <div class="ww-timeline">
+                <div class="ww-timeline__row ww-done">
+                  <div class="ww-timeline__dot"></div>
+                  <div class="ww-timeline__body">
+                    <div class="ww-timeline__title">Weekly service complete</div>
+                    <div class="ww-timeline__meta">Tue · 3:42 PM</div>
+                  </div>
+                </div>
+                <div class="ww-timeline__row ww-done">
+                  <div class="ww-timeline__dot"></div>
+                  <div class="ww-timeline__body">
+                    <div class="ww-timeline__title">Chemistry balanced</div>
+                    <div class="ww-timeline__meta">Tue · 4:08 PM</div>
+                  </div>
+                </div>
+                <div class="ww-timeline__row ww-now">
+                  <div class="ww-timeline__dot"></div>
+                  <div class="ww-timeline__body">
+                    <div class="ww-timeline__title">Pump impeller — diagnosed</div>
+                    <div class="ww-timeline__meta">Wed · 9:14 AM</div>
+                  </div>
+                </div>
+                <div class="ww-timeline__row">
+                  <div class="ww-timeline__dot"></div>
+                  <div class="ww-timeline__body">
+                    <div class="ww-timeline__title">Repair scheduled</div>
+                    <div class="ww-timeline__meta">Sat · 9:00 AM</div>
+                  </div>
+                </div>
+                <div class="ww-timeline__row">
+                  <div class="ww-timeline__dot"></div>
+                  <div class="ww-timeline__body">
+                    <div class="ww-timeline__title">Invoice auto-sent</div>
+                    <div class="ww-timeline__meta">Sat · upon completion</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* MIDDLE col: Service log */}
+          <div class="ww-col ww-col--mid">
+            <div class="ww-log-head">
+              <div>
+                <div class="ww-col__title" style="margin-bottom:6px">Service log</div>
+                <h3>Visit · Tuesday, Aug 13</h3>
+              </div>
+              <div class="ww-log-head__meta">
+                Work order <strong>WO-1187</strong><br/>
+                Tech <strong>Marcus R.</strong>
+              </div>
+            </div>
+
+            <div>
+              <div class="ww-col__title" style="margin-bottom:10px;color:rgba(255,255,255,.55)">Water chemistry</div>
+              <div class="ww-chem-row">
+                <div class="ww-stat ww-stat--ok">
+                  <div class="ww-stat__label">Free Cl</div>
+                  <div class="ww-stat__value">2.4</div>
+                  <div class="ww-stat__bar"><i style="width:62%"></i></div>
+                </div>
+                <div class="ww-stat ww-stat--ok">
+                  <div class="ww-stat__label">pH</div>
+                  <div class="ww-stat__value">7.4</div>
+                  <div class="ww-stat__bar"><i style="width:55%"></i></div>
+                </div>
+                <div class="ww-stat ww-stat--ok">
+                  <div class="ww-stat__label">Alkalinity</div>
+                  <div class="ww-stat__value">110</div>
+                  <div class="ww-stat__bar"><i style="width:68%"></i></div>
+                </div>
+                <div class="ww-stat ww-stat--warn">
+                  <div class="ww-stat__label">CYA</div>
+                  <div class="ww-stat__value">82</div>
+                  <div class="ww-stat__bar"><i style="width:82%"></i></div>
+                </div>
+                <div class="ww-stat ww-stat--ok">
+                  <div class="ww-stat__label">Calcium</div>
+                  <div class="ww-stat__value">240</div>
+                  <div class="ww-stat__bar"><i style="width:48%"></i></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ww-twocol">
+              <div class="ww-panel">
+                <div class="ww-panel__head">
+                  <strong>Work order</strong>
+                  <span>5 / 5</span>
+                </div>
+                <div class="ww-checklist">
+                  <div class="ww-checklist__item ww-done">
+                    <span class="ww-checklist__check"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6.5 5 9l4.5-5"/></svg></span>
+                    Skim &amp; vacuum
+                  </div>
+                  <div class="ww-checklist__item ww-done">
+                    <span class="ww-checklist__check"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6.5 5 9l4.5-5"/></svg></span>
+                    Backwash filter
+                  </div>
+                  <div class="ww-checklist__item ww-done">
+                    <span class="ww-checklist__check"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6.5 5 9l4.5-5"/></svg></span>
+                    Balance chemistry
+                  </div>
+                  <div class="ww-checklist__item ww-done">
+                    <span class="ww-checklist__check"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6.5 5 9l4.5-5"/></svg></span>
+                    Inspect equipment
+                  </div>
+                  <div class="ww-checklist__item ww-done">
+                    <span class="ww-checklist__check"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6.5 5 9l4.5-5"/></svg></span>
+                    Reply to Sarah
+                  </div>
+                </div>
+              </div>
+
+              <div class="ww-panel">
+                <div class="ww-panel__head">
+                  <strong>Repair · pending</strong>
+                  <span>WO-1188</span>
+                </div>
+                <div class="ww-parts__title">Pentair WhisperFlo 1.5 HP</div>
+                <div class="ww-parts__model">P/N · 357970-1100 · 074979</div>
+                <div class="ww-parts__status">In stock — same day</div>
+              </div>
+            </div>
+          </div>
+
+          {/* RIGHT col: Activity feed */}
+          <div class="ww-col">
+            <div class="ww-col__head">
+              <div class="ww-col__title">Activity</div>
+              <div class="ww-col__meta">Live</div>
+            </div>
+
+            <div class="ww-feed">
+              <div class="ww-feed__item">
+                <div class="ww-feed__head">
+                  <div class="ww-feed__avatar ww-feed__avatar--customer">SC</div>
+                  <div class="ww-feed__who">Sarah</div>
+                  <div class="ww-feed__when">8:42 AM</div>
+                </div>
+                <div class="ww-feed__bubble">Hey — pump's making a weird grinding sound. Should we be worried before the pool party Saturday?</div>
+              </div>
+
+              <div class="ww-feed__item">
+                <div class="ww-feed__head">
+                  <div class="ww-feed__avatar ww-feed__avatar--tech">MR</div>
+                  <div class="ww-feed__who">Marcus · replied</div>
+                  <div class="ww-feed__when">8:46 AM</div>
+                </div>
+                <div class="ww-feed__body ww-feed__body--muted">"On my way to look at it now. Sounds like the impeller — I'll bring a spare just in case."</div>
+              </div>
+
+              <div class="ww-feed__item">
+                <div class="ww-feed__head">
+                  <div class="ww-feed__avatar ww-feed__avatar--system">PP</div>
+                  <div class="ww-feed__who">Repair scheduled</div>
+                  <div class="ww-feed__when">9:18 AM</div>
+                </div>
+                <div class="ww-feed__body ww-feed__body--muted">Pump impeller replacement booked for Sat 9:00 AM. Part in stock — no third-party order needed.</div>
+              </div>
+
+              <div class="ww-feed__item">
+                <div class="ww-feed__head">
+                  <div class="ww-feed__avatar ww-feed__avatar--system">PP</div>
+                  <div class="ww-feed__who">Invoice · ready</div>
+                  <div class="ww-feed__when">Sat</div>
+                </div>
+                <div class="ww-feed__body ww-feed__body--muted">One bill. Service + parts + labor.</div>
+                <div class="ww-feed__invoice">
+                  <div class="ww-feed__invoice-row"><span>Weekly service</span><span>$ 165.00</span></div>
+                  <div class="ww-feed__invoice-row"><span>Pump impeller</span><span>$ 84.50</span></div>
+                  <div class="ww-feed__invoice-row"><span>Labor · 1.5 hr</span><span>$ 142.50</span></div>
+                  <div class="ww-feed__invoice-total"><strong>Total</strong><span>$ 392.00</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {/* Caption — "One team · One schedule · One bill" */}
+  <div class="ww-caption">
+    <div class="ww-caption__row">
+      <span>One team</span>
+      <span class="ww-dot"></span>
+      <span>One schedule</span>
+      <span class="ww-dot"></span>
+      <span>One bill</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Lock both stages to their fixed pixel canvas sizes and scale to fit
+  // their shell. Each stage has its own canvas:
+  //   Act 1: 1280 × 680
+  //   Act 2: 1280 × 740
+  // Scale considers BOTH shell width and shell height so the artifacts
+  // never get cut off vertically on short / narrow viewports. The
+  // smaller of (width-fit, height-fit) wins; capped at 1 so we never
+  // upscale past the source design size.
+  (function(){
+    function fit(){
+      const stages = document.querySelectorAll('[data-ww-stage]');
+      const frames = document.querySelectorAll('[data-ww-frame]');
+      [...stages, ...frames].forEach((el) => {
+        const shell = el.parentElement;
+        if (!shell) return;
+        const w = shell.clientWidth;
+        const h = shell.clientHeight;
+        if (w === 0) return; // skip until shell has actual width
+        const isAct1 = el.matches('[data-ww-stage]');
+        const canvasW = 1280;
+        const canvasH = isAct1 ? 680 : 740;
+        const sw = w / canvasW;
+        // If shell has no explicit height (sandbox stacked layout, where
+        // height is driven by aspect-ratio), height-fit will equal sw —
+        // safe to ignore. If shell has explicit height (hero mode), this
+        // adds the height constraint.
+        const sh = h > 0 ? h / canvasH : Infinity;
+        const s = Math.min(1, sw, sh);
+        shell.style.setProperty('--ww-s', String(s));
+      });
+    }
+    // Run multiple times to handle the iframe's late-resize behavior:
+    // initial render (often width=0), after layout, after fonts, on
+    // window resize, and continuously via ResizeObserver on each shell.
+    fit();
+    requestAnimationFrame(fit);
+    window.addEventListener('load', fit);
+    window.addEventListener('resize', fit);
+    if ('ResizeObserver' in window) {
+      const ro = new ResizeObserver(fit);
+      document.querySelectorAll('.ww-stage-shell, .ww-shell').forEach((el) => ro.observe(el));
+    }
+  })();
+</script>
+
+<style is:global>
+  /* ====================================================================
+     WhyWeExistTwoActs — full-fidelity port from design bundle
+     All classes prefixed `ww-` to avoid collisions.
+     ==================================================================== */
+
+  .ww-root {
+    --ww-primary: #0284c7;
+    --ww-deep: #0c4a6e;
+    --ww-cyan: #06b6d4;
+    --ww-cyan-light: #7dd3fc;
+    --ww-bg-deep: #0a1929;
+    --ww-text: #1E3A5F;
+    --ww-text-light: #637388;
+    --ww-good: #22c55e;
+    --ww-good-text: #86efac;
+    --ww-warn: #f59e0b;
+    --ww-bad: #ef4444;
+
+    position: relative;
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    padding: 6rem 2rem 5rem;
+    background: radial-gradient(ellipse at 50% 30%, #0c4a6e 0%, #0a1929 70%);
+    color: #fff;
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+  }
+
+  /* === Header (shared between both acts) ============================ */
+  .ww-header {
+    text-align: center;
+    max-width: 820px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 5;
+  }
+  .ww-kicker {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ww-cyan-light);
+    margin-bottom: 1rem;
+  }
+  .ww-headline {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: clamp(2rem, 3.6vw, 3.2rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin: 0 0 1rem;
+    text-wrap: balance;
+    color: #fff;
+  }
+  .ww-headline em { font-style: normal; }
+  .ww-headline__bad { color: #fca5a5; }
+  .ww-headline__good { color: var(--ww-cyan-light); }
+  .ww-subhead {
+    font-size: clamp(1rem, 1.15vw, 1.05rem);
+    line-height: 1.55;
+    color: rgba(255,255,255,.72);
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  /* === Stage label between sections ================================= */
+  .ww-stage-label {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    max-width: 1280px;
+    margin: 5rem auto 1.5rem;
+    padding: 0 1rem;
+  }
+  .ww-stage-label__num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    color: #fca5a5;
+    letter-spacing: 0.18em;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .ww-stage-label__num--good { color: var(--ww-cyan-light); }
+  .ww-stage-label__title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .ww-stage-label__rule {
+    flex: 1;
+    height: 1px;
+    background: rgba(125, 211, 252, 0.18);
+  }
+  .ww-stage-label__copy {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.55);
+    flex-shrink: 0;
+  }
+
+  /* === ACT 1 — scattered artifacts on a 1280×680 canvas ============
+     Layout intentionally scattered (not strict grid) — modeled after
+     the "Systems that never spoke" desk-scatter reference.
+     Each artifact lives in a loose zone with comfortable breathing
+     room (≥17px gaps to neighbors). Photo (algae bloom) sits as the
+     visual center; note slides to the far-left mid zone. */
+  .ww-stage-shell {
+    position: relative;
+    margin: 0 auto;
+    width: 100%;
+    max-width: 1280px;
+    aspect-ratio: 1280 / 680;
+  }
+  .ww-stage-wrap {
+    position: absolute;
+    top: 0; left: 0;
+    width: 1280px;
+    height: 680px;
+    transform-origin: top left;
+    transform: scale(var(--ww-s, 1));
+  }
+  .ww-stage {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+  .ww-connectors {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+    overflow: visible;
+  }
+  .ww-connectors path {
+    fill: none;
+    stroke: rgba(248, 113, 113, 0.32);
+    stroke-width: 1.5;
+    stroke-dasharray: 3 7;
+    stroke-linecap: round;
+  }
+
+  /* Generic artifact card */
+  .ww-art {
+    position: absolute;
+    z-index: 2;
+    background: #fff;
+    color: var(--ww-text);
+    border-radius: 12px;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,.04) inset,
+      0 18px 42px rgba(2,8,20,.55),
+      0 4px 10px rgba(2,8,20,.35);
+    transform-origin: center;
+  }
+  .ww-art--dark {
+    background: #13283f;
+    color: #e6f0fa;
+    border: 1px solid rgba(125,211,252,.18);
+  }
+  .ww-art--note {
+    background: #fffbe8;
+    color: #5d4a14;
+  }
+
+  /* 1. Customer text bubble — top-left zone */
+  .ww-art-text {
+    width: 270px;
+    padding: 14px 16px;
+    top: 30px; left: 60px;
+    transform: rotate(-3deg);
+    border-radius: 18px 18px 18px 4px;
+    background: #e9f3ff;
+    color: #0c2a4d;
+  }
+  .ww-art-text__head {
+    display: flex; align-items: center; gap: 8px;
+    font-size: .7rem; font-weight: 600;
+    color: #5b6b80; margin-bottom: 6px;
+    letter-spacing: .02em;
+  }
+  .ww-art-text__avatar {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    flex-shrink: 0;
+  }
+  .ww-art-text__body {
+    font-size: .92rem; line-height: 1.4;
+    font-weight: 500;
+  }
+
+  /* 2. Chemistry — top-mid-right zone */
+  .ww-art-chem {
+    width: 260px;
+    padding: 14px 16px 16px;
+    top: 20px; left: 580px;
+    transform: rotate(2deg);
+  }
+  .ww-art-chem__head {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: .68rem; font-weight: 700; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--ww-text-light);
+    margin-bottom: 8px;
+    border-bottom: 1px solid #eef2f6; padding-bottom: 8px;
+  }
+  .ww-art-chem__head strong { color: var(--ww-deep); font-weight: 700; }
+  .ww-art-chem__rows { display: flex; flex-direction: column; gap: 6px; }
+  .ww-art-chem__row {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: .78rem;
+  }
+  .ww-art-chem__row span:first-child { color: var(--ww-text-light); }
+  .ww-art-chem__row span:last-child {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600; color: var(--ww-deep);
+  }
+  .ww-art-chem__row.ww-warn span:last-child { color: var(--ww-warn); }
+  .ww-art-chem__row.ww-bad span:last-child { color: var(--ww-bad); }
+
+  /* 3. Calendar — bottom-left zone */
+  .ww-art-cal {
+    width: 240px;
+    padding: 0;
+    top: 470px; left: 60px;
+    transform: rotate(-2deg);
+    overflow: hidden;
+  }
+  .ww-art-cal__head {
+    background: var(--ww-deep);
+    color: #fff;
+    text-align: center;
+    padding: 8px 10px;
+    font-size: .65rem; letter-spacing: .16em; text-transform: uppercase;
+    font-weight: 700;
+  }
+  .ww-art-cal__date { text-align: center; padding: 14px 10px 8px; }
+  .ww-art-cal__date strong {
+    font-family: 'Poppins', sans-serif;
+    font-size: 2.2rem; font-weight: 700; line-height: 1;
+    color: var(--ww-deep); display: block;
+  }
+  .ww-art-cal__date span {
+    font-size: .7rem; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--ww-text-light); font-weight: 600;
+  }
+  .ww-art-cal__slot {
+    border-top: 1px solid #eef2f6;
+    padding: 10px 14px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: .78rem;
+  }
+  .ww-art-cal__slot span:first-child { font-weight: 600; color: var(--ww-deep); }
+  .ww-art-cal__slot span:last-child { color: var(--ww-good); font-weight: 600; }
+  .ww-art-cal__slot--booked span:last-child { color: var(--ww-text-light); }
+
+  /* 4. Invoice */
+  /* 4. Invoice — bottom-mid zone */
+  .ww-art-invoice {
+    width: 330px;
+    padding: 0;
+    top: 440px; left: 370px;
+    transform: rotate(3deg);
+    overflow: hidden;
+  }
+  .ww-art-invoice__head {
+    padding: 12px 14px;
+    background: #f6f9fd;
+    border-bottom: 1px solid #e3ebf3;
+    display: flex; justify-content: space-between; align-items: baseline;
+  }
+  .ww-art-invoice__head strong {
+    font-family: 'Poppins', sans-serif;
+    font-size: .95rem; color: var(--ww-deep);
+  }
+  .ww-art-invoice__head span {
+    font-size: .7rem; color: var(--ww-text-light);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .ww-art-invoice__rows { padding: 10px 14px; display: flex; flex-direction: column; gap: 6px; }
+  .ww-art-invoice__row { display: flex; justify-content: space-between; font-size: .78rem; }
+  .ww-art-invoice__row span:first-child { color: var(--ww-text-light); }
+  .ww-art-invoice__row span:last-child {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600; color: var(--ww-deep);
+  }
+  .ww-art-invoice__total {
+    border-top: 1px dashed #d1dae3;
+    padding: 10px 14px;
+    display: flex; justify-content: space-between; align-items: center;
+    background: #f9fbfd;
+  }
+  .ww-art-invoice__total strong {
+    font-family: 'Poppins', sans-serif;
+    color: var(--ww-deep); font-size: .9rem;
+  }
+  .ww-art-invoice__total span {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700; color: var(--ww-primary); font-size: 1rem;
+  }
+
+  /* 5. Parts (dark) — top-right zone */
+  .ww-art-parts {
+    width: 240px;
+    padding: 14px 16px;
+    top: 60px; left: 1000px;
+    transform: rotate(-2deg);
+  }
+  .ww-art-parts__head {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: .68rem; font-weight: 700; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--ww-cyan-light);
+    margin-bottom: 10px;
+  }
+  .ww-art-parts__title {
+    font-family: 'Poppins', sans-serif;
+    font-size: .95rem; font-weight: 600;
+    margin-bottom: 2px;
+  }
+  .ww-art-parts__model {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .72rem; color: rgba(125,211,252,.72);
+    margin-bottom: 10px;
+  }
+  .ww-art-parts__status {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(34,197,94,.16);
+    color: var(--ww-good-text);
+    padding: 4px 10px;
+    border-radius: 99px;
+    font-size: .7rem; font-weight: 600;
+  }
+  .ww-art-parts__status::before {
+    content: ""; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--ww-good); box-shadow: 0 0 6px var(--ww-good);
+  }
+
+  /* 6. Photo (algae bloom) — visual center, fills mid whitespace */
+  .ww-art-photo {
+    width: 220px;
+    height: 140px;
+    top: 270px; left: 500px;
+    transform: rotate(2deg);
+    padding: 6px;
+    background: #fff;
+  }
+  .ww-art-photo__inner {
+    width: 100%; height: 100%;
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+  }
+  .ww-art-photo__inner::before,
+  .ww-art-photo__inner::after {
+    content: ""; position: absolute;
+    background: rgba(255,255,255,.18);
+    border-radius: 50%;
+  }
+  .ww-art-photo__inner::before {
+    width: 60%; height: 8px;
+    top: 34%; left: -10%;
+    transform: rotate(-6deg);
+    filter: blur(2px);
+  }
+  .ww-art-photo__inner::after {
+    width: 50%; height: 5px;
+    top: 64%; left: 30%;
+    transform: rotate(-4deg);
+    filter: blur(1.5px);
+  }
+  .ww-art-photo__caption {
+    position: absolute;
+    left: 16px; right: 16px; bottom: 14px;
+    display: flex; justify-content: space-between; align-items: center;
+    color: #fff;
+    font-size: .7rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    font-weight: 600;
+    text-shadow: 0 1px 4px rgba(0,0,0,.4);
+  }
+  .ww-art-photo__caption span:last-child {
+    background: rgba(255,255,255,.18);
+    backdrop-filter: blur(6px);
+    padding: 3px 8px;
+    border-radius: 99px;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: .04em;
+    text-transform: none;
+  }
+
+  /* 7. Sticky note — far-left mid zone (where algae was) */
+  .ww-art-note {
+    width: 160px;
+    padding: 14px 14px 18px;
+    top: 320px; left: 40px;
+    transform: rotate(-5deg);
+    font-family: 'Caveat', 'Comic Sans MS', cursive, sans-serif;
+    font-size: 1rem;
+    line-height: 1.25;
+    color: #5d4a14;
+  }
+  .ww-art-note__title {
+    font-family: 'Poppins', sans-serif;
+    font-size: .65rem; font-weight: 700; letter-spacing: .16em;
+    text-transform: uppercase; color: #a78617;
+    margin-bottom: 6px;
+  }
+
+  /* 8. Checklist — mid-right zone */
+  .ww-art-checklist {
+    width: 280px;
+    padding: 14px 16px;
+    top: 290px; left: 930px;
+    transform: rotate(2deg);
+  }
+  .ww-art-checklist__head {
+    display: flex; justify-content: space-between;
+    font-size: .68rem; font-weight: 700; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--ww-cyan-light);
+    margin-bottom: 10px;
+  }
+  .ww-art-checklist__head span:last-child {
+    color: rgba(255,255,255,.45);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: .04em; text-transform: none;
+  }
+  .ww-art-checklist__list { display: flex; flex-direction: column; gap: 7px; }
+  .ww-art-checklist__item {
+    display: flex; align-items: center; gap: 9px;
+    font-size: .82rem; color: #cbd9e8;
+  }
+  .ww-art-checklist__item.ww-done {
+    color: rgba(203,217,232,.55);
+    text-decoration: line-through;
+    text-decoration-color: rgba(125,211,252,.5);
+  }
+  .ww-art-checklist__check {
+    width: 14px; height: 14px; border-radius: 4px;
+    border: 1.5px solid rgba(125,211,252,.45);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .ww-art-checklist__item.ww-done .ww-art-checklist__check {
+    background: var(--ww-cyan-light);
+    border-color: var(--ww-cyan-light);
+  }
+  .ww-art-checklist__item.ww-done .ww-art-checklist__check svg { display: block; }
+  .ww-art-checklist__check svg { display: none; width: 9px; height: 9px; color: #0a1929; }
+
+  /* 9. Phone call — bottom-right zone */
+  .ww-art-call {
+    width: 200px;
+    padding: 12px 14px;
+    top: 540px; left: 770px;
+    transform: rotate(-4deg);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .ww-art-call__icon {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: linear-gradient(135deg, #dc2626, #7f1d1d);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .ww-art-call__icon svg { width: 18px; height: 18px; }
+  .ww-art-call__body strong {
+    display: block;
+    font-family: 'Poppins', sans-serif;
+    font-size: .85rem;
+    color: var(--ww-deep);
+  }
+  .ww-art-call__body span {
+    font-size: .72rem;
+    color: var(--ww-text-light);
+  }
+
+  /* Tags hovering near artifacts */
+  .ww-tag {
+    position: absolute;
+    z-index: 3;
+    font-size: .62rem;
+    font-weight: 600;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: rgba(252,165,165,.7);
+    white-space: nowrap;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .ww-tag::before {
+    content: ""; width: 4px; height: 4px; border-radius: 50%;
+    background: #f87171;
+    box-shadow: 0 0 6px rgba(248,113,113,.6);
+  }
+
+  /* === Bridge between Acts ========================================== */
+  .ww-bridge {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    max-width: 700px;
+    margin: 4.5rem auto 4.5rem;
+    padding: 0 2rem;
+  }
+  .ww-bridge__line {
+    flex: 1;
+    height: 1px;
+    background: rgba(125, 211, 252, 0.25);
+  }
+  .ww-bridge__pill {
+    padding: 8px 20px;
+    border: 1px solid rgba(125, 211, 252, 0.35);
+    border-radius: 99px;
+    background: rgba(10, 25, 41, 0.6);
+    backdrop-filter: blur(8px);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ww-cyan-light);
+    flex-shrink: 0;
+  }
+
+  /* === ACT 2 — dashboard window ==================================== */
+  .ww-shell {
+    position: relative;
+    margin: 0 auto;
+    width: 100%;
+    max-width: 1280px;
+    aspect-ratio: 1280 / 740;
+  }
+  .ww-frame {
+    position: absolute;
+    top: 0; left: 0;
+    width: 1280px;
+    height: 740px;
+    transform-origin: top left;
+    transform: scale(var(--ww-s, 1));
+  }
+  .ww-window {
+    position: relative;
+    width: 100%; height: 100%;
+    background: linear-gradient(180deg, rgba(18,40,68,.92), rgba(10,25,41,.98));
+    border: 1px solid rgba(125,211,252,.22);
+    border-radius: 22px;
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,.04) inset,
+      0 60px 120px rgba(2,8,20,.6),
+      0 0 80px rgba(125,211,252,.05);
+    overflow: hidden;
+    backdrop-filter: blur(20px);
+  }
+
+  /* Chrome bar */
+  .ww-chrome {
+    display: flex; align-items: center;
+    height: 64px;
+    padding: 0 24px;
+    border-bottom: 1px solid rgba(125,211,252,.16);
+    background: rgba(10,25,41,.7);
+    gap: 18px;
+  }
+  .ww-chrome__logo {
+    height: 34px; width: auto;
+    filter: drop-shadow(0 0 12px rgba(125,211,252,.18));
+  }
+  .ww-chrome__divider {
+    width: 1px; height: 30px;
+    background: rgba(125,211,252,.25);
+  }
+  .ww-chrome__nav {
+    display: flex; gap: 24px; align-items: center;
+    flex: 1;
+  }
+  .ww-chrome__nav a {
+    font-size: .82rem; font-weight: 500;
+    color: rgba(255,255,255,.55);
+    text-decoration: none;
+    letter-spacing: .01em;
+  }
+  .ww-chrome__nav a.ww-active {
+    color: #fff; font-weight: 600; position: relative;
+  }
+  .ww-chrome__nav a.ww-active::after {
+    content: ""; position: absolute;
+    left: 0; right: 0; bottom: -22px;
+    height: 2px; background: var(--ww-cyan-light);
+    border-radius: 2px;
+  }
+  .ww-chrome__customer {
+    display: flex; align-items: center; gap: 10px;
+    padding: 6px 14px 6px 6px;
+    background: rgba(125,211,252,.08);
+    border: 1px solid rgba(125,211,252,.18);
+    border-radius: 99px;
+  }
+  .ww-chrome__avatar {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: linear-gradient(135deg, #f59e0b, #dc2626);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; color: #fff; font-size: .78rem;
+  }
+  .ww-chrome__customer-name {
+    font-size: .85rem; font-weight: 600; color: #fff;
+    line-height: 1.1;
+  }
+  .ww-chrome__customer-addr {
+    font-size: .7rem; color: rgba(255,255,255,.5);
+  }
+
+  /* Subbar */
+  .ww-subbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 24px;
+    border-bottom: 1px solid rgba(125,211,252,.1);
+    background: rgba(10,25,41,.4);
+  }
+  .ww-subbar__left { display: flex; align-items: center; gap: 14px; }
+  .ww-subbar__title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600; font-size: 1.05rem;
+    color: #fff;
+  }
+  .ww-subbar__pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 12px;
+    background: rgba(34,197,94,.15);
+    border: 1px solid rgba(34,197,94,.3);
+    color: var(--ww-good-text);
+    font-size: .7rem; font-weight: 600;
+    letter-spacing: .08em; text-transform: uppercase;
+    border-radius: 99px;
+  }
+  .ww-subbar__pill::before {
+    content: ""; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--ww-good);
+    box-shadow: 0 0 8px var(--ww-good);
+  }
+  .ww-subbar__right {
+    display: flex; align-items: center; gap: 18px;
+    font-size: .78rem; color: rgba(255,255,255,.55);
+  }
+  .ww-subbar__right strong { color: #fff; font-weight: 600; }
+
+  /* Grid */
+  .ww-grid {
+    display: grid;
+    grid-template-columns: 320px 1fr 360px;
+    gap: 1px;
+    background: rgba(125,211,252,.1);
+    height: calc(100% - 64px - 56px);
+  }
+  .ww-col {
+    background: rgba(10,25,41,.55);
+    padding: 22px 22px;
+    overflow: hidden;
+    display: flex; flex-direction: column; gap: 18px;
+  }
+  .ww-col__head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(125,211,252,.12);
+  }
+  .ww-col__title {
+    font-size: .7rem; font-weight: 700; letter-spacing: .18em;
+    text-transform: uppercase; color: var(--ww-cyan-light);
+  }
+  .ww-col__meta {
+    font-size: .7rem; color: rgba(255,255,255,.45);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Schedule panel */
+  .ww-panel {
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(125,211,252,.12);
+    border-radius: 12px;
+    padding: 14px 16px;
+  }
+  .ww-next-visit__head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .ww-next-visit__day {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.4rem; font-weight: 700; color: #fff;
+    line-height: 1.05;
+  }
+  .ww-next-visit__day span {
+    display: block;
+    font-size: .7rem; font-weight: 600;
+    letter-spacing: .14em; text-transform: uppercase;
+    color: var(--ww-cyan-light);
+    margin-bottom: 4px;
+  }
+  .ww-next-visit__when {
+    text-align: right;
+    font-size: .78rem; color: rgba(255,255,255,.7);
+  }
+  .ww-next-visit__when strong {
+    display: block; color: #fff; font-size: .95rem;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .ww-next-visit__tech {
+    display: flex; align-items: center; gap: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(125,211,252,.1);
+  }
+  .ww-next-visit__avatar {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: linear-gradient(135deg, #0ea5e9, #0c4a6e);
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .72rem; font-weight: 700; color: #fff;
+  }
+  .ww-next-visit__tech-name {
+    font-size: .85rem; font-weight: 600; color: #fff;
+  }
+  .ww-next-visit__tech-meta {
+    font-size: .7rem; color: rgba(255,255,255,.5);
+  }
+
+  /* Timeline */
+  .ww-timeline {
+    display: flex; flex-direction: column; gap: 0;
+    position: relative;
+  }
+  .ww-timeline::before {
+    content: ""; position: absolute;
+    left: 9px; top: 8px; bottom: 8px;
+    width: 1px; background: rgba(125,211,252,.18);
+  }
+  .ww-timeline__row {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 8px 0;
+    position: relative;
+  }
+  .ww-timeline__dot {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: rgba(10,25,41,.9);
+    border: 1.5px solid rgba(125,211,252,.45);
+    flex-shrink: 0;
+    margin-top: 2px;
+    z-index: 1;
+  }
+  .ww-timeline__row.ww-done .ww-timeline__dot {
+    background: var(--ww-good); border-color: var(--ww-good);
+  }
+  .ww-timeline__row.ww-now .ww-timeline__dot {
+    background: var(--ww-cyan-light); border-color: var(--ww-cyan-light);
+    box-shadow: 0 0 0 4px rgba(125,211,252,.15);
+  }
+  .ww-timeline__body { flex: 1; min-width: 0; }
+  .ww-timeline__title {
+    font-size: .84rem; font-weight: 600; color: #fff;
+    line-height: 1.2;
+  }
+  .ww-timeline__row.ww-done .ww-timeline__title {
+    color: rgba(255,255,255,.55);
+  }
+  .ww-timeline__meta {
+    font-size: .7rem; color: rgba(255,255,255,.5);
+    margin-top: 2px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Service log middle column */
+  .ww-col--mid { padding: 22px 26px; }
+  .ww-log-head {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    gap: 18px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(125,211,252,.12);
+  }
+  .ww-log-head h3 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600; font-size: 1.15rem; color: #fff;
+    margin: 0;
+  }
+  .ww-log-head__meta {
+    text-align: right;
+    font-size: .72rem; color: rgba(255,255,255,.5);
+    line-height: 1.4;
+  }
+  .ww-log-head__meta strong {
+    color: #fff; font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Chemistry stat tiles */
+  .ww-chem-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+  }
+  .ww-stat {
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(125,211,252,.12);
+    border-radius: 10px;
+    padding: 12px 12px 14px;
+  }
+  .ww-stat__label {
+    font-size: .62rem; font-weight: 600; letter-spacing: .12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.55);
+    margin-bottom: 6px;
+    line-height: 1.1;
+  }
+  .ww-stat__value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.1rem; font-weight: 600;
+    color: #fff;
+    line-height: 1;
+  }
+  .ww-stat__bar {
+    margin-top: 8px;
+    height: 3px;
+    background: rgba(255,255,255,.08);
+    border-radius: 99px;
+    overflow: hidden;
+    position: relative;
+  }
+  .ww-stat__bar i {
+    position: absolute; left: 0; top: 0; bottom: 0;
+    background: var(--ww-good);
+    border-radius: 99px;
+  }
+  .ww-stat--ok .ww-stat__bar i { background: var(--ww-good); }
+  .ww-stat--ok .ww-stat__value { color: var(--ww-good-text); }
+  .ww-stat--warn .ww-stat__bar i { background: var(--ww-warn); }
+  .ww-stat--warn .ww-stat__value { color: var(--ww-warn); }
+
+  /* Two-col panel layout (work order + parts) */
+  .ww-twocol {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .ww-panel__head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .ww-panel__head strong {
+    font-family: 'Poppins', sans-serif;
+    font-size: .95rem; color: #fff; font-weight: 600;
+  }
+  .ww-panel__head span {
+    font-size: .68rem; color: rgba(255,255,255,.45);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .ww-checklist { display: flex; flex-direction: column; gap: 7px; }
+  .ww-checklist__item {
+    display: flex; align-items: center; gap: 9px;
+    font-size: .82rem; color: #cbd9e8;
+  }
+  .ww-checklist__item.ww-done {
+    color: rgba(203,217,232,.5);
+    text-decoration: line-through;
+    text-decoration-color: rgba(125,211,252,.45);
+  }
+  .ww-checklist__check {
+    width: 14px; height: 14px; border-radius: 4px;
+    border: 1.5px solid rgba(125,211,252,.45);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .ww-checklist__item.ww-done .ww-checklist__check {
+    background: var(--ww-cyan-light); border-color: var(--ww-cyan-light);
+  }
+  .ww-checklist__item.ww-done .ww-checklist__check svg { display: block; }
+  .ww-checklist__check svg { display: none; width: 9px; height: 9px; color: #0a1929; }
+  .ww-parts__title {
+    font-family: 'Poppins', sans-serif;
+    font-size: .92rem; font-weight: 600; color: #fff;
+    margin-bottom: 2px;
+  }
+  .ww-parts__model {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .7rem; color: rgba(125,211,252,.7);
+    margin-bottom: 10px;
+  }
+  .ww-parts__status {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(34,197,94,.16);
+    color: var(--ww-good-text);
+    padding: 4px 10px;
+    border-radius: 99px;
+    font-size: .7rem; font-weight: 600;
+  }
+  .ww-parts__status::before {
+    content: ""; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--ww-good); box-shadow: 0 0 6px var(--ww-good);
+  }
+
+  /* Activity feed (right col) */
+  .ww-feed {
+    display: flex; flex-direction: column; gap: 14px;
+    flex: 1; min-height: 0;
+    overflow: hidden;
+  }
+  .ww-feed__item {
+    background: rgba(255,255,255,.03);
+    border: 1px solid rgba(125,211,252,.1);
+    border-radius: 12px;
+    padding: 12px 14px;
+  }
+  .ww-feed__head {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 8px;
+  }
+  .ww-feed__avatar {
+    width: 24px; height: 24px; border-radius: 50%;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .65rem; font-weight: 700; color: #fff;
+  }
+  .ww-feed__avatar--customer { background: linear-gradient(135deg, #f59e0b, #dc2626); }
+  .ww-feed__avatar--tech { background: linear-gradient(135deg, #0ea5e9, #0c4a6e); }
+  .ww-feed__avatar--system { background: linear-gradient(135deg, #7dd3fc, #0284c7); color: #0a1929; }
+  .ww-feed__who {
+    font-size: .78rem; font-weight: 600; color: #fff;
+  }
+  .ww-feed__when {
+    margin-left: auto;
+    font-size: .68rem; color: rgba(255,255,255,.4);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .ww-feed__body {
+    font-size: .84rem; line-height: 1.4;
+    color: rgba(255,255,255,.85);
+  }
+  .ww-feed__body--muted { color: rgba(255,255,255,.65); }
+  .ww-feed__bubble {
+    display: inline-block;
+    padding: 9px 12px;
+    border-radius: 14px 14px 14px 4px;
+    background: #e9f3ff;
+    color: #0c2a4d;
+    font-size: .84rem; line-height: 1.4;
+    font-weight: 500;
+    max-width: 100%;
+  }
+  .ww-feed__invoice {
+    border-top: 1px dashed rgba(125,211,252,.18);
+    margin-top: 10px;
+    padding-top: 10px;
+    display: flex; flex-direction: column; gap: 5px;
+  }
+  .ww-feed__invoice-row {
+    display: flex; justify-content: space-between;
+    font-size: .75rem; color: rgba(255,255,255,.65);
+  }
+  .ww-feed__invoice-row span:last-child {
+    font-family: 'JetBrains Mono', monospace;
+    color: #fff; font-weight: 500;
+  }
+  .ww-feed__invoice-total {
+    display: flex; justify-content: space-between;
+    margin-top: 6px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(125,211,252,.12);
+    align-items: center;
+  }
+  .ww-feed__invoice-total strong {
+    font-family: 'Poppins', sans-serif;
+    font-size: .92rem; color: #fff;
+  }
+  .ww-feed__invoice-total span {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem; font-weight: 700;
+    color: var(--ww-cyan-light);
+  }
+
+  /* Caption beneath the window */
+  .ww-caption {
+    margin: 3rem auto 0;
+    text-align: center;
+    max-width: 680px;
+    position: relative;
+    z-index: 5;
+  }
+  .ww-caption__row {
+    display: inline-flex; align-items: center; gap: 14px;
+    flex-wrap: wrap; justify-content: center;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.05rem; font-weight: 600; color: #fff;
+  }
+  .ww-caption__row span.ww-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--ww-cyan-light);
+    box-shadow: 0 0 10px rgba(125,211,252,.5);
+  }
+
+  /* === Mobile fallback ============================================== */
+  @media (max-width: 900px) {
+    .ww-root { padding: 4rem 1rem 3rem; }
+    .ww-stage-shell, .ww-shell {
+      aspect-ratio: auto; height: auto;
+    }
+    .ww-stage-wrap, .ww-frame {
+      position: relative;
+      width: 100%; height: auto;
+      transform: none;
+      margin-top: 2rem;
+    }
+    .ww-stage-wrap {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    .ww-stage { display: contents; }
+    .ww-connectors { display: none; }
+    .ww-art {
+      position: relative !important;
+      transform: none !important;
+      top: auto !important; bottom: auto !important;
+      left: auto !important; right: auto !important;
+      width: 100% !important;
+      margin: 0 auto;
+    }
+    .ww-art-photo { height: 160px; }
+    .ww-tag { display: none; }
+    .ww-window { height: auto; }
+    .ww-grid {
+      grid-template-columns: 1fr;
+      height: auto;
+    }
+    .ww-chrome__nav { display: none; }
+    .ww-col--mid .ww-chem-row { grid-template-columns: repeat(3, 1fr); }
+    .ww-col--mid .ww-twocol { grid-template-columns: 1fr; }
+    .ww-stage-label { flex-wrap: wrap; }
+  }
+</style>

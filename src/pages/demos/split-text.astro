@@ -1,0 +1,186 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SplitTextReveal from '../../components/demos/SplitTextReveal.tsx';
+---
+
+<BaseLayout
+  title="Split Text Demo | Perfect Pools"
+  description="Line-by-line reveal: type rises out of a mask on scroll-into-view. Adapted from darkroomengineering/satus components/effects/split-text/."
+  canonicalPath="/demos/split-text"
+>
+  <article class="d-split">
+
+    <header class="d-split__hero fluid-grid">
+      <div class="col-full dt-col-2-9">
+        <a href="/demos/" class="d-split__back">← Demos</a>
+        <h1 class="d-split__h">Split Text</h1>
+        <p class="d-split__lede">
+          GSAP <code>SplitText</code> divides each heading into lines, wraps
+          each line in an <code>overflow: hidden</code> mask, then animates
+          the lines from <code>yPercent: 110</code> (below the mask, hidden)
+          to <code>0</code> (in place, visible). Stagger between lines for
+          the cascading "type rises from the floor" effect.
+        </p>
+        <p class="d-split__source">
+          Source: <code>references/satus/components/effects/split-text/</code>
+        </p>
+      </div>
+    </header>
+
+    <section class="d-split__section fluid-grid">
+      <div class="col-full dt-col-2-12">
+        <span class="d-split__eyebrow">01 — Hero headline</span>
+        <SplitTextReveal client:load as="h2" className="d-split__display">
+          Pool care, redesigned for the people who actually own pools.
+        </SplitTextReveal>
+      </div>
+    </section>
+
+    <section class="d-split__section fluid-grid">
+      <div class="col-full dt-col-2-9">
+        <span class="d-split__eyebrow">02 — Manifesto</span>
+        <SplitTextReveal client:load as="h2" className="d-split__h2">
+          We bring maintenance, repairs, communication, and billing under one roof so nothing falls through.
+        </SplitTextReveal>
+      </div>
+    </section>
+
+    <section class="d-split__section fluid-grid">
+      <div class="col-full dt-col-3-11">
+        <span class="d-split__eyebrow">03 — Long-form</span>
+        <SplitTextReveal client:load as="h2" className="d-split__h3">
+          Twenty-plus years of coastal pool work. One in-house team handling chemistry, equipment diagnosis, scheduling, billing, and the messy weekend repairs nobody else picks up.
+        </SplitTextReveal>
+      </div>
+    </section>
+
+    <section class="d-split__section fluid-grid">
+      <div class="col-full dt-col-2-9">
+        <span class="d-split__eyebrow">04 — Section opener</span>
+        <SplitTextReveal client:load as="h2" className="d-split__h2">
+          Five things that work together.
+        </SplitTextReveal>
+      </div>
+    </section>
+
+  </article>
+</BaseLayout>
+
+<style>
+  :global(.d-split) {
+    background: var(--color-bg);
+    color: var(--color-text);
+    overflow-x: hidden;
+  }
+
+  /* GSAP SplitText `mask: 'lines'` adds these classes — we need to set
+     overflow: hidden on the line-mask wrapper so the yPercent animation
+     clips to the mask shape. */
+  :global(.d-split .stReveal__line) {
+    overflow: visible; /* line itself */
+  }
+
+  /* The mask div SplitText creates wraps the `.stReveal__line` and
+     clips yPercent translation. Selector targets it via the gsap class. */
+  :global(.d-split .stReveal__line-mask) {
+    overflow: hidden;
+    display: block;
+  }
+
+  :global(.d-split__hero) {
+    padding-top: var(--fluid-180);
+    padding-bottom: var(--fluid-80);
+  }
+  :global(.d-split__back) {
+    display: inline-block;
+    margin-bottom: var(--fluid-40);
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: var(--fluid-fs-eyebrow);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+  :global(.d-split__h) {
+    font-family: var(--font-heading);
+    font-size: var(--fluid-fs-h1);
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    line-height: 1.02;
+    margin: 0 0 var(--fluid-32);
+  }
+  @media (min-width: 800px) {
+    :global(.d-split__h) { font-size: calc(var(--fluid) * 80); }
+  }
+  :global(.d-split__lede) {
+    margin: 0 0 var(--fluid-16);
+    font-size: var(--fluid-fs-lead);
+    line-height: 1.55;
+    color: var(--color-text-light);
+    max-width: 64ch;
+  }
+  :global(.d-split__lede code),
+  :global(.d-split__source code) {
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 0.92em;
+    background: color-mix(in srgb, var(--color-text) 6%, transparent);
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+  :global(.d-split__source) {
+    margin: 0;
+    font-size: var(--fluid-fs-eyebrow);
+    color: var(--color-text-muted);
+  }
+
+  :global(.d-split__section) {
+    padding-top: var(--fluid-140);
+    padding-bottom: var(--fluid-140);
+  }
+  :global(.d-split__eyebrow) {
+    display: block;
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: var(--fluid-fs-eyebrow);
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--color-text-muted);
+    margin-bottom: var(--fluid-32);
+  }
+  :global(.d-split__display) {
+    font-family: var(--font-heading);
+    font-size: var(--fluid-fs-h1);
+    line-height: 0.98;
+    letter-spacing: -0.03em;
+    font-weight: 600;
+    margin: 0;
+    color: var(--color-text);
+    max-width: 18ch;
+  }
+  @media (min-width: 800px) {
+    :global(.d-split__display) { font-size: calc(var(--fluid) * 120); }
+  }
+  :global(.d-split__h2) {
+    font-family: var(--font-heading);
+    font-size: var(--fluid-fs-h2);
+    font-weight: 500;
+    letter-spacing: -0.022em;
+    line-height: 1.08;
+    margin: 0;
+    max-width: 22ch;
+  }
+  @media (min-width: 800px) {
+    :global(.d-split__h2) { font-size: calc(var(--fluid) * 64); }
+  }
+  :global(.d-split__h3) {
+    font-family: var(--font-heading);
+    font-size: var(--fluid-fs-h3);
+    font-weight: 400;
+    letter-spacing: -0.015em;
+    line-height: 1.25;
+    margin: 0;
+    max-width: 36ch;
+  }
+  @media (min-width: 800px) {
+    :global(.d-split__h3) { font-size: calc(var(--fluid) * 36); }
+  }
+</style>
