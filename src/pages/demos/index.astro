@@ -1,0 +1,204 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+const base = import.meta.env.BASE_URL;
+
+/**
+ * Demos index — landing page for all the Satus-grade pattern demos.
+ *
+ * Each demo is a single-pattern showcase with pool-related content,
+ * built from the components in /src/components/demos/* which themselves
+ * are direct ports of techniques in the cloned `darkroomengineering/satus`
+ * repo at /references/satus/.
+ *
+ * Patterns covered:
+ *   1. ProgressText  — word-by-word scroll-linked reveal (Linear/Stripe)
+ *   2. SplitText     — line-by-line type-rises-from-floor on view
+ *   3. Marquee       — horizontal infinite scroll, scroll-velocity-aware
+ *   4. Horizontal    — vertical scroll → horizontal section translate
+ *
+ * All pages use the fluid token system (var(--fluid-*)) added in
+ * /src/styles/fluid.css.
+ */
+
+const DEMOS = [
+  {
+    slug: 'progress-text',
+    name: 'Progress Text',
+    description: 'A paragraph that lights up word-by-word as the reader scrolls past it. Linear, Stripe, and Vercel use this exact pattern on their feature pages.',
+    source: 'satus / components/effects/progress-text/',
+  },
+  {
+    slug: 'split-text',
+    name: 'Split Text',
+    description: 'Heading lines rise up out of a mask as the viewer scrolls into them. Apple keynote pages, Rivian hero text.',
+    source: 'satus / components/effects/split-text/',
+  },
+  {
+    slug: 'marquee',
+    name: 'Velocity Marquee',
+    description: 'A horizontal row of cards scrolling forever, subtly accelerating when the user scrolls fast. Studio Freight signature.',
+    source: 'satus / components/ui/marquee/',
+  },
+  {
+    slug: 'horizontal',
+    name: 'Horizontal Scroll',
+    description: 'Vertical scroll drives horizontal card movement. Apple iPhone product pages, Rivian gallery showcases.',
+    source: 'lenis / playground/horizontal/ (adapted)',
+  },
+];
+---
+
+<BaseLayout
+  title="Demos | Perfect Pools"
+  description="Pattern demonstrations adapted from darkroomengineering/satus for the Perfect Pools site."
+  canonicalPath="/demos"
+>
+  <article class="demos-index">
+    <section class="demos-index__hero fluid-grid">
+      <div class="col-full dt-col-2-12">
+        <span class="demos-index__eyebrow">Pattern Library / Demos</span>
+        <h1 class="demos-index__h">
+          Patterns adapted character-by-character from Satus and Lenis source.
+        </h1>
+        <p class="demos-index__lede">
+          Each demo on this page is a working implementation of one technique used by
+          Studio Freight (Lenis, Tempus, Hamo authors) and Awwwards-tier sites built
+          on their boilerplate. Pool content is illustrative — the technique is
+          copy-pasted from the cloned repo at <code>/references/satus/</code>.
+          See <code>/patterns/00-FINDINGS.md</code> for the rationale.
+        </p>
+      </div>
+    </section>
+
+    <section class="demos-index__grid fluid-grid">
+      <ul class="demos-index__list col-full dt-col-2-12">
+        {DEMOS.map((demo, i) => (
+          <li class="demos-index__row">
+            <a href={`${base}demos/${demo.slug}/`} class="demos-index__link">
+              <span class="demos-index__num">{String(i + 1).padStart(2, '0')}</span>
+              <span class="demos-index__name">{demo.name}</span>
+              <span class="demos-index__desc">{demo.description}</span>
+              <span class="demos-index__source">{demo.source}</span>
+              <span class="demos-index__arrow">→</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  </article>
+</BaseLayout>
+
+<style>
+  :global(.demos-index) {
+    background: var(--color-bg);
+    color: var(--color-text);
+    overflow-x: hidden;
+  }
+
+  :global(.demos-index__hero) {
+    padding-top: var(--fluid-180);
+    padding-bottom: var(--fluid-80);
+  }
+  :global(.demos-index__eyebrow) {
+    display: block;
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: var(--fluid-fs-eyebrow);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--color-text-muted);
+    margin-bottom: var(--fluid-32);
+  }
+  :global(.demos-index__h) {
+    font-family: var(--font-heading);
+    font-size: var(--fluid-fs-h1);
+    line-height: 1.04;
+    letter-spacing: -0.025em;
+    font-weight: 600;
+    margin: 0;
+    max-width: 22ch;
+  }
+  @media (min-width: 800px) {
+    :global(.demos-index__h) {
+      font-size: calc(var(--fluid) * 80);
+    }
+  }
+  :global(.demos-index__lede) {
+    margin: var(--fluid-32) 0 0;
+    font-size: var(--fluid-fs-lead);
+    line-height: 1.55;
+    color: var(--color-text-light);
+    max-width: 64ch;
+  }
+  :global(.demos-index__lede code) {
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 0.92em;
+    background: color-mix(in srgb, var(--color-text) 6%, transparent);
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+
+  :global(.demos-index__grid) {
+    padding-top: var(--fluid-40);
+    padding-bottom: var(--fluid-180);
+  }
+  :global(.demos-index__list) {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);
+  }
+  :global(.demos-index__row) {
+    border-bottom: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);
+  }
+  :global(.demos-index__link) {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--fluid-12);
+    padding: var(--fluid-32) 0;
+    text-decoration: none;
+    color: inherit;
+    transition: opacity 0.4s var(--ease-out-expo);
+  }
+  @media (min-width: 800px) {
+    :global(.demos-index__link) {
+      grid-template-columns: calc(var(--fluid) * 60) calc(var(--fluid) * 240) 1fr calc(var(--fluid) * 240) calc(var(--fluid) * 40);
+      align-items: baseline;
+      gap: calc(var(--fluid) * 32);
+      padding: calc(var(--fluid) * 40) 0;
+    }
+  }
+  :global(.demos-index__link:hover) {
+    opacity: 0.55;
+  }
+  :global(.demos-index__num) {
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: var(--fluid-fs-eyebrow);
+    color: var(--color-text-muted);
+  }
+  :global(.demos-index__name) {
+    font-family: var(--font-heading);
+    font-size: var(--fluid-fs-h3);
+    font-weight: 500;
+    letter-spacing: -0.018em;
+  }
+  @media (min-width: 800px) {
+    :global(.demos-index__name) {
+      font-size: calc(var(--fluid) * 28);
+    }
+  }
+  :global(.demos-index__desc) {
+    font-size: var(--fluid-fs-body);
+    color: var(--color-text-light);
+    line-height: 1.55;
+  }
+  :global(.demos-index__source) {
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: var(--fluid-fs-eyebrow);
+    color: var(--color-text-muted);
+  }
+  :global(.demos-index__arrow) {
+    font-size: var(--fluid-fs-h3);
+    color: var(--color-text-muted);
+    text-align: right;
+  }
+</style>

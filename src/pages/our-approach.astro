@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ReviewCarousel from '../components/ReviewCarousel.astro';
+import WhyWeExistHero from '../components/WhyWeExistHero.astro';
 const base = import.meta.env.BASE_URL;
 
 /**
@@ -25,36 +26,32 @@ const base = import.meta.env.BASE_URL;
   description="Pool care isn't guesswork — it's chemistry, consistency, and accountability. Learn how Perfect Pools keeps your water balanced year-round in coastal Georgia."
   canonicalPath="/our-approach"
 >
-  {/* Section 1 — Problem Statement (cinematic card stack) */}
-  <section class="section problem-section oa-section">
-    <div class="container">
-      <div id="problem-mount"></div>
-    </div>
-  </section>
+  {/* Section 1 — Why We Exist hero (artifacts → dashboard scroll-swap) */}
+  <WhyWeExistHero />
 
   {/* Section 2 — Our Story (company timeline) */}
-  <section class="section section--alt oa-section" id="our-story">
+  <section class="section oa-section" id="our-story" data-next-label="Three pillars">
     <div class="container">
       <div id="timeline-mount"></div>
     </div>
   </section>
 
   {/* Section 3 — Three Pillars */}
-  <section class="section pillars-section oa-section" id="pillars">
+  <section class="section pillars-section oa-section" id="pillars" data-next-label="Industry vs us">
     <div class="container">
       <div id="pillars-mount"></div>
     </div>
   </section>
 
   {/* Section 4 — Industry vs Us Comparison */}
-  <section class="section compare-scroll-section oa-section">
+  <section class="section compare-scroll-section oa-section" id="compare" data-next-label="Anatomy of a visit">
     <div class="container">
       <div id="compare-mount"></div>
     </div>
   </section>
 
   {/* Section 5 — Anatomy of a Visit */}
-  <section class="section visit-section oa-section" id="visit">
+  <section class="section visit-section oa-section" id="visit" data-next-label="What clients say">
     <div class="container">
       <div id="visit-mount"></div>
     </div>
@@ -89,24 +86,29 @@ const base = import.meta.env.BASE_URL;
       </div>
     </div>
   </section>
+
+  {/* Sticky chapter marker (top-left) + side rail (right) — Lenis nav UX */}
+  <div id="oa-nav-mount"></div>
+
+  {/* B2 — Next-section hint. Fades in when the user is near the bottom
+      of a long pinned section, so they know the page continues. */}
+  <div id="oa-end-hint" class="oa-section-end-hint" aria-hidden="true">
+    <span class="oa-section-end-hint__arrow">↓</span>
+    <span id="oa-end-hint-label">Next</span>
+  </div>
 </BaseLayout>
 
 <script>
   import { render, h } from 'preact';
-  import ProblemScroll from '../components/ProblemScroll.tsx';
-  import TimelineScroll from '../components/TimelineScroll.tsx';
+  import OurStorySplit from '../components/OurStorySplit.tsx';
   import PillarsScroll from '../components/PillarsScroll.tsx';
   import CompareScroll from '../components/CompareScroll.tsx';
   import VisitScroll from '../components/VisitScroll.tsx';
-
-  const problemMount = document.getElementById('problem-mount');
-  if (problemMount) {
-    render(h(ProblemScroll, null), problemMount);
-  }
+  import OurApproachNav from '../components/OurApproachNav.tsx';
 
   const timelineMount = document.getElementById('timeline-mount');
   if (timelineMount) {
-    render(h(TimelineScroll, null), timelineMount);
+    render(h(OurStorySplit, null), timelineMount);
   }
 
   const pillarsMount = document.getElementById('pillars-mount');
@@ -117,6 +119,80 @@ const base = import.meta.env.BASE_URL;
   const visitMount = document.getElementById('visit-mount');
   if (visitMount) {
     render(h(VisitScroll, null), visitMount);
+  }
+
+  // Mount the Lenis-aware sticky chapter marker + side-rail navigation.
+  const navMount = document.getElementById('oa-nav-mount');
+  if (navMount) {
+    render(h(OurApproachNav, null), navMount);
+  }
+
+  // D1 — Velocity-driven parallax on the dome's pool image.
+  // Reads lenis.velocity each frame and shifts the image Y by a small
+  // fraction of it. Scroll fast → image lags slightly. Scroll slow / at
+  // rest → image is in its natural position.
+  // Listens to lenis.scroll (which fires every frame the user is scrolling)
+  // so we don't need our own RAF.
+  {
+    const lenis = (window as any).__lenis;
+    let parallaxEl: HTMLElement | null = null;
+    const findEl = () => {
+      parallaxEl = document.querySelector<HTMLElement>('.prb__hub-pool');
+      return parallaxEl;
+    };
+    const applyParallax = () => {
+      if (!parallaxEl && !findEl()) return;
+      const v = lenis?.velocity ?? 0;
+      // Clamp the offset so it never goes wild on very fast scrolls.
+      const offset = Math.max(-12, Math.min(12, v * 0.6));
+      parallaxEl!.style.transform = `translate3d(0, ${offset}px, 0)`;
+    };
+    if (lenis?.on) {
+      lenis.on('scroll', applyParallax);
+    } else {
+      window.addEventListener('scroll', applyParallax, { passive: true });
+    }
+  }
+
+  // B2 — Drive the "↓ Next: ..." hint. For each pinned section that has
+  // a data-next-label, show the hint when the section's bottom is near
+  // the viewport bottom (the section is "almost done"). Hide otherwise.
+  const endHint = document.getElementById('oa-end-hint');
+  const endHintLabel = document.getElementById('oa-end-hint-label');
+  if (endHint && endHintLabel) {
+    const sections = Array.from(
+      document.querySelectorAll<HTMLElement>('[data-next-label]')
+    );
+    const updateHint = () => {
+      const vh = window.innerHeight;
+      // Find a section whose bottom is in the lower 25% of the viewport
+      // (i.e. user is near the end of that section's pin spacer).
+      let activeNext: string | null = null;
+      for (const sec of sections) {
+        const rect = sec.getBoundingClientRect();
+        const bottomVisible = rect.bottom;
+        // "Near the end" = section bottom is in the bottom 25% of viewport
+        // and we're still inside the section.
+        if (bottomVisible > vh * 0.55 && bottomVisible < vh * 1.05 && rect.top < 0) {
+          activeNext = sec.getAttribute('data-next-label');
+          break;
+        }
+      }
+      if (activeNext) {
+        endHintLabel.textContent = activeNext;
+        endHint.classList.add('is-visible');
+      } else {
+        endHint.classList.remove('is-visible');
+      }
+    };
+    // Update on scroll via Lenis if available, otherwise native.
+    const lenis = (window as any).__lenis;
+    if (lenis?.on) {
+      lenis.on('scroll', updateHint);
+    } else {
+      window.addEventListener('scroll', updateHint, { passive: true });
+    }
+    updateHint();
   }
 
   // Service area carousel
@@ -165,6 +241,184 @@ const base = import.meta.env.BASE_URL;
 </script>
 
 <style>
+  /* ====================================================================
+     C2 — STICKY CHAPTER MARKER (top-left)
+     Fixed in the upper-left of the viewport. Updates as the user scrolls
+     past each section. Mono-cap label, matches editorial chapter feel.
+     ==================================================================== */
+  :global(.oa-nav-marker) {
+    position: fixed;
+    top: 96px;
+    left: 24px;
+    z-index: 200;
+    display: flex;
+    align-items: baseline;
+    gap: 0.5em;
+    padding: 8px 14px;
+    background: color-mix(in srgb, var(--color-bg) 88%, transparent);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
+    border-radius: 4px;
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-text);
+    pointer-events: none;
+    opacity: 1;
+    transform: translateX(0);
+    transition:
+      opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  :global(.oa-nav-marker.is-hidden) {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  :global(.oa-nav-marker__num) {
+    color: var(--color-deep-blue);
+    font-weight: 600;
+  }
+  :global(.oa-nav-marker__sep) {
+    color: var(--color-text-muted);
+  }
+  @media (max-width: 899px) {
+    :global(.oa-nav-marker) { display: none; }
+  }
+
+  /* ====================================================================
+     C3 — SIDE RAIL WITH SECTION DOTS (right edge, vertically centered)
+     7 dots, one per major section. Active dot fills, passed dots are
+     half-filled, upcoming dots are outlined. Click → lenis.scrollTo().
+     ==================================================================== */
+  :global(.oa-nav-rail) {
+    position: fixed;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    z-index: 200;
+    opacity: 1;
+    transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  :global(.oa-nav-rail.is-hidden) {
+    opacity: 0;
+    pointer-events: none;
+  }
+  :global(.oa-nav-rail__list) {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  :global(.oa-nav-rail__item) {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+  :global(.oa-nav-rail__dot) {
+    width: 8px;
+    height: 8px;
+    padding: 6px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  :global(.oa-nav-rail__dot:hover) { transform: scale(1.25); }
+  :global(.oa-nav-rail__dot-inner) {
+    display: block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    border: 1px solid color-mix(in srgb, var(--color-text) 35%, transparent);
+    background: transparent;
+    transition:
+      background 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  :global(.oa-nav-rail__dot.is-passed .oa-nav-rail__dot-inner) {
+    background: color-mix(in srgb, var(--color-text) 30%, transparent);
+    border-color: color-mix(in srgb, var(--color-text) 30%, transparent);
+  }
+  :global(.oa-nav-rail__dot.is-active .oa-nav-rail__dot-inner) {
+    background: var(--color-deep-blue);
+    border-color: var(--color-deep-blue);
+    transform: scale(1.4);
+  }
+  :global(.oa-nav-rail__tooltip) {
+    position: absolute;
+    right: 28px;
+    top: 50%;
+    transform: translateY(-50%) translateX(8px);
+    padding: 4px 10px;
+    background: var(--color-text);
+    color: var(--color-bg);
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    border-radius: 3px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition:
+      opacity 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  :global(.oa-nav-rail__item:hover .oa-nav-rail__tooltip) {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+  }
+  @media (max-width: 899px) {
+    :global(.oa-nav-rail) { display: none; }
+  }
+
+  /* ====================================================================
+     B2 — NEXT-SECTION HINT
+     Tiny "↓ next" cue that fades in at the bottom of long pinned
+     sections. Each pinned section uses .oa-section-end-hint.
+     Triggered via data-attr toggling from a small script.
+     ==================================================================== */
+  :global(.oa-section-end-hint) {
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    transform: translate(-50%, 8px);
+    z-index: 150;
+    padding: 8px 16px;
+    background: color-mix(in srgb, var(--color-bg) 90%, transparent);
+    backdrop-filter: blur(6px);
+    border: 1px solid color-mix(in srgb, var(--color-text) 15%, transparent);
+    border-radius: 999px;
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-text);
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  :global(.oa-section-end-hint.is-visible) {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  :global(.oa-section-end-hint__arrow) {
+    display: inline-block;
+    margin-right: 6px;
+    color: var(--color-deep-blue);
+  }
+
   /* === Section Flow === */
   .oa-section {
     position: relative;
@@ -280,13 +534,22 @@ const base = import.meta.env.BASE_URL;
     display: flex;
     align-items: center;
     justify-content: center;
+    padding-top: clamp(180px, 22vh, 232px);
+    padding-bottom: 6vh;
   }
+  /* Fixed-design canvas (1100x680 px). It is uniformly scaled to fit the
+     available stage area via the --prb-scale CSS variable, set in JS. */
   :global(.prb__canvas) {
     position: relative;
-    width: min(900px, 90vw);
-    height: min(540px, 60vh);
+    width: 1100px;
+    height: 680px;
+    flex-shrink: 0;
+    transform: scale(var(--prb-scale, 1));
+    transform-origin: center center;
   }
-  :global(.prb__svg) {
+  /* Hidden semicircle "shelf" the cards sit on. Traces the upper half of
+     the same ellipse used to position the cards (rx=440, ry=280). */
+  :global(.prb__arc) {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -294,12 +557,16 @@ const base = import.meta.env.BASE_URL;
     pointer-events: none;
     overflow: visible;
   }
-  :global(.prb__svg path) {
-    stroke: #7dd3fc;
+  :global(.prb__arc path) {
+    stroke: rgba(125, 211, 252, 0.45);
     stroke-width: 1.5;
     fill: none;
-    stroke-dasharray: 4 6;
     opacity: 0;
+    filter: drop-shadow(0 0 6px rgba(125, 211, 252, 0.35));
+    transition: opacity 0.9s ease-out;
+  }
+  :global(.prb__arc.is-on path) {
+    opacity: 1;
   }
 
   :global(.prb__node) {
@@ -395,21 +662,23 @@ const base = import.meta.env.BASE_URL;
     color: #86efac;
   }
 
+  /* Logo centerpiece — sits low-center inside the canvas (matches HUB_CX=550,
+     HUB_CY=460 in ProblemScroll.tsx). Cards sit on a true circle of radius
+     ARC_R=400 around the logo at even 45° angular spacing. */
   :global(.prb__hub) {
     position: absolute;
     left: 50%;
-    top: 50%;
+    top: 67.65%; /* 460 / 680 */
     transform: translate(-50%, -50%) scale(0.6);
-    width: 240px;
+    width: 540px;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    text-align: center;
     opacity: 0;
-    transition: opacity 0.8s, transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1);
+    transition:
+      opacity 0.8s ease-out,
+      transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
     pointer-events: none;
-    gap: 0.5rem;
   }
   :global(.prb__hub.is-on) {
     opacity: 1;
@@ -419,7 +688,7 @@ const base = import.meta.env.BASE_URL;
     width: 100%;
     height: auto;
     object-fit: contain;
-    filter: drop-shadow(0 0 22px rgba(125, 211, 252, 0.18));
+    filter: drop-shadow(0 0 28px rgba(125, 211, 252, 0.22));
   }
 
   :global(.prb__hint) {
@@ -643,7 +912,6 @@ const base = import.meta.env.BASE_URL;
   .pillars-section {
     padding-top: var(--space-12);
     padding-bottom: var(--space-16);
-    background: var(--color-bg-alt);
   }
 
   /* === Scroll-Driven Pillars (Preact-rendered, needs :global) === */
@@ -664,7 +932,7 @@ const base = import.meta.env.BASE_URL;
     position: sticky;
     top: 50px;
     z-index: 1;
-    background: var(--color-bg-alt);
+    background: var(--color-bg);
     padding-bottom: 1rem;
   }
 
@@ -678,11 +946,14 @@ const base = import.meta.env.BASE_URL;
     display: none;
   }
 
-  :global(.ps__content-row) {
+  /* Mobile: top-row stacks (header above diagram is the natural order;
+     keep them stacked tightly so the card-stack below gets max room). */
+  :global(.ps__top-row) {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 0.75rem;
+    margin-bottom: var(--space-6);
   }
 
   :global(.ps__diagram) {
@@ -808,7 +1079,7 @@ const base = import.meta.env.BASE_URL;
 
     :global(.ps__sticky-col) {
       top: 60px;
-      background: var(--color-bg-alt);
+      background: var(--color-bg);
     }
 
     :global(.ps__header--mobile) {
@@ -817,24 +1088,37 @@ const base = import.meta.env.BASE_URL;
 
     :global(.ps__header--desktop) {
       display: block;
-      margin-bottom: var(--space-8);
+      /* Margin handled by the top-row gap on desktop. */
+      margin-bottom: 0;
     }
 
-    :global(.ps__content-row) {
+    /* Desktop: header on the LEFT, triangle diagram on the RIGHT,
+       sitting inline at the top of the sticky col. Card-stack drops
+       below as a full-width block so the content-heavy interactive
+       pieces (calculator, tabs, diagram) can use the entire section
+       width — was previously squeezed into the right ~50% of the row. */
+    :global(.ps__top-row) {
       flex-direction: row;
-      align-items: stretch;
-      min-height: 480px;
-      gap: 2rem;
+      align-items: center;
+      gap: 2.5rem;
+      margin-bottom: var(--space-6);
+    }
+
+    :global(.ps__top-row .section-header) {
+      flex: 1;
+      text-align: left;
+      margin-bottom: 0;
     }
 
     :global(.ps__diagram) {
-      flex: 0 0 50%;
+      flex: 0 0 auto;
+      width: clamp(220px, 26vw, 320px);
       max-width: none;
       align-self: center;
     }
 
     :global(.ps__card-stack) {
-      flex: 1;
+      width: 100%;
     }
 
     :global(.cs__header--mobile) {
@@ -1525,1792 +1809,6 @@ const base = import.meta.env.BASE_URL;
     .partnership-cta__card {
       padding: 3rem 1.5rem;
     }
-  }
-
-  /* ============ LSI Calculator (inside Water Balance pillar card) ============ */
-  :global(.lsi-calc) {
-    display: flex;
-    flex-direction: column;
-    gap: 0.7rem;
-    color: var(--color-text);
-  }
-  :global(.lsi-calc__intro) {
-    font-size: 0.82rem;
-    line-height: 1.55;
-    color: var(--color-text);
-    font-weight: 600;
-    margin: 0;
-  }
-  :global(.lsi-calc__intro strong) {
-    color: var(--color-primary);
-    font-weight: 700;
-  }
-
-  /* 4×1 horizontal dial row. */
-  :global(.lsi-calc__dials) {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 0.5rem;
-  }
-
-  :global(.lsi-dial) {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.25rem;
-    min-width: 0;
-  }
-  :global(.lsi-dial__label) {
-    font-size: 0.65rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--color-primary);
-    text-align: center;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
-  }
-  :global(.lsi-dial__wheel) {
-    position: relative;
-    width: 100%;
-    max-width: 110px;
-    aspect-ratio: 1 / 1;
-    background: linear-gradient(135deg, var(--color-primary), var(--color-cyan));
-    border-radius: 50%;
-    touch-action: none;
-    user-select: none;
-    box-shadow: 0 4px 14px rgba(2, 132, 199, 0.28), inset 0 2px 4px rgba(255, 255, 255, 0.15);
-    transition: box-shadow 300ms ease, transform 150ms ease;
-  }
-  /* Per-dial health glow — outer halo changes color based on whether the
-     individual reading is ideal (green), acceptable (amber), or bad (red). */
-  :global(.lsi-dial__wheel--ideal) {
-    box-shadow:
-      0 0 0 3px rgba(16, 185, 129, 0.35),
-      0 4px 14px rgba(16, 185, 129, 0.3),
-      inset 0 2px 4px rgba(255, 255, 255, 0.15);
-  }
-  :global(.lsi-dial__wheel--ok) {
-    box-shadow:
-      0 0 0 3px rgba(245, 158, 11, 0.4),
-      0 4px 14px rgba(245, 158, 11, 0.3),
-      inset 0 2px 4px rgba(255, 255, 255, 0.15);
-  }
-  :global(.lsi-dial__wheel--bad) {
-    box-shadow:
-      0 0 0 3px rgba(220, 38, 38, 0.45),
-      0 4px 18px rgba(220, 38, 38, 0.4),
-      inset 0 2px 4px rgba(255, 255, 255, 0.15);
-    animation: lsi-dial-pulse 1.6s ease-in-out infinite;
-  }
-  @keyframes lsi-dial-pulse {
-    0%, 100% {
-      box-shadow:
-        0 0 0 3px rgba(220, 38, 38, 0.45),
-        0 4px 18px rgba(220, 38, 38, 0.4),
-        inset 0 2px 4px rgba(255, 255, 255, 0.15);
-    }
-    50% {
-      box-shadow:
-        0 0 0 5px rgba(220, 38, 38, 0.55),
-        0 6px 24px rgba(220, 38, 38, 0.55),
-        inset 0 2px 4px rgba(255, 255, 255, 0.15);
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    :global(.lsi-dial__wheel--bad) {
-      animation: none;
-    }
-  }
-  :global(.lsi-dial__wheel:hover) {
-    box-shadow: 0 5px 14px rgba(2, 132, 199, 0.35), inset 0 2px 4px rgba(255, 255, 255, 0.15);
-  }
-  :global(.lsi-dial__wheel.is-dragging) {
-    cursor: grabbing;
-    transform: scale(1.03);
-  }
-  :global(.lsi-dial__svg),
-  :global(.lsi-dial__svg *) {
-    pointer-events: none;
-  }
-  :global(.lsi-dial__svg) {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-  }
-
-
-  /* Indicator dot is rendered as SVG inside .lsi-dial__svg — no DOM handle needed. */
-  :global(.lsi-dial__center) {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: 60%;
-    aspect-ratio: 1 / 1;
-    background: #ffffff;
-    border-radius: 50%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.4), 0 2px 6px rgba(0, 20, 40, 0.15);
-    pointer-events: none;
-  }
-  :global(.lsi-dial__value) {
-    font-family: var(--font-heading, inherit);
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: var(--color-gray-900);
-    line-height: 1;
-    transition: color 200ms ease;
-  }
-  :global(.lsi-dial__value--ideal) { color: #059669; }
-  :global(.lsi-dial__value--ok) { color: #d97706; }
-  :global(.lsi-dial__value--bad) { color: #dc2626; }
-  :global(.lsi-dial__unit) {
-    font-size: 0.55rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--color-gray-500);
-    margin-top: 0.1rem;
-  }
-
-  /* Dynamic caption under each dial — changes based on the current reading
-     (too low, ideal, too high). Tinted to match the dial's health color. */
-  :global(.lsi-dial__why) {
-    margin: 0.4rem 0 0 0;
-    font-size: 0.62rem;
-    line-height: 1.35;
-    text-align: center;
-    transition: color 300ms ease;
-  }
-  :global(.lsi-dial__why--ideal) {
-    color: var(--color-text-light);
-  }
-  :global(.lsi-dial__why--ok) {
-    color: #b45309;
-  }
-  :global(.lsi-dial__why--bad) {
-    color: #b91c1c;
-    font-weight: 600;
-  }
-
-  /* Result strip — callouts + single-row LSI/gauge/reset. */
-  :global(.lsi-calc__result) {
-    padding: 0.6rem 0.75rem;
-    border-radius: 10px;
-    background: linear-gradient(135deg, rgba(10, 30, 55, 0.03), rgba(6, 182, 212, 0.04));
-    border: 1.5px solid rgba(10, 30, 55, 0.08);
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    transition: background 300ms ease, border-color 300ms ease;
-  }
-  :global(.lsi-calc__result--balanced) {
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(6, 182, 212, 0.05));
-    border-color: rgba(16, 185, 129, 0.3);
-  }
-  :global(.lsi-calc__result--corrosive) {
-    background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(251, 146, 60, 0.05));
-    border-color: rgba(239, 68, 68, 0.3);
-  }
-  :global(.lsi-calc__result--scaling) {
-    background: linear-gradient(135deg, rgba(251, 191, 36, 0.08), rgba(249, 115, 22, 0.05));
-    border-color: rgba(251, 191, 36, 0.35);
-  }
-  /* Callout row — holds the LSI callout and (optionally) the out-of-range warning.
-     When only the callout is present it takes full width; when the warning appears,
-     they split the row 50/50. */
-  :global(.lsi-calc__callout-row) {
-    display: flex;
-    gap: 0.5rem;
-    align-items: stretch;
-  }
-  :global(.lsi-calc__callout-row > *) {
-    flex: 1;
-    min-width: 0;
-  }
-
-  /* LSI status callout — changes tone + copy based on current LSI state. */
-  :global(.lsi-calc__callout) {
-    padding: 0.65rem 0.8rem;
-    border-radius: 10px;
-    border: 1.5px solid transparent;
-    transition: background 300ms ease, border-color 300ms ease;
-  }
-  :global(.lsi-calc__callout--corrosive),
-  :global(.lsi-calc__callout--scaling) {
-    background: rgba(239, 68, 68, 0.1);
-    border-color: rgba(239, 68, 68, 0.35);
-  }
-  :global(.lsi-calc__callout--balanced) {
-    background: rgba(16, 185, 129, 0.1);
-    border-color: rgba(16, 185, 129, 0.4);
-  }
-  :global(.lsi-calc__callout-label) {
-    font-size: 0.78rem;
-    font-weight: 700;
-    margin-bottom: 0.3rem;
-    letter-spacing: 0.01em;
-  }
-  :global(.lsi-calc__callout--corrosive .lsi-calc__callout-label),
-  :global(.lsi-calc__callout--scaling .lsi-calc__callout-label) {
-    color: #dc2626;
-  }
-  :global(.lsi-calc__callout--balanced .lsi-calc__callout-label) {
-    color: #059669;
-  }
-  :global(.lsi-calc__callout-detail) {
-    font-size: 0.75rem;
-    line-height: 1.55;
-    color: var(--color-text-light);
-    margin: 0;
-  }
-
-  /* Readings callout — right side of the callout row. Green when every dial
-     is inside its acceptable band, red when at least one is out of range.
-     Matches the visual weight and layout of the LSI callout on the left. */
-  :global(.lsi-calc__readings-callout) {
-    padding: 0.65rem 0.8rem;
-    border-radius: 10px;
-    border: 1.5px solid transparent;
-    transition: background 300ms ease, border-color 300ms ease;
-  }
-  :global(.lsi-calc__readings-callout--good) {
-    background: rgba(16, 185, 129, 0.1);
-    border-color: rgba(16, 185, 129, 0.4);
-  }
-  :global(.lsi-calc__readings-callout--bad) {
-    background: rgba(239, 68, 68, 0.1);
-    border-color: rgba(239, 68, 68, 0.4);
-  }
-  :global(.lsi-calc__readings-callout-label) {
-    font-size: 0.78rem;
-    font-weight: 700;
-    margin-bottom: 0.3rem;
-    letter-spacing: 0.01em;
-  }
-  :global(.lsi-calc__readings-callout--good .lsi-calc__readings-callout-label) {
-    color: #059669;
-  }
-  :global(.lsi-calc__readings-callout--bad .lsi-calc__readings-callout-label) {
-    color: #dc2626;
-  }
-  :global(.lsi-calc__readings-callout-detail) {
-    font-size: 0.72rem;
-    line-height: 1.5;
-    color: var(--color-text-light);
-  }
-
-  :global(.lsi-calc__result-top) {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-  :global(.lsi-calc__lsi) {
-    display: flex;
-    align-items: baseline;
-    gap: 0.4rem;
-  }
-  :global(.lsi-calc__lsi-label) {
-    font-size: 0.62rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--color-gray-600);
-  }
-  :global(.lsi-calc__lsi-value) {
-    font-family: var(--font-heading, inherit);
-    font-size: 1.3rem;
-    font-weight: 700;
-    color: var(--color-primary);
-    line-height: 1;
-  }
-  :global(.lsi-calc__status) {
-    font-size: 0.8rem;
-    font-weight: 700;
-    flex: 1;
-  }
-  :global(.lsi-calc__result--balanced .lsi-calc__status) { color: #059669; }
-  :global(.lsi-calc__result--corrosive .lsi-calc__status) { color: #dc2626; }
-  :global(.lsi-calc__result--scaling .lsi-calc__status) { color: #d97706; }
-  :global(.lsi-calc__reset) {
-    background: transparent;
-    border: 1px solid rgba(10, 30, 55, 0.2);
-    color: var(--color-primary);
-    padding: 0.3rem 0.65rem;
-    border-radius: 999px;
-    font-family: inherit;
-    font-size: 0.65rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 150ms ease, border-color 150ms ease;
-    flex-shrink: 0;
-  }
-  :global(.lsi-calc__reset:hover) {
-    background: rgba(10, 30, 55, 0.05);
-    border-color: rgba(10, 30, 55, 0.35);
-  }
-
-  /* Gauge track */
-  :global(.lsi-calc__gauge-track) {
-    position: relative;
-    height: 8px;
-    border-radius: 999px;
-    overflow: hidden;
-    display: flex;
-  }
-  :global(.lsi-calc__gauge-zone) { height: 100%; }
-  :global(.lsi-calc__gauge-zone--corrosive) {
-    flex: 4;
-    background: linear-gradient(to right, #ef4444, #f87171);
-  }
-  :global(.lsi-calc__gauge-zone--balanced) {
-    flex: 2;
-    background: #10b981;
-  }
-  :global(.lsi-calc__gauge-zone--scaling) {
-    flex: 4;
-    background: linear-gradient(to right, #fbbf24, #f97316);
-  }
-  :global(.lsi-calc__gauge-marker) {
-    position: absolute;
-    top: 50%;
-    left: 0;
-    width: 14px;
-    height: 14px;
-    background: #ffffff;
-    border: 3px solid var(--color-primary);
-    border-radius: 50%;
-    /* Use transform instead of animating `left` — translateX skips layout/paint
-       and runs on the GPU. --pos is set inline by the component (0–100). */
-    transform: translate(calc(var(--pos, 50) * 1% - 50%), -50%);
-    box-shadow: 0 2px 5px rgba(0, 20, 40, 0.3);
-    transition: transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1);
-    will-change: transform;
-  }
-  :global(.lsi-calc__gauge-labels) {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.58rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--color-gray-500);
-  }
-
-  /* ============ Filtration pillar: schematic diagram ============ */
-  /* Side-by-side comparison split by a vertical filter bar. Sits inside
-     the Filtration pillar card the same way LSI / SanitationTabs do —
-     no card chrome, just stacked content. */
-  :global(.filt) {
-    display: flex;
-    flex-direction: column;
-    gap: 0.85rem;
-    color: var(--color-text);
-  }
-  :global(.filt__intro) {
-    font-size: 0.82rem;
-    line-height: 1.55;
-    color: var(--color-text);
-    font-weight: 500;
-    margin: 0;
-  }
-  :global(.filt__intro strong) {
-    color: var(--color-primary);
-    font-weight: 700;
-  }
-
-  :global(.filt__svg-wrap) {
-    width: 100%;
-    aspect-ratio: 1000 / 560;
-  }
-  :global(.filt__svg) {
-    width: 100%;
-    height: 100%;
-    display: block;
-    overflow: visible;
-  }
-
-  :global(.filt__col-title) {
-    font-size: 16px;
-    font-weight: 600;
-    fill: var(--color-text-muted);
-    letter-spacing: 0.02em;
-  }
-  :global(.filt__particle-label) {
-    font-size: 14px;
-    fill: var(--color-gray-700);
-    font-weight: 500;
-  }
-  :global(.filt__filter-label) {
-    font-size: 14px;
-    fill: var(--color-text-muted);
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-
-  :global(.filt__particle) {
-    transition: transform 320ms cubic-bezier(0.34, 1.56, 0.64, 1), filter 200ms ease;
-    transform-origin: center;
-    transform-box: fill-box;
-  }
-  :global(.filt__particle--callout circle) {
-    stroke: rgba(0, 0, 0, 0.18);
-    stroke-width: 1;
-  }
-  :global(.filt__callout-line) {
-    stroke: var(--tick-line);
-    stroke-width: 1;
-    stroke-dasharray: 3 4;
-  }
-
-  :global(.filt__flow) {
-    fill: none;
-    stroke: var(--arrow-stroke);
-    stroke-width: 1.2;
-    stroke-linecap: round;
-    opacity: 0.7;
-  }
-
-  :global(.filt__caption) {
-    margin-top: 0.5rem;
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    gap: 1rem;
-    align-items: stretch;
-    font-size: 0.78rem;
-    line-height: 1.5;
-    color: var(--color-gray-700);
-  }
-  :global(.filt__caption-side) {
-    text-align: center;
-  }
-  :global(.filt__caption-side strong) {
-    color: var(--color-gray-900);
-    font-weight: 700;
-  }
-  :global(.filt__caption-divider) {
-    width: 1px;
-    align-self: stretch;
-    background: var(--color-border);
-  }
-
-  @media (max-width: 899px) {
-    :global(.filt__caption) {
-      grid-template-columns: 1fr;
-      gap: 0.5rem;
-    }
-    :global(.filt__caption-divider) { display: none; }
-  }
-
-  /* ============ Sanitation pillar: Tesla-style tab switcher ============ */
-  /* Pill-shaped segmented control with a sliding indicator that translates
-     between tab positions. Inspired by Tesla's in-car drive-mode selector. */
-  :global(.sp-tabs) {
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
-  }
-  :global(.sp-tabs__switcher) {
-    position: relative;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    background: rgba(10, 30, 55, 0.08);
-    border-radius: 999px;
-    padding: 3px;
-    width: 100%;
-    max-width: 320px;
-    margin: 0 auto;
-  }
-  :global(.sp-tabs__indicator) {
-    position: absolute;
-    top: 3px;
-    bottom: 3px;
-    left: 3px;
-    width: calc(50% - 3px);
-    background: var(--color-primary);
-    border-radius: 999px;
-    transition: transform 260ms cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 0;
-  }
-  :global(.sp-tabs__btn) {
-    position: relative;
-    z-index: 1;
-    padding: 0.42rem 0.75rem;
-    background: transparent;
-    border: none;
-    color: var(--color-gray-600);
-    font-family: inherit;
-    font-size: 0.68rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    cursor: pointer;
-    transition: color 200ms ease;
-  }
-  :global(.sp-tabs__btn.is-active) {
-    color: #ffffff;
-  }
-  :global(.sp-tabs__panel) {
-    /* Panels are hard-swapped (no crossfade), keeping state isolated */
-  }
-
-  /* ============ HOCl Waterfall (Sanitation · Tab 1) ============ */
-  :global(.hwf) {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    color: var(--color-text);
-  }
-  :global(.hwf__intro) {
-    font-size: 0.7rem;
-    line-height: 1.4;
-    margin: 0;
-    color: var(--color-text);
-    font-weight: 500;
-  }
-  :global(.hwf__intro em) {
-    font-style: italic;
-    color: var(--color-primary);
-    font-weight: 700;
-  }
-  :global(.hwf__intro strong) {
-    color: var(--color-primary);
-    font-weight: 800;
-  }
-  /* Chart wrapper — holds tooltip zone (above) + SVG (below).
-     onMouseLeave on the wrapper keeps hover persistent as the cursor
-     moves from a bar up into the tooltip zone. */
-  :global(.hwf__chart-wrap) {
-    position: relative;
-    width: 100%;
-  }
-  :global(.hwf__chart) {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
-  /* Segment hit areas — subtle hover highlight so it's clear what's
-     being hovered without washing out the color coding. */
-  :global(.hwf__seg) {
-    cursor: help;
-    transition: filter 180ms ease;
-  }
-  :global(.hwf__seg.is-hover) {
-    filter: brightness(1.08) drop-shadow(0 0 4px rgba(10, 30, 55, 0.2));
-  }
-
-  /* ======= Hover tooltip popovers ======= */
-  /* Pinned to the TOP-RIGHT corner of the chart wrapper. Width is capped
-     at ~35% of the container so the left edge of the tooltip never
-     reaches col1 or col2 — it lives in col3's empty upper area. Height
-     is unconstrained; taller tooltips (like Bound with its action button)
-     extend DOWN past the chart into the meter area, which the user
-     explicitly said is fine ("can overlap other content, not graph content"). */
-  :global(.hwf__tip) {
-    position: absolute;
-    top: 4px;
-    right: 4px;
-    width: 35%;
-    min-width: 140px;
-    max-width: 210px;
-    padding: 0.42rem 0.55rem 0.5rem;
-    background: #ffffff;
-    border: 1.5px solid rgba(10, 30, 55, 0.14);
-    border-radius: 10px;
-    box-shadow: 0 10px 26px rgba(0, 20, 40, 0.2);
-    z-index: 10;
-    pointer-events: auto;
-    opacity: 0;
-    animation: hwf-tip-in 180ms ease-out forwards;
-  }
-  @keyframes hwf-tip-in {
-    to { opacity: 1; }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    :global(.hwf__tip) {
-      animation: none;
-      opacity: 1;
-    }
-  }
-  :global(.hwf__tip-title) {
-    margin: 0 0 0.2rem 0;
-    font-size: 0.64rem;
-    font-weight: 800;
-    color: var(--color-primary);
-    letter-spacing: 0.01em;
-  }
-  :global(.hwf__tip-body) {
-    margin: 0;
-    font-size: 0.6rem;
-    line-height: 1.4;
-    color: var(--color-gray-700, #334155);
-  }
-  :global(.hwf__tip-body strong) {
-    font-weight: 800;
-    color: var(--color-primary);
-  }
-  :global(.hwf__tip-body em) {
-    font-style: italic;
-    color: var(--color-primary);
-    font-weight: 700;
-  }
-  :global(.hwf__tip-btn) {
-    margin-top: 0.35rem;
-    padding: 0.22rem 0.55rem;
-    background: var(--color-primary);
-    border: none;
-    border-radius: 999px;
-    color: #ffffff;
-    font-family: inherit;
-    font-size: 0.55rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    cursor: pointer;
-    transition: background 150ms ease-out, transform 150ms ease-out;
-  }
-  :global(.hwf__tip-btn:hover) {
-    background: var(--color-primary-dark, #0a1e37);
-    transform: translateX(2px);
-  }
-
-  /* Accent bar on the left edge — colors the tooltip by segment identity */
-  :global(.hwf__tip--ocl) { border-left: 4px solid #cbd5e1; }
-  :global(.hwf__tip--hocl) { border-left: 4px solid #06b6d4; }
-  :global(.hwf__tip--bound) { border-left: 4px solid #94a3b8; }
-  :global(.hwf__tip--active) { border-left: 4px solid #10b981; }
-  /* Zoomed floor meter — shows the tiny Active HOCl value against the
-     0.05 ppm algae floor on an auto-scaling 0-to-max scale. */
-  :global(.hwf__meter) {
-    width: 100%;
-    height: auto;
-    display: block;
-    margin-top: -0.3rem;
-  }
-  /* Status callout — Protected / Deficient badge + margin to floor */
-  :global(.hwf__status) {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.45rem 0.65rem;
-    border-radius: 10px;
-    border: 1.5px solid transparent;
-    font-size: 0.7rem;
-    line-height: 1.35;
-  }
-  :global(.hwf__status.is-safe) {
-    background: rgba(16, 185, 129, 0.08);
-    border-color: rgba(16, 185, 129, 0.35);
-    color: #065f46;
-  }
-  :global(.hwf__status.is-unsafe) {
-    background: rgba(239, 68, 68, 0.08);
-    border-color: rgba(239, 68, 68, 0.38);
-    color: #991b1b;
-  }
-  /* Animation-running state — blue tint, pulsing badge */
-  :global(.hwf__status.is-animating) {
-    background: rgba(14, 165, 233, 0.08);
-    border-color: rgba(14, 165, 233, 0.38);
-    color: #075985;
-  }
-  :global(.hwf__status.is-animating .hwf__status-badge) {
-    background: #0ea5e9;
-    color: #ffffff;
-    animation: hwf-pulse 1.2s ease-in-out infinite;
-  }
-  @keyframes hwf-pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.55; }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    :global(.hwf__status.is-animating .hwf__status-badge) {
-      animation: none;
-    }
-  }
-  /* Post-animation "exhausted" state — dark red tint + reset button */
-  :global(.hwf__status.is-depleted) {
-    background: rgba(127, 29, 29, 0.08);
-    border-color: rgba(127, 29, 29, 0.35);
-    color: #7f1d1d;
-  }
-  :global(.hwf__status.is-depleted .hwf__status-badge) {
-    background: #7f1d1d;
-    color: #ffffff;
-  }
-  /* Paused mid-playback state — gray tint, reset available */
-  :global(.hwf__status.is-stopped) {
-    background: rgba(71, 85, 105, 0.08);
-    border-color: rgba(71, 85, 105, 0.35);
-    color: #334155;
-  }
-  :global(.hwf__status.is-stopped .hwf__status-badge) {
-    background: #475569;
-    color: #ffffff;
-  }
-  /* Inline "crossed the floor" marker — shown during animation and
-     preserved in the stopped/depleted states as a remembered moment. */
-  :global(.hwf__status-mark) {
-    font-weight: 800;
-    color: #b91c1c;
-  }
-  /* Stop button — appears in the animating status, cancels playback */
-  :global(.hwf__stop-btn) {
-    flex: 0 0 auto;
-    padding: 0.2rem 0.6rem;
-    background: transparent;
-    border: 1.5px solid rgba(14, 165, 233, 0.5);
-    border-radius: 999px;
-    color: #0369a1;
-    font-family: inherit;
-    font-size: 0.62rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    cursor: pointer;
-    transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
-  }
-  :global(.hwf__stop-btn:hover) {
-    background: #0ea5e9;
-    color: #ffffff;
-    border-color: #0ea5e9;
-  }
-  :global(.hwf__reset-btn) {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    margin-left: 0.4rem;
-    padding: 0.15rem 0.55rem;
-    background: transparent;
-    border: 1.5px solid rgba(127, 29, 29, 0.6);
-    border-radius: 999px;
-    color: #7f1d1d;
-    font-family: inherit;
-    font-size: 0.62rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    cursor: pointer;
-    transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
-  }
-  :global(.hwf__reset-btn:hover) {
-    background: #7f1d1d;
-    color: #ffffff;
-    border-color: #7f1d1d;
-  }
-  /* Resume button — pairs with Reset in the stopped state */
-  :global(.hwf__resume-btn) {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    margin-left: 0.4rem;
-    padding: 0.18rem 0.6rem;
-    background: #10b981;
-    border: 1.5px solid #10b981;
-    border-radius: 999px;
-    color: #ffffff;
-    font-family: inherit;
-    font-size: 0.62rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    cursor: pointer;
-    transition: background 150ms ease-out, border-color 150ms ease-out, transform 150ms ease-out;
-  }
-  :global(.hwf__resume-btn:hover) {
-    background: #059669;
-    border-color: #059669;
-    transform: translateX(1px);
-  }
-  /* Secondary hint text inside the idle status — shows min FC needed */
-  :global(.hwf__status-hint) {
-    display: inline-block;
-    margin-left: 0.1rem;
-    padding: 0.06rem 0.38rem;
-    background: rgba(245, 158, 11, 0.15);
-    border: 1px solid rgba(245, 158, 11, 0.45);
-    border-radius: 999px;
-    color: #92400e;
-    font-size: 0.6rem;
-    font-weight: 700;
-  }
-  :global(.hwf__status-hint strong) {
-    font-weight: 800;
-    color: #78350f;
-  }
-
-  /* ======= Next-step CTA (below protected status) =======
-     "Once you know the right level, the next question is whether your
-     equipment can maintain it." — links to Tab 2 (Daily Protection). */
-  :global(.hwf__next-step) {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.6rem;
-    padding: 0.45rem 0.7rem;
-    background: linear-gradient(135deg, rgba(14, 165, 233, 0.08), rgba(6, 182, 212, 0.1));
-    border: 1.5px solid rgba(14, 165, 233, 0.3);
-    border-radius: 10px;
-    margin-top: -0.15rem;
-  }
-  :global(.hwf__next-step-text) {
-    flex: 1;
-    margin: 0;
-    font-size: 0.68rem;
-    line-height: 1.4;
-    color: var(--color-primary);
-    font-weight: 500;
-  }
-  :global(.hwf__next-btn) {
-    flex: 0 0 auto;
-    padding: 0.35rem 0.8rem;
-    background: var(--color-primary);
-    border: none;
-    border-radius: 999px;
-    color: #ffffff;
-    font-family: inherit;
-    font-size: 0.62rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    cursor: pointer;
-    transition: background 150ms ease-out, transform 150ms ease-out;
-    white-space: nowrap;
-  }
-  :global(.hwf__next-btn:hover) {
-    background: var(--color-primary-dark, #0a1e37);
-    transform: translateX(2px);
-  }
-  :global(.hwf__status-badge) {
-    display: inline-block;
-    padding: 0.2rem 0.55rem;
-    border-radius: 999px;
-    font-size: 0.65rem;
-    font-weight: 800;
-    letter-spacing: 0.02em;
-    flex: 0 0 auto;
-  }
-  :global(.hwf__status.is-safe .hwf__status-badge) {
-    background: #10b981;
-    color: #ffffff;
-  }
-  :global(.hwf__status.is-unsafe .hwf__status-badge) {
-    background: #dc2626;
-    color: #ffffff;
-  }
-  :global(.hwf__status-text) {
-    flex: 1;
-    min-width: 0;
-  }
-  :global(.hwf__status-text strong) {
-    font-weight: 800;
-  }
-  /* Inputs — FC + pH + CYA sliders in a 3-col grid */
-  :global(.hwf__inputs) {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.4rem 0.85rem;
-    padding-top: 0.15rem;
-    transition: opacity 220ms ease;
-  }
-  /* While the depletion animation is running, dim the sliders and
-     disable interaction so the user can't fight the playback. */
-  :global(.hwf__inputs.is-locked) {
-    pointer-events: none;
-    opacity: 0.45;
-  }
-  @media (max-width: 680px) {
-    :global(.hwf__inputs) {
-      grid-template-columns: 1fr 1fr;
-    }
-  }
-  @media (max-width: 440px) {
-    :global(.hwf__inputs) {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  /* ============ HOCl Time-Series Calculator (Sanitation pillar) ============ */
-  :global(.hocl-calc) {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    color: var(--color-text);
-  }
-  :global(.hocl-calc__intro) {
-    font-size: 0.72rem;
-    line-height: 1.4;
-    color: var(--color-text);
-    font-weight: 500;
-    margin: 0;
-  }
-  :global(.hocl-calc__intro em) {
-    font-style: italic;
-    color: var(--color-primary);
-    font-weight: 700;
-  }
-  :global(.hocl-calc__disclaimer) {
-    display: inline;
-    font-style: italic;
-    color: var(--color-gray-500);
-    font-weight: 500;
-  }
-
-  /* ======= Top row: chem header + day/night toggle ======= */
-  :global(.hocl-calc__top-row) {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-  }
-  :global(.hocl-calc__intro) {
-    font-size: 0.65rem;
-    line-height: 1.5;
-    color: var(--color-gray-500);
-    margin: 0 0 0.4rem;
-  }
-  :global(.hocl-calc__chem) {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.6rem;
-  }
-  :global(.hocl-calc__chem-item) {
-    display: flex;
-    align-items: baseline;
-    gap: 0.35rem;
-  }
-  :global(.hocl-calc__chem-label) {
-    font-size: 0.55rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--color-gray-500);
-  }
-  :global(.hocl-calc__chem-value) {
-    font-family: var(--font-heading, inherit);
-    font-size: 0.85rem;
-    font-weight: 800;
-    color: var(--color-primary);
-  }
-  :global(.hocl-calc__chem-unit) {
-    font-size: 0.6rem;
-    font-weight: 600;
-    color: var(--color-gray-500);
-  }
-  /* chem-from removed — intro paragraph provides context */
-
-  /* ======= FC IN / FC OUT budget blocks ======= */
-  :global(.hocl-budget-row) {
-    display: flex;
-    gap: 0.4rem;
-  }
-  :global(.hocl-budget-row > .hocl-budget) {
-    flex: 1;
-    min-width: 0;
-  }
-  :global(.hocl-budget__sliders--stacked) {
-    flex-direction: column;
-    gap: 0.2rem;
-  }
-  :global(.hocl-budget) {
-    display: flex;
-    flex-direction: column;
-    gap: 0.3rem;
-    padding: 0.45rem 0.6rem;
-    border-radius: 8px;
-    border: 1px solid rgba(10, 30, 55, 0.08);
-  }
-  :global(.hocl-budget--in) {
-    background: rgba(16, 185, 129, 0.04);
-    border-color: rgba(16, 185, 129, 0.2);
-  }
-  :global(.hocl-budget--out) {
-    background: rgba(239, 68, 68, 0.04);
-    border-color: rgba(239, 68, 68, 0.2);
-  }
-  :global(.hocl-budget__heading) {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 0.4rem;
-  }
-  :global(.hocl-budget__heading-left) {
-    display: flex;
-    align-items: baseline;
-    gap: 0.4rem;
-  }
-  :global(.hocl-budget__heading-total) {
-    font-family: var(--font-heading, inherit);
-    font-size: 0.72rem;
-    font-weight: 800;
-  }
-  :global(.hocl-budget__heading-total--in) { color: #047857; }
-  :global(.hocl-budget__heading-total--out) { color: #b91c1c; }
-  :global(.hocl-budget__title) {
-    font-size: 0.6rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-  }
-  :global(.hocl-budget--in .hocl-budget__title) { color: #047857; }
-  :global(.hocl-budget--out .hocl-budget__title) { color: #b91c1c; }
-  :global(.hocl-budget__subtitle) {
-    font-size: 0.5rem;
-    font-weight: 600;
-    color: var(--color-gray-400);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-  :global(.hocl-budget__sliders) {
-    display: flex;
-    gap: 1rem;
-  }
-  :global(.hocl-budget__sliders .hocl-slider) {
-    flex: 1;
-  }
-  /* total-unit is reused inside heading-total */
-  :global(.hocl-budget__total-unit) {
-    font-size: 0.52rem;
-    font-weight: 700;
-    color: var(--color-gray-500);
-  }
-
-  /* ======= Day / Night mini-pill toggle ======= */
-  :global(.hocl-timeview) {
-    position: relative;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    background: rgba(10, 30, 55, 0.06);
-    border-radius: 999px;
-    padding: 2px;
-    width: fit-content;
-    margin: 0;
-  }
-  :global(.hocl-timeview__indicator) {
-    position: absolute;
-    top: 2px;
-    bottom: 2px;
-    left: 2px;
-    width: calc(50% - 2px);
-    background: var(--color-primary);
-    border-radius: 999px;
-    transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  :global(.hocl-timeview__btn) {
-    position: relative;
-    z-index: 1;
-    padding: 0.25rem 0.65rem;
-    background: transparent;
-    border: none;
-    font-family: inherit;
-    font-size: 0.58rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--color-gray-500);
-    cursor: pointer;
-    transition: color 200ms ease;
-  }
-  :global(.hocl-timeview__btn.is-active) {
-    color: #ffffff;
-  }
-
-  /* ======= FC label on cards ======= */
-  :global(.hocl-card__fc-label) {
-    font-size: 0.5rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--color-gray-500);
-  }
-
-  /* ======= Budget comparison bars (in status section) ======= */
-  :global(.hocl-budget-comparison) {
-    display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
-    margin-top: 0.35rem;
-  }
-  :global(.hocl-budget-bar) {
-    height: 16px;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    padding: 0 0.4rem;
-    min-width: 50px;
-  }
-  :global(.hocl-budget-bar--in) {
-    background: rgba(16, 185, 129, 0.2);
-    border: 1px solid rgba(16, 185, 129, 0.4);
-  }
-  :global(.hocl-budget-bar--out) {
-    background: rgba(239, 68, 68, 0.2);
-    border: 1px solid rgba(239, 68, 68, 0.4);
-  }
-  :global(.hocl-budget-bar__label) {
-    font-size: 0.5rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    white-space: nowrap;
-  }
-  :global(.hocl-budget-bar--in .hocl-budget-bar__label) { color: #047857; }
-  :global(.hocl-budget-bar--out .hocl-budget-bar__label) { color: #b91c1c; }
-  :global(.hocl-budget-net) {
-    font-family: var(--font-mono, monospace);
-    font-size: 0.52rem;
-    font-weight: 700;
-    color: var(--color-gray-500);
-    text-align: right;
-  }
-
-  /* ======= Demand source rows ======= */
-  :global(.hocl-demand-sources) {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-  }
-  :global(.hocl-demand-row) {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.4rem;
-    min-height: 24px;
-  }
-  :global(.hocl-demand-row__left) {
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
-    flex: 1;
-    min-width: 0;
-  }
-  :global(.hocl-demand-row__icon) {
-    font-size: 0.8rem;
-    flex: 0 0 auto;
-  }
-  :global(.hocl-demand-row__label) {
-    font-size: 0.6rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--color-primary);
-    flex: 0 0 auto;
-  }
-  :global(.hocl-demand-row__rate) {
-    font-family: var(--font-mono, monospace);
-    font-size: 0.56rem;
-    font-weight: 700;
-    color: #b91c1c;
-  }
-  :global(.hocl-demand-row__rate-unit) {
-    font-size: 0.46rem;
-    font-weight: 600;
-    color: var(--color-gray-500);
-  }
-  /* Info (i) icon — tooltip trigger */
-  :global(.hocl-demand-row__info) {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: rgba(10, 30, 55, 0.08);
-    cursor: help;
-    flex: 0 0 auto;
-    outline: none;
-  }
-  :global(.hocl-demand-row__info-icon) {
-    font-size: 0.5rem;
-    font-weight: 800;
-    color: var(--color-gray-500);
-    font-style: italic;
-  }
-  :global(.hocl-demand-row__tip) {
-    position: absolute;
-    bottom: calc(100% + 8px);
-    left: -60px;
-    width: 260px;
-    max-width: calc(100vw - 3rem);
-    padding: 0.55rem 0.65rem;
-    background: #ffffff;
-    border: 1.5px solid rgba(10, 30, 55, 0.12);
-    border-radius: 8px;
-    box-shadow: 0 8px 24px rgba(0, 20, 40, 0.18);
-    opacity: 0;
-    pointer-events: none;
-    transform: translateY(4px);
-    transition: opacity 150ms ease, transform 150ms ease;
-    z-index: 25;
-  }
-  :global(.hocl-demand-row__info:hover .hocl-demand-row__tip),
-  :global(.hocl-demand-row__info:focus-visible .hocl-demand-row__tip) {
-    opacity: 1;
-    pointer-events: auto;
-    transform: translateY(0);
-  }
-  :global(.hocl-demand-row__tip-title) {
-    font-size: 0.62rem;
-    font-weight: 800;
-    color: var(--color-primary);
-    margin: 0 0 0.25rem;
-  }
-  :global(.hocl-demand-row__tip-body) {
-    font-size: 0.55rem;
-    line-height: 1.55;
-    color: var(--color-text-light, #64748b);
-    font-weight: 500;
-    margin: 0;
-  }
-
-  /* Minimal HOCl curve at the top — no container, no borders, just the line. */
-  :global(.hocl-minichart) {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
-
-  /* ======= Hour labels row =======
-     Sits directly between the chart and the card timeline. Uses the EXACT
-     same flex template as .hocl-timeline (flex-1 labels + fixed 34px spacers
-     where deltas live) so labels land precisely above their cards at every
-     viewport width. */
-  :global(.hocl-hours) {
-    display: flex;
-    align-items: center;
-    gap: 0.2rem;
-    width: 100%;
-    padding: 0 0 0.15rem;
-  }
-  :global(.hocl-hours__label) {
-    flex: 1 1 0;
-    text-align: center;
-    font-size: 0.58rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--color-gray-500);
-    min-width: 0;
-  }
-  :global(.hocl-hours__spacer) {
-    flex: 0 0 auto;
-    width: 34px;
-  }
-
-  /* ======= Timeline row ======= */
-  /* Renders as: card · delta · card · delta · card · delta · card · delta · card
-     Five 3-hour cards span 6am → 6pm; delta chips sit between them and pop
-     out a source breakdown on hover. */
-  :global(.hocl-timeline) {
-    display: flex;
-    align-items: stretch;
-    justify-content: space-between;
-    gap: 0.2rem;
-    width: 100%;
-    padding: 0.1rem 0;
-  }
-
-  /* Individual weather-style card — icon, FC, HOCl.
-     No background tint, no internal hour label (hours live in the
-     .hocl-hours row above, aligned via the same flex template). */
-  :global(.hocl-card) {
-    position: relative;
-    flex: 1 1 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.25rem;
-    padding: 0.4rem 0.25rem;
-    min-width: 0;
-  }
-  :global(.hocl-card__tag) {
-    position: absolute;
-    top: -2px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 0.38rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--color-gray-400);
-    line-height: 1;
-  }
-  :global(.hocl-card__icon) {
-    font-size: 1.15rem;
-    line-height: 1;
-    color: #f59e0b;
-    text-shadow: 0 0 12px rgba(251, 191, 36, 0.5);
-  }
-  :global(.hocl-card__fc) {
-    font-family: var(--font-heading, inherit);
-    font-size: 1.1rem;
-    font-weight: 800;
-    line-height: 1;
-    color: var(--color-primary);
-  }
-  :global(.hocl-card__hocl) {
-    font-family: var(--font-mono, monospace);
-    font-size: 0.56rem;
-    font-weight: 600;
-    line-height: 1;
-  }
-  :global(.hocl-card__hocl.is-safe) {
-    color: #059669;
-  }
-  :global(.hocl-card__hocl.is-unsafe) {
-    color: #dc2626;
-  }
-
-  /* Delta chip between two cards — hoverable, pops source breakdown */
-  :global(.hocl-delta) {
-    position: relative;
-    flex: 0 0 auto;
-    width: 34px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 0.2rem 0;
-    border-radius: 8px;
-    cursor: help;
-    outline: none;
-    transition: background 150ms ease;
-  }
-  :global(.hocl-delta:hover),
-  :global(.hocl-delta:focus-visible) {
-    background: rgba(15, 23, 42, 0.04);
-  }
-  :global(.hocl-delta__arrow) {
-    font-size: 0.85rem;
-    line-height: 1;
-    font-weight: 700;
-  }
-  :global(.hocl-delta__value) {
-    font-family: var(--font-mono, monospace);
-    font-size: 0.55rem;
-    font-weight: 700;
-    line-height: 1;
-    margin-top: 0.1rem;
-  }
-  :global(.hocl-delta.is-up .hocl-delta__arrow),
-  :global(.hocl-delta.is-up .hocl-delta__value) {
-    color: #047857;
-  }
-  :global(.hocl-delta.is-down .hocl-delta__arrow),
-  :global(.hocl-delta.is-down .hocl-delta__value) {
-    color: #b91c1c;
-  }
-
-  /* Delta popover — shown on hover/focus, source breakdown as percentages */
-  :global(.hocl-delta__pop) {
-    position: absolute;
-    bottom: calc(100% + 6px);
-    left: 50%;
-    transform: translateX(-50%) translateY(4px);
-    min-width: 140px;
-    padding: 0.45rem 0.55rem;
-    background: #ffffff;
-    border: 1.5px solid rgba(10, 30, 55, 0.12);
-    border-radius: 8px;
-    box-shadow: 0 8px 20px rgba(0, 20, 40, 0.15);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 150ms ease, transform 150ms ease;
-    z-index: 20;
-  }
-  :global(.hocl-delta:hover .hocl-delta__pop),
-  :global(.hocl-delta:focus-visible .hocl-delta__pop) {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
-  :global(.hocl-delta__pop::after) {
-    content: '';
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    border: 5px solid transparent;
-    border-top-color: #ffffff;
-    filter: drop-shadow(0 1px 0 rgba(10, 30, 55, 0.12));
-  }
-  :global(.hocl-delta__pop-head) {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 0.5rem;
-    padding-bottom: 0.3rem;
-    margin-bottom: 0.3rem;
-    border-bottom: 1px solid rgba(10, 30, 55, 0.08);
-    font-size: 0.6rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    color: var(--color-gray-500);
-    white-space: nowrap;
-  }
-  :global(.hocl-delta__pop-net) {
-    font-family: var(--font-mono, monospace);
-    font-size: 0.7rem;
-    font-weight: 800;
-    text-transform: none;
-    letter-spacing: 0;
-    color: var(--color-primary);
-  }
-  :global(.hocl-delta__pop-row) {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.1rem 0;
-    font-size: 0.62rem;
-    line-height: 1.2;
-  }
-  :global(.hocl-delta__pop-icon) {
-    width: 14px;
-    text-align: center;
-    flex: 0 0 auto;
-  }
-  :global(.hocl-delta__pop-label) {
-    flex: 1;
-    font-weight: 600;
-    color: var(--color-gray-600);
-  }
-  :global(.hocl-delta__pop-pct) {
-    font-family: var(--font-mono, monospace);
-    font-weight: 800;
-  }
-  :global(.hocl-delta__pop-row--in .hocl-delta__pop-pct) {
-    color: #047857;
-  }
-  :global(.hocl-delta__pop-row--out .hocl-delta__pop-pct) {
-    color: #b91c1c;
-  }
-
-  /* Status row — badge + in/out/net inline */
-  :global(.hocl-calc__status) {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.35rem 0.5rem;
-    border-radius: 10px;
-    background: rgba(10, 30, 55, 0.03);
-    border: 1.5px solid rgba(10, 30, 55, 0.08);
-    /* Matches status-bar-fill (300ms) so the container and its bars re-tint together. */
-    transition: background 300ms cubic-bezier(0.16, 1, 0.3, 1), border-color 300ms cubic-bezier(0.16, 1, 0.3, 1);
-    flex-wrap: wrap;
-  }
-  :global(.hocl-calc__status--protected) {
-    background: rgba(16, 185, 129, 0.08);
-    border-color: rgba(16, 185, 129, 0.35);
-  }
-  :global(.hocl-calc__status--thin) {
-    background: rgba(245, 158, 11, 0.1);
-    border-color: rgba(245, 158, 11, 0.4);
-  }
-  :global(.hocl-calc__status--vulnerable) {
-    background: rgba(239, 68, 68, 0.1);
-    border-color: rgba(239, 68, 68, 0.4);
-  }
-  :global(.hocl-calc__safe-badge) {
-    display: inline-block;
-    padding: 0.2rem 0.55rem;
-    border-radius: 999px;
-    font-size: 0.6rem;
-    font-weight: 800;
-    letter-spacing: 0.02em;
-  }
-  :global(.hocl-calc__safe-badge--safe) {
-    background: #10b981;
-    color: #ffffff;
-  }
-  :global(.hocl-calc__safe-badge--unsafe) {
-    background: #dc2626;
-    color: #ffffff;
-  }
-  :global(.hocl-calc__status-bars) {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-    min-width: 0;
-  }
-  :global(.hocl-calc__status-bar) {
-    position: relative;
-    height: 16px;
-    border-radius: 8px;
-    background: rgba(10, 30, 55, 0.06);
-    overflow: hidden;
-  }
-  :global(.hocl-calc__status-bar-fill) {
-    position: absolute;
-    inset: 0;
-    border-radius: 5px;
-    /* Scale from left instead of animating width — transform stays on the GPU. */
-    transform-origin: left center;
-    transform: scaleX(var(--fill, 0));
-    transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
-    will-change: transform;
-  }
-  :global(.hocl-calc__status-bar--in .hocl-calc__status-bar-fill) {
-    background: #10b981;
-  }
-  :global(.hocl-calc__status-bar--out .hocl-calc__status-bar-fill) {
-    background: #ef4444;
-  }
-  :global(.hocl-calc__status-bar-label) {
-    position: absolute;
-    left: 6px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 0.5rem;
-    font-weight: 800;
-    color: #fff;
-    white-space: nowrap;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-  }
-  :global(.hocl-calc__status-net) {
-    font-size: 0.52rem;
-    font-weight: 700;
-    color: var(--color-gray-500);
-    font-family: var(--font-mono, monospace);
-    white-space: nowrap;
-  }
-  /* ======= Inputs — slider rows ======= */
-  /* Slider row, hover-select, and custom slider component. Used by both
-     the FC IN budget block and the FC OUT demand rows.
-     Tablet:  two columns, Use wraps below
-     Mobile:  single column stack */
-  /* Slider row — label + value on top, slider below */
-  :global(.hocl-slider) {
-    display: flex;
-    flex-direction: column;
-    gap: 0.05rem;
-  }
-  :global(.hocl-slider__head) {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 0.5rem;
-  }
-  :global(.hocl-slider__label) {
-    font-size: 0.6rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--color-primary);
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  /* Live-computed subtitle next to the label (e.g. "0.42 ppm/hr" on the
-     cell slider, "8A–4P" on the pump slider). */
-  :global(.hocl-slider__sub) {
-    font-size: 0.55rem;
-    font-weight: 600;
-    text-transform: none;
-    letter-spacing: 0;
-    color: var(--color-gray-500);
-    font-family: var(--font-mono, monospace);
-  }
-  :global(.hocl-slider__value) {
-    font-family: var(--font-heading, inherit);
-    font-size: 0.78rem;
-    font-weight: 700;
-    color: var(--color-gray-900);
-  }
-  :global(.hocl-slider__unit) {
-    font-size: 0.55rem;
-    font-weight: 600;
-    color: var(--color-gray-500);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-
-  /* ======= Hover-select (3-option categorical input) =======
-     Default state: tiny pill showing the current selection.
-     Hover/focus:   popover reveals all three options above the pill. */
-  :global(.hocl-hselect) {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-    min-height: 22px;
-  }
-  :global(.hocl-hselect__label) {
-    flex: 0 0 auto;
-    font-size: 0.6rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--color-primary);
-  }
-  :global(.hocl-hselect__control) {
-    position: relative;
-    flex: 0 0 auto;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3rem;
-    padding: 0.2rem 0.5rem;
-    border-radius: 999px;
-    background: #ffffff;
-    border: 1.5px solid rgba(10, 30, 55, 0.15);
-    cursor: pointer;
-    outline: none;
-    transition: border-color 150ms ease, background 150ms ease;
-  }
-  :global(.hocl-hselect__control:hover),
-  :global(.hocl-hselect__control:focus-visible) {
-    border-color: var(--color-primary);
-    background: rgba(10, 30, 55, 0.03);
-  }
-  :global(.hocl-hselect__current) {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3rem;
-    font-size: 0.65rem;
-    font-weight: 700;
-    color: var(--color-primary);
-    white-space: nowrap;
-  }
-  :global(.hocl-hselect__icon) {
-    font-size: 0.75rem;
-    line-height: 1;
-  }
-  :global(.hocl-hselect__text) {
-    line-height: 1;
-  }
-
-  /* The popover — three option buttons, shown on hover/focus-within */
-  :global(.hocl-hselect__pop) {
-    position: absolute;
-    bottom: calc(100% + 6px);
-    right: 0;
-    display: flex;
-    gap: 0.2rem;
-    padding: 0.3rem;
-    background: #ffffff;
-    border: 1.5px solid rgba(10, 30, 55, 0.12);
-    border-radius: 10px;
-    box-shadow: 0 8px 20px rgba(0, 20, 40, 0.15);
-    opacity: 0;
-    pointer-events: none;
-    transform: translateY(4px);
-    transition: opacity 150ms ease, transform 150ms ease;
-    z-index: 15;
-  }
-  :global(.hocl-hselect__control:hover .hocl-hselect__pop),
-  :global(.hocl-hselect__control:focus-within .hocl-hselect__pop),
-  :global(.hocl-hselect__control:focus-visible .hocl-hselect__pop) {
-    opacity: 1;
-    pointer-events: auto;
-    transform: translateY(0);
-  }
-  :global(.hocl-hselect__opt) {
-    display: inline-flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.1rem;
-    padding: 0.3rem 0.45rem;
-    border-radius: 6px;
-    border: 1.5px solid transparent;
-    background: transparent;
-    color: var(--color-gray-600);
-    font-family: inherit;
-    font-size: 0.58rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
-    cursor: pointer;
-    transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
-    min-width: 46px;
-  }
-  :global(.hocl-hselect__opt:hover) {
-    background: rgba(10, 30, 55, 0.05);
-    color: var(--color-primary);
-  }
-  :global(.hocl-hselect__opt.is-active) {
-    background: var(--color-primary);
-    border-color: var(--color-primary);
-    color: #ffffff;
-  }
-  :global(.hocl-hselect__opt-icon) {
-    font-size: 0.9rem;
-    line-height: 1;
-  }
-  :global(.hocl-hselect__opt-label) {
-    line-height: 1;
-  }
-
-  /* Responsive — stack budget sliders on narrow screens */
-  @media (max-width: 400px) {
-    :global(.hocl-budget__sliders) {
-      flex-direction: column;
-      gap: 0.25rem;
-    }
-  }
-
-  /* Custom slider component (replaces native range input). */
-  :global(.pp-slider) {
-    position: relative;
-    width: 100%;
-    height: 22px;
-    cursor: grab;
-    touch-action: none;
-    user-select: none;
-  }
-  :global(.pp-slider.is-dragging) {
-    cursor: grabbing;
-  }
-  :global(.pp-slider__track) {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 50%;
-    height: 6px;
-    margin-top: -3px;
-    background: rgba(10, 30, 55, 0.1);
-    border-radius: 999px;
-    pointer-events: none;
-  }
-  :global(.pp-slider__fill) {
-    position: absolute;
-    left: 0;
-    top: 50%;
-    height: 6px;
-    margin-top: -3px;
-    background: linear-gradient(to right, var(--color-primary), var(--color-cyan));
-    border-radius: 999px;
-    pointer-events: none;
-  }
-  :global(.pp-slider__thumb) {
-    position: absolute;
-    top: 50%;
-    width: 18px;
-    height: 18px;
-    margin-left: -9px;
-    margin-top: -9px;
-    background: #ffffff;
-    border: 3px solid var(--color-primary);
-    border-radius: 50%;
-    box-shadow: 0 2px 6px rgba(0, 20, 40, 0.3);
-    pointer-events: none;
-    transition: transform 120ms ease, box-shadow 120ms ease;
-  }
-  :global(.pp-slider:hover .pp-slider__thumb) {
-    transform: scale(1.1);
-  }
-  :global(.pp-slider.is-dragging .pp-slider__thumb) {
-    transform: scale(1.15);
-    box-shadow: 0 3px 10px rgba(0, 20, 40, 0.4);
   }
 
 </style>

@@ -1,0 +1,252 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import HorizontalScroll from '../../components/demos/HorizontalScroll.tsx';
+const base = import.meta.env.BASE_URL;
+---
+
+<BaseLayout
+  title="Horizontal Scroll Demo | Perfect Pools"
+  description="Vertical scroll drives horizontal section translation. Adapted from Lenis playground horizontal demo + standard pinned-section pattern."
+  canonicalPath="/demos/horizontal"
+>
+  <article class="d-horiz">
+
+    <header class="d-horiz__hero fluid-grid">
+      <div class="col-full dt-col-2-9">
+        <a href={`${base}demos/`} class="d-horiz__back">← Demos</a>
+        <h1 class="d-horiz__h">Horizontal Scroll</h1>
+        <p class="d-horiz__lede">
+          The section pins, then your vertical scroll wheel drives the inner
+          row's <code>translateX</code>. Apple keynote pages use this for
+          iPhone color galleries; Rivian uses it for build-step showcases.
+          The total scroll distance equals the row's overflow width.
+        </p>
+        <p class="d-horiz__source">
+          Source: <code>references/lenis/playground/horizontal/</code> +
+          standard <code>ScrollTrigger</code> pin pattern
+        </p>
+      </div>
+    </header>
+
+    {/* Demo: a 6-step pool service journey, each step is a viewport-sized panel */}
+    <section class="d-horiz__intro fluid-grid">
+      <div class="col-full dt-col-2-9">
+        <span class="d-horiz__eyebrow">A first month of service</span>
+        <h2 class="d-horiz__h2">
+          What the first thirty days looks like.
+        </h2>
+        <p class="d-horiz__intro-lede">
+          Six panels, each sized to one viewport. Scroll vertically — the
+          row beneath this section will slide left as you scroll.
+        </p>
+      </div>
+    </section>
+
+    <HorizontalScroll client:load className="d-horiz__scroll">
+      <article class="d-horiz__panel">
+        <span class="d-horiz__panel-num">01</span>
+        <h3 class="d-horiz__panel-h">Day 1 — Walkthrough</h3>
+        <p class="d-horiz__panel-text">
+          Owner walks the deck with the lead tech. Equipment baseline test,
+          chemistry baseline test, photographs of every angle and serial number.
+        </p>
+      </article>
+      <article class="d-horiz__panel">
+        <span class="d-horiz__panel-num">02</span>
+        <h3 class="d-horiz__panel-h">Day 2 — Diagnostic report</h3>
+        <p class="d-horiz__panel-text">
+          Written report sent before sunset: equipment age, expected lifetime,
+          chemistry corrections needed, photos of any issues.
+        </p>
+      </article>
+      <article class="d-horiz__panel">
+        <span class="d-horiz__panel-num">03</span>
+        <h3 class="d-horiz__panel-h">Day 7 — First service</h3>
+        <p class="d-horiz__panel-text">
+          Full chemistry adjustment to LSI target. Brush, vacuum, filter check,
+          equipment listen-test. Photo report after.
+        </p>
+      </article>
+      <article class="d-horiz__panel">
+        <span class="d-horiz__panel-num">04</span>
+        <h3 class="d-horiz__panel-h">Day 14 — Second service</h3>
+        <p class="d-horiz__panel-text">
+          Verify chemistry holding. Adjust dose curve based on first
+          week's drift. Confirm equipment behavior matches diagnostic.
+        </p>
+      </article>
+      <article class="d-horiz__panel">
+        <span class="d-horiz__panel-num">05</span>
+        <h3 class="d-horiz__panel-h">Day 21 — Established schedule</h3>
+        <p class="d-horiz__panel-text">
+          Same tech, same day each week. Your gate code, dog-name, and
+          irrigation schedule on file. Photo report after each visit.
+        </p>
+      </article>
+      <article class="d-horiz__panel d-horiz__panel--final">
+        <span class="d-horiz__panel-num">06</span>
+        <h3 class="d-horiz__panel-h">Day 30 — Owner check-in</h3>
+        <p class="d-horiz__panel-text">
+          Brief call, written summary, and the next 90-day forecast.
+          You should not have had to ask us a single question by now.
+        </p>
+      </article>
+    </HorizontalScroll>
+
+    <section class="d-horiz__outro fluid-grid">
+      <div class="col-full dt-col-2-9">
+        <p class="d-horiz__outro-text">
+          You've reached the end of the horizontal scroll. The page now
+          continues vertically — exactly the moment when the
+          <code>ScrollTrigger</code> pin releases.
+        </p>
+      </div>
+    </section>
+
+  </article>
+</BaseLayout>
+
+<style>
+  :global(.d-horiz) {
+    background: var(--color-bg);
+    color: var(--color-text);
+    overflow-x: hidden;
+  }
+
+  :global(.d-horiz__hero) {
+    padding-top: var(--fluid-180);
+    padding-bottom: var(--fluid-80);
+  }
+  :global(.d-horiz__back) {
+    display: inline-block;
+    margin-bottom: var(--fluid-40);
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: var(--fluid-fs-eyebrow);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--color-text-muted);
+    text-decoration: none;
+  }
+  :global(.d-horiz__h) {
+    font-family: var(--font-heading);
+    font-size: var(--fluid-fs-h1);
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    line-height: 1.02;
+    margin: 0 0 var(--fluid-32);
+  }
+  @media (min-width: 800px) {
+    :global(.d-horiz__h) { font-size: calc(var(--fluid) * 80); }
+  }
+  :global(.d-horiz__lede) {
+    margin: 0 0 var(--fluid-16);
+    font-size: var(--fluid-fs-lead);
+    line-height: 1.55;
+    color: var(--color-text-light);
+    max-width: 64ch;
+  }
+  :global(.d-horiz__lede code),
+  :global(.d-horiz__source code),
+  :global(.d-horiz__outro-text code) {
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: 0.92em;
+    background: color-mix(in srgb, var(--color-text) 6%, transparent);
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+  :global(.d-horiz__source) {
+    margin: 0;
+    font-size: var(--fluid-fs-eyebrow);
+    color: var(--color-text-muted);
+  }
+
+  :global(.d-horiz__intro) {
+    padding-top: var(--fluid-80);
+    padding-bottom: var(--fluid-80);
+  }
+  :global(.d-horiz__eyebrow) {
+    display: block;
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: var(--fluid-fs-eyebrow);
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--color-text-muted);
+    margin-bottom: var(--fluid-32);
+  }
+  :global(.d-horiz__h2) {
+    font-family: var(--font-heading);
+    font-size: var(--fluid-fs-h2);
+    font-weight: 500;
+    letter-spacing: -0.022em;
+    line-height: 1.08;
+    margin: 0 0 var(--fluid-32);
+    max-width: 22ch;
+  }
+  @media (min-width: 800px) {
+    :global(.d-horiz__h2) { font-size: calc(var(--fluid) * 56); }
+  }
+  :global(.d-horiz__intro-lede) {
+    margin: 0;
+    font-size: var(--fluid-fs-lead);
+    line-height: 1.55;
+    color: var(--color-text-light);
+    max-width: 56ch;
+  }
+
+  /* === The pinned horizontal scroll itself === */
+  :global(.d-horiz__panel) {
+    flex-shrink: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 calc(var(--fluid) * 80);
+    border-right: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent);
+  }
+  :global(.d-horiz__panel--final) {
+    border-right: none;
+  }
+  :global(.d-horiz__panel-num) {
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    font-size: var(--fluid-fs-eyebrow);
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: var(--color-text-muted);
+    margin-bottom: var(--fluid-32);
+  }
+  :global(.d-horiz__panel-h) {
+    font-family: var(--font-heading);
+    font-size: var(--fluid-fs-h1);
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    line-height: 1.02;
+    margin: 0 0 var(--fluid-32);
+    max-width: 14ch;
+  }
+  @media (min-width: 800px) {
+    :global(.d-horiz__panel-h) { font-size: calc(var(--fluid) * 96); }
+  }
+  :global(.d-horiz__panel-text) {
+    margin: 0;
+    font-size: var(--fluid-fs-lead);
+    line-height: 1.5;
+    color: var(--color-text-light);
+    max-width: 44ch;
+  }
+  @media (min-width: 800px) {
+    :global(.d-horiz__panel-text) { font-size: calc(var(--fluid) * 20); }
+  }
+
+  :global(.d-horiz__outro) {
+    padding-top: var(--fluid-180);
+    padding-bottom: var(--fluid-180);
+  }
+  :global(.d-horiz__outro-text) {
+    margin: 0;
+    font-size: var(--fluid-fs-lead);
+    line-height: 1.55;
+    color: var(--color-text-light);
+    max-width: 56ch;
+  }
+</style>

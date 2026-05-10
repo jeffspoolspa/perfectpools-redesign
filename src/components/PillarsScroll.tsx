@@ -81,16 +81,19 @@ export default function PillarsScroll() {
       </div>
 
       <div className="ps__sticky-col">
-        {/* Desktop: header inside sticky col */}
-        <div className="section-header ps__header ps__header--desktop">
-          <h2>Three pillars of Perfect Pool care</h2>
-          <p>
-            Every visit is built on chemistry, equipment health, and
-            transparency — working together as one system.
-          </p>
-        </div>
+        {/* Desktop: header + triangle diagram sit inline at the top,
+            so the card-stack below can use the full section width for
+            its content-heavy interactive components (calculator,
+            sanitation tabs, filtration diagram). */}
+        <div className="ps__top-row">
+          <div className="section-header ps__header ps__header--desktop">
+            <h2>Three pillars of Perfect Pool care</h2>
+            <p>
+              Every visit is built on chemistry, equipment health, and
+              transparency — working together as one system.
+            </p>
+          </div>
 
-        <div className="ps__content-row">
           <div className="ps__diagram">
             <PillarsTriangle
               active={activePillar.id}
@@ -100,44 +103,44 @@ export default function PillarsScroll() {
               }}
             />
           </div>
+        </div>
 
-          <div className="ps__card-stack">
-            {PILLARS.map((p, i) => (
-              <div
-                className="ps__card"
-                style={{
-                  borderColor: p.color,
-                  opacity: i === 0 ? 1 : 0,
-                  position: i === 0 ? 'relative' : 'absolute',
-                  top: i === 0 ? 'auto' : 0,
-                  left: i === 0 ? 'auto' : 0,
-                  right: i === 0 ? 'auto' : 0,
-                }}
-                key={p.id}
-                ref={(el) => { cardsRef.current[i] = el; }}
-              >
-                <div className="ps__card-header">
-                  <div className="ps__card-icon" style={{ background: p.color }}>
-                    <img src={assetPath(p.icon)} alt="" />
-                  </div>
-                  <h3 className="ps__card-title" style={{ color: p.color }}>
-                    {p.heading}
-                  </h3>
+        <div className="ps__card-stack">
+          {PILLARS.map((p, i) => (
+            <div
+              className="ps__card"
+              style={{
+                borderColor: p.color,
+                opacity: i === 0 ? 1 : 0,
+                position: i === 0 ? 'relative' : 'absolute',
+                top: i === 0 ? 'auto' : 0,
+                left: i === 0 ? 'auto' : 0,
+                right: i === 0 ? 'auto' : 0,
+              }}
+              key={p.id}
+              ref={(el) => { cardsRef.current[i] = el; }}
+            >
+              <div className="ps__card-header">
+                <div className="ps__card-icon" style={{ background: p.color }}>
+                  <img src={assetPath(p.icon)} alt="" />
                 </div>
-                <div className="ps__card-body">
-                  {p.id === 'balance' ? (
-                    <LSICalculator />
-                  ) : p.id === 'sanitation' ? (
-                    <SanitationTabs />
-                  ) : p.id === 'filtration' ? (
-                    <FiltrationDiagram />
-                  ) : (
-                    <p>{p.description}</p>
-                  )}
-                </div>
+                <h3 className="ps__card-title" style={{ color: p.color }}>
+                  {p.heading}
+                </h3>
               </div>
-            ))}
-          </div>
+              <div className="ps__card-body">
+                {p.id === 'balance' ? (
+                  <LSICalculator />
+                ) : p.id === 'sanitation' ? (
+                  <SanitationTabs />
+                ) : p.id === 'filtration' ? (
+                  <FiltrationDiagram />
+                ) : (
+                  <p>{p.description}</p>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 

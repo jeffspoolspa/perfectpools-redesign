@@ -8516,3 +8516,705 @@ p:last-child {
     border-radius: 8px;
     border-left: 3px solid var(--color-cta);
   }
+
+/* ====================================================================
+   OurStorySplit — split-screen "Our Story" section with horizontal
+   partner-logo strip on the right and a crossfading text panel below.
+   Class prefix .oss- to avoid collision with other story sections.
+   ==================================================================== */
+
+.oss {
+  width: 100%;
+}
+
+.oss__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3rem;
+  align-items: stretch;
+}
+@media (min-width: 900px) {
+  .oss__grid {
+    grid-template-columns: 5fr 7fr;
+    gap: 4rem;
+  }
+}
+
+/* === LEFT — story copy ============================================ */
+.oss__left {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 540px;
+}
+
+.oss__kicker {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-deep-blue, #0c4a6e);
+  margin-bottom: 1.25rem;
+}
+
+.oss__heading {
+  font-family: 'Poppins', system-ui, sans-serif;
+  font-size: clamp(1.85rem, 3.4vw, 2.85rem);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  color: var(--color-text, #1e3a5f);
+  margin: 0 0 1.5rem;
+  text-wrap: balance;
+}
+.oss__heading em {
+  font-style: normal;
+  color: var(--color-deep-blue, #0c4a6e);
+  background: linear-gradient(180deg, transparent 65%, rgba(125, 211, 252, 0.32) 65%);
+  padding: 0 0.05em;
+}
+
+.oss__lead {
+  font-size: clamp(1rem, 1.1vw, 1.075rem);
+  line-height: 1.6;
+  color: var(--color-text, #1e3a5f);
+  margin: 0 0 1rem;
+  font-weight: 500;
+}
+.oss__abbr {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.92em;
+  font-weight: 600;
+  color: var(--color-deep-blue, #0c4a6e);
+}
+
+.oss__body {
+  font-size: 0.96rem;
+  line-height: 1.65;
+  color: var(--color-text-light, #637388);
+  margin: 0 0 1rem;
+}
+
+/* --- Partner inquiry form (left column, below lead copy) -------- */
+.oss__form {
+  margin-top: 1.5rem;
+  padding: 1.25rem 1.35rem 1.35rem;
+  background: color-mix(in srgb, var(--color-deep-blue, #0c4a6e) 4%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-deep-blue, #0c4a6e) 12%, transparent);
+  border-radius: 14px;
+}
+.oss__form-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-bottom: 1rem;
+}
+.oss__form-title {
+  font-family: 'Poppins', system-ui, sans-serif;
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: var(--color-text, #1e3a5f);
+  letter-spacing: -0.005em;
+}
+.oss__form-sub {
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--color-text-light, #637388);
+}
+.oss__form-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.7rem;
+  margin-bottom: 0.9rem;
+}
+@media (min-width: 500px) {
+  .oss__form-row { grid-template-columns: 1fr 1fr; }
+}
+.oss__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.oss__field-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-light, #637388);
+}
+.oss__input {
+  font: inherit;
+  font-size: 0.92rem;
+  padding: 0.55rem 0.75rem;
+  background: #fff;
+  border: 1px solid color-mix(in srgb, var(--color-text, #1e3a5f) 14%, transparent);
+  border-radius: 8px;
+  color: var(--color-text, #1e3a5f);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.oss__input:focus {
+  border-color: color-mix(in srgb, var(--color-deep-blue, #0c4a6e) 55%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-deep-blue, #0c4a6e) 14%, transparent);
+}
+.oss__submit {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--color-deep-blue, #0c4a6e);
+  color: #fff;
+  border: 0;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  padding: 0.65rem 1.1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.25s, transform 0.25s;
+}
+.oss__submit:hover {
+  background: color-mix(in srgb, var(--color-deep-blue, #0c4a6e) 88%, #000);
+  transform: translateY(-1px);
+}
+.oss__submit:active {
+  transform: translateY(0);
+}
+.oss__submit-arrow {
+  font-size: 1.1em;
+  transition: transform 0.25s;
+}
+.oss__submit:hover .oss__submit-arrow {
+  transform: translateX(3px);
+}
+
+/* ====================================================================
+   PillarsCinematic — sandbox experiment styles (.pc- prefix).
+   Pinned cinematic scroll: pool image reveal → title/diagram center
+   → diagram persists top-left → pillar deep-dive panels cycle.
+   ==================================================================== */
+
+.pc-section {
+  position: relative;
+  width: 100%;
+  /* height set inline = SCROLL_VH * 100vh — gives the pin range room */
+}
+
+.pc-pin {
+  position: relative;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  background: #0a1929;
+  color: #fff;
+}
+
+/* --- Layer 1: pool image (full bleed, clipped → revealed) ---------- */
+.pc-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background-size: cover;
+  background-position: center;
+  /* clip-path + opacity set by JS via onUpdate */
+  clip-path: inset(14% 8% 22% 8% round 28px);
+  opacity: 0.65;
+  will-change: clip-path, opacity;
+}
+.pc-bg::after {
+  /* gentle dark overlay so foreground text stays legible while the
+     image is fully revealed at Phase A end */
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.55));
+  pointer-events: none;
+}
+
+/* --- Layer 2: centered title (Phase A only) ----------------------- */
+.pc-title {
+  position: absolute;
+  top: 28%;
+  left: 50%;
+  transform: translate(-50%, 20px);
+  z-index: 3;
+  width: min(90%, 720px);
+  text-align: center;
+  opacity: 0;
+  will-change: opacity, transform;
+  pointer-events: none;
+}
+.pc-title h2 {
+  font-family: 'Poppins', system-ui, sans-serif;
+  font-size: clamp(1.8rem, 3.6vw, 3rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.85rem;
+  color: #fff;
+  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
+}
+.pc-title p {
+  font-size: clamp(1rem, 1.4vw, 1.15rem);
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.92);
+  margin: 0;
+  max-width: 56ch;
+  margin-inline: auto;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+}
+
+/* --- Layer 3: triangle diagram (center → left-of-card) ------------ */
+.pc-diagram {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 4;
+  width: clamp(280px, 32vw, 420px);
+  /* transform set inline by JS — start centered, end left-of-card scaled.
+     origin: center so scale() shrinks around the visual center,
+     letting the JS translate values control the center position
+     directly without aspect-ratio math. */
+  transform: translate(-50%, -50%);
+  transform-origin: center;
+  will-change: transform;
+  filter: drop-shadow(0 18px 40px rgba(0, 0, 0, 0.4));
+}
+
+/* --- Layer 4: per-pillar full-area panels ------------------------- */
+.pc-panels {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+.pc-panel {
+  position: absolute;
+  /* Top-anchored — card grows DOWNWARD from a fixed top edge so its
+     position never shifts as content height varies. The diagram is
+     aligned with this same top edge so a shorter card doesn't move
+     the diagram. */
+  top: clamp(60px, 8vh, 100px);
+  /* left + width are SET BY JS (computeBlockLayout) so the diagram
+     and card form a unified centered block with a fixed gap between
+     them at every viewport width. Fallback values for SSR / pre-JS
+     paint just put the card in roughly the right place. */
+  left: 50%;
+  width: min(70vw, 820px);
+  max-height: calc(100vh - clamp(60px, 8vh, 100px) - 2rem);
+  overflow-y: auto;
+  padding: 1.5rem 1.75rem 1.75rem;
+  background: rgba(255, 255, 255, 0.96);
+  color: var(--color-text, #1e3a5f);
+  border-radius: 18px;
+  border-top: 4px solid var(--accent);
+  box-shadow:
+    0 32px 80px -16px rgba(0, 0, 0, 0.45),
+    0 4px 12px -4px rgba(0, 0, 0, 0.25);
+  /* transform + opacity controlled by JS — JS sets transform-origin,
+     translate (for drift), and scale (for emerges-from-diagram). */
+  transform: translate(-50%, 0);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.pc-panel-head {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+.pc-panel-icon {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px;
+}
+.pc-panel-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.pc-panel-kicker {
+  display: block;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.pc-panel-title {
+  font-family: 'Poppins', system-ui, sans-serif;
+  font-size: clamp(1.2rem, 2vw, 1.6rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: var(--color-text, #1e3a5f);
+  margin: 0.15rem 0 0;
+}
+.pc-panel-body {
+  font-size: 0.94rem;
+  line-height: 1.55;
+  color: var(--color-text, #1e3a5f);
+}
+
+/* === RIGHT — logo strip + active panel ============================
+   Shared transition tokens. Longer durations + a smoother curve so the
+   logo scaling and panel crossfade settle gently rather than snap.
+   --oss-logo-h is the BASE max-height for logos; per-logo scale
+   multipliers (set inline on the img via component data) build on top
+   of this so squarer marks can match the visual size of wider ones. */
+.oss__right {
+  --oss-dur: 1.1s;
+  --oss-ease: cubic-bezier(0.45, 0, 0.15, 1); /* ease-in-out, gentle */
+  --oss-dur-fast: 0.6s;
+  --oss-logo-h: 84px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* --- Logo strip (3 partners horizontally) ------------------------- */
+.oss__logos {
+  list-style: none;
+  margin: 0;
+  padding: 0.5rem 0.5rem 1rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  align-items: center;
+  gap: 1rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-text, #1e3a5f) 10%, transparent);
+}
+
+.oss__logo-cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 0;
+  position: relative;
+}
+
+.oss__logo-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 84px;
+  padding: 0.5rem 0.75rem;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  outline: none;
+  border-radius: 12px;
+  transition:
+    transform var(--oss-dur) var(--oss-ease),
+    filter var(--oss-dur) var(--oss-ease),
+    background var(--oss-dur-fast) ease;
+  /* inactive default */
+  transform: scale(0.78);
+  filter: grayscale(0.45) opacity(0.55);
+}
+.oss__logo-btn:hover,
+.oss__logo-btn:focus-visible {
+  background: color-mix(in srgb, var(--accent) 5%, transparent);
+}
+.oss__logo-cell.is-active .oss__logo-btn {
+  transform: scale(1.1);
+  filter: grayscale(0) opacity(1);
+}
+.oss__logo-cell::after {
+  /* underline accent for the active logo. Always rendered; opacity +
+     scaleX transitions in so it doesn't pop. */
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -1rem;
+  width: 36px;
+  height: 3px;
+  border-radius: 99px;
+  background: var(--accent);
+  transform: translateX(-50%) scaleX(0);
+  transform-origin: center;
+  opacity: 0;
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 50%, transparent);
+  transition:
+    transform var(--oss-dur) var(--oss-ease),
+    opacity var(--oss-dur) var(--oss-ease);
+}
+.oss__logo-cell.is-active::after {
+  transform: translateX(-50%) scaleX(1);
+  opacity: 1;
+}
+
+.oss__logo-img {
+  max-width: 100%;
+  /* max-height is set inline via calc(var(--oss-logo-h) * logoScale)
+     so squarer logos can scale up to match the visual size of wider
+     ones. Falls back to the base var if no scale specified. */
+  max-height: var(--oss-logo-h, 84px);
+  width: auto;
+  height: auto;
+  display: block;
+  object-fit: contain;
+  /* mix-blend-mode is set inline per-partner so light/dark source
+     backgrounds can be muted. */
+}
+
+/* Fallback wordmark — shown only if the <img> errors out. JS sets
+   display:inline-flex on this element when img.onerror fires. */
+.oss__logo-fallback {
+  display: none;
+  font-family: 'Poppins', system-ui, sans-serif;
+  font-weight: 800;
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+  color: var(--color-text, #1e3a5f);
+  text-align: center;
+  padding: 0.8rem 0.5rem;
+  border: 2px dashed color-mix(in srgb, var(--accent) 35%, transparent);
+  border-radius: 10px;
+  width: 100%;
+}
+
+/* --- Panel stage: all panels grid-stacked in the SAME cell --------
+   `grid-area: 1 / 1` puts every panel into the first (only) cell, so
+   the grid auto-sizes its row to the TALLEST panel's content. No
+   manual min-height required — Perfect Pools' merged paragraphs
+   (PP + Savannah hub) defines the stage height, and shorter panels
+   just leave empty space below them when active. The active text is
+   therefore always allowed to grow as long as needed. */
+.oss__panel-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.oss__panel {
+  grid-area: 1 / 1;
+  min-width: 0;
+  border-left: 3px solid var(--accent);
+  padding: 0.25rem 0 0.25rem 1.25rem;
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+  /* Long, gentle ease-in-out so the crossfade lands softly. The
+     transform settles a bit faster than opacity so the type doesn't
+     "ride in" on a long drift. */
+  transition:
+    opacity var(--oss-dur) var(--oss-ease),
+    transform calc(var(--oss-dur) * 0.85) var(--oss-ease);
+}
+.oss__panel.is-active {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.oss__panel-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+.oss__panel-num {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.oss__panel-tag {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--color-text-light, #637388);
+}
+
+.oss__panel-name {
+  font-family: 'Poppins', system-ui, sans-serif;
+  font-size: clamp(1.4rem, 1.7vw, 1.65rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--color-text, #1e3a5f);
+  margin: 0 0 0.25rem;
+}
+.oss__panel-loc {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--color-text-light, #637388);
+  margin: 0 0 0.95rem;
+  text-wrap: balance;
+}
+/* --- Paragraph stack inside the panel body ----------------------- */
+.oss__panel-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  max-width: 60ch;
+}
+.oss__panel-para {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--color-text, #1e3a5f);
+  margin: 0;
+}
+
+/* --- Mobile adjustments ------------------------------------------- */
+@media (max-width: 600px) {
+  .oss__right { --oss-logo-h: 64px; }
+  .oss__logo-btn { min-height: 64px; }
+  .oss__logo-cell.is-active .oss__logo-btn { transform: scale(1.05); }
+  .oss__logo-btn { transform: scale(0.85); }
+}
+
+/* ====================================================================
+   CardStackReveal — vertical stack of expandable cards.
+   Generic / reusable component (see src/components/CardStackReveal.tsx).
+   Originally the v1 of "Our Story"; archived for reuse on other
+   sections. Auto-cycles the active card; hover / focus locks it.
+   Class prefix .csr- (CardStackReveal) so it doesn't collide with
+   the .oss- (OurStorySplit) horizontal-logos variant.
+   ==================================================================== */
+
+.csr {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.csr__card {
+  position: relative;
+  background: #fff;
+  border: 1px solid color-mix(in srgb, var(--color-text, #1e3a5f) 8%, transparent);
+  border-radius: 16px;
+  padding: 1.1rem 1.25rem;
+  cursor: pointer;
+  transition:
+    border-color 0.5s var(--ease-out-expo, cubic-bezier(0.19, 1, 0.22, 1)),
+    box-shadow 0.5s var(--ease-out-expo, cubic-bezier(0.19, 1, 0.22, 1)),
+    background 0.5s var(--ease-out-expo, cubic-bezier(0.19, 1, 0.22, 1)),
+    padding 0.5s var(--ease-out-expo, cubic-bezier(0.19, 1, 0.22, 1));
+  outline: none;
+}
+.csr__card:hover,
+.csr__card:focus-visible {
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+}
+.csr__card.is-active {
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  background: linear-gradient(
+    180deg,
+    #fff 0%,
+    color-mix(in srgb, var(--accent) 4%, #fff) 100%
+  );
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 18px 40px -12px color-mix(in srgb, var(--accent) 28%, transparent),
+    0 4px 12px -4px rgba(2, 8, 20, 0.08);
+  padding: 1.5rem 1.75rem 1.75rem;
+}
+
+/* Top row: numeral badge + wordmark + tagline (always visible) */
+.csr__head {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.csr__mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-shrink: 0;
+}
+.csr__num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+  border-radius: 8px;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  transition: background 0.4s, color 0.4s;
+}
+.csr__card.is-active .csr__num {
+  background: var(--accent);
+  color: #fff;
+}
+.csr__short {
+  font-family: 'Poppins', system-ui, sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  color: var(--color-text, #1e3a5f);
+}
+
+.csr__tag {
+  font-size: 0.85rem;
+  color: var(--color-text-light, #637388);
+  font-weight: 500;
+  margin-left: auto;
+  text-align: right;
+}
+@media (max-width: 600px) {
+  .csr__tag { display: none; }
+}
+
+/* Body — only shown when active. Animated open via grid-rows trick so
+   the card itself transitions in height smoothly. */
+.csr__body {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows 0.55s var(--ease-out-expo, cubic-bezier(0.19, 1, 0.22, 1)),
+    opacity 0.45s 0.05s ease;
+  margin-top: 0;
+}
+.csr__body > * {
+  min-height: 0;
+  overflow: hidden;
+}
+.csr__card.is-active .csr__body {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  margin-top: 1rem;
+}
+
+.csr__title {
+  font-family: 'Poppins', system-ui, sans-serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--color-text, #1e3a5f);
+  margin: 0 0 0.25rem;
+}
+.csr__loc {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 0.85rem;
+}
+.csr__desc {
+  font-size: 0.94rem;
+  line-height: 1.6;
+  color: var(--color-text, #1e3a5f);
+  margin: 0;
+}
