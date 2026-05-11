@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ReviewCarousel from '../components/ReviewCarousel.astro';
 import WhyWeExistHero from '../components/WhyWeExistHero.astro';
+import { REVIEWS } from '../data/reviews';
 const base = import.meta.env.BASE_URL;
 
 /**
@@ -36,37 +37,64 @@ const base = import.meta.env.BASE_URL;
     </div>
   </section>
 
-  {/* Section 3 — Three Pillars */}
-  <section class="section pillars-section oa-section" id="pillars" data-next-label="Industry vs us">
-    <div class="container">
-      <div id="pillars-mount"></div>
-    </div>
+  {/* Section 3 — Three Pillars (cinematic).
+      Full-bleed: skip .container so the pool image and dark navy
+      stage span the viewport edge to edge. The PillarsCinematic
+      component manages its own 500vh pinned scroll internally. */}
+  <section class="pillars-cinematic-section oa-section" id="pillars" data-next-label="Industry vs us">
+    <div id="pillars-mount"></div>
   </section>
 
-  {/* Section 4 — Industry vs Us Comparison */}
-  <section class="section compare-scroll-section oa-section" id="compare" data-next-label="Anatomy of a visit">
-    <div class="container">
-      <div id="compare-mount"></div>
-    </div>
+  {/* Section 4 — Industry vs Us Comparison.
+      Full-bleed (no .container) so the wider sticky layout can use
+      its own max-width (1600px) without the 1280px container clamp. */}
+  <section class="compare-scroll-section oa-section" id="compare" data-next-label="Anatomy of a visit">
+    <div id="compare-mount"></div>
   </section>
 
-  {/* Section 5 — Anatomy of a Visit */}
-  <section class="section visit-section oa-section" id="visit" data-next-label="What clients say">
-    <div class="container">
-      <div id="visit-mount"></div>
-    </div>
+  {/* Section 5 — Anatomy of a Visit (pinned scroll-stack with live
+      water shader background). Full-bleed: no .container wrapper so
+      the LiquidHero canvas can fill the viewport edge to edge. */}
+  <section class="visit-section oa-section" id="visit" data-next-label="What clients say">
+    <div id="visit-mount"></div>
   </section>
 
-  {/* Section 6 — Reviews */}
-  <section class="section oa-section" id="reviews">
-    <div class="container">
-      <div class="section-header" data-reveal="fade-up">
-        <span class="section-kicker">WHAT OUR CLIENTS SAY</span>
-        <h2>Real Reviews, Real Results.</h2>
-      </div>
-      <div data-reveal="fade-up" data-reveal-stagger="0.12">
-        <ReviewCarousel />
-        <div style="text-align: center; margin-top: var(--space-8);">
+  {/* Section 6 — Reviews.
+      Image is sticky at the top of the section (CSS sticky), so as
+      the user scrolls into the section the image pins to the top
+      of the viewport. The white reviews card flows naturally below
+      and scrolls UP over the image. Section has tall min-height so
+      the image stays pinned long enough for the card to scroll
+      fully past it before the partnership-cta section enters view —
+      same composition as the Rivian "Keep exploring" → "Never miss
+      an adventure" transition. */}
+  <section class="reviews-section oa-section" id="reviews">
+    <div class="reviews-section__image-pin">
+      <img
+        src={`${base}images/reviews-bg-testing-water.jpg`}
+        alt="A Perfect Pools technician testing pool water"
+        loading="lazy"
+      />
+    </div>
+
+    <div class="reviews-section__white-card">
+      <div class="container">
+        <div class="section-header" data-reveal="fade-up">
+          <span class="section-kicker">WHAT OUR CLIENTS SAY</span>
+          <h2>Real Reviews, Real Results.</h2>
+        </div>
+        <div class="reviews-grid" data-reveal="fade-up" data-reveal-stagger="0.12">
+          {REVIEWS.slice(0, 3).map((r) => (
+            <article class="review-tile">
+              <div class="review-tile__stars" aria-label={`${r.stars} out of 5 stars`}>
+                {'★'.repeat(r.stars)}
+              </div>
+              <p class="review-tile__quote">"{r.quote}"</p>
+              <span class="review-tile__name">— {r.name}</span>
+            </article>
+          ))}
+        </div>
+        <div style="text-align: center;">
           <a href="https://g.page/r/CVrU0W_3-NRyEAE/review" target="_blank" rel="noopener" class="btn btn--outline">Read All Reviews on Google</a>
         </div>
       </div>
@@ -101,9 +129,9 @@ const base = import.meta.env.BASE_URL;
 <script>
   import { render, h } from 'preact';
   import OurStorySplit from '../components/OurStorySplit.tsx';
-  import PillarsScroll from '../components/PillarsScroll.tsx';
+  import PillarsCinematic from '../components/experiments/PillarsCinematic.tsx';
   import CompareScroll from '../components/CompareScroll.tsx';
-  import VisitScroll from '../components/VisitScroll.tsx';
+  import VisitScrollStack from '../components/experiments/VisitScrollStack.tsx';
   import OurApproachNav from '../components/OurApproachNav.tsx';
 
   const timelineMount = document.getElementById('timeline-mount');
@@ -113,12 +141,12 @@ const base = import.meta.env.BASE_URL;
 
   const pillarsMount = document.getElementById('pillars-mount');
   if (pillarsMount) {
-    render(h(PillarsScroll, null), pillarsMount);
+    render(h(PillarsCinematic, null), pillarsMount);
   }
 
   const visitMount = document.getElementById('visit-mount');
   if (visitMount) {
-    render(h(VisitScroll, null), visitMount);
+    render(h(VisitScrollStack, null), visitMount);
   }
 
   // Mount the Lenis-aware sticky chapter marker + side-rail navigation.
@@ -721,6 +749,150 @@ const base = import.meta.env.BASE_URL;
     :global(.prb__spacer) { height: 300vh; }
   }
 
+  /* === Reviews Section — sticky image + scroll-up white card =======
+     Image is `position: sticky; top: 0` and 100vh tall so it pins
+     to the viewport top once the section enters view. The white
+     card flows naturally below the image with a negative margin-top
+     so it overlaps the image at the start (image visible above the
+     card with rounded curve cutting in). As the user scrolls, the
+     image stays pinned and the card scrolls UP over it, eventually
+     scrolling out the top of the viewport. Once the section ends,
+     the partnership-cta below appears — same as Rivian's
+     "Keep exploring" → "Never miss an adventure" transition. */
+  .reviews-section {
+    position: relative;
+    padding: 0;
+    margin-top: 0;
+    /* Sized so the partnership-cta below is just at the viewport
+       bottom WHEN the card top reaches the viewport top (with a
+       little padding). Math:
+         card top = section.top + 100vh − card-overlap (45vh) = 55vh
+         For card top to land at viewport top with 32px padding:
+           section.top = 32px − 55vh   ≈ −55vh
+         For partnership-cta to be at viewport bottom at that moment:
+           section.top + min-height = 100vh   →   min-height ≈ 155vh
+       So the section "waits" for the card to touch the top before
+       the next section starts entering view. */
+    min-height: 155vh;
+    background-color: #0a1929; /* fallback during image load */
+  }
+
+  .reviews-section__image-pin {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
+    z-index: 0;
+  }
+
+  .reviews-section__image-pin img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* Subtle dark overlay over the photo — keeps the image from
+     dominating and gives the white card more visual contrast.
+     ::after sits above the img but below the white card (z-index). */
+  .reviews-section__image-pin::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      rgba(10, 25, 40, 0.30),
+      rgba(10, 25, 40, 0.40)
+    );
+    pointer-events: none;
+  }
+
+  .reviews-section__white-card {
+    position: relative;
+    z-index: 1;
+    background: var(--color-bg, #fff);
+    border-radius: 32px;
+    /* Generous breathing room top + bottom so the header and the
+     "Read All Reviews" button don't touch the card edges. Sides
+     stay narrower so the 3-tile grid keeps its width.
+     Note: prior values used --space-9 / --space-11 which DON'T
+     exist in this codebase's space scale (1,2,3,4,5,6,8,10,12,16,
+     20,24) so they evaluated to 0 — that's why padding looked
+     missing. Using real tokens here. */
+    padding: var(--space-16) var(--space-10);
+    /* Wider — closer to full-bleed with small side gutters so the
+       image is barely peeking around the card edges. */
+    max-width: 1600px;
+    width: calc(100% - 2 * var(--space-5));
+    margin-inline: auto;
+    /* Negative margin pulls the card up so it overlaps the image's
+       bottom — image visible ABOVE the card initially, card sits
+       within the image area with rounded corners on all sides. */
+    margin-top: -45vh;
+    margin-bottom: var(--space-8);
+    box-shadow: 0 32px 80px -28px rgba(0, 0, 0, 0.45);
+  }
+
+  /* "Read All Reviews on Google" button gets a chunkier tap target
+     and a clear gap above it from the review tiles. The wrapper
+     div gets the spacing; the button itself just gets its padding. */
+  .reviews-section__white-card .btn {
+    padding: 0.95rem 1.75rem;
+  }
+  .reviews-section__white-card .reviews-grid + div {
+    margin-top: var(--space-8);
+  }
+
+  /* 3-tile review grid — sits inside the white card. */
+  :global(.reviews-grid) {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-5);
+    margin-top: var(--space-6);
+  }
+
+  :global(.review-tile) {
+    background: var(--color-bg-alt, #F9F6F0);
+    border: 1px solid var(--color-border, #e5e7eb);
+    border-radius: 18px;
+    padding: var(--space-5);
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+
+  :global(.review-tile__stars) {
+    color: var(--color-gold, #F59E0B);
+    font-size: 0.95rem;
+    letter-spacing: 0.08em;
+  }
+
+  :global(.review-tile__quote) {
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: var(--color-text, #1E3A5F);
+    margin: 0;
+    /* Clamp quotes so all 3 tiles stay visually balanced. */
+    display: -webkit-box;
+    -webkit-line-clamp: 7;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  :global(.review-tile__name) {
+    margin-top: auto;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--color-text-light, #5a6c7d);
+  }
+
+  @media (max-width: 768px) {
+    :global(.reviews-grid) {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
   /* === Comparison Scroll Section === */
   .compare-scroll-section {
     padding-top: var(--space-16);
@@ -733,11 +905,22 @@ const base = import.meta.env.BASE_URL;
   }
 
   :global(.cs__sticky) {
-    position: sticky;
-    top: 100px;
+    /* Position set by ScrollTrigger's pin. position:relative keeps
+       the element in flow before pin engages.
+       No fixed height — sticky is exactly content-tall (header +
+       layout), and the JS pin start computes a `top top+=N` offset
+       that centers the whole sticky vertically in the viewport. */
+    position: relative;
     z-index: 1;
-    max-width: 700px;
+    max-width: 1600px;
     margin: 0 auto;
+    padding-inline: var(--space-6);
+  }
+
+  /* Header above the layout inside the sticky — modest gap so it
+     reads as a unit rather than two separate stacked sections. */
+  :global(.cs__sticky > .cs__header--desktop) {
+    margin-bottom: var(--space-6);
   }
 
   :global(.cs__header--mobile) {
@@ -749,20 +932,63 @@ const base = import.meta.env.BASE_URL;
     display: none;
   }
 
+  /* Desktop layout: card on the left, pool photo on the right.
+     Equal-width columns (1fr 1fr) so the card and photo are the
+     same size. No gap between them so they read as one paired unit. */
+  :global(.cs__layout) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    align-items: stretch;
+  }
+
+  /* Card-stack uses the SAME grid-stack pattern as the media column
+     (all cards in the same grid cell). This guarantees the stack's
+     height = the TALLEST card's natural height, so both cards render
+     at identical heights regardless of which is currently visible. */
   :global(.cs__card-stack) {
     position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Media column — both images stack in the same grid cell so the
+     active one fades in over the outgoing one (no layout shift).
+     Height comes from grid row stretch (matches the card column),
+     so the photo and the card are exactly the same size. Asymmetric
+     radius mirrors the card: RIGHT corners rounded (outer edge of
+     the [card | photo] composite), LEFT corners square so the photo
+     meets the card flush — together they read as one rounded unit. */
+  :global(.cs__media) {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+    min-height: 100%;
+  }
+
+  :global(.cs__media-img) {
+    grid-area: 1 / 1;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.7s cubic-bezier(0.45, 0, 0.15, 1);
+  }
+
+  :global(.cs__media-img.is-active) {
+    opacity: 1;
   }
 
   :global(.cs__card) {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
+    /* Grid-stack: every card occupies the same single cell of the
+       parent .cs__card-stack grid. The stack's row stretches to the
+       TALLEST card's natural content height — so both cards render
+       at identical heights and there's no jump on crossfade. */
+    grid-area: 1 / 1;
     pointer-events: none;
-  }
-
-  :global(.cs__card:first-child) {
-    position: relative;
   }
 
   :global(.cs__card.is-active) {
@@ -775,17 +1001,24 @@ const base = import.meta.env.BASE_URL;
   }
 
   :global(.compare-card) {
-    max-width: 700px;
-    margin: 0 auto;
+    /* No max-width — fills the equal-width column from .cs__layout.
+       Tighter padding than the standalone card (was 2.5rem) so the
+       row's natural height stays in landscape proportions next to
+       the photo, matching the Rivian-style reference.
+       Asymmetric radius: the LEFT corners are rounded (outer edge
+       of the [card | photo] composite) and the RIGHT corners are
+       square so the card meets the photo flush — together they read
+       as a single rounded component. */
+    width: 100%;
     background: #fff;
-    padding: 2.5rem;
+    padding: 1.75rem 2rem;
     box-shadow: var(--shadow-md);
     border: 1px solid #e5e5e5;
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-lg) 0 0 var(--radius-lg);
   }
 
   :global(.compare-side__header) {
-    margin-bottom: 2.5rem;
+    margin-bottom: 1.5rem;
   }
 
   :global(.compare-label) {
@@ -1139,6 +1372,17 @@ const base = import.meta.env.BASE_URL;
 
     :global(.cs__sticky) {
       top: 50px;
+    }
+
+    /* Stack the photo above the card on mobile. */
+    :global(.cs__layout) {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-5);
+    }
+
+    :global(.cs__media) {
+      aspect-ratio: 16 / 10;
+      order: -1;
     }
 
     /* compare headers already handled by global defaults */
@@ -1553,8 +1797,10 @@ const base = import.meta.env.BASE_URL;
      Visit Section — Anatomy of a Visit
      ======================================== */
   .visit-section {
-    padding-top: var(--space-16);
-    padding-bottom: var(--space-16);
+    /* Full-bleed pinned section — no padding (would create a white
+       page-bg gap above the gradient pin and below it before the
+       reviews section starts). */
+    padding: 0;
   }
 
   :global(.vs) {

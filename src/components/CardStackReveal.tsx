@@ -77,6 +77,10 @@ interface CardStackRevealProps {
   initialIndex?: number;
   /** Optional class name appended to the root for one-off styling. */
   class?: string;
+  /** Fires whenever the active index changes (auto-cycle, hover, or
+      focus). Lets a parent sync external content — e.g., a photo
+      stack on the side that should crossfade in step with the card. */
+  onActiveChange?: (index: number) => void;
 }
 
 export default function CardStackReveal({
@@ -84,6 +88,7 @@ export default function CardStackReveal({
   cycleMs = 5000,
   initialIndex = 0,
   class: className = '',
+  onActiveChange,
 }: CardStackRevealProps) {
   const [activeIndex, setActiveIndex] = useState(
     Math.min(initialIndex, items.length - 1),
@@ -110,6 +115,12 @@ export default function CardStackReveal({
     startCycle();
     return () => stopCycle();
   }, [cycleMs, items.length]);
+
+  // Notify parent whenever active index changes (auto-cycle / hover /
+  // focus) so external panels (e.g., a paired photo column) can sync.
+  useEffect(() => {
+    onActiveChange?.(activeIndex);
+  }, [activeIndex]);
 
   const handleEnter = (i: number) => {
     lockedIndexRef.current = i;

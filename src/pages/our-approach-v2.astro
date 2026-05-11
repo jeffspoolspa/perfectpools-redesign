@@ -220,6 +220,42 @@ const PATTERNS = [
         </header>
         <div id="exp-pillars-cinematic-mount"></div>
       </div>
+
+      <div class="sb__exp col-full dt-col-2-12">
+        <header class="sb__exp-header">
+          <span class="sb__exp-tag">Section alt · Visit card stack</span>
+          <h3 class="sb__exp-h">Anatomy of a Visit: timer-cycled cards + paired photos</h3>
+          <p class="sb__exp-desc">
+            <strong>What it is:</strong> alternate "Anatomy of a Visit" treatment for <code>/our-approach</code>.
+            Replaces the scroll-driven <code>VisitScroll</code> with a paired layout —
+            three stacked <code>CardStackReveal</code> cards on the left auto-cycle every 6s
+            (hover or focus to lock), and three pool photos on the right crossfade in sync.
+            Not pinned / not scroll-driven.
+            <br /><br />
+            <strong>Status:</strong> staged for review. Photos are placeholders pulled from
+            <code>/public/images/</code>; swap to real ones once chosen.
+          </p>
+        </header>
+        <div id="exp-visit-card-stack-mount"></div>
+      </div>
+
+      <div class="sb__exp col-full dt-col-2-12">
+        <header class="sb__exp-header">
+          <span class="sb__exp-tag">Section alt · Visit scroll stack</span>
+          <h3 class="sb__exp-h">Anatomy of a Visit: pinned scroll-in card stack + paired photos</h3>
+          <p class="sb__exp-desc">
+            <strong>What it is:</strong> Rivian-style pinned reveal for "Anatomy of a Visit".
+            300vh pinned section. As the user scrolls, three cards slide in one at a time
+            on the left — the newest card expands and shows its body, the prior cards collapse
+            to header-only. The photo on the right crossfades to match. After the pin completes,
+            hover any card to lock it as the active one and switch the photo back to it.
+            <br /><br />
+            <strong>Status:</strong> staged for review. Photos are placeholders pulled from
+            <code>/public/images/</code>; swap to real ones once chosen.
+          </p>
+        </header>
+        <div id="exp-visit-scroll-stack-mount"></div>
+      </div>
     </section>
 
   </article>
@@ -232,6 +268,8 @@ const PATTERNS = [
   import PinnedMediaWheel from '../components/experiments/PinnedMediaWheel.tsx';
   import OurStorySplit from '../components/OurStorySplit.tsx';
   import PillarsCinematic from '../components/experiments/PillarsCinematic.tsx';
+  import VisitCardStack from '../components/experiments/VisitCardStack.tsx';
+  import VisitScrollStack from '../components/experiments/VisitScrollStack.tsx';
 
   const tlMount = document.getElementById('exp-timeline-mount');
   if (tlMount) {
@@ -256,6 +294,16 @@ const PATTERNS = [
   const pcMount = document.getElementById('exp-pillars-cinematic-mount');
   if (pcMount) {
     render(h(PillarsCinematic, null), pcMount);
+  }
+
+  const vcsMount = document.getElementById('exp-visit-card-stack-mount');
+  if (vcsMount) {
+    render(h(VisitCardStack, null), vcsMount);
+  }
+
+  const vssMount = document.getElementById('exp-visit-scroll-stack-mount');
+  if (vssMount) {
+    render(h(VisitScrollStack, null), vssMount);
   }
 </script>
 
