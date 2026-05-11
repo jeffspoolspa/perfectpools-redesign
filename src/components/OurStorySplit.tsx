@@ -44,6 +44,7 @@
  */
 
 import { useEffect, useRef, useState } from 'preact/hooks';
+import { assetPath } from '../utils/base-url';
 
 interface Partner {
   /** Short identifier shown in the roster pills + as the logo's alt text. */
@@ -258,7 +259,7 @@ export default function OurStorySplit() {
                   >
                     <img
                       class="oss__logo-img"
-                      src={p.logo}
+                      src={assetPath(p.logo)}
                       alt={`${p.name} logo`}
                       loading="lazy"
                       style={{
