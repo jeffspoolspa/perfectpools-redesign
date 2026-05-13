@@ -2866,7 +2866,10 @@ p:last-child {
   position: relative;
   flex-shrink: 0;
   color: #fff;
-  background: linear-gradient(135deg, #0a4a78 0%, #0c4a6e 45%, #083655 100%);
+  background-color: #082f49;
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-size: cover;
   overflow: hidden;
   isolation: isolate;
 }
@@ -2962,30 +2965,16 @@ p:last-child {
 .intake-hero__close:hover {
   background: rgba(255, 255, 255, 0.12);
 }
+/* Body sits below the brand bar. Title is white, left-aligned, and
+   vertically centered within the body. Comfortable left padding so
+   the text doesn't crowd the modal edge. */
 .intake-hero__body {
   position: relative;
   z-index: 2;
-  padding: 18px 22px 0;
-  min-height: 200px;
-  display: grid;
-  grid-template-columns: 1fr 240px;
-  gap: 14px;
-  align-items: end;
-}
-.intake-hero__copy {
-  padding-bottom: 24px;
-}
-/* Illustration sits in its own grid column — text physically can't
-   overlap it. Cropped via object-fit so we show the right portion of
-   the wide PNG (where the pool/house/truck composition lives). */
-.intake-hero__art {
-  width: 100%;
-  height: 100%;
-  min-height: 160px;
-  object-fit: cover;
-  object-position: right center;
-  align-self: stretch;
-  display: block;
+  display: flex;
+  align-items: center;
+  padding: 24px 28px 28px;
+  min-height: 130px;
 }
 .intake-hero__eyebrow {
   display: inline-block;
@@ -3034,11 +3023,8 @@ p:last-child {
     font-size: 1.5rem;
   }
   .intake-hero__body {
-    grid-template-columns: 1fr 140px;
-    min-height: 170px;
-  }
-  .intake-hero__art {
-    min-height: 130px;
+    padding: 20px 22px 24px;
+    min-height: 110px;
   }
 }
 
@@ -3331,17 +3317,6 @@ p:last-child {
   opacity: 1;
   visibility: visible;
   transform: translateX(-50%) translateY(0);
-}
-
-/* V2 hero body now just shows the title — shrink min-height so the
-   illustration column doesn't tower. */
-.intake-modal--v2 .intake-hero__body {
-  min-height: 140px;
-}
-@media (max-width: 640px) {
-  .intake-modal--v2 .intake-hero__body {
-    min-height: 110px;
-  }
 }
 
 /* Hide the entire progress bar on V2 (back arrow, track, step text).

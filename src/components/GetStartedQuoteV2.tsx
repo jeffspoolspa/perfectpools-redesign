@@ -565,11 +565,16 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
   return (
     <div class="intake-overlay is-open" onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }} role="dialog" aria-modal="true" aria-label="Get a quote">
       <div class="intake-modal intake-modal--v2">
-        {/* Persistent hero — visible on every step. Two-column body
-            grid keeps the copy strictly on the left and the
-            illustration <img> in its own right column, so text can
-            never overlap the artwork. */}
-        <div class="intake-hero">
+        {/* Persistent hero — visible on every step. The new artwork
+            already has the dark navy background with the
+            pool/house/truck composition baked in on the right side,
+            so the whole thing is a background-image and the title
+            sits over the dark left half (white, vertically centered,
+            left-aligned with comfortable padding). */}
+        <div
+          class="intake-hero"
+          style={`background-image: url(${assetPath('images/quote-modal-hero.png')})`}
+        >
           <div class="intake-hero__bar">
             <div class="intake-hero__brand">
               <div class="intake-hero__logo" aria-hidden="true">PP</div>
@@ -586,15 +591,7 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
             </button>
           </div>
           <div class="intake-hero__body">
-            <div class="intake-hero__copy">
-              <h2 class="intake-hero__title">We're on the way!</h2>
-            </div>
-            <img
-              class="intake-hero__art"
-              src={assetPath('images/quote-modal-hero.png')}
-              alt=""
-              aria-hidden="true"
-            />
+            <h2 class="intake-hero__title">We're on the way!</h2>
           </div>
         </div>
 
