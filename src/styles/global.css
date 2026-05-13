@@ -3311,17 +3311,35 @@ p:last-child {
   grid-template-columns: repeat(4, 1fr);
   gap: 8px;
 }
-.intake-modal--v2 .gs-service-card {
-  position: relative;
-  background: #fff;
-  border: 1.5px solid #e3ebf3;
-  border-radius: 10px;
-  padding: 10px 8px 8px;
-  text-align: center;
+/* Each cell stacks the icon button on top and the label below it */
+.intake-modal--v2 .psf-service-cell {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  text-align: center;
+}
+.intake-modal--v2 .psf-service-label {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #0f2942;
+  line-height: 1.2;
+  max-width: 100%;
+}
+.intake-modal--v2 .psf-service-cell:has(.gs-service-card.selected) .psf-service-label {
+  font-weight: 600;
+  color: #0c4a6e;
+}
+.intake-modal--v2 .gs-service-card {
+  position: relative;
+  width: 100%;
+  background: #fff;
+  border: 1.5px solid #e3ebf3;
+  border-radius: 10px;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   min-height: 0;
   box-shadow: none;
   cursor: pointer;

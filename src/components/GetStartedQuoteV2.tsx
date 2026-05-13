@@ -1247,20 +1247,21 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
           <h3 class="psf-q__label">What can we help you with?</h3>
           <div class="gs-service-grid">
             {SERVICE_TYPES.map(svc => (
-              <button
-                key={svc.id}
-                type="button"
-                class={`gs-service-card${formData.serviceInterest === svc.id ? ' selected' : ''}`}
-                onClick={() => {
-                  updateForm({ serviceInterest: svc.id });
-                  if (svc.id === 'maintenance') setRedirect('');
-                  else setRedirect(svc.id);
-                }}
-              >
-                <div class="gs-service-card-icon">{serviceIcons[svc.icon]}</div>
-                <h3>{svc.label}</h3>
-                <p>{svc.desc}</p>
-              </button>
+              <div class="psf-service-cell" key={svc.id}>
+                <button
+                  type="button"
+                  class={`gs-service-card${formData.serviceInterest === svc.id ? ' selected' : ''}`}
+                  onClick={() => {
+                    updateForm({ serviceInterest: svc.id });
+                    if (svc.id === 'maintenance') setRedirect('');
+                    else setRedirect(svc.id);
+                  }}
+                  aria-label={svc.label}
+                >
+                  <div class="gs-service-card-icon">{serviceIcons[svc.icon]}</div>
+                </button>
+                <div class="psf-service-label">{svc.label}</div>
+              </div>
             ))}
           </div>
         </div>
