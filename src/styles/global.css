@@ -2857,36 +2857,17 @@ p:last-child {
 }
 
 /* ────────────────────────────────────────────────────────────────
-   V2 modal — persistent hero banner across every step
+   V2 modal — persistent hero (brand strip + illustration banner)
+   visible across every step.
    ────────────────────────────────────────────────────────────── */
 .intake-hero {
-  position: relative;
-  background: linear-gradient(135deg, #1E3A5F 0%, #145BB8 60%, #1E3A5F 100%);
-  color: #fff;
-  padding: 1rem 1.25rem 0;
-  overflow: hidden;
   flex-shrink: 0;
 }
-/* Diagonal sheen — mimics the stylized backdrop in the reference */
-.intake-hero::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: linear-gradient(
-    100deg,
-    transparent 30%,
-    rgba(255, 255, 255, 0.07) 35%,
-    rgba(255, 255, 255, 0.07) 50%,
-    transparent 55%,
-    transparent 65%,
-    rgba(255, 255, 255, 0.04) 70%,
-    transparent 75%
-  );
-  pointer-events: none;
-}
-.intake-hero__top {
-  position: relative;
-  z-index: 2;
+/* Top: solid-blue brand strip (logo + company name + close button) */
+.intake-hero__strip {
+  background: var(--color-primary, #1E3A5F);
+  color: #fff;
+  padding: 0.75rem 1rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -2896,6 +2877,7 @@ p:last-child {
   display: flex;
   align-items: center;
   gap: 0.65rem;
+  min-width: 0;
 }
 .intake-hero__logo {
   width: 38px;
@@ -2944,34 +2926,27 @@ p:last-child {
 .intake-hero__close:hover {
   background: rgba(255, 255, 255, 0.18);
 }
-.intake-hero__body {
+/* Below the strip: the illustration banner with the title overlaid */
+.intake-hero__image {
   position: relative;
-  z-index: 1;
-  padding: 1.25rem 0 1.5rem;
-  min-height: 110px;
+  background-color: #145BB8;
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-size: cover;
+  min-height: 130px;
+  padding: 1.25rem 1.25rem 1.25rem;
+  color: #fff;
+  display: flex;
+  align-items: center;
 }
 .intake-hero__title {
   position: relative;
-  z-index: 2;
-  font-size: 1.5rem;
+  font-size: 1.65rem;
   font-weight: 700;
   margin: 0;
   letter-spacing: -0.01em;
-  max-width: 60%;
-}
-/* Placeholder illustration — soft radial highlight on the right side
-   stands in for the pool/house/truck artwork until the real asset
-   is supplied. Easy to swap for an <img> when ready. */
-.intake-hero__illustration {
-  position: absolute;
-  right: -0.5rem;
-  bottom: -0.5rem;
-  width: 45%;
-  height: 100%;
-  background:
-    radial-gradient(ellipse at 70% 60%, rgba(255, 255, 255, 0.18) 0%, transparent 65%),
-    linear-gradient(135deg, transparent 30%, rgba(255, 255, 255, 0.06) 50%, transparent 70%);
-  pointer-events: none;
+  max-width: 55%;
+  text-shadow: 0 2px 12px rgba(0, 20, 50, 0.35);
 }
 
 /* Progress bar */

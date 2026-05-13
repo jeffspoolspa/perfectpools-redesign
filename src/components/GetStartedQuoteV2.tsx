@@ -561,9 +561,11 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
   return (
     <div class="intake-overlay is-open" onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }} role="dialog" aria-modal="true" aria-label="Get a quote">
       <div class="intake-modal intake-modal--v2">
-        {/* Persistent hero banner — visible on every step */}
+        {/* Persistent hero — visible on every step. Top: solid-blue brand
+            strip (logo + name + close). Below: illustration banner with
+            "We're on the way!" overlaid. */}
         <div class="intake-hero">
-          <div class="intake-hero__top">
+          <div class="intake-hero__strip">
             <div class="intake-hero__brand">
               <div class="intake-hero__logo" aria-hidden="true">PP</div>
               <div class="intake-hero__brand-text">
@@ -575,9 +577,11 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
           </div>
-          <div class="intake-hero__body">
+          <div
+            class="intake-hero__image"
+            style={`background-image: url(${assetPath('images/quote-modal-hero.png')})`}
+          >
             <h2 class="intake-hero__title">We're on the way!</h2>
-            <div class="intake-hero__illustration" aria-hidden="true" />
           </div>
         </div>
 
