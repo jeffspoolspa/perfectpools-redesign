@@ -3073,47 +3073,38 @@ p:last-child {
   letter-spacing: 0.04em;
   text-transform: none;
 }
-.gs-summary__chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  min-height: 28px;
-}
-.gs-summary__chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: #fff;
-  border: 1px solid #cfe4f3;
-  color: #0c4a6e;
-  font-size: 0.78rem;
-  font-weight: 600;
-  padding: 5px 10px;
-  border-radius: 99px;
-  box-shadow: 0 1px 0 rgba(2, 8, 20, 0.04);
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.gs-summary__chip em {
-  font-style: normal;
-  color: #6b7e96;
-  font-weight: 500;
-  font-size: 0.72rem;
-}
 .gs-summary__empty {
   color: #6b7e96;
   font-size: 0.82rem;
   font-style: italic;
 }
-/* Address row in the summary — visually distinct from the rest:
-   green circle pin + address text reading like a confirmed location. */
-.gs-summary__address {
+/* Each summary row owns one section. Edit pencil jumps back to that
+   section's page (not always to address). Address row is visually
+   distinct via a green pin; other rows use a small neutral icon. */
+.gs-summary__row {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 2px 0;
+  padding: 4px 0;
+  border-top: 1px solid rgba(207, 228, 243, 0.5);
+}
+.gs-summary__row:first-child {
+  border-top: none;
+  padding-top: 2px;
+}
+.gs-summary__row-text {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #0c4a6e;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  flex: 1;
+}
+.gs-summary__row--address .gs-summary__row-text {
+  font-size: 0.88rem;
+  font-weight: 600;
 }
 .gs-summary__pin {
   width: 22px;
@@ -3127,15 +3118,16 @@ p:last-child {
   flex-shrink: 0;
   box-shadow: 0 1px 4px rgba(22, 163, 74, 0.35);
 }
-.gs-summary__address-text {
-  font-size: 0.88rem;
-  font-weight: 600;
+.gs-summary__icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #e0f2fe;
   color: #0c4a6e;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-width: 0;
-  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 .gs-summary__edit {
   border: none;

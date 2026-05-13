@@ -618,72 +618,135 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
             Address is rendered as a distinct "green pin" chip at the top
             of the rail; everything else uses the generic chip style. */}
         {currentStep > 1 && formData.addressStreet && (() => {
-          // Each chip is gated on currentStep being PAST the page that
-          // collects it, not just on formData being populated. Otherwise
-          // restored sessionStorage state would surface answers the user
-          // hasn't actually re-confirmed yet (e.g. a stale service chip
-          // showing on the contact page).
-          const otherChips: Array<{ key: string; label: string; value: string }> = [];
-          const fullName = `${formData.firstName} ${formData.lastName}`.trim();
-          if (currentStep > 2 && fullName) otherChips.push({ key: 'name', label: 'Name', value: fullName });
-          if (currentStep > 2 && formData.email) otherChips.push({ key: 'email', label: 'Email', value: formData.email });
-          if (currentStep > 2 && formData.phone) otherChips.push({ key: 'phone', label: 'Phone', value: formData.phone });
-          if (currentStep > 3 && formData.serviceInterest) {
-            const svc = SERVICE_TYPES.find(s => s.id === formData.serviceInterest);
-            if (svc) otherChips.push({ key: 'service', label: 'Service', value: svc.label });
-          }
-          if (currentStep > 4 && formData.customerType) {
-            const ct = CUSTOMER_TYPES.find(c => c.id === formData.customerType);
-            if (ct) otherChips.push({ key: 'property', label: 'Property', value: ct.label });
-          }
-          if (currentStep > 6 && formData.poolCondition) {
-            const pc = POOL_CONDITIONS.find(p => p.id === formData.poolCondition);
-            if (pc) otherChips.push({ key: 'condition', label: 'Condition', value: pc.label });
-          }
-          if (currentStep > 5 && formData.isInground) {
-            const pt = POOL_TYPE_OPTIONS.find(p => p.id === formData.isInground);
-            if (pt) otherChips.push({ key: 'type', label: 'Type', value: pt.label });
-          }
-          if (currentStep > 7 && formData.serviceType && formData.serviceType !== 'pool') {
-            const sb = SERVICE_BODY_OPTIONS.find(s => s.id === formData.serviceType);
-            if (sb) otherChips.push({ key: 'body', label: 'Body', value: sb.label });
-          }
+          // Each row is its own SECTION — its edit pencil jumps back to
+          // the page that owns those answers, not always to step 1.
+          // Rows render in flow order (address, contact, service, …)
+          // and only appear once the user has advanced PAST that section.
           const fullAddress = [
             formData.addressStreet,
             formData.addressCity,
             formData.addressState,
             formData.addressZip,
           ].filter(Boolean).join(', ').replace(/, ([A-Z]{2}), /, ', $1 ');
+          const fullName = `${formData.firstName} ${formData.lastName}`.trim();
+          const contactBits = [fullName, formData.email, formData.phone].filter(Boolean);
+          const svc = formData.serviceInterest
+            ? SERVICE_TYPES.find(s => s.id === formData.serviceInterest)
+            : null;
+          const ct = formData.customerType
+            ? CUSTOMER_TYPES.find(c => c.id === formData.customerType)
+            : null;
+          const pt = formData.isInground
+            ? POOL_TYPE_OPTIONS.find(p => p.id === formData.isInground)
+            : null;
+          const pc = formData.poolCondition
+            ? POOL_CONDITIONS.find(p => p.id === formData.poolCondition)
+            : null;
+          const sb = formData.serviceType && formData.serviceType !== 'pool'
+            ? SERVICE_BODY_OPTIONS.find(s => s.id === formData.serviceType)
+            : null;
+
+          const editIcon = (
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 20h9"/>
+              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+            </svg>
+          );
+
           return (
             <div class="gs-summary">
-              <div class="gs-summary__address">
+              {/* Address — green pin, distinct from the rest */}
+              <div class="gs-summary__row gs-summary__row--address">
                 <span class="gs-summary__pin" aria-hidden="true">
                   <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
                     <circle cx="12" cy="10" r="3"/>
                   </svg>
                 </span>
-                <span class="gs-summary__address-text">{fullAddress}</span>
-                <button
-                  type="button"
-                  class="gs-summary__edit"
-                  onClick={() => setCurrentStep(1)}
-                  aria-label="Edit address"
-                  title="Edit address"
-                >
-                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 20h9"/>
-                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/>
-                  </svg>
-                </button>
+                <span class="gs-summary__row-text">{fullAddress}</span>
+                <button type="button" class="gs-summary__edit" onClick={() => setCurrentStep(1)} aria-label="Edit address" title="Edit address">{editIcon}</button>
               </div>
-              {otherChips.length > 0 && (
-                <div class="gs-summary__chips">
-                  {otherChips.map(c => (
-                    <span class="gs-summary__chip" key={c.key}>
-                      <em>{c.label}:</em> {c.value}
-                    </span>
-                  ))}
+
+              {/* Contact */}
+              {currentStep > 2 && contactBits.length > 0 && (
+                <div class="gs-summary__row">
+                  <span class="gs-summary__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </span>
+                  <span class="gs-summary__row-text">{contactBits.join(' · ')}</span>
+                  <button type="button" class="gs-summary__edit" onClick={() => setCurrentStep(2)} aria-label="Edit contact info" title="Edit contact info">{editIcon}</button>
+                </div>
+              )}
+
+              {/* Service interest */}
+              {currentStep > 3 && svc && (
+                <div class="gs-summary__row">
+                  <span class="gs-summary__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="m9 11 3 3L22 4"/>
+                      <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                    </svg>
+                  </span>
+                  <span class="gs-summary__row-text">{svc.label}</span>
+                  <button type="button" class="gs-summary__edit" onClick={() => setCurrentStep(3)} aria-label="Edit service" title="Edit service">{editIcon}</button>
+                </div>
+              )}
+
+              {/* Property type */}
+              {currentStep > 4 && ct && (
+                <div class="gs-summary__row">
+                  <span class="gs-summary__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                      <polyline points="9 22 9 12 15 12 15 22"/>
+                    </svg>
+                  </span>
+                  <span class="gs-summary__row-text">{ct.label}</span>
+                  <button type="button" class="gs-summary__edit" onClick={() => setCurrentStep(4)} aria-label="Edit property type" title="Edit property type">{editIcon}</button>
+                </div>
+              )}
+
+              {/* Pool type */}
+              {currentStep > 5 && pt && (
+                <div class="gs-summary__row">
+                  <span class="gs-summary__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <ellipse cx="12" cy="15" rx="9" ry="3"/>
+                      <path d="M3 15v3c0 1.66 4 3 9 3s9-1.34 9-3v-3"/>
+                    </svg>
+                  </span>
+                  <span class="gs-summary__row-text">{pt.label}</span>
+                  <button type="button" class="gs-summary__edit" onClick={() => setCurrentStep(5)} aria-label="Edit pool type" title="Edit pool type">{editIcon}</button>
+                </div>
+              )}
+
+              {/* Pool condition */}
+              {currentStep > 6 && pc && (
+                <div class="gs-summary__row">
+                  <span class="gs-summary__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="10"/>
+                      <polyline points="9 12 11 14 15 10"/>
+                    </svg>
+                  </span>
+                  <span class="gs-summary__row-text">{pc.label}</span>
+                  <button type="button" class="gs-summary__edit" onClick={() => setCurrentStep(6)} aria-label="Edit pool condition" title="Edit pool condition">{editIcon}</button>
+                </div>
+              )}
+
+              {/* Service body */}
+              {currentStep > 7 && sb && (
+                <div class="gs-summary__row">
+                  <span class="gs-summary__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/>
+                    </svg>
+                  </span>
+                  <span class="gs-summary__row-text">{sb.label}</span>
+                  <button type="button" class="gs-summary__edit" onClick={() => setCurrentStep(7)} aria-label="Edit body type" title="Edit body type">{editIcon}</button>
                 </div>
               )}
             </div>
