@@ -3236,6 +3236,11 @@ p:last-child {
 .intake-modal--v2 .intake-choice p {
   display: none;
 }
+/* Drop the emoji/icon glyph for follow-up chips on the progressive
+   page — only the service-interest icon cards keep their icons. */
+.intake-modal--v2 .psf-progressive .intake-choice-icon {
+  display: none;
+}
 
 /* V2 progressive pool-questions page — vertical stack with breathing
    room between each question. Each question reveals after the prior
