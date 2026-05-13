@@ -310,16 +310,8 @@ const equipment = [
       </div>
 
       <div class="equipment-grid" data-state="default">
-        <!-- Callout (info display) — only visible in active state, takes top-left 3×2 -->
-        <div class="eq-callout" aria-live="polite">
-          <h3 class="eq-callout__title"></h3>
-          <p class="eq-callout__detail"></p>
-          <span class="eq-callout__brands"></span>
-        </div>
-
-        <!-- 6 tiles with FIXED L positions in the active state -->
         {equipment.map((item, i) => (
-          <article class="eq-tile" id={`eq-${item.id}`} tabindex="0" data-eq-id={item.id} data-l-pos={i + 1}>
+          <article class="eq-tile" id={`eq-${item.id}`} data-eq-id={item.id} data-l-pos={i + 1} role="button" tabindex="0">
             <div class="eq-tile__icon">
               {item.icon === 'pump' && <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg>}
               {item.icon === 'filter' && <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>}
@@ -328,8 +320,16 @@ const equipment = [
               {item.icon === 'automation' && <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>}
               {item.icon === 'cleaner' && <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"/></svg>}
             </div>
-            <h3 class="eq-tile__name">{item.name}</h3>
-            <script type="application/json" class="eq-tile__data" set:html={JSON.stringify({ name: item.name, detail: item.detail, brands: item.brands })}></script>
+            <div class="eq-tile__card">
+              <h3 class="eq-tile__name">{item.name}</h3>
+              <div class="eq-tile__expand">
+                <p class="eq-tile__detail">{item.detail}</p>
+                <span class="eq-tile__brands">{item.brands}</span>
+              </div>
+            </div>
+            <button class="eq-tile__close" type="button" aria-label="Close details">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
           </article>
         ))}
       </div>
@@ -387,147 +387,192 @@ const equipment = [
     }
   </script>
 
-  <!-- Equipment grid: locked L + content-swap callout.
-       First hover triggers 3×2 → L+callout transition (FLIP, hover locked).
-       After that, the L positions are stable — subsequent hovers only update
-       the callout content, no DOM movement, no hover loops. -->
+  <!-- Equipment grid: CLICK to expand. Hand-rolled spring physics drives
+       each tile's transform — springs keep their velocity across state
+       changes, so clicking a new icon mid-flight smoothly redirects the
+       animation instead of waiting for it to finish. -->
   <script>
     (() => {
       const grid = document.querySelector('.equipment-grid');
       if (!grid) return;
-
       const tiles = Array.from(grid.querySelectorAll('.eq-tile'));
-      const callout = grid.querySelector('.eq-callout');
-      const titleEl = callout.querySelector('.eq-callout__title');
-      const detailEl = callout.querySelector('.eq-callout__detail');
-      const brandsEl = callout.querySelector('.eq-callout__brands');
 
-      // Parse per-tile data from the inline JSON nodes.
-      const tileData = new Map();
-      tiles.forEach((t) => {
-        const dataNode = t.querySelector('.eq-tile__data');
-        try {
-          tileData.set(t.dataset.eqId, JSON.parse(dataNode.textContent || '{}'));
-        } catch (_) {}
-      });
+      // Spring config — tuned for soft, snappy motion that still settles fast
+      const STIFFNESS = 180;
+      const DAMPING = 24;
+      const REST_POS = 0.1;
+      const REST_VEL = 0.5;
 
-      let activeId = null;
-      let transitioning = false; // true only during the one-time layout switch
+      // Per-tile spring state: position (offset from layout), velocity
+      const springs = new Map();
+      tiles.forEach((t) => springs.set(t, { x: 0, y: 0, vx: 0, vy: 0 }));
 
-      function fillCallout(tileId) {
-        const data = tileData.get(tileId);
-        if (!data) return;
-        titleEl.textContent = data.name;
-        detailEl.textContent = data.detail;
-        brandsEl.textContent = data.brands;
-      }
+      let activeTile = null;
+      let rafId = null;
+      let lastFrame = 0;
 
-      function setActive(tileId) {
-        if (tileId === activeId) return;
-        if (transitioning) return;
+      function setActive(target) {
+        if (target === activeTile) return;
 
-        // Deactivate → transition back to default 3×2
-        if (tileId === null) {
-          if (grid.dataset.state !== 'active') {
-            activeId = null;
-            return;
-          }
-          transitionLayout('default');
-          activeId = null;
-          tiles.forEach((t) => t.classList.remove('is-active'));
-          return;
-        }
-
-        // Update which tile is highlighted
-        tiles.forEach((t) => t.classList.toggle('is-active', t.dataset.eqId === tileId));
-
-        if (grid.dataset.state === 'default') {
-          // First activation in this session — fade callout content in and
-          // animate the layout from 3×2 to L+callout.
-          fillCallout(tileId);
-          transitionLayout('active');
-          activeId = tileId;
-        } else {
-          // Already in L state — just crossfade the callout content. No
-          // DOM movement, so no hover-loop possible.
-          callout.classList.add('is-fading');
-          window.setTimeout(() => {
-            fillCallout(tileId);
-            callout.classList.remove('is-fading');
-          }, 180);
-          activeId = tileId;
-        }
-      }
-
-      // One-time layout swap with FLIP. Hover events are locked out for the
-      // duration so mid-transition mouseenter from moving tiles can't trigger
-      // additional state changes.
-      function transitionLayout(toState) {
-        // Smoother, slightly longer ease for the one-time layout swap.
-        const TRANSITION_CSS = 'transform 0.75s cubic-bezier(0.32, 0.72, 0.24, 1)';
-        const DURATION = 800;
-
+        // Capture current VISUAL rects (with any in-flight transforms applied)
         const before = new Map();
         tiles.forEach((t) => before.set(t, t.getBoundingClientRect()));
-        const calloutBefore = callout.getBoundingClientRect();
 
-        grid.dataset.state = toState;
-        grid.classList.add('is-animating');
-        transitioning = true;
+        // Snap inline transforms to none so the after-rect reflects PURE layout
+        tiles.forEach((t) => { t.style.transform = ''; });
+        void grid.offsetHeight; // force reflow
 
+        // Apply state change
+        grid.dataset.state = target !== null ? 'active' : 'default';
+        tiles.forEach((t) => t.classList.toggle('is-active', t === target));
+        activeTile = target;
+
+        // For each tile: compute delta from current visual → new layout,
+        // and set the spring position to that delta. Velocity is preserved
+        // so mid-flight clicks redirect smoothly with momentum.
         tiles.forEach((t) => {
           const b = before.get(t);
           const a = t.getBoundingClientRect();
-          const dx = b.left - a.left;
-          const dy = b.top - a.top;
-          if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5) return;
-          t.style.transition = 'none';
-          t.style.transform = 'translate(' + dx + 'px, ' + dy + 'px)';
-          void t.offsetHeight;
-          t.style.transition = TRANSITION_CSS;
-          t.style.transform = 'translate(0px, 0px)';
-          const cleanup = (e) => {
-            if (e.propertyName !== 'transform') return;
-            t.style.transition = '';
-            t.style.transform = '';
-            t.removeEventListener('transitionend', cleanup);
-          };
-          t.addEventListener('transitionend', cleanup);
+          const spring = springs.get(t);
+          spring.x = b.left - a.left;
+          spring.y = b.top - a.top;
+          // Apply the initial transform so the tile visually stays put
+          if (Math.abs(spring.x) > 0.1 || Math.abs(spring.y) > 0.1) {
+            t.style.transform = 'translate(' + spring.x + 'px, ' + spring.y + 'px)';
+          }
         });
 
-        // Callout fades in (and slightly slides up) as it appears.
-        if (toState === 'active' && calloutBefore.width === 0) {
-          callout.style.opacity = '0';
-          callout.style.transform = 'translateY(8px)';
-          callout.style.transition = 'none';
-          void callout.offsetHeight;
-          requestAnimationFrame(() => {
-            callout.style.transition = 'opacity 0.5s ease 0.2s, transform 0.6s cubic-bezier(0.32, 0.72, 0.24, 1) 0.15s';
-            callout.style.opacity = '1';
-            callout.style.transform = 'translateY(0px)';
-            const cleanupCo = (e) => {
-              if (e.propertyName !== 'opacity') return;
-              callout.style.transition = '';
-              callout.style.opacity = '';
-              callout.style.transform = '';
-              callout.removeEventListener('transitionend', cleanupCo);
-            };
-            callout.addEventListener('transitionend', cleanupCo);
-          });
+        // After the icon springs into place, the card content emerges from
+        // the icon's top-left corner — scaling up and out to its final
+        // centered position. Origin = icon, destination = card's natural spot.
+        if (target) {
+          const icon = target.querySelector('.eq-tile__icon');
+          const card = target.querySelector('.eq-tile__card');
+          const close = target.querySelector('.eq-tile__close');
+
+          if (card && icon) {
+            // Measure final layout positions for icon + card
+            const iconRect = icon.getBoundingClientRect();
+            const cardRect = card.getBoundingClientRect();
+            const dx = iconRect.left - cardRect.left;
+            const dy = iconRect.top - cardRect.top;
+
+            card.style.transformOrigin = '0 0';
+            card.style.transition = 'none';
+            card.style.transform = 'translate(' + dx + 'px, ' + dy + 'px) scale(0.05)';
+            card.style.opacity = '0';
+            void card.offsetHeight;
+
+            window.setTimeout(() => {
+              card.style.transition = 'transform 0.6s cubic-bezier(0.32, 1.2, 0.32, 1), opacity 0.45s ease';
+              card.style.transform = 'translate(0, 0) scale(1)';
+              card.style.opacity = '1';
+              const cleanup = (e) => {
+                if (e.propertyName !== 'transform') return;
+                card.style.transition = '';
+                card.style.transform = '';
+                card.style.opacity = '';
+                card.style.transformOrigin = '';
+                card.removeEventListener('transitionend', cleanup);
+              };
+              card.addEventListener('transitionend', cleanup);
+            }, 280);
+          }
+
+          if (close) {
+            close.style.opacity = '0';
+            close.style.transition = 'none';
+            void close.offsetHeight;
+            window.setTimeout(() => {
+              close.style.transition = 'opacity 0.3s ease';
+              close.style.opacity = '1';
+              const cleanup = () => {
+                close.style.transition = '';
+                close.style.opacity = '';
+                close.removeEventListener('transitionend', cleanup);
+              };
+              close.addEventListener('transitionend', cleanup);
+            }, 450);
+          }
         }
 
-        window.setTimeout(() => {
-          transitioning = false;
-          grid.classList.remove('is-animating');
-        }, DURATION);
+        startSpringLoop();
       }
 
+      function startSpringLoop() {
+        if (rafId !== null) return;
+        lastFrame = performance.now();
+        rafId = requestAnimationFrame(tick);
+      }
+
+      function tick(now) {
+        const dt = Math.min(0.033, (now - lastFrame) / 1000);
+        lastFrame = now;
+
+        let stillMoving = false;
+        springs.forEach((spring, tile) => {
+          if (
+            Math.abs(spring.x) < REST_POS && Math.abs(spring.y) < REST_POS &&
+            Math.abs(spring.vx) < REST_VEL && Math.abs(spring.vy) < REST_VEL
+          ) {
+            // Settled — snap to zero and clear transform
+            if (spring.x !== 0 || spring.y !== 0 || tile.style.transform) {
+              spring.x = 0; spring.y = 0; spring.vx = 0; spring.vy = 0;
+              tile.style.transform = '';
+            }
+            return;
+          }
+
+          // Spring physics: force = -k*x - c*v
+          const ax = -STIFFNESS * spring.x - DAMPING * spring.vx;
+          const ay = -STIFFNESS * spring.y - DAMPING * spring.vy;
+          spring.vx += ax * dt;
+          spring.vy += ay * dt;
+          spring.x += spring.vx * dt;
+          spring.y += spring.vy * dt;
+
+          tile.style.transform = 'translate(' + spring.x.toFixed(2) + 'px, ' + spring.y.toFixed(2) + 'px)';
+          stillMoving = true;
+        });
+
+        if (stillMoving) {
+          rafId = requestAnimationFrame(tick);
+        } else {
+          rafId = null;
+        }
+      }
+
+      // Click handlers — entire tile is the click target (except close btn)
       tiles.forEach((tile) => {
-        tile.addEventListener('mouseenter', () => setActive(tile.dataset.eqId));
-        tile.addEventListener('focus', () => setActive(tile.dataset.eqId));
+        const close = tile.querySelector('.eq-tile__close');
+        tile.addEventListener('click', (e) => {
+          if (tile === activeTile) return;
+          if (close && close.contains(e.target)) return; // close handled separately
+          setActive(tile);
+        });
+        tile.addEventListener('keydown', (e) => {
+          if (e.key !== 'Enter' && e.key !== ' ') return;
+          if (tile === activeTile) return;
+          e.preventDefault();
+          setActive(tile);
+        });
+        if (close) close.addEventListener('click', (e) => {
+          e.stopPropagation();
+          setActive(null);
+        });
       });
 
-      grid.addEventListener('mouseleave', () => setActive(null));
+      // Click outside the grid → close
+      document.addEventListener('click', (e) => {
+        if (!activeTile) return;
+        if (grid.contains(e.target)) return;
+        setActive(null);
+      });
+
+      // Esc → close
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && activeTile) setActive(null);
+      });
     })();
   </script>
 
@@ -1140,11 +1185,10 @@ const equipment = [
     line-height: 1.7;
   }
 
-  /* ============ EQUIPMENT GRID — locked L+callout architecture =============
-     Each tile has a FIXED L position. The callout is a separate DOM node that
-     only shows in the active state. After the first hover transitions 3×2 →
-     L+callout, the L positions are stable — subsequent hovers only swap the
-     callout's content (icon, name, detail), so no DOM nodes move around.
+  /* ============ EQUIPMENT GRID — click to expand, icon physically travels =============
+     Each tile has a FIXED L position. Click an icon → it travels to the callout
+     area (top-left 3×2), leaving its L cell empty. Click X (or another tile)
+     to close. No hover state changes — click is deliberate, no race conditions.
   ============================================================================ */
   .equipment-grid {
     display: grid;
@@ -1153,28 +1197,20 @@ const equipment = [
     margin: 0 auto;
   }
 
-  /* Default state: clean 3×2, callout hidden */
+  /* Default state: clean 3×2 */
   .equipment-grid[data-state="default"] {
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(2, 180px);
   }
 
-  .equipment-grid[data-state="default"] .eq-callout {
-    display: none;
-  }
-
-  /* Active state: 4×3 grid. Callout = top-left 3×2. Each tile fixed in its L slot. */
+  /* Active state: 4×3. Active tile occupies callout (top-left 3×2). Other 5
+     tiles in fixed L positions; the active tile's L cell stays empty. */
   .equipment-grid[data-state="active"] {
     grid-template-columns: repeat(4, 1fr);
     grid-template-rows: repeat(3, 180px);
   }
 
-  .equipment-grid[data-state="active"] .eq-callout {
-    grid-column: 1 / 4;
-    grid-row: 1 / 3;
-  }
-
-  /* Locked L positions — tile order: pumps, filtration, chlorination, heaters, automation, cleaners */
+  /* Locked L positions */
   .equipment-grid[data-state="active"] .eq-tile[data-l-pos="1"] { grid-column: 4; grid-row: 1; }
   .equipment-grid[data-state="active"] .eq-tile[data-l-pos="2"] { grid-column: 4; grid-row: 2; }
   .equipment-grid[data-state="active"] .eq-tile[data-l-pos="3"] { grid-column: 1; grid-row: 3; }
@@ -1182,7 +1218,13 @@ const equipment = [
   .equipment-grid[data-state="active"] .eq-tile[data-l-pos="5"] { grid-column: 3; grid-row: 3; }
   .equipment-grid[data-state="active"] .eq-tile[data-l-pos="6"] { grid-column: 4; grid-row: 3; }
 
-  /* Lock hover events during the one-time layout transition. */
+  /* Active tile overrides its L position and takes the callout area. */
+  .equipment-grid[data-state="active"] .eq-tile.is-active {
+    grid-column: 1 / 4;
+    grid-row: 1 / 3;
+  }
+
+  /* Lock click events during the FLIP animation. */
   .equipment-grid.is-animating .eq-tile {
     pointer-events: none;
   }
@@ -1192,8 +1234,9 @@ const equipment = [
     .equipment-grid[data-state="active"] { grid-template-rows: repeat(3, 160px); }
   }
 
-  /* Tile — bare icon + label, centered. Never changes appearance based on activity. */
+  /* Tile — default: icon centered above name, click target = whole tile */
   .eq-tile {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1201,20 +1244,22 @@ const equipment = [
     text-align: center;
     gap: var(--space-3);
     padding: var(--space-4);
-    background: transparent;
-    border: none;
-    cursor: pointer;
     color: var(--color-gray-700);
+    cursor: pointer;
     overflow: hidden;
-    transition: color 0.25s ease, transform 0.25s ease;
+    /* No CSS transitions on transform — spring JS drives the motion */
+    transition: color 0.25s ease;
   }
 
   .eq-tile:hover,
-  .eq-tile:focus-visible,
-  .eq-tile.is-active {
+  .eq-tile:focus-visible {
     color: var(--color-primary);
     outline: none;
-    transform: translateY(-3px);
+  }
+
+  .eq-tile:hover .eq-tile__name,
+  .eq-tile:focus-visible .eq-tile__name {
+    color: var(--color-primary);
   }
 
   .eq-tile__icon {
@@ -1225,6 +1270,15 @@ const equipment = [
     flex-shrink: 0;
   }
 
+  /* Card wrapper — holds name + expand. In default it's just the name;
+     in active it grows from the icon's position to reveal everything. */
+  .eq-tile__card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
   .eq-tile__name {
     font-size: var(--text-base);
     font-weight: 600;
@@ -1232,47 +1286,24 @@ const equipment = [
     color: var(--color-gray-800);
   }
 
-  .eq-tile:hover .eq-tile__name,
-  .eq-tile.is-active .eq-tile__name {
-    color: var(--color-primary);
-  }
-
-  /* Hide the JSON data nodes */
-  .eq-tile__data { display: none; }
-
-  /* ===== Callout (info display) — chromeless, generous padding ===== */
-  .eq-callout {
-    display: flex;
+  /* Expand panel — hidden by default */
+  .eq-tile__expand {
+    display: none;
     flex-direction: column;
-    align-items: flex-start;
-    justify-content: center;
-    gap: var(--space-5);
-    padding: var(--space-10) var(--space-10) var(--space-10) var(--space-8);
-    color: var(--color-gray-800);
-    transition: opacity 0.3s ease;
+    align-items: center;
+    text-align: center;
+    gap: var(--space-4);
   }
 
-  .eq-callout.is-fading {
-    opacity: 0;
-  }
-
-  .eq-callout__title {
-    font-size: var(--text-3xl);
-    font-weight: 700;
-    color: var(--color-gray-900);
-    margin: 0;
-    line-height: 1.15;
-  }
-
-  .eq-callout__detail {
+  .eq-tile__detail {
     font-size: var(--text-base);
     color: var(--color-gray-600);
     line-height: 1.7;
     margin: 0;
-    max-width: 56ch;
+    max-width: 60ch;
   }
 
-  .eq-callout__brands {
+  .eq-tile__brands {
     display: inline-block;
     font-size: var(--text-sm);
     font-weight: 600;
@@ -1280,6 +1311,70 @@ const equipment = [
     background: #dbeafe;
     padding: var(--space-1) var(--space-3);
     border-radius: var(--radius-full);
-    margin-top: var(--space-2);
+  }
+
+  /* Close button — hidden by default */
+  .eq-tile__close {
+    position: absolute;
+    top: var(--space-5);
+    right: var(--space-5);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.04);
+    border: 1px solid var(--color-border);
+    color: var(--color-gray-600);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    z-index: 3;
+  }
+
+  .eq-tile__close:hover {
+    background: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+  }
+
+  /* === Active tile — icon top-left, label centered above body content === */
+  .eq-tile.is-active {
+    cursor: default;
+    /* Icon goes to top-left; everything else is vertically/horizontally centered */
+    padding: var(--space-8) var(--space-12) var(--space-8) var(--space-8);
+  }
+
+  /* Stop the default hover lift in active state */
+  .eq-tile.is-active:hover {
+    color: var(--color-gray-700);
+  }
+
+  .eq-tile.is-active .eq-tile__icon {
+    position: absolute;
+    top: var(--space-6);
+    left: var(--space-6);
+  }
+
+  .eq-tile.is-active .eq-tile__card {
+    gap: var(--space-4);
+  }
+
+  .eq-tile.is-active .eq-tile__name {
+    font-size: var(--text-3xl);
+    font-weight: 700;
+    color: var(--color-gray-900);
+    text-align: center;
+    margin: 0;
+    /* Sit centered above the body content */
+    margin-bottom: var(--space-2);
+  }
+
+  .eq-tile.is-active .eq-tile__expand {
+    display: flex;
+  }
+
+  .eq-tile.is-active .eq-tile__close {
+    display: flex;
   }
 </style>
