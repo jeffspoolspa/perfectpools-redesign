@@ -3254,6 +3254,26 @@ p:last-child {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  /* Animate in from a touch above on mount so each newly-revealed
+     question feels like it's emerging from the prior one. The first
+     question fires this on initial open too, which gives the modal
+     body a soft entrance. */
+  animation: psf-q-reveal 380ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes psf-q-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .intake-modal--v2 .psf-q {
+    animation: none;
+  }
 }
 .intake-modal--v2 .psf-q__label {
   font-size: 0.9rem;
