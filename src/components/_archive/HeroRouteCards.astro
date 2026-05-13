@@ -1,0 +1,60 @@
+---
+/*
+ * ARCHIVED 2026-05-13.
+ *
+ * Original "route cards" hero block (Weekly Pool Care + Equipment Repairs).
+ * Replaced on mobile by the inline contact form so the form is the primary
+ * above-the-fold action.
+ *
+ * NOT imported anywhere — Astro tree-shakes unused components, so this file
+ * does not ship to the production bundle. To restore: import this component
+ * in src/pages/index.astro and drop <HeroRouteCards basePath={import.meta.env.BASE_URL} />
+ * back into the hero markup.
+ *
+ * The .hero__cards / .route-card* CSS rules are still in global.css for a
+ * clean drop-in restore. Trim those rules if you want to fully remove the
+ * cards from the bundle.
+ */
+
+interface Props {
+  basePath: string;
+}
+
+const { basePath } = Astro.props;
+
+const droplets = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"/></svg>';
+const alertCircle = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
+const arrowRight = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>';
+---
+
+<div class="hero__cards reveal-up" style="--reveal-delay: 300ms">
+  <a href={`${basePath}services/residential-pool-cleaning/`} class="route-card route-card--gradient">
+    <div class="route-card__inner">
+      <div class="route-card__icon">
+        <Fragment set:html={droplets} />
+      </div>
+      <div>
+        <h3>Weekly Pool Care</h3>
+        <p>Ongoing maintenance starting from $50 plus chemicals</p>
+        <span class="route-card__link">
+          See Plans <Fragment set:html={arrowRight} />
+        </span>
+      </div>
+    </div>
+  </a>
+
+  <a href={`${basePath}service-repair/`} class="route-card route-card--white">
+    <div class="route-card__inner">
+      <div class="route-card__icon">
+        <Fragment set:html={alertCircle} />
+      </div>
+      <div>
+        <h3>Equipment Repairs</h3>
+        <p>Need equipment repaired, replaced or installed? We diagnose most issues within 48 hours</p>
+        <span class="route-card__link">
+          Schedule Visit <Fragment set:html={arrowRight} />
+        </span>
+      </div>
+    </div>
+  </a>
+</div>

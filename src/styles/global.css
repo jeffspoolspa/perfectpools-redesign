@@ -46,16 +46,20 @@
   --font-heading: 'Plus Jakarta Sans', system-ui, sans-serif;
   --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
 
-  /* Font Sizes */
-  --text-xs: 0.75rem;
-  --text-sm: 0.875rem;
-  --text-base: 1rem;
-  --text-lg: 1.125rem;
-  --text-xl: 1.25rem;
-  --text-2xl: 1.5rem;
-  --text-3xl: 1.875rem;
-  --text-4xl: 2.25rem;
-  --text-5xl: 3rem;
+  /* Font Sizes — fluid clamp() between 375px viewport (mobile floor) and
+     1440px viewport (desktop ceiling). Linear interpolation in between:
+     output = MIN + (MAX − MIN) * (100vw − 375px) / 1065px. Below 375px
+     the floor holds; above 1440px the ceiling holds. Desktop sizes are
+     unchanged from the previous fixed values — only mobile shrinks. */
+  --text-xs:   clamp(0.6875rem, 0.65rem + 0.094vw, 0.75rem);   /* 11→12px */
+  --text-sm:   clamp(0.8125rem, 0.79rem + 0.094vw, 0.875rem);  /* 13→14px */
+  --text-base: clamp(0.9375rem, 0.92rem + 0.094vw, 1rem);      /* 15→16px */
+  --text-lg:   clamp(1rem, 0.957rem + 0.188vw, 1.125rem);      /* 16→18px */
+  --text-xl:   clamp(1.0625rem, 0.997rem + 0.282vw, 1.25rem);  /* 17→20px */
+  --text-2xl:  clamp(1.25rem, 1.162rem + 0.376vw, 1.5rem);     /* 20→24px */
+  --text-3xl:  clamp(1.5rem, 1.368rem + 0.563vw, 1.875rem);    /* 24→30px */
+  --text-4xl:  clamp(1.625rem, 1.405rem + 0.939vw, 2.25rem);   /* 26→36px */
+  --text-5xl:  clamp(2rem, 1.648rem + 1.502vw, 3rem);          /* 32→48px */
 
   /* Spacing */
   --space-1: 0.25rem;
@@ -822,6 +826,16 @@ p:last-child {
   overflow: hidden;
   text-align: left;
 }
+/* On phones the form + text stack is taller than the viewport, so
+   centering pushes the form above the fold (behind the header). Anchor
+   the hero to the top instead so the form begins right under the header,
+   and shrink the top padding so the badge sits closer to the header. */
+@media (max-width: 500px) {
+  .hero--image {
+    justify-content: flex-start;
+    padding-top: 1.25rem;
+  }
+}
 @media (min-width: 900px) {
   .hero--image {
     padding-top: 6rem;
@@ -838,10 +852,17 @@ p:last-child {
 /* Trust chips inline in hero — replaces the old trust-badges strip */
 .hero__chips {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 0.5rem;
   margin: 1.5rem 0 0 0;
   align-items: center;
+}
+@media (min-width: 1024px) {
+  .hero__chips {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+  }
 }
 .hero__chip {
   display: inline-flex;
@@ -905,21 +926,21 @@ p:last-child {
   color: rgba(255, 255, 255, 0.92);
 }
 .hero-form[data-active-tab="maintenance"] .hero-form__input {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.32);
+  border-color: rgba(255, 255, 255, 0.32);
   color: #ffffff;
 }
 .hero-form[data-active-tab="maintenance"] .hero-form__input::placeholder {
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.85);
 }
 .hero-form[data-active-tab="maintenance"] .hero-form__input:hover:not(:focus) {
-  background: rgba(255, 255, 255, 0.18);
-  border-color: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.42);
+  border-color: rgba(255, 255, 255, 0.45);
 }
 .hero-form[data-active-tab="maintenance"] .hero-form__input:focus {
-  background: rgba(255, 255, 255, 0.22);
-  border-color: rgba(255, 255, 255, 0.6);
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.5);
+  border-color: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
 }
 .hero-form[data-active-tab="maintenance"] .hero-form__submit {
   background: #ffffff;
@@ -984,42 +1005,49 @@ p:last-child {
 .hero-form__tabs {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  padding: 0.4rem;
-  gap: 0.4rem;
+  padding: 0.3rem;
+  gap: 0.3rem;
   border-bottom: 1px solid transparent;
 }
 .hero-form__tab {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem 0.75rem;
+  gap: 0.4rem;
+  padding: 0.5rem 0.6rem;
   border: none;
   background: transparent;
-  border-radius: 12px;
+  border-radius: 10px;
   font-family: inherit;
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   font-weight: 600;
   cursor: pointer;
   transition: background 150ms ease, color 150ms ease, box-shadow 150ms ease;
 }
 .hero-form__tab .icon {
-  width: 1.1rem;
-  height: 1.1rem;
+  width: 0.9rem;
+  height: 0.9rem;
   flex-shrink: 0;
 }
 .hero-form__body {
-  padding: 1.5rem;
+  padding: 1rem 1.5rem 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
 }
 .hero-form__blurb {
-  margin: 0 0 0.5rem 0;
+  margin: 0;
   font-size: 0.95rem;
   line-height: 1.5;
   font-weight: 500;
+  text-align: center;
   transition: color 300ms ease;
+}
+/* Pull the first row of fields up toward the blurb. Flex `gap` ignores
+   negative margins on the blurb itself (most browsers treat gap as an
+   inviolable minimum), so we move the next-element instead. */
+.hero-form__blurb + * {
+  margin-top: -2rem;
 }
 .hero-form__blurb strong {
   font-weight: 700;
@@ -1046,24 +1074,6 @@ p:last-child {
   border: none;
   cursor: pointer;
   transition: background 300ms ease, color 300ms ease, transform 150ms ease, box-shadow 200ms ease;
-}
-
-/* Phones only (≤500px): show the two route cards, hide the contact form.
-   Everything wider: show the contact form, hide the cards. */
-@media (max-width: 500px) {
-  .hero__form-wrap {
-    display: none;
-  }
-  .hero__cards {
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-  }
-}
-@media (min-width: 501px) {
-  .hero__cards {
-    display: none;
-  }
 }
 
 /* Remove gaps between dark sections */
@@ -1120,7 +1130,7 @@ p:last-child {
 }
 
 .hero--image h1 {
-  font-size: 2.5rem;
+  font-size: clamp(1.625rem, 0.79rem + 3.56vw, 2.5rem); /* 26→40px between 375 and 768 viewport */
   font-weight: 700;
   line-height: 1.1;
   letter-spacing: -0.02em;
@@ -1181,6 +1191,35 @@ p:last-child {
   .hero__grid {
     grid-template-columns: 1fr 1fr;
     gap: 4rem;
+  }
+}
+
+/* Phones (≤500px): the contact form replaces the old route-card pair as the
+   primary above-the-fold action. Order: badge → h1 → p → form → call → chips.
+   The text wrapper uses `display: contents` so its children become direct
+   grid items and the form (a sibling of the wrapper) can interleave via
+   `order`. The 3rem grid gap is zeroed because with `display: contents` it
+   would otherwise fire between every promoted child — element margins
+   (badge mb 2rem, p mb 2.5rem) keep providing the rhythm exactly as on
+   desktop. The form keeps its desktop visual chrome (gradient/white card,
+   rounded corners, shadow) — only its position changes.
+   Placed AFTER the desktop hero rules so source-order wins the cascade
+   (same specificity as the desktop overrides it needs to beat). */
+@media (max-width: 500px) {
+  .hero--image > .container > .hero__grid > div:first-child {
+    display: contents;
+  }
+  .hero__grid {
+    gap: 0;
+  }
+  .hero__form-wrap {
+    max-width: 100%;
+  }
+  .hero__buttons {
+    display: none;
+  }
+  .hero__chips {
+    order: 1;
   }
 }
 
@@ -1640,9 +1679,8 @@ p:last-child {
 .reveal-up {
   opacity: 0;
   transform: translateY(20px);
-  /* Crisp ease-out; under 300ms feels snappy for scroll-revealed content without feeling rushed. */
-  transition: opacity 500ms cubic-bezier(0.16, 1, 0.3, 1),
-              transform 500ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 320ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
   transition-delay: var(--reveal-delay, 0ms);
   will-change: opacity, transform;
 }
@@ -1657,9 +1695,9 @@ p:last-child {
   display: inline-block;
   opacity: 0;
   transform: translateY(18px);
-  transition: opacity 500ms cubic-bezier(0.16, 1, 0.3, 1),
-              transform 500ms cubic-bezier(0.16, 1, 0.3, 1);
-  transition-delay: calc(var(--word-index, 0) * 50ms);
+  transition: opacity 320ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: calc(var(--word-index, 0) * 35ms);
   will-change: opacity, transform;
 }
 .reveal-words.is-visible span {
@@ -1804,8 +1842,8 @@ p:last-child {
    re-specify the reveal transition here with the inline --reveal-delay.
    Smoother: longer duration + gentle cubic-bezier curve. */
 .method-card.reveal-up {
-  transition: opacity 500ms cubic-bezier(0.16, 1, 0.3, 1),
-              transform 500ms cubic-bezier(0.16, 1, 0.3, 1),
+  transition: opacity 320ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 320ms cubic-bezier(0.16, 1, 0.3, 1),
               box-shadow var(--transition-base);
   transition-delay: var(--reveal-delay, 0ms), var(--reveal-delay, 0ms), 0ms;
 }

@@ -68,14 +68,14 @@ const icons = {
             <span>Pool Service Provider Across Coastal Counties</span>
           </div>
 
-          <h1 class="reveal-up" style="--reveal-delay: 150ms">Pool care you can count on.</h1>
-          <p class="reveal-up" style="--reveal-delay: 300ms">Highest-quality service. Experienced technicians. Clear communication and transparent pricing.</p>
+          <h1 class="reveal-up" style="--reveal-delay: 75ms">Pool care you can count on.</h1>
+          <p class="reveal-up" style="--reveal-delay: 150ms">Highest-quality service. Experienced technicians. Clear communication and transparent pricing.</p>
 
-          <div class="hero__buttons reveal-up" style="--reveal-delay: 450ms">
+          <div class="hero__buttons reveal-up" style="--reveal-delay: 225ms">
             <a href="tel:9124590160" class="btn btn--cta btn--lg">Call (912) 459-0160</a>
           </div>
 
-          <div class="hero__chips reveal-up" style="--reveal-delay: 600ms">
+          <div class="hero__chips reveal-up" style="--reveal-delay: 300ms">
             <span class="hero__chip">
               <Fragment set:html={icons.shield} />
               Licensed &amp; Insured
@@ -91,40 +91,10 @@ const icons = {
           </div>
         </div>
 
-        <!-- Right: Mobile shows the two original route cards; desktop shows the contact form. -->
-        <div class="hero__cards reveal-up" style="--reveal-delay: 600ms">
-          <a href={`${import.meta.env.BASE_URL}services/residential-pool-cleaning/`} class="route-card route-card--gradient">
-            <div class="route-card__inner">
-              <div class="route-card__icon">
-                <Fragment set:html={icons.droplets} />
-              </div>
-              <div>
-                <h3>Weekly Pool Care</h3>
-                <p>Ongoing maintenance starting from $50 plus chemicals</p>
-                <span class="route-card__link">
-                  See Plans <Fragment set:html={icons.arrowRight} />
-                </span>
-              </div>
-            </div>
-          </a>
-
-          <a href={`${import.meta.env.BASE_URL}service-repair/`} class="route-card route-card--white">
-            <div class="route-card__inner">
-              <div class="route-card__icon">
-                <Fragment set:html={icons.alertCircle} />
-              </div>
-              <div>
-                <h3>Equipment Repairs</h3>
-                <p>Need equipment repaired, replaced or installed? We diagnose most issues within 48 hours</p>
-                <span class="route-card__link">
-                  Schedule Visit <Fragment set:html={icons.arrowRight} />
-                </span>
-              </div>
-            </div>
-          </a>
-        </div>
-
-        <div class="hero__form-wrap reveal-up" style="--reveal-delay: 600ms">
+        <!-- Contact form. On mobile, CSS reorders this above the text content
+             so it's the first thing the user sees in the hero. The route-card
+             alternative is archived at src/components/_archive/HeroRouteCards.astro. -->
+        <div class="hero__form-wrap reveal-up" style="--reveal-delay: 300ms">
           <form class="hero-form" data-hero-form data-active-tab="maintenance">
             <div class="hero-form__tabs" role="tablist" aria-label="Service type">
               <button
@@ -166,7 +136,7 @@ const icons = {
         </div>
       </div>
 
-      <div class="hero__footer reveal-up" style="--reveal-delay: 900ms">
+      <div class="hero__footer reveal-up" style="--reveal-delay: 450ms">
         <a href={`${import.meta.env.BASE_URL}our-approach`}>First time pool owner? Start here &rarr;</a>
       </div>
     </div>
@@ -194,7 +164,7 @@ const icons = {
           <span style="--word-index: 9">that</span>{' '}
           <span style="--word-index: 10">way.</span>
         </h2>
-        <p class="reveal-up" style="--reveal-delay: 900ms">Our methodology separates us from every other pool company</p>
+        <p class="reveal-up" style="--reveal-delay: 450ms">Our methodology separates us from every other pool company</p>
       </div>
 
       <!-- Mobile-only tab bar showing there are 3 cards. Hidden on tablet+. -->
@@ -206,7 +176,7 @@ const icons = {
       <div class="methodology__grid">
         <!-- Card delays start after the 11 words finish animating (~950ms),
              with 200ms between each card. -->
-        <div class="method-card reveal-up" style="--reveal-delay: 1000ms">
+        <div class="method-card reveal-up" style="--reveal-delay: 500ms">
           <div class="method-card__icon">
             <Fragment set:html={icons.testTube} />
           </div>
@@ -214,7 +184,7 @@ const icons = {
           <p>We test and adjust pH, alkalinity, sanitizer levels, and calcium hardness as a system—because one number out of range affects everything else.</p>
         </div>
 
-        <div class="method-card reveal-up" style="--reveal-delay: 1250ms">
+        <div class="method-card reveal-up" style="--reveal-delay: 625ms">
           <div class="method-card__icon">
             <Fragment set:html={icons.alertCircle} />
           </div>
@@ -222,7 +192,7 @@ const icons = {
           <p>Every visit includes a full equipment check. We monitor pump pressure, filter condition, and water flow to flag issues early.</p>
         </div>
 
-        <div class="method-card reveal-up" style="--reveal-delay: 1500ms">
+        <div class="method-card reveal-up" style="--reveal-delay: 750ms">
           <div class="method-card__icon">
             <Fragment set:html={icons.eye} />
           </div>
@@ -247,12 +217,12 @@ const icons = {
           <span style="--word-index: 1">We</span>{' '}
           <span style="--word-index: 2">Do</span>
         </h2>
-        <p class="reveal-up" style="--reveal-delay: 300ms">Ongoing maintenance plans and on-demand repairs for residential and commercial pools.</p>
+        <p class="reveal-up" style="--reveal-delay: 150ms">Ongoing maintenance plans and on-demand repairs for residential and commercial pools.</p>
       </div>
 
       <div class="services-dark__grid">
         <!-- Left Column: Pool Cleaning -->
-        <div class="reveal-up" style="--reveal-delay: 600ms">
+        <div class="reveal-up" style="--reveal-delay: 300ms">
           <div class="services-dark__col-header">
             <Fragment set:html={icons.droplets} />
             <h3>Pool Cleaning</h3>
@@ -301,7 +271,7 @@ const icons = {
         </div>
 
         <!-- Right Column: Equipment & Repair -->
-        <div class="reveal-up" style="--reveal-delay: 900ms">
+        <div class="reveal-up" style="--reveal-delay: 450ms">
           <div class="services-dark__col-header">
             <Fragment set:html={icons.settings} />
             <h3>Equipment & Repair</h3>
@@ -385,13 +355,13 @@ const icons = {
     <div class="container max-w-4xl mx-auto text-center">
       <h2 class="reveal-up">Complete Pool Care. Built on Local Trust.</h2>
 
-      <p class="reveal-up" style="--reveal-delay: 150ms">We brought together the best local pool professionals in coastal Georgia — and gave them the resources to do even more. From weekly maintenance to full equipment service, one team that knows your pool inside and out.</p>
+      <p class="reveal-up" style="--reveal-delay: 75ms">We brought together the best local pool professionals in coastal Georgia — and gave them the resources to do even more. From weekly maintenance to full equipment service, one team that knows your pool inside and out.</p>
 
-      <p class="reveal-up" style="--reveal-delay: 300ms">The result is a dedicated service company with the technical depth to handle equipment, the local presence to know your pool, and the operational foundation to deliver consistent care year after year.</p>
+      <p class="reveal-up" style="--reveal-delay: 150ms">The result is a dedicated service company with the technical depth to handle equipment, the local presence to know your pool, and the operational foundation to deliver consistent care year after year.</p>
 
-      <p class="highlight reveal-up" style="--reveal-delay: 450ms">Your pool is a 15–20 year asset. It deserves a true service partner.</p>
+      <p class="highlight reveal-up" style="--reveal-delay: 225ms">Your pool is a 15–20 year asset. It deserves a true service partner.</p>
 
-      <div class="reveal-up" style="--reveal-delay: 600ms; margin-top:2rem;">
+      <div class="reveal-up" style="--reveal-delay: 300ms; margin-top:2rem;">
         <a href={`${import.meta.env.BASE_URL}our-approach/#our-story`} class="btn btn--primary btn--lg">Read Our Story</a>
       </div>
     </div>
@@ -418,16 +388,16 @@ const icons = {
 
         <!-- Right: Content -->
         <div class="coastal-content">
-          <h2 class="coastal-content__title reveal-up" style="--reveal-delay: 150ms">
+          <h2 class="coastal-content__title reveal-up" style="--reveal-delay: 75ms">
             Engineered for<br/>the Coast
           </h2>
-          <p class="coastal-content__desc reveal-up" style="--reveal-delay: 300ms">
+          <p class="coastal-content__desc reveal-up" style="--reveal-delay: 150ms">
             Local environments demand local expertise. We've built our methodology
             specifically to combat the unique challenges of coastal pool ownership.
           </p>
 
           <!-- Address Checker -->
-          <div class="coastal-checker reveal-up" style="--reveal-delay: 450ms">
+          <div class="coastal-checker reveal-up" style="--reveal-delay: 225ms">
             <h3 class="coastal-checker__title">Check Your Address</h3>
             <p class="coastal-checker__desc">Enter your address to see if you're within our service area.</p>
             <div id="service-area-checker"></div>
@@ -518,10 +488,10 @@ const icons = {
       <div class="section-header reveal-up">
         <h2>What our customers say</h2>
       </div>
-      <div class="reveal-up" style="--reveal-delay: 200ms">
+      <div class="reveal-up" style="--reveal-delay: 100ms">
         <ReviewCarousel />
       </div>
-      <div class="text-center reveal-up" style="--reveal-delay: 400ms; margin-top:2rem;">
+      <div class="text-center reveal-up" style="--reveal-delay: 200ms; margin-top:2rem;">
         <a href="https://g.page/r/CVrU0W_3-NRyEAE/review" target="_blank" rel="noopener" class="btn btn--outline">Read All Reviews on Google</a>
       </div>
     </div>
@@ -539,7 +509,7 @@ const icons = {
     <div class="cta-image__overlay"></div>
     <div class="container cta-image__content">
       <h2 class="reveal-up">Ready for worry-free pool care?</h2>
-      <div class="cta-image__buttons reveal-up" style="--reveal-delay: 200ms">
+      <div class="cta-image__buttons reveal-up" style="--reveal-delay: 100ms">
         <button type="button" class="btn btn--cta btn--lg" data-open-intake>Get a Quote</button>
         <a href="tel:9124590160" class="btn btn--outline-white btn--lg">Call (912) 459-0160</a>
       </div>
