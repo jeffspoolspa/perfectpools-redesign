@@ -92,19 +92,19 @@ const ogImageUrl = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`
   <!-- Get Started Quote Modal (Preact island) -->
   <GetStartedQuote client:load basePath={import.meta.env.BASE_URL} />
 
-  {import.meta.env.DEV && (
-    <div id="pp-viewport-indicator" aria-hidden="true">—</div>
-    <script>
-      const el = document.getElementById('pp-viewport-indicator');
-      if (el) {
-        const update = () => {
-          el.textContent = `${window.innerWidth} × ${window.innerHeight}`;
-        };
-        update();
-        window.addEventListener('resize', update);
-      }
-    </script>
-  )}
+  {import.meta.env.DEV && <div id="pp-viewport-indicator" aria-hidden="true">—</div>}
+  <script>
+    // Dev viewport indicator — script always renders, no-ops if the div
+    // isn't present (production builds skip the div via the DEV gate).
+    const ppViewportEl = document.getElementById('pp-viewport-indicator');
+    if (ppViewportEl) {
+      const update = () => {
+        ppViewportEl.textContent = `${window.innerWidth} × ${window.innerHeight}`;
+      };
+      update();
+      window.addEventListener('resize', update);
+    }
+  </script>
 
   <!-- Lenis smooth scroll + GSAP sync -->
   <script>
