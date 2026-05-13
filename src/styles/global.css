@@ -2866,10 +2866,7 @@ p:last-child {
   position: relative;
   flex-shrink: 0;
   color: #fff;
-  background-color: #083655;
-  background-repeat: no-repeat;
-  background-position: right center;
-  background-size: auto 100%;
+  background: linear-gradient(135deg, #0a4a78 0%, #0c4a6e 45%, #083655 100%);
   overflow: hidden;
   isolation: isolate;
 }
@@ -2888,22 +2885,6 @@ p:last-child {
     rgba(255, 255, 255, 0) 58%,
     rgba(125, 211, 252, 0.06) 64%,
     rgba(255, 255, 255, 0) 72%
-  );
-  pointer-events: none;
-  z-index: 1;
-}
-/* Dark gradient overlay on the LEFT half so the copy reads cleanly
-   against any portion of the illustration. */
-.intake-hero::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    90deg,
-    rgba(8, 47, 73, 0.92) 0%,
-    rgba(8, 47, 73, 0.78) 30%,
-    rgba(8, 47, 73, 0.45) 50%,
-    rgba(8, 47, 73, 0) 70%
   );
   pointer-events: none;
   z-index: 1;
@@ -2984,13 +2965,27 @@ p:last-child {
 .intake-hero__body {
   position: relative;
   z-index: 2;
-  padding: 18px 22px 24px;
-  min-height: 160px;
-  display: flex;
-  align-items: flex-end;
+  padding: 18px 22px 0;
+  min-height: 200px;
+  display: grid;
+  grid-template-columns: 1fr 240px;
+  gap: 14px;
+  align-items: end;
 }
 .intake-hero__copy {
-  max-width: 60%;
+  padding-bottom: 24px;
+}
+/* Illustration sits in its own grid column — text physically can't
+   overlap it. Cropped via object-fit so we show the right portion of
+   the wide PNG (where the pool/house/truck composition lives). */
+.intake-hero__art {
+  width: 100%;
+  height: 100%;
+  min-height: 160px;
+  object-fit: cover;
+  object-position: right center;
+  align-self: stretch;
+  display: block;
 }
 .intake-hero__eyebrow {
   display: inline-block;
@@ -3038,8 +3033,12 @@ p:last-child {
   .intake-hero__title {
     font-size: 1.5rem;
   }
-  .intake-hero__copy {
-    max-width: 65%;
+  .intake-hero__body {
+    grid-template-columns: 1fr 140px;
+    min-height: 170px;
+  }
+  .intake-hero__art {
+    min-height: 130px;
   }
 }
 
