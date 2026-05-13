@@ -700,7 +700,7 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
                       </svg>
                     </span>
                     <span class="gs-summary__row-text">{poolBits.join(' · ')}</span>
-                    <button type="button" class="gs-summary__edit" onClick={() => setCurrentStep(3)} aria-label="Edit pool info" title="Edit pool info">{editIcon}</button>
+                    <button type="button" class="gs-summary__edit" onClick={() => { setRedirect(''); setCurrentStep(3); }} aria-label="Edit pool info" title="Edit pool info">{editIcon}</button>
                   </div>
                 );
               })()}
@@ -1227,11 +1227,26 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
     );
 
     const onMaintenance = formData.serviceInterest === 'maintenance';
+    // Reveal each follow-up after the prior is answered, regardless of
+    // WHAT they answered. Filtering for out-of-service answers
+    // (commercial, above-ground, needs-repair) happens on Continue, not
+    // on selection — so the user can change any selection without being
+    // hard-redirected mid-flow.
     const showProperty = onMaintenance;
-    const showPoolType = showProperty && formData.customerType === 'residential';
-    const showCondition = showPoolType && formData.isInground === 'inground';
-    const showBody = showCondition && formData.poolCondition === 'good';
+    const showPoolType = showProperty && !!formData.customerType;
+    const showCondition = showPoolType && !!formData.isInground;
+    const showBody = showCondition && !!formData.poolCondition;
     const allAnswered = !!(showBody && formData.serviceType);
+
+    // Continue handler: check the deferred filters in order. If any
+    // applies, swap to the corresponding redirect/sorry screen instead
+    // of advancing to the next step.
+    const handleContinue = () => {
+      if (formData.customerType === 'commercial') { setRedirect('commercial'); return; }
+      if (formData.isInground === 'above_ground') { setRedirect('above_ground'); return; }
+      if (formData.poolCondition === 'needs_repair') { setRedirect('needs_repair'); return; }
+      setCurrentStep(4);
+    };
 
     const serviceIcons: Record<string, any> = {
       waves: <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/></svg>,
@@ -1292,11 +1307,7 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
                   key={ct.id}
                   type="button"
                   class={`intake-choice${formData.customerType === ct.id ? ' selected' : ''}`}
-                  onClick={() => {
-                    updateForm({ customerType: ct.id });
-                    if (ct.id === 'commercial') setRedirect('commercial');
-                    else setRedirect('');
-                  }}
+                  onClick={() => updateForm({ customerType: ct.id })}
                 >
                   <div class="intake-choice-icon intake-choice-icon--emoji">{ct.id === 'residential' ? '🏠' : '🏢'}</div>
                   <h3>{ct.label}</h3>
@@ -1319,11 +1330,7 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
                   key={pt.id}
                   type="button"
                   class={`intake-choice${formData.isInground === pt.id ? ' selected' : ''}`}
-                  onClick={() => {
-                    updateForm({ isInground: pt.id });
-                    if (pt.id === 'above_ground') setRedirect('above_ground');
-                    else setRedirect('');
-                  }}
+                  onClick={() => updateForm({ isInground: pt.id })}
                 >
                   <div class="intake-choice-icon intake-choice-icon--emoji">{pt.id === 'inground' ? '🏊' : '🟦'}</div>
                   <h3>{pt.label}</h3>
@@ -1346,11 +1353,7 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
                   key={pc.id}
                   type="button"
                   class={`intake-choice${formData.poolCondition === pc.id ? ' selected' : ''}`}
-                  onClick={() => {
-                    updateForm({ poolCondition: pc.id });
-                    if (pc.id === 'needs_repair') setRedirect('needs_repair');
-                    else setRedirect('');
-                  }}
+                  onClick={() => updateForm({ poolCondition: pc.id })}
                 >
                   <div class="intake-choice-icon intake-choice-icon--emoji">{pc.id === 'good' ? '✅' : '🛠️'}</div>
                   <h3>{pc.label}</h3>
@@ -1387,7 +1390,7 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
         {/* Continue button — only after all relevant questions answered */}
         {allAnswered && (
           <div class="intake-actions" style="margin-top: 1.5rem;">
-            <button type="button" class="intake-cta-btn" onClick={() => setCurrentStep(4)}>
+            <button type="button" class="intake-cta-btn" onClick={handleContinue}>
               Continue
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
             </button>
