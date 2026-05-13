@@ -583,16 +583,7 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
           </div>
           <div class="intake-hero__body">
             <div class="intake-hero__copy">
-              <span class="intake-hero__eyebrow">Step {currentStep} of {TOTAL_STEPS}</span>
               <h2 class="intake-hero__title">We're on the way!</h2>
-              <div class="intake-hero__progress">
-                <div class="intake-hero__dots" aria-hidden="true">
-                  {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
-                    <i class={i < currentStep ? 'on' : ''} />
-                  ))}
-                </div>
-                <span>~ 45 sec</span>
-              </div>
             </div>
             <img
               class="intake-hero__art"
