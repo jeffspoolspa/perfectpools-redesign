@@ -3219,6 +3219,30 @@ p:last-child {
   display: none;
 }
 
+/* V2 progressive pool-questions page — vertical stack with breathing
+   room between each question. Each question reveals after the prior
+   selection (markup gates visibility); CSS just spaces them out. */
+.intake-modal--v2 .psf-progressive {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.intake-modal--v2 .psf-q {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.intake-modal--v2 .psf-q__label {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f2942;
+  margin: 0;
+  line-height: 1.3;
+}
+.intake-modal--v2 .intake-choice-grid--3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
 /* V2 hero body now just shows the title — shrink min-height so the
    illustration column doesn't tower. */
 .intake-modal--v2 .intake-hero__body {

@@ -681,91 +681,42 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
                 </div>
               )}
 
-              {/* Service interest */}
-              {currentStep > 3 && svc && (
-                <div class="gs-summary__row">
-                  <span class="gs-summary__icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="m9 11 3 3L22 4"/>
-                      <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
-                    </svg>
-                  </span>
-                  <span class="gs-summary__row-text">{svc.label}</span>
-                  <button type="button" class="gs-summary__edit" onClick={() => setCurrentStep(3)} aria-label="Edit service" title="Edit service">{editIcon}</button>
-                </div>
-              )}
-
-              {/* Property type */}
-              {currentStep > 4 && ct && (
-                <div class="gs-summary__row">
-                  <span class="gs-summary__icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                      <polyline points="9 22 9 12 15 12 15 22"/>
-                    </svg>
-                  </span>
-                  <span class="gs-summary__row-text">{ct.label}</span>
-                  <button type="button" class="gs-summary__edit" onClick={() => setCurrentStep(4)} aria-label="Edit property type" title="Edit property type">{editIcon}</button>
-                </div>
-              )}
-
-              {/* Pool type */}
-              {currentStep > 5 && pt && (
-                <div class="gs-summary__row">
-                  <span class="gs-summary__icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <ellipse cx="12" cy="15" rx="9" ry="3"/>
-                      <path d="M3 15v3c0 1.66 4 3 9 3s9-1.34 9-3v-3"/>
-                    </svg>
-                  </span>
-                  <span class="gs-summary__row-text">{pt.label}</span>
-                  <button type="button" class="gs-summary__edit" onClick={() => setCurrentStep(5)} aria-label="Edit pool type" title="Edit pool type">{editIcon}</button>
-                </div>
-              )}
-
-              {/* Pool condition */}
-              {currentStep > 6 && pc && (
-                <div class="gs-summary__row">
-                  <span class="gs-summary__icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <circle cx="12" cy="12" r="10"/>
-                      <polyline points="9 12 11 14 15 10"/>
-                    </svg>
-                  </span>
-                  <span class="gs-summary__row-text">{pc.label}</span>
-                  <button type="button" class="gs-summary__edit" onClick={() => setCurrentStep(6)} aria-label="Edit pool condition" title="Edit pool condition">{editIcon}</button>
-                </div>
-              )}
-
-              {/* Service body */}
-              {currentStep > 7 && sb && (
-                <div class="gs-summary__row">
-                  <span class="gs-summary__icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/>
-                    </svg>
-                  </span>
-                  <span class="gs-summary__row-text">{sb.label}</span>
-                  <button type="button" class="gs-summary__edit" onClick={() => setCurrentStep(7)} aria-label="Edit body type" title="Edit body type">{editIcon}</button>
-                </div>
-              )}
+              {/* Pool Info — all the answers from the progressive page
+                  collapse into one row once the user has advanced past it. */}
+              {currentStep > 3 && (svc || ct || pt || pc || sb) && (() => {
+                const poolBits = [
+                  svc?.label,
+                  ct?.label,
+                  pt?.label,
+                  pc?.label,
+                  sb?.label,
+                ].filter(Boolean);
+                return (
+                  <div class="gs-summary__row">
+                    <span class="gs-summary__icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <ellipse cx="12" cy="15" rx="9" ry="3"/>
+                        <path d="M3 15v3c0 1.66 4 3 9 3s9-1.34 9-3v-3"/>
+                      </svg>
+                    </span>
+                    <span class="gs-summary__row-text">{poolBits.join(' · ')}</span>
+                    <button type="button" class="gs-summary__edit" onClick={() => setCurrentStep(3)} aria-label="Edit pool info" title="Edit pool info">{editIcon}</button>
+                  </div>
+                );
+              })()}
             </div>
           );
         })()}
 
         {/* Step content. Flow: Address → Contact (with dup check) →
-            Service interest → rest of the original flow. */}
+            Pool questions (progressive: service, property, pool type,
+            condition, body type all on one page) → Referral → Quote. */}
         <div class={`intake-body gs-fade-in`} key={currentStep + '-' + redirect + (showDupCheck ? '-dup' : '')}>
           {currentStep === 1 && renderStep2()}
           {currentStep === 2 && (showDupCheck ? renderDupCheck() : renderStep3())}
-          {currentStep === 3 && renderStep1()}
-          {currentStep === 4 && renderStep4()}
-          {currentStep === 5 && renderStep7()}
-          {currentStep === 6 && renderStep6()}
-          {currentStep === 7 && renderServiceBody()}
-          {currentStep === 8 && renderStep9()}
-          {currentStep === 9 && renderReferralSource()}
-          {currentStep === 10 && renderQuoteDisplay()}
+          {currentStep === 3 && renderProgressivePoolPage()}
+          {currentStep === 4 && renderReferralSource()}
+          {currentStep === 5 && renderQuoteDisplay()}
         </div>
       </div>
     </div>
@@ -1228,6 +1179,195 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
           ))}
         </div>
       </>
+    );
+  }
+
+  /* ══════════════════════════════════
+     Progressive Pool Questions Page
+     One page that renders all the post-contact pool questions with
+     each next question revealed only after the prior selection is
+     made. Out-of-flow branches (commercial, above-ground, repair-
+     first, green pool, equipment, renovation) yield to their own
+     redirect screens. The user can change any selection at any time;
+     the rest of the questions stay visible.
+     ══════════════════════════════════ */
+  function renderProgressivePoolPage() {
+    if (redirect === 'green_pool') return renderGreenPoolRedirect();
+    if (redirect === 'equipment') return renderEquipmentRedirect();
+    if (redirect === 'commercial') return renderCommercialForm();
+    if (redirect === 'renovation') return renderRedirectScreen(
+      'Pool Renovation',
+      'We partner with PSP for renovation projects.',
+      [
+        { text: 'Replaster, retile, or full remodel', detail: 'Custom quotes available' },
+        { text: 'Call us and we\'ll connect you', detail: 'With the right team' },
+      ],
+      '/services/pool-renovation/',
+      'Explore Renovation Options'
+    );
+    if (redirect === 'above_ground') return renderRedirectScreen(
+      'We Appreciate Your Interest!',
+      'Unfortunately, we only service in-ground pools at this time.',
+      [
+        { text: 'We can recommend above-ground specialists', detail: 'In your area' },
+        { text: 'Considering converting to in-ground?', detail: 'We can help with that!' },
+      ],
+      '/services/',
+      'Try Different Pool Type'
+    );
+    if (redirect === 'needs_repair') return renderRedirectScreen(
+      'Let\'s Get Your Pool Fixed First',
+      'We recommend getting any issues resolved before starting weekly maintenance.',
+      [
+        { text: '$150 residential service call', detail: '$185 for commercial' },
+        { text: 'Most repairs completed same day', detail: 'Then we can start maintenance' },
+      ],
+      '/services/pool-equipment-repair/',
+      'View Repair Services'
+    );
+
+    const onMaintenance = formData.serviceInterest === 'maintenance';
+    const showProperty = onMaintenance;
+    const showPoolType = showProperty && formData.customerType === 'residential';
+    const showCondition = showPoolType && formData.isInground === 'inground';
+    const showBody = showCondition && formData.poolCondition === 'good';
+    const allAnswered = !!(showBody && formData.serviceType);
+
+    const serviceIcons: Record<string, any> = {
+      waves: <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/></svg>,
+      leaf: <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 20A7 7 0 0 1 9.8 6.9C15.5 4.9 17 3.5 19 1c1 2 2 4.5 2 8 0 5.5-4.78 10.7-10 11z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>,
+      wrench: <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>,
+      hammer: <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 12-8.5 8.5c-.83.83-2.17.83-3 0 0 0 0 0 0 0a2.12 2.12 0 0 1 0-3L12 9"/><path d="M17.64 15 22 10.64"/><path d="m20.91 11.7-1.25-1.25c-.6-.6-.93-1.4-.93-2.25v-.86L16.01 4.6a5.56 5.56 0 0 0-3.94-1.64H9l.92.82A6.18 6.18 0 0 1 12 8.4v1.56l2 2h2.47l2.26 1.91"/></svg>,
+    };
+
+    return (
+      <div class="psf-progressive">
+        {/* Q1: Service interest — always visible */}
+        <div class="psf-q">
+          <h3 class="psf-q__label">What can we help you with?</h3>
+          <div class="gs-service-grid">
+            {SERVICE_TYPES.map(svc => (
+              <button
+                key={svc.id}
+                type="button"
+                class={`gs-service-card${formData.serviceInterest === svc.id ? ' selected' : ''}`}
+                onClick={() => {
+                  updateForm({ serviceInterest: svc.id });
+                  if (svc.id === 'maintenance') setRedirect('');
+                  else setRedirect(svc.id);
+                }}
+              >
+                <div class="gs-service-card-icon">{serviceIcons[svc.icon]}</div>
+                <h3>{svc.label}</h3>
+                <p>{svc.desc}</p>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Q2: Property type */}
+        {showProperty && (
+          <div class="psf-q">
+            <h3 class="psf-q__label">What type of property?</h3>
+            <div class="intake-choice-grid">
+              {CUSTOMER_TYPES.map(ct => (
+                <button
+                  key={ct.id}
+                  type="button"
+                  class={`intake-choice${formData.customerType === ct.id ? ' selected' : ''}`}
+                  onClick={() => {
+                    updateForm({ customerType: ct.id });
+                    if (ct.id === 'commercial') setRedirect('commercial');
+                    else setRedirect('');
+                  }}
+                >
+                  <div class="intake-choice-icon intake-choice-icon--emoji">{ct.id === 'residential' ? '🏠' : '🏢'}</div>
+                  <h3>{ct.label}</h3>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Q3: Pool type (in-ground / above-ground) */}
+        {showPoolType && (
+          <div class="psf-q">
+            <h3 class="psf-q__label">In-ground or above-ground?</h3>
+            <div class="intake-choice-grid">
+              {POOL_TYPE_OPTIONS.map(pt => (
+                <button
+                  key={pt.id}
+                  type="button"
+                  class={`intake-choice${formData.isInground === pt.id ? ' selected' : ''}`}
+                  onClick={() => {
+                    updateForm({ isInground: pt.id });
+                    if (pt.id === 'above_ground') setRedirect('above_ground');
+                    else setRedirect('');
+                  }}
+                >
+                  <div class="intake-choice-icon intake-choice-icon--emoji">{pt.id === 'inground' ? '🏊' : '🟦'}</div>
+                  <h3>{pt.label}</h3>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Q4: Pool condition */}
+        {showCondition && (
+          <div class="psf-q">
+            <h3 class="psf-q__label">What's the pool's current condition?</h3>
+            <div class="intake-choice-grid">
+              {POOL_CONDITIONS.map(pc => (
+                <button
+                  key={pc.id}
+                  type="button"
+                  class={`intake-choice${formData.poolCondition === pc.id ? ' selected' : ''}`}
+                  onClick={() => {
+                    updateForm({ poolCondition: pc.id });
+                    if (pc.id === 'needs_repair') setRedirect('needs_repair');
+                    else setRedirect('');
+                  }}
+                >
+                  <div class="intake-choice-icon intake-choice-icon--emoji">{pc.id === 'good' ? '✅' : '🛠️'}</div>
+                  <h3>{pc.label}</h3>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Q5: Body type — defaults to 'pool' from DEFAULT_FORM but
+            user can change to spa or pool+spa combo. */}
+        {showBody && (
+          <div class="psf-q">
+            <h3 class="psf-q__label">What are we maintaining?</h3>
+            <div class="intake-choice-grid intake-choice-grid--3">
+              {SERVICE_BODY_OPTIONS.map(sb => (
+                <button
+                  key={sb.id}
+                  type="button"
+                  class={`intake-choice${formData.serviceType === sb.id ? ' selected' : ''}`}
+                  onClick={() => updateForm({ serviceType: sb.id })}
+                >
+                  <div class="intake-choice-icon intake-choice-icon--emoji">{sb.id === 'pool' ? '🏊' : sb.id === 'spa' ? '♨️' : '🌊'}</div>
+                  <h3>{sb.label}</h3>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Continue button — only after all relevant questions answered */}
+        {allAnswered && (
+          <div class="intake-actions" style="margin-top: 1.5rem;">
+            <button type="button" class="intake-cta-btn" onClick={() => setCurrentStep(4)}>
+              Continue
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+          </div>
+        )}
+      </div>
     );
   }
 
