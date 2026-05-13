@@ -610,60 +610,64 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
           </div>
         </div>
 
-        {/* Live "Your Pool" summary — chips for every answered field so far.
-            Implements the "summarize while it asks" pattern from the design. */}
-        {(() => {
-          const chips: Array<{ key: string; label: string; value: string }> = [];
-          if (formData.addressStreet) chips.push({ key: 'addr', label: 'Address', value: formData.addressStreet });
+        {/* Live summary — only after the user is past the address page.
+            Address is rendered as a distinct "green pin" chip at the top
+            of the rail; everything else uses the generic chip style. */}
+        {currentStep > 1 && formData.addressStreet && (() => {
+          const otherChips: Array<{ key: string; label: string; value: string }> = [];
           const fullName = `${formData.firstName} ${formData.lastName}`.trim();
-          if (fullName) chips.push({ key: 'name', label: 'Name', value: fullName });
-          if (formData.email) chips.push({ key: 'email', label: 'Email', value: formData.email });
-          if (formData.phone) chips.push({ key: 'phone', label: 'Phone', value: formData.phone });
+          if (fullName) otherChips.push({ key: 'name', label: 'Name', value: fullName });
+          if (formData.email) otherChips.push({ key: 'email', label: 'Email', value: formData.email });
+          if (formData.phone) otherChips.push({ key: 'phone', label: 'Phone', value: formData.phone });
           if (formData.serviceInterest) {
             const svc = SERVICE_TYPES.find(s => s.id === formData.serviceInterest);
-            if (svc) chips.push({ key: 'service', label: 'Service', value: svc.label });
+            if (svc) otherChips.push({ key: 'service', label: 'Service', value: svc.label });
           }
           if (formData.customerType) {
             const ct = CUSTOMER_TYPES.find(c => c.id === formData.customerType);
-            if (ct) chips.push({ key: 'property', label: 'Property', value: ct.label });
+            if (ct) otherChips.push({ key: 'property', label: 'Property', value: ct.label });
           }
           if (formData.poolCondition) {
             const pc = POOL_CONDITIONS.find(p => p.id === formData.poolCondition);
-            if (pc) chips.push({ key: 'condition', label: 'Condition', value: pc.label });
+            if (pc) otherChips.push({ key: 'condition', label: 'Condition', value: pc.label });
           }
           if (formData.isInground) {
             const pt = POOL_TYPE_OPTIONS.find(p => p.id === formData.isInground);
-            if (pt) chips.push({ key: 'type', label: 'Type', value: pt.label });
+            if (pt) otherChips.push({ key: 'type', label: 'Type', value: pt.label });
           }
           if (formData.serviceType && formData.serviceType !== 'pool') {
             const sb = SERVICE_BODY_OPTIONS.find(s => s.id === formData.serviceType);
-            if (sb) chips.push({ key: 'body', label: 'Body', value: sb.label });
+            if (sb) otherChips.push({ key: 'body', label: 'Body', value: sb.label });
           }
           return (
             <div class="gs-summary">
-              <div class="gs-summary__head">
-                <span>Your Pool · Live Summary</span>
-                <span>{chips.length} answered</span>
+              <div class="gs-summary__address">
+                <span class="gs-summary__pin" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+                    <circle cx="12" cy="10" r="3"/>
+                  </svg>
+                </span>
+                <span class="gs-summary__address-text">{formData.addressStreet}</span>
               </div>
-              <div class="gs-summary__chips">
-                {chips.length === 0 ? (
-                  <span class="gs-summary__empty">Answers will collect here as you go…</span>
-                ) : (
-                  chips.map(c => (
+              {otherChips.length > 0 && (
+                <div class="gs-summary__chips">
+                  {otherChips.map(c => (
                     <span class="gs-summary__chip" key={c.key}>
                       <em>{c.label}:</em> {c.value}
                     </span>
-                  ))
-                )}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
           );
         })()}
 
-        {/* Step content */}
+        {/* Step content. Address renders first (currentStep === 1), then
+            service interest, then the rest of the original flow. */}
         <div class={`intake-body gs-fade-in`} key={currentStep + '-' + redirect + (showDupCheck ? '-dup' : '')}>
-          {currentStep === 1 && renderStep1()}
-          {currentStep === 2 && renderStep2()}
+          {currentStep === 1 && renderStep2()}
+          {currentStep === 2 && renderStep1()}
           {currentStep === 3 && (showDupCheck ? renderDupCheck() : renderStep3())}
           {currentStep === 4 && renderStep4()}
           {currentStep === 5 && renderStep7()}

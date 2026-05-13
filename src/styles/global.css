@@ -3107,6 +3107,35 @@ p:last-child {
   font-size: 0.82rem;
   font-style: italic;
 }
+/* Address row in the summary — visually distinct from the rest:
+   green circle pin + address text reading like a confirmed location. */
+.gs-summary__address {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 0;
+}
+.gs-summary__pin {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #16a34a;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 1px 4px rgba(22, 163, 74, 0.35);
+}
+.gs-summary__address-text {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #0c4a6e;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
 
 /* ────────────────────────────────────────────────────────────────
    V2 — Question card overrides (scoped to .intake-modal--v2 so the
