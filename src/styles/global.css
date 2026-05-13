@@ -3135,6 +3135,25 @@ p:last-child {
   overflow: hidden;
   text-overflow: ellipsis;
   min-width: 0;
+  flex: 1;
+}
+.gs-summary__edit {
+  border: none;
+  background: transparent;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #3d5573;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  flex-shrink: 0;
+}
+.gs-summary__edit:hover {
+  background: #eef3f8;
+  color: #0c4a6e;
 }
 
 /* ────────────────────────────────────────────────────────────────
