@@ -96,11 +96,11 @@ function formatPhone(v: string) {
 }
 
 function getSession() {
-  try { const r = sessionStorage.getItem('getStartedQuote'); return r ? JSON.parse(r) : null; } catch { return null; }
+  try { const r = sessionStorage.getItem('getStartedQuoteV2'); return r ? JSON.parse(r) : null; } catch { return null; }
 }
 
 function saveSession(d: any) {
-  try { sessionStorage.setItem('getStartedQuote', JSON.stringify(d)); } catch {}
+  try { sessionStorage.setItem('getStartedQuoteV2', JSON.stringify(d)); } catch {}
 }
 
 function loadGoogleMaps(): Promise<void> {
@@ -226,10 +226,14 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
   useEffect(() => {
     const handler = (e?: Event) => {
       const saved = getSession();
-      if (saved) {
+      if (saved?.formData) {
         setFormData(prev => ({ ...prev, ...saved.formData }));
-        setCurrentStep(saved.currentStep || 1);
       }
+      // Always start at the address page (currentStep === 1) regardless
+      // of where the saved session left off — the flow shape is in flux
+      // and dropping the user into a half-complete middle step is worse
+      // than re-confirming address.
+      setCurrentStep(1);
       setIsOpen(true);
     };
     window.addEventListener('openGetStarted', handler);
@@ -301,7 +305,7 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
     setCurrentStep(1);
     setFormData(DEFAULT_FORM);
     setRedirect('');
-    try { sessionStorage.removeItem('getStartedQuote'); } catch {}
+    try { sessionStorage.removeItem('getStartedQuoteV2'); } catch {}
     setIsOpen(false);
   }
 
