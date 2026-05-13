@@ -618,28 +618,33 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
             Address is rendered as a distinct "green pin" chip at the top
             of the rail; everything else uses the generic chip style. */}
         {currentStep > 1 && formData.addressStreet && (() => {
+          // Each chip is gated on currentStep being PAST the page that
+          // collects it, not just on formData being populated. Otherwise
+          // restored sessionStorage state would surface answers the user
+          // hasn't actually re-confirmed yet (e.g. a stale service chip
+          // showing on the contact page).
           const otherChips: Array<{ key: string; label: string; value: string }> = [];
           const fullName = `${formData.firstName} ${formData.lastName}`.trim();
-          if (fullName) otherChips.push({ key: 'name', label: 'Name', value: fullName });
-          if (formData.email) otherChips.push({ key: 'email', label: 'Email', value: formData.email });
-          if (formData.phone) otherChips.push({ key: 'phone', label: 'Phone', value: formData.phone });
-          if (formData.serviceInterest) {
+          if (currentStep > 2 && fullName) otherChips.push({ key: 'name', label: 'Name', value: fullName });
+          if (currentStep > 2 && formData.email) otherChips.push({ key: 'email', label: 'Email', value: formData.email });
+          if (currentStep > 2 && formData.phone) otherChips.push({ key: 'phone', label: 'Phone', value: formData.phone });
+          if (currentStep > 3 && formData.serviceInterest) {
             const svc = SERVICE_TYPES.find(s => s.id === formData.serviceInterest);
             if (svc) otherChips.push({ key: 'service', label: 'Service', value: svc.label });
           }
-          if (formData.customerType) {
+          if (currentStep > 4 && formData.customerType) {
             const ct = CUSTOMER_TYPES.find(c => c.id === formData.customerType);
             if (ct) otherChips.push({ key: 'property', label: 'Property', value: ct.label });
           }
-          if (formData.poolCondition) {
+          if (currentStep > 6 && formData.poolCondition) {
             const pc = POOL_CONDITIONS.find(p => p.id === formData.poolCondition);
             if (pc) otherChips.push({ key: 'condition', label: 'Condition', value: pc.label });
           }
-          if (formData.isInground) {
+          if (currentStep > 5 && formData.isInground) {
             const pt = POOL_TYPE_OPTIONS.find(p => p.id === formData.isInground);
             if (pt) otherChips.push({ key: 'type', label: 'Type', value: pt.label });
           }
-          if (formData.serviceType && formData.serviceType !== 'pool') {
+          if (currentStep > 7 && formData.serviceType && formData.serviceType !== 'pool') {
             const sb = SERVICE_BODY_OPTIONS.find(s => s.id === formData.serviceType);
             if (sb) otherChips.push({ key: 'body', label: 'Body', value: sb.label });
           }
@@ -831,13 +836,9 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
             <label class="intake-label">Phone *</label>
             <input type="tel" class="intake-input" value={formData.phone} onInput={(e: any) => updateForm({ phone: formatPhone(e.target.value) })} placeholder="(912) 555-0123" />
           </div>
-          {formData.addressStreet && (
-            <div class="intake-field">
-              <label class="intake-label">Service Address</label>
-              <input type="text" class="intake-input" value={formData.addressStreet} disabled style="opacity: 0.7; cursor: not-allowed;" />
-              <p style="font-size: 0.8rem; color: var(--text-light); margin-top: 0.25rem;">From your service area check</p>
-            </div>
-          )}
+          {/* Service Address field removed in V2 — address is now shown
+              in the green-pin summary band above the form, with an edit
+              pencil that returns the user to the address page. */}
         </div>
         <div class="intake-actions" style="margin-top: 1.5rem;">
           <button type="button" class="intake-cta-btn" disabled={!isValid || dupChecking} onClick={async () => {
