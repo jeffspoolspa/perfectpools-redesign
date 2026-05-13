@@ -3190,14 +3190,11 @@ p:last-child {
   }
 }
 
-/* Hide the existing progress bar's track + step text on V2 (the live
-   summary band carries that info now). Keep the back arrow visible
-   for navigation. */
+/* Hide the entire progress bar on V2 (back arrow, track, step text).
+   The future model is progressive disclosure — answered questions
+   stay visible with an edit icon, so there's nothing to navigate
+   "back" to. The summary chip rail under the hero conveys progress. */
 .intake-modal--v2 .intake-progress-bar {
-  padding: 0.5rem 1.25rem 0;
-}
-.intake-modal--v2 .intake-progress-track,
-.intake-modal--v2 .intake-progress-label {
   display: none;
 }
 
