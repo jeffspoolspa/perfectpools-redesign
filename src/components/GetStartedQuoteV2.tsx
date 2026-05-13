@@ -685,12 +685,12 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
           );
         })()}
 
-        {/* Step content. Address renders first (currentStep === 1), then
-            service interest, then the rest of the original flow. */}
+        {/* Step content. Flow: Address → Contact (with dup check) →
+            Service interest → rest of the original flow. */}
         <div class={`intake-body gs-fade-in`} key={currentStep + '-' + redirect + (showDupCheck ? '-dup' : '')}>
           {currentStep === 1 && renderStep2()}
-          {currentStep === 2 && renderStep1()}
-          {currentStep === 3 && (showDupCheck ? renderDupCheck() : renderStep3())}
+          {currentStep === 2 && (showDupCheck ? renderDupCheck() : renderStep3())}
+          {currentStep === 3 && renderStep1()}
           {currentStep === 4 && renderStep4()}
           {currentStep === 5 && renderStep7()}
           {currentStep === 6 && renderStep6()}
