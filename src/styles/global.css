@@ -2986,6 +2986,7 @@ p:last-child {
   margin-bottom: 10px;
 }
 .intake-hero__title {
+  color: #fff;
   font-weight: 700;
   font-size: 1.85rem;
   line-height: 1.1;
