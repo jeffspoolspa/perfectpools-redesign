@@ -3,7 +3,10 @@ import TopBar from '../components/TopBar.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import CustomerIntakeForm from '../components/CustomerIntakeForm.tsx';
-import GetStartedQuote from '../components/GetStartedQuote.tsx';
+// Iterating on the modal UX in V2. Original is preserved at
+// src/components/GetStartedQuote.tsx as the immediate revert path —
+// swap the import back if V2 doesn't pan out.
+import GetStartedQuote from '../components/GetStartedQuoteV2.tsx';
 import '../styles/global.css';
 import '../styles/fluid.css';
 // Component-tool styles for the LSI calculator, sanitation tabs,

@@ -2856,6 +2856,124 @@ p:last-child {
   color: #111827;
 }
 
+/* ────────────────────────────────────────────────────────────────
+   V2 modal — persistent hero banner across every step
+   ────────────────────────────────────────────────────────────── */
+.intake-hero {
+  position: relative;
+  background: linear-gradient(135deg, #1E3A5F 0%, #145BB8 60%, #1E3A5F 100%);
+  color: #fff;
+  padding: 1rem 1.25rem 0;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+/* Diagonal sheen — mimics the stylized backdrop in the reference */
+.intake-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(
+    100deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.07) 35%,
+    rgba(255, 255, 255, 0.07) 50%,
+    transparent 55%,
+    transparent 65%,
+    rgba(255, 255, 255, 0.04) 70%,
+    transparent 75%
+  );
+  pointer-events: none;
+}
+.intake-hero__top {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.intake-hero__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+.intake-hero__logo {
+  width: 38px;
+  height: 38px;
+  background: var(--color-cta, #E28D33);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: #fff;
+  flex-shrink: 0;
+}
+.intake-hero__brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+  min-width: 0;
+}
+.intake-hero__brand-text strong {
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.intake-hero__brand-text span {
+  font-size: 0.75rem;
+  opacity: 0.8;
+  margin-top: 0.15rem;
+}
+.intake-hero__close {
+  background: transparent;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 150ms ease;
+  flex-shrink: 0;
+}
+.intake-hero__close:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+.intake-hero__body {
+  position: relative;
+  z-index: 1;
+  padding: 1.25rem 0 1.5rem;
+  min-height: 110px;
+}
+.intake-hero__title {
+  position: relative;
+  z-index: 2;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.01em;
+  max-width: 60%;
+}
+/* Placeholder illustration — soft radial highlight on the right side
+   stands in for the pool/house/truck artwork until the real asset
+   is supplied. Easy to swap for an <img> when ready. */
+.intake-hero__illustration {
+  position: absolute;
+  right: -0.5rem;
+  bottom: -0.5rem;
+  width: 45%;
+  height: 100%;
+  background:
+    radial-gradient(ellipse at 70% 60%, rgba(255, 255, 255, 0.18) 0%, transparent 65%),
+    linear-gradient(135deg, transparent 30%, rgba(255, 255, 255, 0.06) 50%, transparent 70%);
+  pointer-events: none;
+}
+
 /* Progress bar */
 .intake-progress-bar {
   padding: 1.25rem 1.5rem 0;
@@ -4046,9 +4164,15 @@ p:last-child {
 
 /* ── Responsive ── */
 @media (max-width: 640px) {
+  /* Fullscreen modal on mobile — no overlay padding, no border radius. */
+  .intake-overlay {
+    padding: 0;
+  }
   .intake-modal {
-    border-radius: 0.75rem;
+    border-radius: 0;
     max-width: 100%;
+    max-height: 100dvh;
+    height: 100dvh;
   }
 
   .intake-body {
