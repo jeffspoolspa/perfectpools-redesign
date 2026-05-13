@@ -2858,38 +2858,91 @@ p:last-child {
 
 /* ────────────────────────────────────────────────────────────────
    V2 modal — persistent hero (brand strip + illustration banner)
-   visible across every step.
+   visible across every step. Layout follows the "Pool Service
+   Intake Form" reference: bar on top, body below with copy on
+   the left and the illustration anchored right via background-image.
    ────────────────────────────────────────────────────────────── */
 .intake-hero {
+  position: relative;
   flex-shrink: 0;
-}
-/* Top: solid-blue brand strip (logo + company name + close button) */
-.intake-hero__strip {
-  background: var(--color-primary, #1E3A5F);
   color: #fff;
-  padding: 0.75rem 1rem;
+  background-color: #083655;
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-size: auto 100%;
+  overflow: hidden;
+  isolation: isolate;
+}
+/* Diagonal sheen */
+.intake-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0) 22%,
+    rgba(125, 211, 252, 0.10) 30%,
+    rgba(125, 211, 252, 0.10) 32%,
+    rgba(255, 255, 255, 0) 40%,
+    rgba(255, 255, 255, 0) 58%,
+    rgba(125, 211, 252, 0.06) 64%,
+    rgba(255, 255, 255, 0) 72%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+/* Dark gradient overlay on the LEFT half so the copy reads cleanly
+   against any portion of the illustration. */
+.intake-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(8, 47, 73, 0.92) 0%,
+    rgba(8, 47, 73, 0.78) 30%,
+    rgba(8, 47, 73, 0.45) 50%,
+    rgba(8, 47, 73, 0) 70%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+.intake-hero__bar {
+  position: relative;
+  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 18px 22px 0;
   gap: 1rem;
 }
 .intake-hero__brand {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
+  gap: 14px;
   min-width: 0;
 }
 .intake-hero__logo {
-  width: 38px;
-  height: 38px;
-  background: var(--color-cta, #E28D33);
-  border-radius: 8px;
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  background: #fff;
+  color: var(--color-primary, #1E3A5F);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 800;
-  font-size: 0.85rem;
-  color: #fff;
+  font-size: 1.15rem;
+  letter-spacing: 0.02em;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(255, 255, 255, 0.4) inset;
+  flex-shrink: 0;
+}
+.intake-hero__divider {
+  width: 1px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.22);
+  margin: 0 6px;
   flex-shrink: 0;
 }
 .intake-hero__brand-text {
@@ -2899,54 +2952,95 @@ p:last-child {
   min-width: 0;
 }
 .intake-hero__brand-text strong {
-  font-size: 0.9rem;
   font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-size: 1rem;
+  letter-spacing: 0.01em;
 }
 .intake-hero__brand-text span {
-  font-size: 0.75rem;
-  opacity: 0.8;
-  margin-top: 0.15rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #7dd3fc;
+  font-weight: 600;
+  margin-top: 4px;
 }
 .intake-hero__close {
-  background: transparent;
-  border: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.04);
   color: #fff;
-  cursor: pointer;
-  width: 36px;
-  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
+  cursor: pointer;
   transition: background 150ms ease;
   flex-shrink: 0;
 }
 .intake-hero__close:hover {
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.12);
 }
-/* Below the strip: the illustration banner with the title overlaid */
-.intake-hero__image {
+.intake-hero__body {
   position: relative;
-  background-color: #145BB8;
-  background-repeat: no-repeat;
-  background-position: right center;
-  background-size: cover;
-  min-height: 130px;
-  padding: 1.25rem 1.25rem 1.25rem;
-  color: #fff;
+  z-index: 2;
+  padding: 18px 22px 24px;
+  min-height: 160px;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
+}
+.intake-hero__copy {
+  max-width: 60%;
+}
+.intake-hero__eyebrow {
+  display: inline-block;
+  font-size: 0.66rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #7dd3fc;
+  margin-bottom: 10px;
 }
 .intake-hero__title {
-  position: relative;
-  font-size: 1.65rem;
   font-weight: 700;
+  font-size: 1.85rem;
+  line-height: 1.1;
   margin: 0;
-  letter-spacing: -0.01em;
-  max-width: 55%;
-  text-shadow: 0 2px 12px rgba(0, 20, 50, 0.35);
+  letter-spacing: -0.015em;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+}
+.intake-hero__progress {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.72);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: 0.04em;
+}
+.intake-hero__dots {
+  display: flex;
+  gap: 5px;
+}
+.intake-hero__dots i {
+  width: 22px;
+  height: 4px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.18);
+  display: inline-block;
+}
+.intake-hero__dots i.on {
+  background: #7dd3fc;
+  box-shadow: 0 0 8px rgba(125, 211, 252, 0.6);
+}
+@media (max-width: 640px) {
+  .intake-hero__title {
+    font-size: 1.5rem;
+  }
+  .intake-hero__copy {
+    max-width: 65%;
+  }
 }
 
 /* Progress bar */

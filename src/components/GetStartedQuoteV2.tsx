@@ -561,27 +561,43 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
   return (
     <div class="intake-overlay is-open" onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }} role="dialog" aria-modal="true" aria-label="Get a quote">
       <div class="intake-modal intake-modal--v2">
-        {/* Persistent hero — visible on every step. Top: solid-blue brand
-            strip (logo + name + close). Below: illustration banner with
-            "We're on the way!" overlaid. */}
-        <div class="intake-hero">
-          <div class="intake-hero__strip">
+        {/* Persistent hero — visible on every step. Layout follows the
+            "Pool Service Intake Form" reference: deep-navy gradient with
+            a bar (logo + brand + close) over the top, then a body with
+            eyebrow + title + progress dots on the left and the
+            illustration anchored to the right via background-image. */}
+        <div
+          class="intake-hero"
+          style={`background-image: url(${assetPath('images/quote-modal-hero.png')})`}
+        >
+          <div class="intake-hero__bar">
             <div class="intake-hero__brand">
               <div class="intake-hero__logo" aria-hidden="true">PP</div>
+              <div class="intake-hero__divider" />
               <div class="intake-hero__brand-text">
                 <strong>PERFECT POOLS</strong>
-                <span>Get Your Quote</span>
+                <span>Book Online</span>
               </div>
             </div>
             <button class="intake-hero__close" onClick={handleClose} aria-label="Close">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 6 6 18M6 6l12 12"/>
+              </svg>
             </button>
           </div>
-          <div
-            class="intake-hero__image"
-            style={`background-image: url(${assetPath('images/quote-modal-hero.png')})`}
-          >
-            <h2 class="intake-hero__title">We're on the way!</h2>
+          <div class="intake-hero__body">
+            <div class="intake-hero__copy">
+              <span class="intake-hero__eyebrow">Step {currentStep} of {TOTAL_STEPS}</span>
+              <h2 class="intake-hero__title">We're on the way!</h2>
+              <div class="intake-hero__progress">
+                <div class="intake-hero__dots" aria-hidden="true">
+                  {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
+                    <i class={i < currentStep ? 'on' : ''} />
+                  ))}
+                </div>
+                <span>~ 45 sec</span>
+              </div>
+            </div>
           </div>
         </div>
 
