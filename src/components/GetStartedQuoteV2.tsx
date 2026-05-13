@@ -1240,11 +1240,24 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
       hammer: <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 12-8.5 8.5c-.83.83-2.17.83-3 0 0 0 0 0 0 0a2.12 2.12 0 0 1 0-3L12 9"/><path d="M17.64 15 22 10.64"/><path d="m20.91 11.7-1.25-1.25c-.6-.6-.93-1.4-.93-2.25v-.86L16.01 4.6a5.56 5.56 0 0 0-3.94-1.64H9l.92.82A6.18 6.18 0 0 1 12 8.4v1.56l2 2h2.47l2.26 1.91"/></svg>,
     };
 
+    const infoIcon = (text: string) => (
+      <span class="psf-q__info" tabIndex={0} aria-label={text} data-tooltip={text}>
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="16" x2="12" y2="12"/>
+          <line x1="12" y1="8" x2="12.01" y2="8"/>
+        </svg>
+      </span>
+    );
+
     return (
       <div class="psf-progressive">
         {/* Q1: Service interest — always visible */}
         <div class="psf-q">
-          <h3 class="psf-q__label">What can we help you with?</h3>
+          <h3 class="psf-q__label">
+            What can we help you with?
+            {infoIcon("Select the service you're interested in")}
+          </h3>
           <div class="gs-service-grid">
             {SERVICE_TYPES.map(svc => (
               <div class="psf-service-cell" key={svc.id}>
@@ -1269,7 +1282,10 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
         {/* Q2: Property type */}
         {showProperty && (
           <div class="psf-q">
-            <h3 class="psf-q__label">What type of property?</h3>
+            <h3 class="psf-q__label">
+              What type of property?
+              {infoIcon('This helps us provide the right service level')}
+            </h3>
             <div class="intake-choice-grid">
               {CUSTOMER_TYPES.map(ct => (
                 <button
@@ -1293,7 +1309,10 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
         {/* Q3: Pool type (in-ground / above-ground) */}
         {showPoolType && (
           <div class="psf-q">
-            <h3 class="psf-q__label">In-ground or above-ground?</h3>
+            <h3 class="psf-q__label">
+              In-ground or above-ground?
+              {infoIcon('We currently service in-ground pools')}
+            </h3>
             <div class="intake-choice-grid">
               {POOL_TYPE_OPTIONS.map(pt => (
                 <button
@@ -1317,7 +1336,10 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
         {/* Q4: Pool condition */}
         {showCondition && (
           <div class="psf-q">
-            <h3 class="psf-q__label">What's the pool's current condition?</h3>
+            <h3 class="psf-q__label">
+              What's the pool's current condition?
+              {infoIcon('We want to make sure your pool is ready for maintenance')}
+            </h3>
             <div class="intake-choice-grid">
               {POOL_CONDITIONS.map(pc => (
                 <button
@@ -1342,7 +1364,10 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
             user can change to spa or pool+spa combo. */}
         {showBody && (
           <div class="psf-q">
-            <h3 class="psf-q__label">What are we maintaining?</h3>
+            <h3 class="psf-q__label">
+              What are we maintaining?
+              {infoIcon('Pool, spa, or both — pricing adjusts accordingly')}
+            </h3>
             <div class="intake-choice-grid intake-choice-grid--3">
               {SERVICE_BODY_OPTIONS.map(sb => (
                 <button

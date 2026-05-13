@@ -3281,6 +3281,56 @@ p:last-child {
   color: #0f2942;
   margin: 0;
   line-height: 1.3;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+/* Tooltip-on-hover info icon next to question labels. The data-tooltip
+   attribute carries the descriptive text; ::after renders it as a small
+   floating bubble above the icon on hover/focus. */
+.intake-modal--v2 .psf-q__info {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7e96;
+  cursor: help;
+  transition: color 0.15s ease;
+}
+.intake-modal--v2 .psf-q__info:hover,
+.intake-modal--v2 .psf-q__info:focus {
+  color: #0c4a6e;
+  outline: none;
+}
+.intake-modal--v2 .psf-q__info::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: #0c4a6e;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 6px 10px;
+  border-radius: 6px;
+  max-width: 240px;
+  width: max-content;
+  text-align: center;
+  line-height: 1.35;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 150ms ease, visibility 150ms ease, transform 150ms ease;
+  pointer-events: none;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.intake-modal--v2 .psf-q__info:hover::after,
+.intake-modal--v2 .psf-q__info:focus::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
 }
 
 /* V2 hero body now just shows the title — shrink min-height so the
@@ -3332,11 +3382,12 @@ p:last-child {
 }
 .intake-modal--v2 .gs-service-card {
   position: relative;
-  width: 100%;
+  width: 64px;
+  height: 64px;
   background: #fff;
   border: 1.5px solid #e3ebf3;
   border-radius: 10px;
-  padding: 14px;
+  padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
