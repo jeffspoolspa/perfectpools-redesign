@@ -3042,6 +3042,143 @@ p:last-child {
   }
 }
 
+/* ────────────────────────────────────────────────────────────────
+   V2 — Live "Your Pool" summary chip rail
+   Rendered between the progress bar and the step body. Fills with
+   chips as the user answers fields, implementing the "summarize
+   while it asks" pattern from the design.
+   ────────────────────────────────────────────────────────────── */
+.gs-summary {
+  background: linear-gradient(180deg, #f6fbff 0%, #eef7fd 100%);
+  border-bottom: 1px solid #e3ebf3;
+  padding: 12px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.gs-summary__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #0c4a6e;
+}
+.gs-summary__head span:last-child {
+  color: #6b7e96;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+.gs-summary__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 28px;
+}
+.gs-summary__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff;
+  border: 1px solid #cfe4f3;
+  color: #0c4a6e;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 99px;
+  box-shadow: 0 1px 0 rgba(2, 8, 20, 0.04);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.gs-summary__chip em {
+  font-style: normal;
+  color: #6b7e96;
+  font-weight: 500;
+  font-size: 0.72rem;
+}
+.gs-summary__empty {
+  color: #6b7e96;
+  font-size: 0.82rem;
+  font-style: italic;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   V2 — Question card overrides (scoped to .intake-modal--v2 so the
+   original modal's styling is untouched). Adopts the design's
+   tighter option-card look: smaller padding, square corners with a
+   subtle radius, blue accent on selection.
+   ────────────────────────────────────────────────────────────── */
+.intake-modal--v2 .intake-step-header {
+  margin-bottom: 1rem;
+}
+.intake-modal--v2 .intake-step-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+.intake-modal--v2 .intake-step-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+.intake-modal--v2 .intake-step-subtitle {
+  font-size: 0.85rem;
+}
+
+.intake-modal--v2 .intake-choice-grid {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.intake-modal--v2 .intake-choice {
+  padding: 14px 10px 12px;
+  border-width: 1.5px;
+  border-radius: 12px;
+  text-align: center;
+  background: #fff;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.1s ease;
+}
+.intake-modal--v2 .intake-choice:hover {
+  border-color: #bcd6ea;
+  background: #fff;
+  border-radius: 12px;
+  transform: none;
+  box-shadow: none;
+}
+.intake-modal--v2 .intake-choice:active {
+  transform: scale(0.98);
+}
+.intake-modal--v2 .intake-choice.selected,
+.intake-modal--v2 .intake-choice[data-selected="true"] {
+  border-color: #0284c7;
+  background: #f0f8fd;
+}
+.intake-modal--v2 .intake-choice-icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 8px;
+  background: transparent;
+  color: #0c4a6e;
+}
+.intake-modal--v2 .intake-choice-icon--emoji {
+  font-size: 2rem;
+  background: transparent;
+}
+.intake-modal--v2 .intake-choice h3 {
+  font-size: 0.86rem;
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.2;
+}
+.intake-modal--v2 .intake-choice p {
+  display: none;
+}
+
 /* Progress bar */
 .intake-progress-bar {
   padding: 1.25rem 1.5rem 0;
