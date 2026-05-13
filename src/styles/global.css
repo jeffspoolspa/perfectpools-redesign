@@ -2901,17 +2901,45 @@ p:last-child {
   padding: 18px 22px 0;
   gap: 1rem;
 }
-/* Real Perfect Pools logo image — fixed height, auto width, no
-   square box around it. Logo PNG already includes the brand
-   wordmark so no separate text strip is needed. */
+.intake-hero__brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+/* Real Perfect Pools logo image — fixed height, auto width. */
 .intake-hero__logo {
   height: 44px;
   width: auto;
   object-fit: contain;
   flex-shrink: 0;
-  /* Light drop shadow so the dark portion of the logo stays
-     legible against the dark hero background. */
   filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35));
+}
+.intake-hero__divider {
+  width: 1px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.25);
+  flex-shrink: 0;
+}
+.intake-hero__brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+  min-width: 0;
+}
+.intake-hero__brand-text strong {
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  color: #fff;
+}
+.intake-hero__brand-text span {
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #7dd3fc;
+  font-weight: 600;
+  margin-top: 4px;
 }
 .intake-hero__close {
   width: 34px;

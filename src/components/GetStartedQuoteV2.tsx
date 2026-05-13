@@ -576,11 +576,18 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
           style={`background-image: url(${assetPath('images/quote-modal-hero.png')})`}
         >
           <div class="intake-hero__bar">
-            <img
-              class="intake-hero__logo"
-              src={assetPath('images/perfect-pools-logo.png')}
-              alt="Perfect Pools"
-            />
+            <div class="intake-hero__brand">
+              <img
+                class="intake-hero__logo"
+                src={assetPath('images/perfect-pools-logo.png')}
+                alt="Perfect Pools"
+              />
+              <div class="intake-hero__divider" />
+              <div class="intake-hero__brand-text">
+                <strong>PERFECT POOLS</strong>
+                <span>Get Your Quote</span>
+              </div>
+            </div>
             <button class="intake-hero__close" onClick={handleClose} aria-label="Close">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M18 6 6 18M6 6l12 12"/>
