@@ -93,12 +93,15 @@ const equipment = [
 >
   <!-- ============ HERO ============ -->
   <section class="sr-hero">
-    <div class="sr-hero__bg"></div>
+    <img
+      src={`${import.meta.env.BASE_URL}images/hero-service-repair.jpg`}
+      alt="Perfect Pools technician working on pool equipment"
+      class="sr-hero__photo"
+      loading="eager"
+    />
+    <div class="sr-hero__overlay"></div>
     <div class="container sr-hero__content">
       <h1 class="sr-hero__title">We Don't Guess.<br/>We Diagnose.</h1>
-      <p class="sr-hero__subtitle">
-        Certified equipment experts who understand your pool as a complete system — not just the part that broke.
-      </p>
       <div class="sr-hero__actions">
         <button type="button" class="btn btn--cta btn--lg" data-open-intake>Schedule a Site Visit</button>
         <a href="tel:9124590160" class="btn btn--outline-white btn--lg">Call (912) 459-0160</a>
@@ -115,11 +118,20 @@ const equipment = [
       </div>
       <div class="philosophy-layout">
         <div class="philosophy-layout__content">
-          <p>Most pool problems aren't what they look like on the surface. Cloudy water isn't always a chemical problem. A pump that won't prime isn't always a pump problem. A heater that shuts off mid-cycle might be a flow issue, not a heater issue.</p>
-          <p>We approach every pool as an engineered system where water movement, filtration, and chlorination work together. When those three things are dialed in correctly, they do 90% of the work — and your chemical costs drop significantly. When one is off, you end up chasing symptoms with band-aid repairs that never solve the problem.</p>
+          <div class="philosophy-text">
+            <p>Most pool problems aren't what they look like on the surface. Cloudy water isn't always a chemical problem. A pump that won't prime isn't always a pump problem. A heater that shuts off mid-cycle might be a flow issue, not a heater issue.</p>
+            <p>We approach every pool as an engineered system where water movement, filtration, and chlorination work together. When those three things are dialed in correctly, they do 90% of the work — and your chemical costs drop significantly. When one is off, you end up chasing symptoms with band-aid repairs that never solve the problem.</p>
+          </div>
+          {equipment.map((item) => (
+            <article class="eq-info" data-eq-info={item.id}>
+              <h3 class="eq-info__title">{item.name}</h3>
+              <p class="eq-info__detail">{item.detail}</p>
+              <span class="eq-info__brands">{item.brands}</span>
+            </article>
+          ))}
         </div>
         <div class="philosophy-layout__diagram">
-          <p class="diagram-hint">Click on a piece of equipment to learn more</p>
+          <p class="diagram-hint">Hover over a piece of equipment to learn more</p>
           <div class="diagram-wrapper">
             <img
               src={`${import.meta.env.BASE_URL}images/pool-equipment-diagram.png`}
@@ -129,12 +141,12 @@ const equipment = [
               width="2816"
               height="1536"
             />
-            <!-- Clickable hotspot regions over equipment on the pad -->
-            <a href="#eq-pump" class="diagram-hotspot" style="top: 54.4%; left: 57.5%; width: 9.6%; height: 9.5%;" aria-label="Pump"></a>
-            <a href="#eq-filter" class="diagram-hotspot" style="top: 44.7%; left: 69.0%; width: 6.3%; height: 18.8%;" aria-label="Filter"></a>
-            <a href="#eq-heater" class="diagram-hotspot" style="top: 48.3%; left: 77.4%; width: 6.4%; height: 15.6%;" aria-label="Heater"></a>
-            <a href="#eq-chlorination" class="diagram-hotspot" style="top: 56.4%; left: 85.9%; width: 6.9%; height: 5.0%;" aria-label="Salt Cell"></a>
-            <a href="#eq-automation" class="diagram-hotspot" style="top: 29.5%; left: 61.2%; width: 6.7%; height: 14.2%;" aria-label="Automation Controller"></a>
+            <!-- Hover/click hotspot regions over equipment on the pad -->
+            <a href="#eq-pump" data-eq="pumps" class="diagram-hotspot" style="top: 54.4%; left: 57.5%; width: 9.6%; height: 9.5%;" aria-label="Pump"></a>
+            <a href="#eq-filter" data-eq="filtration" class="diagram-hotspot" style="top: 44.7%; left: 69.0%; width: 6.3%; height: 18.8%;" aria-label="Filter"></a>
+            <a href="#eq-heater" data-eq="heaters" class="diagram-hotspot" style="top: 48.3%; left: 77.4%; width: 6.4%; height: 15.6%;" aria-label="Heater"></a>
+            <a href="#eq-chlorination" data-eq="chlorination" class="diagram-hotspot" style="top: 56.4%; left: 85.9%; width: 6.9%; height: 5.0%;" aria-label="Salt Cell"></a>
+            <a href="#eq-automation" data-eq="automation" class="diagram-hotspot" style="top: 29.5%; left: 61.2%; width: 6.7%; height: 14.2%;" aria-label="Automation Controller"></a>
           </div>
         </div>
       </div>
@@ -150,13 +162,20 @@ const equipment = [
         <p class="section-header__subtitle">When we install equipment, it comes with a full manufacturer's warranty — typically two to three years. In coastal Georgia where salt air accelerates wear on everything, that coverage matters.</p>
       </div>
 
-      <!-- Brand logos -->
-      <div class="brand-strip">
-        <div class="brand-strip__item">Hayward</div>
-        <div class="brand-strip__item">Pentair</div>
-        <div class="brand-strip__item">Jandy</div>
-        <div class="brand-strip__item">Fluidra</div>
-        <div class="brand-strip__item">AquaCal</div>
+      <!-- Brand logos — infinite marquee -->
+      <div class="brand-marquee" aria-label="Certified installer brands">
+        <div class="brand-marquee__track">
+          {[0, 1].map(() => (
+            <div class="brand-marquee__group" aria-hidden={false}>
+              <img src={`${import.meta.env.BASE_URL}images/brands/hayward-logo.png`} alt="Hayward" class="brand-logo" />
+              <img src={`${import.meta.env.BASE_URL}images/brands/aquacal-logo.png`} alt="AquaCal" class="brand-logo" />
+              <img src={`${import.meta.env.BASE_URL}images/brands/jandy-logo.png`} alt="Jandy" class="brand-logo" />
+              <img src={`${import.meta.env.BASE_URL}images/brands/pentair-logo.png`} alt="Pentair" class="brand-logo" />
+              <img src={`${import.meta.env.BASE_URL}images/brands/polaris-logo.png`} alt="Polaris" class="brand-logo" />
+              <img src={`${import.meta.env.BASE_URL}images/brands/intermatic.png`} alt="Intermatic" class="brand-logo" />
+            </div>
+          ))}
+        </div>
       </div>
 
       <div class="warranty-grid">
@@ -290,31 +309,28 @@ const equipment = [
         <h2>Equipment We Service, Repair & Install</h2>
       </div>
 
-      <div class="equipment-grid">
-        {equipment.map((item) => (
-          <details class="equipment-card" id={`eq-${item.id}`}>
-            <summary class="equipment-card__header">
-              <div class="equipment-card__icon">
-                {item.icon === 'pump' && <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg>}
-                {item.icon === 'filter' && <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>}
-                {item.icon === 'chlorination' && <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2v17.5c0 1.4-1.1 2.5-2.5 2.5s-2.5-1.1-2.5-2.5V2"/><path d="M8.5 2h7"/><path d="M14.5 16h-5"/></svg>}
-                {item.icon === 'heater' && <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/></svg>}
-                {item.icon === 'automation' && <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>}
-                {item.icon === 'cleaner' && <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"/></svg>}
-              </div>
-              <div class="equipment-card__text">
-                <h3>{item.name}</h3>
-                <p>{item.description}</p>
-              </div>
-              <div class="equipment-card__chevron">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-              </div>
-            </summary>
-            <div class="equipment-card__detail">
-              <p>{item.detail}</p>
-              <span class="equipment-card__brands">{item.brands}</span>
+      <div class="equipment-grid" data-state="default">
+        {equipment.map((item, i) => (
+          <article class="eq-tile" id={`eq-${item.id}`} data-eq-id={item.id} data-l-pos={i + 1} role="button" tabindex="0">
+            <div class="eq-tile__icon">
+              {item.icon === 'pump' && <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg>}
+              {item.icon === 'filter' && <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>}
+              {item.icon === 'chlorination' && <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2v17.5c0 1.4-1.1 2.5-2.5 2.5s-2.5-1.1-2.5-2.5V2"/><path d="M8.5 2h7"/><path d="M14.5 16h-5"/></svg>}
+              {item.icon === 'heater' && <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/></svg>}
+              {item.icon === 'automation' && <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>}
+              {item.icon === 'cleaner' && <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"/></svg>}
             </div>
-          </details>
+            <div class="eq-tile__card">
+              <h3 class="eq-tile__name">{item.name}</h3>
+              <div class="eq-tile__expand">
+                <p class="eq-tile__detail">{item.detail}</p>
+                <span class="eq-tile__brands">{item.brands}</span>
+              </div>
+            </div>
+            <button class="eq-tile__close" type="button" aria-label="Close details">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+          </article>
         ))}
       </div>
     </div>
@@ -343,70 +359,288 @@ const equipment = [
     </div>
   </section>
 
-  <!-- Equipment preview → detail scroll + expand -->
+  <!-- Diagram hover → slide diagram, fade in info card -->
   <script>
-    document.querySelectorAll('.eq-preview').forEach((link) => {
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-        const targetId = (link as HTMLElement).dataset.eqTarget;
-        if (!targetId) return;
-        const target = document.getElementById(`eq-${targetId}`) as HTMLDetailsElement;
-        if (!target) return;
+    const philosophyLayout = document.querySelector('.philosophy-layout');
+    if (philosophyLayout) {
+      const hotspots = philosophyLayout.querySelectorAll('.diagram-hotspot');
+      const infoCards = philosophyLayout.querySelectorAll('.eq-info');
+      const diagramWrapper = philosophyLayout.querySelector('.diagram-wrapper');
 
-        // Close all other equipment cards
-        document.querySelectorAll('.equipment-card').forEach((card) => {
-          if (card !== target) (card as HTMLDetailsElement).open = false;
+      hotspots.forEach((hotspot) => {
+        hotspot.addEventListener('mouseenter', () => {
+          const id = (hotspot as HTMLElement).dataset.eq;
+          infoCards.forEach((card) => {
+            const matches = (card as HTMLElement).dataset.eqInfo === id;
+            card.classList.toggle('is-active', matches);
+          });
+          philosophyLayout.classList.add('is-hovering');
+        });
+      });
+
+      if (diagramWrapper) {
+        diagramWrapper.addEventListener('mouseleave', () => {
+          philosophyLayout.classList.remove('is-hovering');
+          infoCards.forEach((card) => card.classList.remove('is-active'));
+        });
+      }
+    }
+  </script>
+
+  <!-- Equipment grid: CLICK to expand. Hand-rolled spring physics drives
+       each tile's transform — springs keep their velocity across state
+       changes, so clicking a new icon mid-flight smoothly redirects the
+       animation instead of waiting for it to finish. -->
+  <script>
+    (() => {
+      const grid = document.querySelector('.equipment-grid');
+      if (!grid) return;
+      const tiles = Array.from(grid.querySelectorAll('.eq-tile'));
+
+      // Spring config — tuned for soft, snappy motion that still settles fast
+      const STIFFNESS = 180;
+      const DAMPING = 24;
+      const REST_POS = 0.1;
+      const REST_VEL = 0.5;
+
+      // Per-tile spring state: position (offset from layout), velocity
+      const springs = new Map();
+      tiles.forEach((t) => springs.set(t, { x: 0, y: 0, vx: 0, vy: 0 }));
+
+      let activeTile = null;
+      let rafId = null;
+      let lastFrame = 0;
+
+      function setActive(target) {
+        if (target === activeTile) return;
+
+        // Capture current VISUAL rects (with any in-flight transforms applied)
+        const before = new Map();
+        tiles.forEach((t) => before.set(t, t.getBoundingClientRect()));
+
+        // Snap inline transforms to none so the after-rect reflects PURE layout
+        tiles.forEach((t) => { t.style.transform = ''; });
+        void grid.offsetHeight; // force reflow
+
+        // Apply state change
+        grid.dataset.state = target !== null ? 'active' : 'default';
+        tiles.forEach((t) => t.classList.toggle('is-active', t === target));
+        activeTile = target;
+
+        // For each tile: compute delta from current visual → new layout,
+        // and set the spring position to that delta. Velocity is preserved
+        // so mid-flight clicks redirect smoothly with momentum.
+        tiles.forEach((t) => {
+          const b = before.get(t);
+          const a = t.getBoundingClientRect();
+          const spring = springs.get(t);
+          spring.x = b.left - a.left;
+          spring.y = b.top - a.top;
+          // Apply the initial transform so the tile visually stays put
+          if (Math.abs(spring.x) > 0.1 || Math.abs(spring.y) > 0.1) {
+            t.style.transform = 'translate(' + spring.x + 'px, ' + spring.y + 'px)';
+          }
         });
 
-        // Open the target card
-        target.open = true;
+        // After the icon springs into place, the card content emerges from
+        // the icon's top-left corner — scaling up and out to its final
+        // centered position. Origin = icon, destination = card's natural spot.
+        if (target) {
+          const icon = target.querySelector('.eq-tile__icon');
+          const card = target.querySelector('.eq-tile__card');
+          const close = target.querySelector('.eq-tile__close');
 
-        // Smooth scroll to it with offset for sticky header
-        setTimeout(() => {
-          const top = target.getBoundingClientRect().top + window.scrollY - 100;
-          window.scrollTo({ top, behavior: 'smooth' });
-        }, 50);
+          if (card && icon) {
+            // Measure final layout positions for icon + card
+            const iconRect = icon.getBoundingClientRect();
+            const cardRect = card.getBoundingClientRect();
+            const dx = iconRect.left - cardRect.left;
+            const dy = iconRect.top - cardRect.top;
+
+            card.style.transformOrigin = '0 0';
+            card.style.transition = 'none';
+            card.style.transform = 'translate(' + dx + 'px, ' + dy + 'px) scale(0.05)';
+            card.style.opacity = '0';
+            void card.offsetHeight;
+
+            window.setTimeout(() => {
+              card.style.transition = 'transform 0.6s cubic-bezier(0.32, 1.2, 0.32, 1), opacity 0.45s ease';
+              card.style.transform = 'translate(0, 0) scale(1)';
+              card.style.opacity = '1';
+              const cleanup = (e) => {
+                if (e.propertyName !== 'transform') return;
+                card.style.transition = '';
+                card.style.transform = '';
+                card.style.opacity = '';
+                card.style.transformOrigin = '';
+                card.removeEventListener('transitionend', cleanup);
+              };
+              card.addEventListener('transitionend', cleanup);
+            }, 280);
+          }
+
+          if (close) {
+            close.style.opacity = '0';
+            close.style.transition = 'none';
+            void close.offsetHeight;
+            window.setTimeout(() => {
+              close.style.transition = 'opacity 0.3s ease';
+              close.style.opacity = '1';
+              const cleanup = () => {
+                close.style.transition = '';
+                close.style.opacity = '';
+                close.removeEventListener('transitionend', cleanup);
+              };
+              close.addEventListener('transitionend', cleanup);
+            }, 450);
+          }
+        }
+
+        startSpringLoop();
+      }
+
+      function startSpringLoop() {
+        if (rafId !== null) return;
+        lastFrame = performance.now();
+        rafId = requestAnimationFrame(tick);
+      }
+
+      function tick(now) {
+        const dt = Math.min(0.033, (now - lastFrame) / 1000);
+        lastFrame = now;
+
+        let stillMoving = false;
+        springs.forEach((spring, tile) => {
+          if (
+            Math.abs(spring.x) < REST_POS && Math.abs(spring.y) < REST_POS &&
+            Math.abs(spring.vx) < REST_VEL && Math.abs(spring.vy) < REST_VEL
+          ) {
+            // Settled — snap to zero and clear transform
+            if (spring.x !== 0 || spring.y !== 0 || tile.style.transform) {
+              spring.x = 0; spring.y = 0; spring.vx = 0; spring.vy = 0;
+              tile.style.transform = '';
+            }
+            return;
+          }
+
+          // Spring physics: force = -k*x - c*v
+          const ax = -STIFFNESS * spring.x - DAMPING * spring.vx;
+          const ay = -STIFFNESS * spring.y - DAMPING * spring.vy;
+          spring.vx += ax * dt;
+          spring.vy += ay * dt;
+          spring.x += spring.vx * dt;
+          spring.y += spring.vy * dt;
+
+          tile.style.transform = 'translate(' + spring.x.toFixed(2) + 'px, ' + spring.y.toFixed(2) + 'px)';
+          stillMoving = true;
+        });
+
+        if (stillMoving) {
+          rafId = requestAnimationFrame(tick);
+        } else {
+          rafId = null;
+        }
+      }
+
+      // Click handlers — entire tile is the click target (except close btn)
+      tiles.forEach((tile) => {
+        const close = tile.querySelector('.eq-tile__close');
+        tile.addEventListener('click', (e) => {
+          if (tile === activeTile) return;
+          if (close && close.contains(e.target)) return; // close handled separately
+          setActive(tile);
+        });
+        tile.addEventListener('keydown', (e) => {
+          if (e.key !== 'Enter' && e.key !== ' ') return;
+          if (tile === activeTile) return;
+          e.preventDefault();
+          setActive(tile);
+        });
+        if (close) close.addEventListener('click', (e) => {
+          e.stopPropagation();
+          setActive(null);
+        });
       });
-    });
+
+      // Click outside the grid → close
+      document.addEventListener('click', (e) => {
+        if (!activeTile) return;
+        if (grid.contains(e.target)) return;
+        setActive(null);
+      });
+
+      // Esc → close
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && activeTile) setActive(null);
+      });
+    })();
   </script>
+
 </BaseLayout>
 
 <style>
   /* ============ HERO ============ */
   .sr-hero {
-    position: relative;
-    padding: var(--space-16) 0;
-    background: linear-gradient(135deg, var(--color-dark-blue) 0%, var(--color-primary) 100%);
+    position: sticky;
+    top: 0;
+    z-index: 0;
+    padding: var(--space-8) 0;
+    background: var(--color-dark-blue);
     color: white;
     overflow: hidden;
+    min-height: 640px;
+    display: flex;
+    align-items: center;
   }
 
-  .sr-hero__bg {
+  /* All sections below hero must paint over it as the user scrolls.
+     Transparent sections need an explicit bg so the sticky hero
+     doesn't bleed through underneath. */
+  .sr-hero ~ section {
+    position: relative;
+    z-index: 1;
+    background-color: var(--color-bg);
+  }
+
+  /* Preserve sections that have their own background. */
+  .sr-hero ~ section.section--alt { background-color: var(--color-bg-alt); }
+  .sr-hero ~ section.section--dark-diagram { background-color: #1a1f2e; }
+  .sr-hero ~ section.cta-section {
+    background: linear-gradient(135deg, var(--color-dark-blue) 0%, var(--color-primary) 100%);
+  }
+
+  .sr-hero__photo {
     position: absolute;
     inset: 0;
-    opacity: 0.08;
-    background: radial-gradient(circle at 70% 20%, rgba(255,255,255,0.2), rgba(0,0,0,0));
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 35%;
+    z-index: 0;
+  }
+
+  .sr-hero__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(10, 22, 47, 0.85) 0%, rgba(10, 22, 47, 0.55) 55%, rgba(10, 22, 47, 0.35) 100%);
+    z-index: 1;
   }
 
   .sr-hero__content {
     position: relative;
-    max-width: 800px;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+    width: 100%;
   }
 
   .sr-hero__title {
-    font-size: clamp(2.5rem, 5vw, 3.75rem);
+    font-size: clamp(2rem, 4vw, 3rem);
     font-weight: 700;
     line-height: 1.1;
-    margin-bottom: var(--space-6);
+    margin-bottom: 0;
     color: white;
-  }
-
-  .sr-hero__subtitle {
-    font-size: var(--text-xl);
-    color: rgba(255, 255, 255, 0.85);
-    line-height: 1.7;
-    max-width: 640px;
-    margin-bottom: var(--space-8);
   }
 
   .sr-hero__actions {
@@ -417,7 +651,23 @@ const equipment = [
 
   @media (min-width: 768px) {
     .sr-hero {
-      padding: var(--space-20) 0;
+      padding: var(--space-10) 0;
+    }
+
+    .sr-hero__content {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-8);
+    }
+
+    .sr-hero__title {
+      flex: 0 1 auto;
+      margin: 0;
+    }
+
+    .sr-hero__actions {
+      flex: 0 0 auto;
     }
   }
 
@@ -467,24 +717,90 @@ const equipment = [
   }
 
   .philosophy-layout__content {
+    position: relative;
     max-width: 800px;
+    min-height: 240px;
   }
 
-  .philosophy-layout__content p {
+  .philosophy-text {
+    transition: opacity 0.35s ease, transform 0.35s ease;
+  }
+
+  .philosophy-text p {
     font-size: var(--text-lg);
-    color: var(--color-gray-600);
+    color: rgba(255, 255, 255, 0.75);
     line-height: 1.8;
     margin-bottom: var(--space-4);
   }
 
-  .philosophy-layout__content p:last-child {
+  .philosophy-text p:last-child {
     margin-bottom: 0;
   }
 
-  /* Dark diagram section */
+  .philosophy-layout.is-hovering .philosophy-text {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+
+  /* Equipment info modal */
+  .eq-info {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    opacity: 0;
+    transform: translateX(-12px);
+    pointer-events: none;
+    transition: opacity 0.35s ease, transform 0.35s ease;
+  }
+
+  .eq-info.is-active {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .eq-info__title {
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    color: white;
+    margin-bottom: var(--space-4);
+  }
+
+  .eq-info__detail {
+    font-size: var(--text-base);
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.7;
+    margin-bottom: var(--space-5);
+  }
+
+  .eq-info__brands {
+    display: inline-block;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-accent);
+    background: rgba(255, 255, 255, 0.08);
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-full);
+  }
+
+  /* Diagram slide */
+  .philosophy-layout__diagram {
+    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .philosophy-layout.is-hovering .philosophy-layout__diagram {
+    transform: translateX(32px);
+  }
+
+  /* Dark diagram section — slides up over the sticky hero with a rounded top */
   .section--dark-diagram {
     background: #1a1f2e;
     color: white;
+    border-radius: 32px 32px 0 0;
+    margin-top: -32px;
   }
 
   .section--dark-diagram h2 {
@@ -532,25 +848,53 @@ const equipment = [
   }
 
 
-  /* ============ BRAND STRIP ============ */
-  .brand-strip {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: var(--space-6);
+  /* ============ BRAND MARQUEE ============ */
+  .brand-marquee {
+    position: relative;
+    overflow: hidden;
     margin-bottom: var(--space-12);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+    mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
   }
 
-  .brand-strip__item {
-    padding: var(--space-4) var(--space-8);
-    background: white;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    font-family: var(--font-heading);
-    font-size: var(--text-lg);
-    font-weight: 600;
-    color: var(--color-gray-700);
-    white-space: nowrap;
+  .brand-marquee__track {
+    display: flex;
+    width: max-content;
+    animation: brand-scroll 35s linear infinite;
+  }
+
+  .brand-marquee__group {
+    display: flex;
+    align-items: center;
+    gap: var(--space-16);
+    padding-right: var(--space-16);
+    flex-shrink: 0;
+  }
+
+  .brand-logo {
+    height: 48px;
+    width: auto;
+    max-width: 180px;
+    object-fit: contain;
+    filter: grayscale(100%);
+    opacity: 0.7;
+    transition: filter 0.3s ease, opacity 0.3s ease;
+  }
+
+  .brand-logo:hover {
+    filter: grayscale(0);
+    opacity: 1;
+  }
+
+  @keyframes brand-scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .brand-marquee__track {
+      animation: none;
+    }
   }
 
   /* ============ WARRANTY GRID ============ */
@@ -841,55 +1185,84 @@ const equipment = [
     line-height: 1.7;
   }
 
-  /* ============ EQUIPMENT GRID (single column) ============ */
+  /* ============ EQUIPMENT GRID — click to expand, icon physically travels =============
+     Each tile has a FIXED L position. Click an icon → it travels to the callout
+     area (top-left 3×2), leaving its L cell empty. Click X (or another tile)
+     to close. No hover state changes — click is deliberate, no race conditions.
+  ============================================================================ */
   .equipment-grid {
-    display: flex;
-    flex-direction: column;
+    display: grid;
     gap: var(--space-4);
-    max-width: 900px;
+    max-width: 1100px;
     margin: 0 auto;
   }
 
-  .equipment-card {
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-xl);
-    background: var(--color-light-bg);
-    overflow: hidden;
-    transition: all var(--transition-fast);
+  /* Default state: clean 3×2 */
+  .equipment-grid[data-state="default"] {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 180px);
   }
 
-  .equipment-card:hover {
-    border-color: var(--color-primary);
+  /* Active state: 4×3. Active tile occupies callout (top-left 3×2). Other 5
+     tiles in fixed L positions; the active tile's L cell stays empty. */
+  .equipment-grid[data-state="active"] {
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(3, 180px);
   }
 
-  .equipment-card[open] {
-    border-color: var(--color-primary);
-    box-shadow: var(--shadow-md);
+  /* Locked L positions */
+  .equipment-grid[data-state="active"] .eq-tile[data-l-pos="1"] { grid-column: 4; grid-row: 1; }
+  .equipment-grid[data-state="active"] .eq-tile[data-l-pos="2"] { grid-column: 4; grid-row: 2; }
+  .equipment-grid[data-state="active"] .eq-tile[data-l-pos="3"] { grid-column: 1; grid-row: 3; }
+  .equipment-grid[data-state="active"] .eq-tile[data-l-pos="4"] { grid-column: 2; grid-row: 3; }
+  .equipment-grid[data-state="active"] .eq-tile[data-l-pos="5"] { grid-column: 3; grid-row: 3; }
+  .equipment-grid[data-state="active"] .eq-tile[data-l-pos="6"] { grid-column: 4; grid-row: 3; }
+
+  /* Active tile overrides its L position and takes the callout area. */
+  .equipment-grid[data-state="active"] .eq-tile.is-active {
+    grid-column: 1 / 4;
+    grid-row: 1 / 3;
   }
 
-  .equipment-card__header {
+  /* Lock click events during the FLIP animation. */
+  .equipment-grid.is-animating .eq-tile {
+    pointer-events: none;
+  }
+
+  @media (max-width: 768px) {
+    .equipment-grid[data-state="default"] { grid-template-rows: repeat(2, 160px); }
+    .equipment-grid[data-state="active"] { grid-template-rows: repeat(3, 160px); }
+  }
+
+  /* Tile — default: icon centered above name, click target = whole tile */
+  .eq-tile {
+    position: relative;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: var(--space-4);
-    padding: var(--space-6);
+    justify-content: center;
+    text-align: center;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    color: var(--color-gray-700);
     cursor: pointer;
-    list-style: none;
+    overflow: hidden;
+    /* No CSS transitions on transform — spring JS drives the motion */
+    transition: color 0.25s ease;
   }
 
-  .equipment-card__header::-webkit-details-marker {
-    display: none;
+  .eq-tile:hover,
+  .eq-tile:focus-visible {
+    color: var(--color-primary);
+    outline: none;
   }
 
-  .equipment-card__header::marker {
-    display: none;
-    content: '';
+  .eq-tile:hover .eq-tile__name,
+  .eq-tile:focus-visible .eq-tile__name {
+    color: var(--color-primary);
   }
 
-  .equipment-card__icon {
-    width: 52px;
-    height: 52px;
-    border-radius: var(--radius-lg);
-    background: #dbeafe;
+  .eq-tile__icon {
     color: var(--color-primary);
     display: flex;
     align-items: center;
@@ -897,49 +1270,40 @@ const equipment = [
     flex-shrink: 0;
   }
 
-  .equipment-card__text {
-    flex: 1;
-    min-width: 0;
+  /* Card wrapper — holds name + expand. In default it's just the name;
+     in active it grows from the icon's position to reveal everything. */
+  .eq-tile__card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-4);
   }
 
-  .equipment-card__text h3 {
+  .eq-tile__name {
     font-size: var(--text-base);
-    font-weight: 700;
-    margin-bottom: var(--space-1);
+    font-weight: 600;
+    margin: 0;
+    color: var(--color-gray-800);
   }
 
-  .equipment-card__text p {
-    font-size: var(--text-sm);
-    color: var(--color-gray-500);
-    line-height: 1.5;
+  /* Expand panel — hidden by default */
+  .eq-tile__expand {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--space-4);
   }
 
-  .equipment-card__chevron {
-    color: var(--color-gray-400);
-    transition: transform var(--transition-fast);
-    flex-shrink: 0;
-  }
-
-  .equipment-card[open] .equipment-card__chevron {
-    transform: rotate(180deg);
-    color: var(--color-primary);
-  }
-
-  .equipment-card__detail {
-    padding: 0 var(--space-6) var(--space-6);
-    border-top: 1px solid var(--color-border);
-    margin-top: 0;
-    padding-top: var(--space-6);
-  }
-
-  .equipment-card__detail p {
+  .eq-tile__detail {
     font-size: var(--text-base);
     color: var(--color-gray-600);
     line-height: 1.7;
-    margin-bottom: var(--space-4);
+    margin: 0;
+    max-width: 60ch;
   }
 
-  .equipment-card__brands {
+  .eq-tile__brands {
     display: inline-block;
     font-size: var(--text-sm);
     font-weight: 600;
@@ -947,5 +1311,70 @@ const equipment = [
     background: #dbeafe;
     padding: var(--space-1) var(--space-3);
     border-radius: var(--radius-full);
+  }
+
+  /* Close button — hidden by default */
+  .eq-tile__close {
+    position: absolute;
+    top: var(--space-5);
+    right: var(--space-5);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.04);
+    border: 1px solid var(--color-border);
+    color: var(--color-gray-600);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    z-index: 3;
+  }
+
+  .eq-tile__close:hover {
+    background: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+  }
+
+  /* === Active tile — icon top-left, label centered above body content === */
+  .eq-tile.is-active {
+    cursor: default;
+    /* Icon goes to top-left; everything else is vertically/horizontally centered */
+    padding: var(--space-8) var(--space-12) var(--space-8) var(--space-8);
+  }
+
+  /* Stop the default hover lift in active state */
+  .eq-tile.is-active:hover {
+    color: var(--color-gray-700);
+  }
+
+  .eq-tile.is-active .eq-tile__icon {
+    position: absolute;
+    top: var(--space-6);
+    left: var(--space-6);
+  }
+
+  .eq-tile.is-active .eq-tile__card {
+    gap: var(--space-4);
+  }
+
+  .eq-tile.is-active .eq-tile__name {
+    font-size: var(--text-3xl);
+    font-weight: 700;
+    color: var(--color-gray-900);
+    text-align: center;
+    margin: 0;
+    /* Sit centered above the body content */
+    margin-bottom: var(--space-2);
+  }
+
+  .eq-tile.is-active .eq-tile__expand {
+    display: flex;
+  }
+
+  .eq-tile.is-active .eq-tile__close {
+    display: flex;
   }
 </style>
