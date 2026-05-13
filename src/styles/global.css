@@ -2907,18 +2907,18 @@ p:last-child {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 2cqi 3cqi 0;
+  padding: 2.5cqi 3.5cqi 0;
   gap: 2cqi;
 }
 .intake-hero__brand {
   display: flex;
   align-items: center;
-  gap: 1.6cqi;
+  gap: 2.2cqi;
   min-width: 0;
 }
 /* Real Perfect Pools logo image — scales with hero width via cqi. */
 .intake-hero__logo {
-  height: 6.5cqi;
+  height: 10cqi;
   width: auto;
   object-fit: contain;
   flex-shrink: 0;
@@ -2926,7 +2926,7 @@ p:last-child {
 }
 .intake-hero__divider {
   width: 1px;
-  height: 5cqi;
+  height: 7cqi;
   background: rgba(255, 255, 255, 0.25);
   flex-shrink: 0;
 }
@@ -2938,23 +2938,23 @@ p:last-child {
 }
 .intake-hero__brand-text strong {
   font-weight: 700;
-  font-size: 2.3cqi;
+  font-size: 3.2cqi;
   letter-spacing: 0.04em;
   color: #fff;
 }
 .intake-hero__brand-text span {
-  font-size: 1.7cqi;
+  font-size: 2.4cqi;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: #7dd3fc;
   font-weight: 600;
-  margin-top: 0.5cqi;
+  margin-top: 0.6cqi;
 }
 .intake-hero__close {
-  width: 5cqi;
-  height: 5cqi;
-  min-width: 28px;
-  min-height: 28px;
+  width: 7cqi;
+  height: 7cqi;
+  min-width: 32px;
+  min-height: 32px;
   border-radius: 50%;
   border: 1px solid rgba(255, 255, 255, 0.2);
   background: rgba(255, 255, 255, 0.04);
