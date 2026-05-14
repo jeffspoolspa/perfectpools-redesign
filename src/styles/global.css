@@ -814,9 +814,14 @@ p:last-child {
    Homepage Sections
    ============================================ */
 
-/* --- Hero with Background Image --- */
+/* --- Hero with Background Image ---
+   Sticky-pinned at the top of the page (z-index: 0) so subsequent
+   sections (z-index: 1) scroll OVER it. Same effect used on the
+   service-repair hero. */
 .hero--image {
-  position: relative;
+  position: sticky;
+  top: 0;
+  z-index: 0;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -825,6 +830,22 @@ p:last-child {
   padding-bottom: 3rem;
   overflow: hidden;
   text-align: left;
+}
+/* Every section after the sticky hero must paint over it. Background
+   color is restated explicitly per-section because my ~section rule
+   has higher specificity (0,2,1) than the existing single-class
+   .methodology--water etc. and would otherwise blank them out. */
+.hero.hero--image ~ section {
+  position: relative;
+  z-index: 1;
+  background-color: var(--color-bg);
+}
+.hero.hero--image ~ .methodology--water { background-color: #0a3d6b; }
+.hero.hero--image ~ .services-dark { background-color: #1E3A5F; }
+.hero.hero--image ~ .partner-section { background-color: var(--color-white); }
+.hero.hero--image ~ .reviews-home { background-color: var(--color-light-bg); }
+@media (max-width: 767px) {
+  .hero.hero--image ~ .methodology--water { background-color: #ffffff; }
 }
 /* On phones the form + text stack is taller than the viewport, so
    centering pushes the form above the fold (behind the header). Anchor
