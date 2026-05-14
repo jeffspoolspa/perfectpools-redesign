@@ -1247,14 +1247,17 @@ p:last-child {
    near the route-card section. Source-order matters because the
    mobile rule has the same specificity and needs to come AFTER.) */
 
-/* Expandable route-card variant — full-width card, header is a 2-line
-   row (icon left + title/subtitle right + chevron). Tapping the header
-   toggles .is-expanded which animates the form area open below. */
+/* Expandable route-card variant — full-width button-style card.
+   Header has TWO logical lines: a top row with icon · title · chevron
+   (only the title sits in line with the icon), and a thin subtitle
+   line below it that spans the full button width. The title scales
+   with the button width (cqi units) and never wraps to two lines. */
 .route-card--expandable {
   padding: 0;
   width: 100%;
   border-radius: var(--radius-md, 16px);
   overflow: hidden;
+  container-type: inline-size;
   transition: box-shadow 250ms ease;
 }
 .route-card--expandable.is-expanded {
@@ -1262,11 +1265,10 @@ p:last-child {
 }
 .route-card__header {
   width: 100%;
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.5rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.5rem 0.85rem 0.55rem;
   background: transparent;
   border: none;
   cursor: pointer;
@@ -1274,9 +1276,16 @@ p:last-child {
   text-align: left;
   color: inherit;
 }
+.route-card__row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+}
 .route-card__header .route-card__icon {
-  width: 1.7rem;
-  height: 1.7rem;
+  width: 1.6rem;
+  height: 1.6rem;
   border-radius: 0.4rem;
   flex-shrink: 0;
   display: flex;
@@ -1284,22 +1293,24 @@ p:last-child {
   justify-content: center;
 }
 .route-card__header .route-card__icon svg {
-  width: 0.95rem;
-  height: 0.95rem;
+  width: 0.9rem;
+  height: 0.9rem;
 }
-.route-card__title-block {
-  min-width: 0;
-  line-height: 1.05;
-}
-.route-card__title-block h3 {
-  font-size: 0.9rem;
+/* Title scales with the card's inline size via cqi so it always
+   takes up the available width and never wraps to two lines. */
+.route-card__title {
+  font-size: clamp(0.85rem, 4.6cqi, 1.15rem);
   font-weight: 700;
   margin: 0;
-  line-height: 1.05;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
-.route-card__title-block p {
+.route-card__subtitle {
   font-size: 0.65rem;
-  margin: 0.05rem 0 0;
+  margin: 0;
   line-height: 1.1;
   opacity: 0.85;
   font-weight: 500;
