@@ -1817,8 +1817,8 @@ p:last-child {
      bottom so the band is concentrated at the very top edge and
      gradually disappears into the rest of the section. */
   background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   mask-image: linear-gradient(
     to bottom,
     #000 0%,
