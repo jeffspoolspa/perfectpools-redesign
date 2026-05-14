@@ -148,7 +148,11 @@ const base = import.meta.env.BASE_URL;
   .svc-finale__bg-pin {
     position: sticky;
     top: 0;
-    height: 100vh;
+    /* svh = smallest viewport height (URL-bar visible state on iOS).
+       Stable across URL-bar show/hide. When the bar hides and viewport
+       grows, the dark page bg shows through below — preferable to the
+       layout shift you get with vh. */
+    height: 100svh;
     width: 100%;
     overflow: hidden;
     z-index: 0;
@@ -172,7 +176,7 @@ const base = import.meta.env.BASE_URL;
   .svc-finale__stack {
     position: relative;
     z-index: 1;
-    padding-bottom: 60vh;
+    padding-bottom: 60svh;
   }
 
   /* Pill base. */
@@ -186,7 +190,7 @@ const base = import.meta.env.BASE_URL;
   }
   /* 100vh gap = exact handoff (one pill enters as previous exits). */
   .svc-finale__pill + .svc-finale__pill {
-    margin-top: 100vh;
+    margin-top: 100svh;
   }
 
   .svc-finale__pill-head {
@@ -391,7 +395,7 @@ const base = import.meta.env.BASE_URL;
 
   @media (max-width: 768px) {
     .svc-finale__stack {
-      padding-bottom: 50vh;
+      padding-bottom: 50svh;
     }
     .svc-finale__pill {
       border-radius: 24px;
