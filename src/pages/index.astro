@@ -794,10 +794,11 @@ const icons = {
     const routeToggles = document.querySelectorAll<HTMLButtonElement>('[data-route-toggle]');
     const routeForms = document.querySelectorAll<HTMLFormElement>('[data-route-form]');
 
-    // Spring approximation: ~580ms, subtle bounce (≈ Apple spring with
-    // duration 0.55s, bounce 0.05). Settles cleanly without overshoot
-    // being obvious.
-    const SPRING_EASE = 'linear(0, 0.009, 0.035 5%, 0.139 11%, 0.292 17%, 0.466 23%, 0.633 29%, 0.778 35%, 0.892 41%, 0.972 47%, 1.018 53%, 1.034 59%, 1.025 66%, 0.999 75%, 0.985 83%, 0.984 90%, 0.99 95%, 1)';
+    // Spring approximation: ~580ms, near-zero bounce (≈ Apple spring
+    // with duration 0.55s, bounce 0.015). Peak overshoot is ~1.2%
+    // (≈3px on a 264px form) — visually unnoticeable but keeps the
+    // spring "settle" character vs a pure ease-out.
+    const SPRING_EASE = 'linear(0, 0.012 4%, 0.05 7%, 0.13 12%, 0.252 17%, 0.412 23%, 0.59 30%, 0.762 38%, 0.892 45%, 0.971 52%, 1.005 58%, 1.012 63%, 1.005 70%, 0.999 78%, 1)';
     const SPRING_DURATION = 580;
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
