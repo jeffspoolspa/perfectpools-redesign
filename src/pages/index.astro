@@ -574,10 +574,11 @@ const icons = {
 
   const liquidMount = document.getElementById('methodology-liquid-mount');
   if (liquidMount) {
-    // On mobile we use a clean white-gradient base for the liquid shader
-    // (no tile pattern). On desktop we keep the pool-tile photo background.
-    const isMobile = window.matchMedia('(max-width: 767px)').matches;
-    render(h(LiquidHero, { showText: false, whiteBackground: isMobile }), liquidMount);
+    // Same shader treatment on every viewport now — pool-tile photo
+    // background + dark navy + liquid effect on top. (Earlier this
+    // branched to a white-gradient base on mobile, which painted
+    // over the tile photo after hydration.)
+    render(h(LiquidHero, { showText: false, whiteBackground: false }), liquidMount);
   }
 
   // Render Google Map in the map container
