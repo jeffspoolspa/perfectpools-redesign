@@ -191,7 +191,12 @@ export async function initScrollReveals(): Promise<void> {
           trigger: el,
           start,
           end,
-          toggleActions: 'play none none reverse',
+          // play once, never reverse. `reverse` here was the cause of
+        // pills/cards "jumping around" on direction changes — every
+        // time the user crossed the trigger point scrolling up, the
+        // tween reversed back to opacity:0 + translated state, then
+        // re-played coming back down. One-shot avoids that thrash.
+        toggleActions: 'play none none none',
           ...(scrubAttr ? { scrub: scrubValue(scrubAttr) } : {}),
         },
       });
@@ -209,7 +214,12 @@ export async function initScrollReveals(): Promise<void> {
         trigger: el,
         start,
         end,
-        toggleActions: 'play none none reverse',
+        // play once, never reverse. `reverse` here was the cause of
+        // pills/cards "jumping around" on direction changes — every
+        // time the user crossed the trigger point scrolling up, the
+        // tween reversed back to opacity:0 + translated state, then
+        // re-played coming back down. One-shot avoids that thrash.
+        toggleActions: 'play none none none',
         ...(scrubAttr ? { scrub: scrubValue(scrubAttr) } : {}),
       },
     });

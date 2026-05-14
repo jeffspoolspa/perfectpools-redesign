@@ -1,7 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import FAQ from '../../components/FAQ.astro';
-import CTASection from '../../components/CTASection.astro';
+import ServicePageFinale from '../../components/ServicePageFinale.astro';
 
 const faqs = [
   { question: 'How do I know if my pool equipment needs repair or replacement?', answer: 'Signs include unusual noises, reduced water flow, visible leaks, higher energy bills, or equipment over 8-10 years old. Our technicians will assess your equipment and recommend the most cost-effective option.' },
@@ -53,6 +52,13 @@ const schema = [
     </div>
   </section>
 
-  <FAQ items={faqs} />
-  <CTASection />
+  <ServicePageFinale
+    faqs={faqs}
+    ctaHeading="Ready for a Cleaner Pool?"
+    ctaText="Contact Perfect Pools today for a free quote. Serving Richmond Hill, Savannah, and the Greater Savannah area."
+    ctaButtons={[
+      { label: 'Get a Free Quote', openIntake: true, variant: 'cta' },
+      { label: 'Call (912) 459-0160', href: 'tel:9124590160', variant: 'outline-white' },
+    ]}
+  />
 </BaseLayout>

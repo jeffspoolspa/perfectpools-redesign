@@ -1,0 +1,431 @@
+---
+/**
+ * Shared bottom-of-page finale used on every /services/* page.
+ *
+ * Three "pills" stacked over a sticky photo backdrop:
+ *   1. Reviews — pulls 3 reviews from the shared REVIEWS data.
+ *      Mobile shows one tile at a time with a prev/next/dot nav.
+ *   2. FAQs   — page-scoped questions passed via `faqs` prop.
+ *   3. CTA    — page-scoped headline / lead / button(s) passed via
+ *               `cta*` props.
+ *
+ * Sticky bg + 100vh-gap pill stack means each pill enters the
+ * viewport from the bottom as the previous one exits to the top —
+ * one pill on screen at a time, no dead photo-alone gap between.
+ */
+import { REVIEWS } from '../data/reviews';
+
+interface CtaButton {
+  label: string;
+  href?: string;
+  openIntake?: boolean;
+  variant?: 'cta' | 'outline-white' | 'accent' | 'outline';
+}
+
+interface Props {
+  faqs: Array<{ question: string; answer: string }>;
+  ctaKicker?: string;
+  ctaHeading: string;
+  ctaText: string;
+  ctaButtons?: CtaButton[];
+}
+
+const {
+  faqs,
+  ctaKicker = 'READY WHEN YOU ARE',
+  ctaHeading,
+  ctaText,
+  ctaButtons = [{ label: 'Get a Quote', openIntake: true, variant: 'cta' }],
+} = Astro.props;
+
+const base = import.meta.env.BASE_URL;
+---
+
+<section class="svc-finale">
+  <div class="svc-finale__bg-pin">
+    <img
+      src={`${base}images/reviews-bg-testing-water.jpg`}
+      alt=""
+      loading="lazy"
+    />
+  </div>
+
+  <div class="svc-finale__stack">
+    <div class="container">
+
+      {/* Pill 1 — Reviews */}
+      <article class="svc-finale__pill svc-finale__pill--reviews" data-reveal="fade-up" data-reveal-start="top 90%">
+        <header class="svc-finale__pill-head">
+          <span class="svc-finale__pill-kicker">WHAT OUR CLIENTS SAY</span>
+          <h2>Real reviews, real results.</h2>
+        </header>
+
+        <div class="svc-finale__reviews-grid" data-svc-review-grid>
+          {REVIEWS.slice(0, 3).map((r, i) => (
+            <article class={`review-tile ${i === 0 ? 'is-active' : ''}`} data-svc-review-index={i}>
+              <div class="review-tile__stars" aria-label={`${r.stars} out of 5 stars`}>
+                {'★'.repeat(r.stars)}
+              </div>
+              <p class="review-tile__quote">"{r.quote}"</p>
+              <span class="review-tile__name">— {r.name}</span>
+            </article>
+          ))}
+        </div>
+
+        {/* Mobile-only nav — hidden ≥769px where all 3 tiles fit on
+            one row. Cycles `.is-active` on tiles + dots. */}
+        <div class="svc-finale__reviews-nav" data-svc-review-nav>
+          <button type="button" class="svc-finale__reviews-arrow" data-svc-review-prev aria-label="Previous review">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          </button>
+          <div class="svc-finale__reviews-dots">
+            {REVIEWS.slice(0, 3).map((_, i) => (
+              <button type="button" class={`svc-finale__reviews-dot ${i === 0 ? 'is-active' : ''}`} data-svc-review-dot={i} aria-label={`Show review ${i + 1}`}></button>
+            ))}
+          </div>
+          <button type="button" class="svc-finale__reviews-arrow" data-svc-review-next aria-label="Next review">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+
+        <div class="svc-finale__reviews-cta">
+          <a href="https://g.page/r/CVrU0W_3-NRyEAE/review" target="_blank" rel="noopener" class="btn btn--outline">Read All Reviews on Google</a>
+        </div>
+      </article>
+
+      {/* Pill 2 — FAQs (page-scoped questions) */}
+      <article class="svc-finale__pill svc-finale__pill--faqs" data-reveal="fade-up" data-reveal-start="top 90%">
+        <header class="svc-finale__pill-head">
+          <span class="svc-finale__pill-kicker">QUESTIONS</span>
+          <h2>Frequently asked questions</h2>
+        </header>
+        <div class="svc-finale__faq-list faq-list">
+          {faqs.map((item) => (
+            <div class="faq-item">
+              <button class="faq-question" aria-expanded="false">{item.question}</button>
+              <div class="faq-answer" role="region">
+                <div class="faq-answer__inner">
+                  <p>{item.answer}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </article>
+
+      {/* Pill 3 — Final CTA (page-scoped copy) */}
+      <article class="svc-finale__pill svc-finale__pill--cta" data-reveal="fade-up" data-reveal-start="top 90%">
+        <span class="svc-finale__pill-kicker svc-finale__pill-kicker--on-dark">{ctaKicker}</span>
+        <h2>{ctaHeading}</h2>
+        <p>{ctaText}</p>
+        <div class="svc-finale__cta-actions">
+          {ctaButtons.map((btn) => (
+            btn.openIntake ? (
+              <button type="button" class={`btn btn--${btn.variant || 'cta'} btn--lg`} data-open-intake>{btn.label}</button>
+            ) : (
+              <a href={btn.href!} class={`btn btn--${btn.variant || 'cta'} btn--lg`}>{btn.label}</a>
+            )
+          ))}
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<style>
+  /* === Section shell ============================================
+     No fixed min-height — natural height = pill stack height. The
+     sticky bg pins to the viewport top while the section is in view
+     and unsticks when the section's bottom passes viewport top
+     (natural handoff to the footer). */
+  .svc-finale {
+    position: relative;
+    padding: 0;
+    background-color: #0a1929;
+    margin-top: -1px;
+  }
+  .svc-finale__bg-pin {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
+    z-index: 0;
+  }
+  .svc-finale__bg-pin img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .svc-finale__bg-pin::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(10, 25, 40, 0.35), rgba(10, 25, 40, 0.50));
+    pointer-events: none;
+  }
+
+  /* Pill stack sits over the photo. 60vh bottom pad lets the LAST
+     pill scroll all the way up before the section ends. */
+  .svc-finale__stack {
+    position: relative;
+    z-index: 1;
+    padding-bottom: 60vh;
+  }
+
+  /* Pill base. */
+  .svc-finale__pill {
+    background: white;
+    border-radius: 32px;
+    box-shadow: 0 32px 80px -28px rgba(0, 0, 0, 0.55);
+    padding: clamp(var(--space-12), 8vh, var(--space-20)) clamp(var(--space-8), 6vw, var(--space-16));
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  /* 100vh gap = exact handoff (one pill enters as previous exits). */
+  .svc-finale__pill + .svc-finale__pill {
+    margin-top: 100vh;
+  }
+
+  .svc-finale__pill-head {
+    text-align: center;
+    margin-bottom: clamp(var(--space-6), 4vh, var(--space-10));
+  }
+  .svc-finale__pill-kicker {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-primary);
+    margin: 0 0 var(--space-3);
+  }
+  .svc-finale__pill-head h2 {
+    margin: 0;
+    font-size: clamp(1.6rem, 2.8vw, 2.2rem);
+    letter-spacing: -0.015em;
+    color: var(--color-gray-900);
+    line-height: 1.2;
+  }
+
+  /* === Reviews pill ============================================ */
+  .svc-finale__reviews-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-5);
+  }
+  @media (max-width: 768px) {
+    .svc-finale__reviews-grid {
+      display: block;
+    }
+    .svc-finale__reviews-grid > :global(.review-tile) {
+      display: none;
+    }
+    .svc-finale__reviews-grid > :global(.review-tile.is-active) {
+      display: flex;
+    }
+  }
+
+  /* Tile (re-declared scoped here so the component is self-contained). */
+  .svc-finale__reviews-grid :global(.review-tile) {
+    background: var(--color-bg-alt, #F9F6F0);
+    border: 1px solid var(--color-border, #e5e7eb);
+    border-radius: 18px;
+    padding: var(--space-5);
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+  .svc-finale__reviews-grid :global(.review-tile__stars) {
+    color: var(--color-gold, #F59E0B);
+    font-size: 0.95rem;
+    letter-spacing: 0.08em;
+  }
+  .svc-finale__reviews-grid :global(.review-tile__quote) {
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: var(--color-text, #1E3A5F);
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 7;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .svc-finale__reviews-grid :global(.review-tile__name) {
+    margin-top: auto;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--color-text-light, #5a6c7d);
+  }
+
+  /* Mobile review nav. */
+  .svc-finale__reviews-nav {
+    display: none;
+  }
+  @media (max-width: 768px) {
+    .svc-finale__reviews-nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-4);
+      margin-top: var(--space-5);
+    }
+  }
+  .svc-finale__reviews-arrow {
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    border: 1px solid var(--color-border, #e5e7eb);
+    background: var(--color-white, #fff);
+    color: var(--color-primary, #1E3A5F);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
+  }
+  .svc-finale__reviews-arrow:active {
+    transform: scale(0.95);
+  }
+  .svc-finale__reviews-dots {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .svc-finale__reviews-dot {
+    width: 8px;
+    height: 8px;
+    padding: 0;
+    border: none;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-primary, #1E3A5F) 25%, transparent);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 150ms ease, transform 150ms ease;
+  }
+  .svc-finale__reviews-dot.is-active {
+    background: var(--color-primary, #1E3A5F);
+    transform: scale(1.15);
+  }
+
+  .svc-finale__reviews-cta {
+    margin-top: var(--space-8);
+    text-align: center;
+  }
+  .svc-finale__reviews-cta :global(.btn) {
+    padding: 0.85rem 1.75rem;
+  }
+
+  /* === FAQ pill =============================================== */
+  .svc-finale__faq-list {
+    margin: 0;
+    padding: 0 clamp(0px, 2vw, var(--space-4));
+  }
+  .svc-finale__faq-list :global(.faq-item) {
+    border-bottom: 1px solid color-mix(in srgb, var(--color-gray-900) 8%, transparent);
+  }
+  .svc-finale__faq-list :global(.faq-item:last-child) {
+    border-bottom: 0;
+  }
+  .svc-finale__faq-list :global(.faq-question) {
+    padding: var(--space-5) 0;
+    font-size: clamp(1rem, 1.15vw, 1.1rem);
+    line-height: 1.4;
+    color: var(--color-gray-900);
+    transition: color 0.2s ease;
+  }
+  .svc-finale__faq-list :global(.faq-question:hover) {
+    color: var(--color-primary);
+  }
+  .svc-finale__faq-list :global(.faq-question::after) {
+    font-size: 1.5rem;
+    line-height: 1;
+    color: var(--color-gray-600);
+  }
+  .svc-finale__faq-list :global(.faq-item.active .faq-question) {
+    color: var(--color-primary);
+  }
+  .svc-finale__faq-list :global(.faq-item.active .faq-question::after) {
+    color: var(--color-primary);
+  }
+  .svc-finale__faq-list :global(.faq-answer__inner) {
+    padding-bottom: var(--space-5);
+    padding-right: var(--space-8);
+    line-height: 1.7;
+    color: var(--color-gray-600);
+  }
+
+  /* === CTA pill =============================================== */
+  .svc-finale__pill--cta {
+    background: linear-gradient(135deg, #0B1320 0%, #1E3A5F 50%, #145BB8 100%);
+    color: white;
+    text-align: center;
+    padding-block: clamp(var(--space-16), 10vh, var(--space-24));
+  }
+  .svc-finale__pill-kicker--on-dark {
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: var(--space-4);
+  }
+  .svc-finale__pill--cta h2 {
+    color: white;
+    margin: 0 0 var(--space-4);
+    font-size: clamp(1.7rem, 3vw, 2.4rem);
+    letter-spacing: -0.015em;
+    line-height: 1.2;
+  }
+  .svc-finale__pill--cta p {
+    color: rgba(255, 255, 255, 0.78);
+    max-width: 540px;
+    margin: 0 auto var(--space-7);
+    line-height: 1.6;
+    font-size: clamp(0.95rem, 1.1vw, 1.05rem);
+  }
+  .svc-finale__cta-actions {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 768px) {
+    .svc-finale__stack {
+      padding-bottom: 50vh;
+    }
+    .svc-finale__pill {
+      border-radius: 24px;
+      padding: var(--space-10) var(--space-6);
+    }
+    .svc-finale__pill + .svc-finale__pill {
+      margin-top: 100vh;
+    }
+  }
+</style>
+
+<script>
+  // Reviews carousel — mobile-only behavior. Cycles `.is-active` on
+  // the tiles so the mobile-only CSS shows a single review at a time.
+  // Wraps around in both directions. Multiple ServicePageFinale
+  // instances per page would each get their own state; we wire them
+  // all up.
+  document.querySelectorAll<HTMLElement>('[data-svc-review-grid]').forEach((grid) => {
+    const tiles = Array.from(grid.querySelectorAll<HTMLElement>('.review-tile'));
+    if (tiles.length < 2) return;
+    // Find the matching nav inside the same .svc-finale section.
+    const finale = grid.closest('.svc-finale');
+    const nav = finale?.querySelector<HTMLElement>('[data-svc-review-nav]');
+    const prevBtn = nav?.querySelector<HTMLButtonElement>('[data-svc-review-prev]');
+    const nextBtn = nav?.querySelector<HTMLButtonElement>('[data-svc-review-next]');
+    const dots = Array.from(nav?.querySelectorAll<HTMLButtonElement>('[data-svc-review-dot]') ?? []);
+    let active = 0;
+    const setActive = (i: number) => {
+      active = (i + tiles.length) % tiles.length;
+      tiles.forEach((t, idx) => t.classList.toggle('is-active', idx === active));
+      dots.forEach((d, idx) => d.classList.toggle('is-active', idx === active));
+    };
+    prevBtn?.addEventListener('click', () => setActive(active - 1));
+    nextBtn?.addEventListener('click', () => setActive(active + 1));
+    dots.forEach((d, idx) => d.addEventListener('click', () => setActive(idx)));
+  });
+</script>
