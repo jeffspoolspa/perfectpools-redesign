@@ -844,9 +844,6 @@ p:last-child {
 .hero.hero--image ~ .services-dark { background-color: #1E3A5F; }
 .hero.hero--image ~ .partner-section { background-color: var(--color-white); }
 .hero.hero--image ~ .reviews-home { background-color: var(--color-light-bg); }
-@media (max-width: 767px) {
-  .hero.hero--image ~ .methodology--water { background-color: #ffffff; }
-}
 /* On phones the form + text stack is taller than the viewport, so
    centering pushes the form above the fold (behind the header). Anchor
    the hero to the top instead so the form begins right under the header,
@@ -1768,36 +1765,11 @@ p:last-child {
   }
 }
 
-/* Mobile: drop the tile photo entirely, use a clean white background.
-   The liquid canvas stays on top. Text recolors to navy for readability,
-   atmospheric fades are disabled (the section is just a white rectangle),
-   and tab indicators flip to dark for visibility. */
-@media (max-width: 767px) {
-  .methodology--water {
-    background: #ffffff;
-  }
-  .methodology--water::before {
-    display: none;
-  }
-  .methodology__fade-top,
-  .methodology__fade-bottom {
-    display: none;
-  }
-  .methodology--water .section-header h2,
-  .methodology--water .section-header p {
-    color: var(--color-primary);
-    text-shadow: none;
-  }
-  .methodology__tab {
-    background: rgba(30, 58, 95, 0.25);
-  }
-  .methodology__tab:hover {
-    background: rgba(30, 58, 95, 0.45);
-  }
-  .methodology__tab.is-active {
-    background: var(--color-primary);
-  }
-}
+/* (Earlier mobile override here stripped the tile photo + atmospheric
+   fades and recolored the section to white. Removed so the
+   methodology renders identically on mobile and desktop — tile
+   background + liquid shader + dark navy + white text on every
+   viewport.) */
 
 /* Hero bottom fade — atmospheric transition into the methodology's base color.
    Tall (55vh) so the darkening begins well before the boundary. The gradient
@@ -1821,20 +1793,9 @@ p:last-child {
     #0a3d6b 100%
   );
 }
-/* Mobile: methodology is white, so fade to white at the bottom of the hero
-   for a clean transition into the white section below. */
-@media (max-width: 767px) {
-  .hero__fade {
-    background: linear-gradient(
-      to bottom,
-      rgba(255, 255, 255, 0) 0%,
-      rgba(255, 255, 255, 0.2) 30%,
-      rgba(255, 255, 255, 0.6) 60%,
-      rgba(255, 255, 255, 0.9) 85%,
-      #ffffff 100%
-    );
-  }
-}
+/* (Mobile hero__fade override removed — methodology now uses the
+   dark navy background on every viewport, so the fade-to-#0a3d6b
+   above works on mobile too.) */
 
 /* Methodology top fade — atmospheric transition carrying the dark color
    down into the tile pattern so the sections feel connected without any hard edge.
