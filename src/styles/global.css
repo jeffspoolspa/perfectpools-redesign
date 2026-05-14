@@ -1816,7 +1816,7 @@ p:last-child {
      mask-image fades the effect (band + blur) out toward the
      bottom so the band is concentrated at the very top edge and
      gradually disappears into the rest of the section. */
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   mask-image: linear-gradient(
