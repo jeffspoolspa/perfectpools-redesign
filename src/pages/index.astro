@@ -786,16 +786,91 @@ const icons = {
     });
 
     // Mobile route picker — each card is a self-contained mini-form.
-    // Tapping the header toggles its expansion (CSS animates the form
-    // open). Only one card can be expanded at a time. Submitting either
-    // card form opens the intake modal with the matching tab pre-set.
+    // Form expand/collapse runs via WAAPI with a spring-like linear()
+    // easing. WAAPI lets us cancel an in-flight animation and start a
+    // new one FROM THE CURRENT VALUE so rapid taps between cards stay
+    // visually coordinated (no snap-to-end then jump-to-start).
     const routeCards = document.querySelectorAll<HTMLElement>('[data-route-card]');
     const routeToggles = document.querySelectorAll<HTMLButtonElement>('[data-route-toggle]');
     const routeForms = document.querySelectorAll<HTMLFormElement>('[data-route-form]');
 
-    const collapseAll = () => {
-      routeCards.forEach((c) => c.classList.remove('is-expanded'));
-      routeToggles.forEach((t) => t.setAttribute('aria-expanded', 'false'));
+    // Spring approximation: ~580ms, subtle bounce (≈ Apple spring with
+    // duration 0.55s, bounce 0.05). Settles cleanly without overshoot
+    // being obvious.
+    const SPRING_EASE = 'linear(0, 0.009, 0.035 5%, 0.139 11%, 0.292 17%, 0.466 23%, 0.633 29%, 0.778 35%, 0.892 41%, 0.972 47%, 1.018 53%, 1.034 59%, 1.025 66%, 0.999 75%, 0.985 83%, 0.984 90%, 0.99 95%, 1)';
+    const SPRING_DURATION = 580;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const animateForm = (form: HTMLElement, opening: boolean) => {
+      // Capture the CURRENT animated value before we cancel anything,
+      // so we resume from where we are (not from the CSS base state).
+      const cs = getComputedStyle(form);
+      const fromMaxHeight = parseFloat(cs.maxHeight) || 0;
+      const fromOpacity = parseFloat(cs.opacity) || 0;
+      const fromPaddingTop = parseFloat(cs.paddingTop) || 0;
+      const fromPaddingBottom = parseFloat(cs.paddingBottom) || 0;
+
+      const inFlight = (form as any).__anim as Animation | null;
+      if (inFlight) inFlight.cancel();
+
+      // Compute target. For opening, measure natural height by briefly
+      // applying the open state inline.
+      let targetMaxHeight: number;
+      let targetOpacity: number;
+      let targetPaddingTop: number;
+      let targetPaddingBottom: number;
+      if (opening) {
+        const prev = {
+          maxHeight: form.style.maxHeight,
+          paddingTop: form.style.paddingTop,
+          paddingBottom: form.style.paddingBottom,
+        };
+        form.style.maxHeight = 'none';
+        form.style.paddingTop = '8px';
+        form.style.paddingBottom = '16px';
+        targetMaxHeight = form.scrollHeight;
+        form.style.maxHeight = prev.maxHeight;
+        form.style.paddingTop = prev.paddingTop;
+        form.style.paddingBottom = prev.paddingBottom;
+        targetOpacity = 1;
+        targetPaddingTop = 8;
+        targetPaddingBottom = 16;
+      } else {
+        targetMaxHeight = 0;
+        targetOpacity = 0;
+        targetPaddingTop = 0;
+        targetPaddingBottom = 0;
+      }
+
+      if (reducedMotion) {
+        form.style.maxHeight = targetMaxHeight + 'px';
+        form.style.opacity = String(targetOpacity);
+        form.style.paddingTop = targetPaddingTop + 'px';
+        form.style.paddingBottom = targetPaddingBottom + 'px';
+        (form as any).__anim = null;
+        return;
+      }
+
+      const anim = form.animate(
+        [
+          { maxHeight: fromMaxHeight + 'px', opacity: fromOpacity, paddingTop: fromPaddingTop + 'px', paddingBottom: fromPaddingBottom + 'px' },
+          { maxHeight: targetMaxHeight + 'px', opacity: targetOpacity, paddingTop: targetPaddingTop + 'px', paddingBottom: targetPaddingBottom + 'px' },
+        ],
+        {
+          duration: SPRING_DURATION,
+          easing: SPRING_EASE,
+          fill: 'forwards',
+        }
+      );
+      (form as any).__anim = anim;
+      anim.onfinish = () => {
+        // Lock final values inline so they persist after we cancel
+        // (cancel() removes the WAAPI effect; without commitStyles
+        // the element snaps back to the CSS base state).
+        try { anim.commitStyles(); } catch {}
+        anim.cancel();
+        (form as any).__anim = null;
+      };
     };
 
     routeToggles.forEach((toggle) => {
@@ -804,11 +879,33 @@ const icons = {
         const card = toggle.closest('[data-route-card]') as HTMLElement | null;
         if (!card) return;
         const wasExpanded = card.classList.contains('is-expanded');
-        collapseAll();
-        if (!wasExpanded) {
+
+        // Collapse every other open card via the animator (so the
+        // closing animation matches the opening one in timing).
+        routeCards.forEach((c) => {
+          if (c === card) return;
+          if (c.classList.contains('is-expanded')) {
+            c.classList.remove('is-expanded');
+            const otherToggle = c.querySelector('[data-route-toggle]') as HTMLButtonElement | null;
+            if (otherToggle) otherToggle.setAttribute('aria-expanded', 'false');
+            const otherForm = c.querySelector('[data-route-form]') as HTMLElement | null;
+            if (otherForm) animateForm(otherForm, false);
+          }
+        });
+
+        if (wasExpanded) {
+          // Tapping the open card collapses it
+          card.classList.remove('is-expanded');
+          toggle.setAttribute('aria-expanded', 'false');
+          const form = card.querySelector('[data-route-form]') as HTMLElement | null;
+          if (form) animateForm(form, false);
+        } else {
+          // Open this card
           card.classList.add('is-expanded');
           toggle.setAttribute('aria-expanded', 'true');
           updateHeroTab(type);
+          const form = card.querySelector('[data-route-form]') as HTMLElement | null;
+          if (form) animateForm(form, true);
           window.setTimeout(() => {
             card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
           }, 240);

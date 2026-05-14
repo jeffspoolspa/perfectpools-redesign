@@ -1349,10 +1349,11 @@ p:last-child {
 .route-card--expandable.is-expanded .route-card__chevron {
   transform: rotate(180deg);
 }
-/* Form area collapsed by default; expands smoothly downward when the
-   parent card gets .is-expanded. max-height + padding + opacity on a
-   single transition track gives the feel of the container growing
-   from the header. */
+/* Form area collapsed by default. Open/close is driven by the JS
+   spring animator (see index.astro), not CSS transitions, so it can
+   preserve velocity when the user rapid-taps between cards. The
+   .is-expanded selector still drives the chevron rotate + box-shadow
+   on the parent card. */
 .route-card__form {
   display: flex;
   flex-direction: column;
@@ -1361,15 +1362,8 @@ p:last-child {
   max-height: 0;
   opacity: 0;
   overflow: hidden;
-  transition:
-    max-height 420ms cubic-bezier(0.16, 1, 0.3, 1),
-    opacity 280ms ease-out 60ms,
-    padding 420ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-.route-card--expandable.is-expanded .route-card__form {
-  max-height: 420px;
-  opacity: 1;
-  padding: 0.5rem 1rem 1rem;
+  /* horizontal padding stays via CSS; vertical padding + max-height
+     + opacity are driven by JS via WAAPI inline styles. */
 }
 .route-card__form-row {
   display: grid;
@@ -1426,11 +1420,11 @@ p:last-child {
   border: none;
 }
 @media (prefers-reduced-motion: reduce) {
-  .route-card__form,
-  .route-card--expandable.is-expanded .route-card__form,
   .route-card__chevron {
     transition: none;
   }
+  /* Form animation honors reduced-motion at the JS layer (skip the
+     spring, snap to target). See animateRouteForm() in index.astro. */
 }
 
 /* --- Route Cards (hero intent-based routing) ---
