@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'preact/hooks';
 import ChemicalCostChart from './ChemicalCostChart';
 import { assetPath } from '../utils/base-url';
+import ChangeablePricingSection, { type PricingPlan } from './ChangeablePricingSection';
 
 /* ── Constants ── */
 const COUNTIES = ['Bryan', 'Chatham', 'Liberty', 'McIntosh', 'Glynn', 'Camden', 'Effingham'];
@@ -181,6 +182,18 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<QuoteFormData>(DEFAULT_FORM);
   const [redirect, setRedirect] = useState('');
+  /* Transient "preparing your request" loading state shown when the
+     user picks a non-maintenance service from the progressive page.
+     Before this existed, clicking Green Pool / Equipment / Renovation
+     instantly swapped the entire screen to the ticket-form view —
+     which felt jarring (the user described it as a "blank bar
+     flash"). With this state we hold a brief loading screen
+     (~700ms) so the old content fades out, a loading screen with
+     the logo shows, then the new content settles in. Holds the
+     PENDING service id so the loading screen could theoretically
+     show the picked icon — current implementation just shows the
+     brand logo, but we keep the id around in case we want to. */
+  const [redirectLoading, setRedirectLoading] = useState<string>('');
   const [showDupCheck, setShowDupCheck] = useState(false);
   const [chemCostData, setChemCostData] = useState<any[] | null>(null);
 
@@ -254,10 +267,29 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
     return () => window.removeEventListener('keydown', handler);
   }, [isOpen]);
 
-  /* ── Body scroll lock ── */
+  /* ── Body scroll lock ──────────────────────────────────────
+     `overflow: hidden` on the body blocks NATIVE wheel/touch
+     scroll — which is enough on plain pages. But this site runs
+     Lenis (a smooth-scroll library) on every page; Lenis intercepts
+     wheel events and scrolls PROGRAMMATICALLY via window.scrollTo,
+     which bypasses body overflow:hidden. So with just the overflow
+     trick the background page kept scrolling under the modal.
+     Fix: also tell Lenis to pause while the modal is open. The
+     instance lives at `window.__lenis` (set up in BaseLayout). On
+     close we resume so the rest of the page scrolls normally. */
   useEffect(() => {
-    document.body.style.overflow = isOpen ? 'hidden' : '';
-    return () => { document.body.style.overflow = ''; };
+    const lenis = (window as any).__lenis;
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+      lenis?.stop?.();
+    } else {
+      document.body.style.overflow = '';
+      lenis?.start?.();
+    }
+    return () => {
+      document.body.style.overflow = '';
+      lenis?.start?.();
+    };
   }, [isOpen]);
 
   /* ── Fetch chemical cost estimates for quote page chart ── */
@@ -424,13 +456,22 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
     window.location.href = assetPath(`get-started/?token=${lead.token}`);
   }
 
-  /* ── P2-2: Submit ticket (equipment / green pool) ── */
-  async function submitTicket(type: 'equipment' | 'green_pool') {
+  /* ── P2-2: Submit ticket (equipment / green pool / renovation) ── */
+  async function submitTicket(type: 'equipment' | 'green_pool' | 'renovation') {
     setTicketError('');
-    // Use inline ticket contact fields (user hasn't been through Steps 2-3 at this point)
-    const contact = ticketContact;
+    /* Contact info now comes from the main formData (collected in
+       Step 2) — we no longer ask for it again on the ticket form.
+       The user has already gone through Address → Contact → Service
+       by the time they reach this submission, so the form just
+       needs the description. */
+    const contact = {
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      phone: formData.phone,
+      email: formData.email,
+    };
     if (!contact.firstName.trim() || !contact.phone.replace(/\D/g, '').length || !ticketDescription.trim()) {
-      setTicketError('Please fill in your name, phone, and describe the issue.');
+      setTicketError('Please describe your issue. (If your contact info is missing, go back and edit it from the summary.)');
       return;
     }
     setTicketSubmitting(true);
@@ -543,6 +584,7 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
     setTicketError('');
     setTicketContact({ firstName: '', lastName: '', phone: '', email: '' });
     setRedirect('');
+    setRedirectLoading('');
   }
 
   function resetCommercialState() {
@@ -617,8 +659,15 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
 
         {/* Live summary — only after the user is past the address page.
             Address is rendered as a distinct "green pin" chip at the top
-            of the rail; everything else uses the generic chip style. */}
-        {currentStep > 1 && formData.addressStreet && (() => {
+            of the rail; everything else uses the generic chip style.
+            Hidden while the user is in a stage that renders its OWN
+            consolidated summary card at the top of the body:
+              - Non-maintenance ticket-form redirects
+                (green_pool / equipment / renovation)
+              - Maintenance quote view (currentStep === 5)
+            In both cases the consolidated card already shows service +
+            address + contact — we don't want the same info twice. */}
+        {currentStep > 1 && formData.addressStreet && currentStep !== 5 && !['green_pool', 'equipment', 'renovation'].includes(redirect) && (() => {
           // Each row is its own SECTION — its edit pencil jumps back to
           // the page that owns those answers, not always to step 1.
           // Rows render in flow order (address, contact, service, …)
@@ -668,16 +717,46 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
                 <button type="button" class="gs-summary__edit" onClick={() => setCurrentStep(1)} aria-label="Edit address" title="Edit address">{editIcon}</button>
               </div>
 
-              {/* Contact */}
+              {/* Contact — each piece (name, phone, email) renders
+                  with its own inline glyph so it reads like a small
+                  contact card rather than one dense bullet-joined
+                  string. Wraps to a new line at narrow widths. */}
               {currentStep > 2 && contactBits.length > 0 && (
-                <div class="gs-summary__row">
-                  <span class="gs-summary__icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                      <circle cx="12" cy="7" r="4"/>
-                    </svg>
-                  </span>
-                  <span class="gs-summary__row-text">{contactBits.join(' · ')}</span>
+                <div class="gs-summary__row gs-summary__row--contact">
+                  <div class="gs-summary__contact-pieces">
+                    {fullName && (
+                      <span class="gs-summary__contact-piece">
+                        <span class="gs-summary__icon gs-summary__icon--inline" aria-hidden="true">
+                          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                          </svg>
+                        </span>
+                        <span>{fullName}</span>
+                      </span>
+                    )}
+                    {formData.phone && (
+                      <span class="gs-summary__contact-piece">
+                        <span class="gs-summary__icon gs-summary__icon--inline" aria-hidden="true">
+                          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                          </svg>
+                        </span>
+                        <span>{formData.phone}</span>
+                      </span>
+                    )}
+                    {formData.email && (
+                      <span class="gs-summary__contact-piece">
+                        <span class="gs-summary__icon gs-summary__icon--inline" aria-hidden="true">
+                          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                            <polyline points="22,6 12,13 2,6"/>
+                          </svg>
+                        </span>
+                        <span>{formData.email}</span>
+                      </span>
+                    )}
+                  </div>
                   <button type="button" class="gs-summary__edit" onClick={() => setCurrentStep(2)} aria-label="Edit contact info" title="Edit contact info">{editIcon}</button>
                 </div>
               )}
@@ -734,23 +813,17 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
       return renderEquipmentRedirect();
     }
     if (redirect === 'renovation') {
-      return renderRedirectScreen(
-        'Pool Renovation',
-        'We partner with PSP for renovation projects.',
-        [
-          { text: 'Replaster, retile, or full remodel', detail: 'Custom quotes available' },
-          { text: 'Call us and we\'ll connect you', detail: 'With the right team' },
-        ],
-        '/services/pool-renovation/',
-        'Explore Renovation Options'
-      );
+      return renderRenovationRedirect();
     }
 
     const icons: Record<string, any> = {
-      waves: <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/></svg>,
-      leaf: <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 20A7 7 0 0 1 9.8 6.9C15.5 4.9 17 3.5 19 1c1 2 2 4.5 2 8 0 5.5-4.78 10.7-10 11z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>,
-      wrench: <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>,
-      hammer: <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 12-8.5 8.5c-.83.83-2.17.83-3 0 0 0 0 0 0 0a2.12 2.12 0 0 1 0-3L12 9"/><path d="M17.64 15 22 10.64"/><path d="m20.91 11.7-1.25-1.25c-.6-.6-.93-1.4-.93-2.25v-.86L16.01 4.6a5.56 5.56 0 0 0-3.94-1.64H9l.92.82A6.18 6.18 0 0 1 12 8.4v1.56l2 2h2.47l2.26 1.91"/></svg>,
+      /* Same icon swap as in serviceIcons below. */
+      waves: <img src={`${basePath}images/icon-recurring-maintenance.svg`} alt="" width="34" height="34" />,
+      /* Same icon swap as in serviceIcons below — illustrated pool
+         art instead of a stroked-leaf SVG. */
+      leaf: <img src={`${basePath}images/icon-green-pool.png`} alt="" width="34" height="34" />,
+      wrench: <img src={`${basePath}images/icon-equipment.svg`} alt="" width="34" height="34" />,
+      hammer: <img src={`${basePath}images/icon-renovation.png`} alt="" width="34" height="34" />,
     };
 
     return (
@@ -1193,19 +1266,14 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
      the rest of the questions stay visible.
      ══════════════════════════════════ */
   function renderProgressivePoolPage() {
+    /* Loading state takes precedence: if the user just clicked a
+       non-maintenance service we hold a brief logo-spin screen
+       before the redirect content paints. */
+    if (redirectLoading) return renderRedirectLoading();
     if (redirect === 'green_pool') return renderGreenPoolRedirect();
     if (redirect === 'equipment') return renderEquipmentRedirect();
     if (redirect === 'commercial') return renderCommercialForm();
-    if (redirect === 'renovation') return renderRedirectScreen(
-      'Pool Renovation',
-      'We partner with PSP for renovation projects.',
-      [
-        { text: 'Replaster, retile, or full remodel', detail: 'Custom quotes available' },
-        { text: 'Call us and we\'ll connect you', detail: 'With the right team' },
-      ],
-      '/services/pool-renovation/',
-      'Explore Renovation Options'
-    );
+    if (redirect === 'renovation') return renderRenovationRedirect();
     if (redirect === 'above_ground') return renderRedirectScreen(
       'We Appreciate Your Interest!',
       'Unfortunately, we only service in-ground pools at this time.',
@@ -1242,18 +1310,42 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
     // Continue handler: check the deferred filters in order. If any
     // applies, swap to the corresponding redirect/sorry screen instead
     // of advancing to the next step.
+    // Happy path (in-flow maintenance) flows: progressive → loader
+    // → quote. Skip the old step-4 referral source for now — same
+    // pattern as the non-maintenance routes use to transition into
+    // their ticket-form view. The loader holds for 750ms, then we
+    // jump straight to step 5 (renderQuoteDisplay), which now shows
+    // a consolidated summary card on top.
     const handleContinue = () => {
       if (formData.customerType === 'commercial') { setRedirect('commercial'); return; }
       if (formData.isInground === 'above_ground') { setRedirect('above_ground'); return; }
       if (formData.poolCondition === 'needs_repair') { setRedirect('needs_repair'); return; }
-      setCurrentStep(4);
+      // Happy path → loader → quote.
+      setRedirectLoading('quote');
+      window.setTimeout(() => {
+        setCurrentStep(5);
+        setRedirectLoading('');
+      }, 750);
     };
 
     const serviceIcons: Record<string, any> = {
-      waves: <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/></svg>,
-      leaf: <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 20A7 7 0 0 1 9.8 6.9C15.5 4.9 17 3.5 19 1c1 2 2 4.5 2 8 0 5.5-4.78 10.7-10 11z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>,
-      wrench: <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>,
-      hammer: <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 12-8.5 8.5c-.83.83-2.17.83-3 0 0 0 0 0 0 0a2.12 2.12 0 0 1 0-3L12 9"/><path d="M17.64 15 22 10.64"/><path d="m20.91 11.7-1.25-1.25c-.6-.6-.93-1.4-.93-2.25v-.86L16.01 4.6a5.56 5.56 0 0 0-3.94-1.64H9l.92.82A6.18 6.18 0 0 1 12 8.4v1.56l2 2h2.47l2.26 1.91"/></svg>,
+      /* Recurring-maintenance icon: illustrated in-ground pool
+         (clipboard + checklist + sparkling pool art) provided by
+         the user. Loaded as a file, not inlined — the source SVG
+         is ~27KB of gradients which is heavy as JSX. */
+      waves: <img src={`${basePath}images/icon-recurring-maintenance.svg`} alt="" width="34" height="34" />,
+      /* Green-pool icon switched from a generic stroked leaf SVG
+         to the full-color illustrated icon (pool with ladder + life
+         ring) — same artwork the user picked for this slot. PNG
+         instead of inline SVG so the colors come through as
+         designed; image-rendering rules in CSS handle the downscale. */
+      leaf: <img src={`${basePath}images/icon-green-pool.png`} alt="" width="34" height="34" />,
+      /* Equipment-issue icon: illustrated pool filter art provided
+         by the user. */
+      wrench: <img src={`${basePath}images/icon-equipment.svg`} alt="" width="34" height="34" />,
+      /* Renovation icon: crossed wrench + hammer (flat illustrated)
+         provided by the user. */
+      hammer: <img src={`${basePath}images/icon-renovation.png`} alt="" width="34" height="34" />,
     };
 
     const infoIcon = (text: string) => (
@@ -1282,8 +1374,22 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
                   class={`gs-service-card${formData.serviceInterest === svc.id ? ' selected' : ''}`}
                   onClick={() => {
                     updateForm({ serviceInterest: svc.id });
-                    if (svc.id === 'maintenance') setRedirect('');
-                    else setRedirect(svc.id);
+                    if (svc.id === 'maintenance') {
+                      setRedirect('');
+                    } else {
+                      /* Hold a brief loading screen before the
+                         ticket-form view paints, so the transition
+                         doesn't feel like a blank flash. After
+                         ~750ms we clear the loading flag and set
+                         the redirect, which triggers the actual
+                         render of the ticket form (via the early-
+                         return at the top of renderProgressivePoolPage). */
+                      setRedirectLoading(svc.id);
+                      window.setTimeout(() => {
+                        setRedirect(svc.id);
+                        setRedirectLoading('');
+                      }, 750);
+                    }
                   }}
                   aria-label={svc.label}
                 >
@@ -1436,82 +1542,124 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
       );
     }
 
+    /* Build the chip list for the consolidated summary card. We
+       pull each pool detail from formData and look up its display
+       label in the same constants used by the progressive page. */
+    const ct = formData.customerType ? CUSTOMER_TYPES.find(c => c.id === formData.customerType) : null;
+    const pt = formData.isInground ? POOL_TYPE_OPTIONS.find(p => p.id === formData.isInground) : null;
+    const pc = formData.poolCondition ? POOL_CONDITIONS.find(p => p.id === formData.poolCondition) : null;
+    const sb = formData.serviceType && formData.serviceType !== 'pool'
+      ? SERVICE_BODY_OPTIONS.find(s => s.id === formData.serviceType)
+      : null;
+    const summaryChips: string[] = [
+      ct?.label,
+      pt?.label,
+      pc?.label,
+      sb?.label,
+    ].filter(Boolean) as string[];
+
     // Main quote display with line-item breakdown
     return (
       <>
-        <div class="intake-quote-header">
-          <div class="intake-quote-header-icon">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-          </div>
-          <h2>Your Personalized Quote</h2>
-          <p>Based on your pool details</p>
-        </div>
+        {renderTicketSummary(
+          'Recurring Pool Maintenance',
+          'images/icon-recurring-maintenance.svg',
+          /* Edit pencil jumps back to the progressive page so the
+             user can change any of their pool answers. */
+          () => setCurrentStep(3),
+          summaryChips,
+        )}
 
         <div class="intake-quote-content">
-          <div class="intake-quote-details">
-            <div class="intake-quote-line">
-              <span>{bodyLabel} Maintenance</span>
-              <span class="intake-quote-line-val">${bodyPrice}/visit</span>
-            </div>
-            {formData.hasExtraBody && (
-              <div class="intake-quote-line">
-                <span>Fountain / Water Feature</span>
-                <span class="intake-quote-line-val">+$10/visit</span>
-              </div>
-            )}
-            {formData.isBiweekly && (
-              <div class="intake-quote-line">
-                <span>Bi-weekly Service Surcharge</span>
-                <span class="intake-quote-line-val">+$25/visit</span>
-              </div>
-            )}
-            <div class="intake-quote-line intake-quote-line--subtle">
-              <span>Per Visit Rate</span>
-              <span class="intake-quote-line-val">${price.perVisit}</span>
-            </div>
-            <div class="intake-quote-total">
-              <span>Estimated Monthly Rate</span>
-              <span class="intake-quote-total-val">${price.monthly}/mo</span>
-            </div>
-          </div>
-
-          <div class="gs-quote-disclaimers">
-            <div class="gs-quote-disclaimer">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-              <span>Chemical costs are <strong>not included</strong> and are billed separately based on usage</span>
-            </div>
-            <div class="gs-quote-disclaimer">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-              <span>Monthly estimate based on <strong>4 visits</strong> — some months may include 5 visits</span>
-            </div>
-          </div>
-
-          {chemCostData && chemCostData.length > 0 && (
-            <ChemicalCostChart
-              data={chemCostData.filter((r: any) =>
-                r.service_frequency === (formData.isBiweekly ? 'biweekly' : 'weekly')
-              )}
-              serviceMonthly={price.monthly}
+          {/* Quote = adapted watermelon-ui `ChangeablePricingSection`,
+              repurposed for our Weekly ↔ Bi-Weekly frequency choice.
+              The user already chose body type on the progressive
+              page, so we pass `lockedPlanId` to hide the other plans.
+              The toggle (top of the card) lets them flip between
+              weekly + bi-weekly to compare. */}
+          <div class="gs-quote-pricing">
+            <ChangeablePricingSection
+              title="Your maintenance plan"
+              plans={(() => {
+                /* All three body-type plans. Prices match the
+                   existing SERVICE_BODY_OPTIONS constants — weekly
+                   uses the base prices, bi-weekly applies the
+                   surcharge structure used in calculatePrice. */
+                const plans: PricingPlan[] = [
+                  {
+                    id: 'pool',
+                    name: 'Pool',
+                    description: 'Weekly chemistry, skimming, equipment check',
+                    priceWeekly: '$50',
+                    priceBiweekly: '$75',
+                    features: [
+                      { text: 'Green Free Guarantee', variant: 'green-guarantee', hasInfo: true },
+                      { text: 'Complete water chemistry testing & balancing' },
+                      { text: 'Pool surface skimming & debris removal' },
+                      { text: 'Basket cleaning (skimmer & pump)' },
+                      { text: 'Equipment inspection & monitoring' },
+                      { text: 'Digital service report after every visit' },
+                    ],
+                  },
+                  {
+                    id: 'spa',
+                    name: 'Spa',
+                    description: 'Spa-only service: chemistry + cleaning',
+                    priceWeekly: '$45',
+                    priceBiweekly: '$70',
+                    features: [
+                      { text: 'Green Free Guarantee', variant: 'green-guarantee', hasInfo: true },
+                      { text: 'Complete water chemistry testing & balancing' },
+                      { text: 'Spa surface skimming & shell wipe-down' },
+                      { text: 'Filter & cartridge inspection' },
+                      { text: 'Digital service report after every visit' },
+                    ],
+                  },
+                  {
+                    id: 'combo',
+                    name: 'Pool + Spa',
+                    description: 'Both bodies, one weekly visit',
+                    priceWeekly: '$60',
+                    priceBiweekly: '$85',
+                    badge: 'Most popular',
+                    features: [
+                      { text: 'Green Free Guarantee', variant: 'green-guarantee', hasInfo: true },
+                      { text: 'Complete water chemistry testing & balancing' },
+                      { text: 'Pool + spa skimming & debris removal' },
+                      { text: 'Basket cleaning (skimmer & pump)' },
+                      { text: 'Equipment inspection & monitoring' },
+                      { text: 'Digital service report after every visit' },
+                    ],
+                  },
+                ];
+                return plans;
+              })()}
+              lockedPlanId={
+                formData.serviceType === 'pool_spa_combo' ? 'combo'
+                : formData.serviceType === 'spa' ? 'spa'
+                : 'pool'
+              }
+              initialCycle={formData.isBiweekly ? 'biweekly' : 'weekly'}
+              footerText="Chemicals billed separately based on usage. Cancel anytime."
+              buttonText="Get Started"
+              onContinue={(_planId, cycle) => {
+                /* Sync the toggle back into formData so downstream
+                   submissions (lead creation, "Email Quote", etc.)
+                   reflect the latest choice — then trigger the
+                   existing get-started flow. */
+                if (cycle === 'biweekly' && !formData.isBiweekly) updateForm({ isBiweekly: true });
+                if (cycle === 'weekly' && formData.isBiweekly) updateForm({ isBiweekly: false });
+                handleGetStartedNow();
+              }}
             />
-          )}
-
-          <div class="intake-included">
-            <h3>What's Included Each Visit:</h3>
-            <div class="intake-included-grid">
-              {INCLUDED.map((item, i) => (
-                <div key={i} class="intake-included-item">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                  <span>{item}</span>
-                </div>
-              ))}
-            </div>
           </div>
 
           <div class="intake-quote-actions">
-            <button type="button" class="intake-cta-btn" onClick={handleGetStartedNow} disabled={leadSubmitting}>
-              {leadSubmitting ? 'Saving...' : 'Get Started Now'}
-              {!leadSubmitting && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>}
-            </button>
+            {/* Primary "Get Started Now" CTA is rendered INSIDE the
+                ChangeablePricingSection above; we just keep the
+                secondary email/text actions here so the user can
+                opt to receive the quote later instead of starting
+                the lead flow immediately. */}
             {leadError && <p style="color: #dc2626; font-size: 0.85rem; margin-top: 0.5rem;">{leadError}</p>}
             <div class="intake-btn-row">
               <button type="button" class="intake-outline-btn" disabled={leadSubmitting} onClick={async () => {
@@ -1534,6 +1682,155 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
           <p class="intake-quote-fine-print">No long-term contracts &bull; Cancel anytime &bull; Same-day service available</p>
         </div>
       </>
+    );
+  }
+
+  /* ──────────────────────────────────────────────────────────────
+     Brief "preparing your request" loading screen shown for ~750ms
+     between the user picking a non-maintenance service and the
+     ticket-form view rendering. Smooths what was previously an
+     abrupt screen swap. The Perfect Pools logo sits in the centre
+     with a spinning ring around it; a "Preparing your request..."
+     label pulses below.
+     ────────────────────────────────────────────────────────────── */
+  function renderRedirectLoading() {
+    // Label varies by what the user is being transitioned TO. For
+    // the maintenance happy-path the next view is the quote, so
+    // "Preparing your quote…" reads more accurately than the
+    // generic "request" label used for ticket-form redirects.
+    const label = redirectLoading === 'quote' ? 'Preparing your quote…' : 'Preparing your request…';
+    return (
+      <div class="gs-redirect-loading">
+        <div class="gs-redirect-loading__logo-wrap">
+          <img src={`${basePath}images/perfect-pools-logo.png`} alt="" class="gs-redirect-loading__logo" />
+        </div>
+        <p class="gs-redirect-loading__label">{label}</p>
+      </div>
+    );
+  }
+
+  /* ──────────────────────────────────────────────────────────────
+     Shared helper: consolidated summary card shown at the top of
+     each non-maintenance ticket-form page (Equipment / Green Pool /
+     Renovation). Includes the service the user picked + a flat
+     row for their already-collected address + contact info, so
+     we don't re-collect those fields in the form below. The edit
+     pencil clears the redirect and dumps the user back into the
+     service grid.
+     ────────────────────────────────────────────────────────────── */
+  /* Optional 4th arg `chips` adds a row of pill-shaped chips under
+     the service title — used by the maintenance quote view to show
+     property type / pool type / condition / body type at a glance.
+     Optional 3rd arg `onEdit` overrides where the edit pencil jumps
+     (defaults to resetting the ticket state). */
+  function renderTicketSummary(svcLabel: string, svcIconPath: string, onEdit?: () => void, chips?: string[]) {
+    const fullAddress = [
+      formData.addressStreet,
+      formData.addressCity,
+      formData.addressState,
+      formData.addressZip,
+    ].filter(Boolean).join(', ').replace(/, ([A-Z]{2}), /, ', $1 ');
+    const fullName = `${formData.firstName} ${formData.lastName}`.trim();
+    /* Contact pieces stay separate so we can render each with its
+       own glyph (user / phone / email) inline. Falls back to a
+       "tap to add" link if everything is missing. */
+    const hasAnyContact = !!(fullName || formData.phone || formData.email);
+    const addressText = fullAddress || null;
+
+    return (
+      <div class="gs-section-summary">
+        <div class="gs-section-summary__header">
+          <span class="gs-section-summary__header-label">Summary</span>
+          <button type="button" class="gs-section-summary__edit" onClick={onEdit || resetTicketState} aria-label="Edit" title="Edit">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 20h9"/>
+              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+            </svg>
+          </button>
+        </div>
+        <div class="gs-section-summary__body">
+          <div class="gs-section-summary__service">
+            <div class="gs-section-summary__icon-box">
+              <img src={`${basePath}${svcIconPath}`} alt="" />
+            </div>
+            <div class="gs-section-summary__service-body">
+              <h3 class="gs-section-summary__title">{svcLabel}</h3>
+              {chips && chips.length > 0 && (
+                <div class="gs-section-summary__chips">
+                  {chips.map((chip, i) => (
+                    <span class="gs-section-summary__chip" key={i}>{chip}</span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {hasAnyContact ? (
+            <div class="gs-section-summary__row gs-section-summary__row--contact">
+              {fullName && (
+                <span class="gs-section-summary__contact-piece">
+                  <span class="gs-section-summary__row-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </span>
+                  <span>{fullName}</span>
+                </span>
+              )}
+              {formData.phone && (
+                <span class="gs-section-summary__contact-piece">
+                  <span class="gs-section-summary__row-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                    </svg>
+                  </span>
+                  <span>{formData.phone}</span>
+                </span>
+              )}
+              {formData.email && (
+                <span class="gs-section-summary__contact-piece">
+                  <span class="gs-section-summary__row-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                      <polyline points="22,6 12,13 2,6"/>
+                    </svg>
+                  </span>
+                  <span>{formData.email}</span>
+                </span>
+              )}
+            </div>
+          ) : (
+            <div class="gs-section-summary__row">
+              <span class="gs-section-summary__row-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                  <circle cx="12" cy="7" r="4"/>
+                </svg>
+              </span>
+              <button type="button" class="gs-section-summary__row-text gs-section-summary__row-text--missing" onClick={() => { setRedirect(''); setCurrentStep(2); }}>
+                Add your contact info
+              </button>
+            </div>
+          )}
+
+          <div class="gs-section-summary__row">
+            <span class="gs-section-summary__row-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+                <circle cx="12" cy="10" r="3"/>
+              </svg>
+            </span>
+            {addressText ? (
+              <span class="gs-section-summary__row-text">{addressText}</span>
+            ) : (
+              <button type="button" class="gs-section-summary__row-text gs-section-summary__row-text--missing" onClick={() => { setRedirect(''); setCurrentStep(1); }}>
+                Add your address
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
     );
   }
 
@@ -1566,17 +1863,31 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
       );
     }
 
+    /* Layout: consolidated summary at top (service + address +
+       contact in one card) + just a description textarea below.
+       Name / phone / email are pulled from formData (already
+       collected in Step 2) so we don't ask twice. */
     return (
       <>
-        <div class="intake-step-header">
-          <div class="intake-step-icon intake-step-icon--commercial">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-          </div>
-          <h2 class="intake-step-title">Equipment Service & Repair</h2>
-          <p class="intake-step-subtitle">Our techs can diagnose and fix the issue on-site.</p>
-        </div>
+        {renderTicketSummary('Equipment Issue', 'images/icon-equipment.svg')}
+
         <div class="intake-sorry-content">
-          <div class="intake-sorry-help intake-sorry-help--blue">
+          <div class="intake-ticket-form intake-ticket-form--inline">
+            <div class="intake-form-grid">
+              <div class="intake-field">
+                <label class="intake-label">Describe your issue *</label>
+                <textarea class="intake-input intake-textarea" rows={4} value={ticketDescription} onInput={(e: any) => setTicketDescription(e.target.value)} placeholder="e.g. Pump is making a loud noise, filter pressure is high, heater won't turn on..." />
+              </div>
+            </div>
+
+            {ticketError && <p class="intake-submit-error">{ticketError}</p>}
+
+            <button type="button" class="intake-cta-btn" style="width: 100%; margin-top: 0.75rem;" disabled={ticketSubmitting} onClick={() => submitTicket('equipment')}>
+              {ticketSubmitting ? 'Submitting...' : 'Get a Call Back'}
+            </button>
+          </div>
+
+          <div class="intake-sorry-help intake-sorry-help--blue" style="margin-top: 1.25rem;">
             <h3>What to expect:</h3>
             <ul>
               <li><strong>$150 residential service call</strong> — $185 for commercial</li>
@@ -1584,72 +1895,15 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
             </ul>
           </div>
 
-          <div class="intake-sorry-actions">
-            <a href="tel:9124590160" class="intake-cta-btn">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-              Call to Schedule — (912) 459-0160
-            </a>
-          </div>
-
           <div class="intake-ticket-divider">
-            <span>or</span>
+            <span>or call us directly</span>
           </div>
 
-          <button type="button" class={`intake-ticket-toggle${ticketFormOpen ? ' open' : ''}`} onClick={() => setTicketFormOpen(!ticketFormOpen)}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            <span>Describe your issue & we'll call you back</span>
-            <svg class="intake-ticket-toggle-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
-
-          {ticketFormOpen && (
-            <div class="intake-ticket-form">
-              <div class="intake-form-grid">
-                <div class="intake-form-row intake-form-row--half">
-                  <div class="intake-field">
-                    <label class="intake-label">First Name *</label>
-                    <input type="text" class="intake-input" value={ticketContact.firstName} onInput={(e: any) => setTicketContact(p => ({ ...p, firstName: e.target.value }))} placeholder="First name" />
-                  </div>
-                  <div class="intake-field">
-                    <label class="intake-label">Last Name</label>
-                    <input type="text" class="intake-input" value={ticketContact.lastName} onInput={(e: any) => setTicketContact(p => ({ ...p, lastName: e.target.value }))} placeholder="Last name" />
-                  </div>
-                </div>
-                <div class="intake-form-row intake-form-row--half">
-                  <div class="intake-field">
-                    <label class="intake-label">Phone *</label>
-                    <input type="tel" class="intake-input" value={ticketContact.phone} onInput={(e: any) => setTicketContact(p => ({ ...p, phone: formatPhone(e.target.value) }))} placeholder="(912) 555-0123" />
-                  </div>
-                  <div class="intake-field">
-                    <label class="intake-label">Email</label>
-                    <input type="email" class="intake-input" value={ticketContact.email} onInput={(e: any) => setTicketContact(p => ({ ...p, email: e.target.value }))} placeholder="your@email.com" />
-                  </div>
-                </div>
-                <div class="intake-field">
-                  <label class="intake-label">What's going on with your equipment? *</label>
-                  <textarea class="intake-input intake-textarea" rows={3} value={ticketDescription} onInput={(e: any) => setTicketDescription(e.target.value)} placeholder="e.g. Pump is making a loud noise, filter pressure is high, heater won't turn on..." />
-                </div>
-              </div>
-
-              <div class="intake-ticket-pricing-note">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-                <span><strong>$150 residential</strong> / <strong>$185 commercial</strong> diagnosis fee</span>
-              </div>
-
-              {ticketError && <p class="intake-submit-error">{ticketError}</p>}
-
-              <button type="button" class="intake-cta-btn" style="width: 100%; margin-top: 0.75rem;" disabled={ticketSubmitting} onClick={() => submitTicket('equipment')}>
-                {ticketSubmitting ? 'Submitting...' : 'Submit Request'}
-              </button>
-            </div>
-          )}
-
-          <div style="margin-top: 1rem; text-align: center;">
-            <a href="/services/pool-equipment-repair/" class="intake-outline-btn" style="display: inline-flex;">View Equipment Services</a>
-          </div>
-          <div style="text-align: center; margin-top: 0.75rem;">
-            <button type="button" class="intake-text-btn" onClick={resetTicketState}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Go Back
-            </button>
+          <div class="intake-sorry-actions">
+            <a href="tel:9124590160" class="intake-outline-btn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              (912) 459-0160
+            </a>
           </div>
         </div>
       </>
@@ -1685,17 +1939,30 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
       );
     }
 
+    /* Same pattern as Equipment redirect — consolidated summary +
+       just the description textarea (contact info comes from
+       formData, populated in Step 2). */
     return (
       <>
-        <div class="intake-step-header">
-          <div class="intake-step-icon intake-step-icon--commercial">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 20A7 7 0 0 1 9.8 6.9C15.5 4.9 17 3.5 19 1c1 2 2 4.5 2 8 0 5.5-4.78 10.7-10 11z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
-          </div>
-          <h2 class="intake-step-title">Green Pool Recovery</h2>
-          <p class="intake-step-subtitle">Green pools need a site visit for an accurate quote.</p>
-        </div>
+        {renderTicketSummary('Green Pool Recovery', 'images/icon-green-pool.png')}
+
         <div class="intake-sorry-content">
-          <div class="intake-sorry-help intake-sorry-help--blue">
+          <div class="intake-ticket-form intake-ticket-form--inline">
+            <div class="intake-form-grid">
+              <div class="intake-field">
+                <label class="intake-label">Tell us about your pool's condition *</label>
+                <textarea class="intake-input intake-textarea" rows={4} value={ticketDescription} onInput={(e: any) => setTicketDescription(e.target.value)} placeholder="e.g. Pool has been green for 2 weeks, pump is running but water isn't clearing..." />
+              </div>
+            </div>
+
+            {ticketError && <p class="intake-submit-error">{ticketError}</p>}
+
+            <button type="button" class="intake-cta-btn" style="width: 100%; margin-top: 0.75rem;" disabled={ticketSubmitting} onClick={() => submitTicket('green_pool')}>
+              {ticketSubmitting ? 'Submitting...' : 'Get a Call Back'}
+            </button>
+          </div>
+
+          <div class="intake-sorry-help intake-sorry-help--blue" style="margin-top: 1.25rem;">
             <h3>What to expect:</h3>
             <ul>
               <li><strong>$50 green pool evaluation</strong> — $150 if equipment is also down</li>
@@ -1703,72 +1970,93 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
             </ul>
           </div>
 
-          <div class="intake-sorry-actions">
-            <a href="tel:9124590160" class="intake-cta-btn">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-              Call to Schedule — (912) 459-0160
-            </a>
-          </div>
-
           <div class="intake-ticket-divider">
-            <span>or</span>
+            <span>or call us directly</span>
           </div>
 
-          <button type="button" class={`intake-ticket-toggle${ticketFormOpen ? ' open' : ''}`} onClick={() => setTicketFormOpen(!ticketFormOpen)}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            <span>Describe your pool & we'll call you back</span>
-            <svg class="intake-ticket-toggle-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
-
-          {ticketFormOpen && (
-            <div class="intake-ticket-form">
-              <div class="intake-form-grid">
-                <div class="intake-form-row intake-form-row--half">
-                  <div class="intake-field">
-                    <label class="intake-label">First Name *</label>
-                    <input type="text" class="intake-input" value={ticketContact.firstName} onInput={(e: any) => setTicketContact(p => ({ ...p, firstName: e.target.value }))} placeholder="First name" />
-                  </div>
-                  <div class="intake-field">
-                    <label class="intake-label">Last Name</label>
-                    <input type="text" class="intake-input" value={ticketContact.lastName} onInput={(e: any) => setTicketContact(p => ({ ...p, lastName: e.target.value }))} placeholder="Last name" />
-                  </div>
-                </div>
-                <div class="intake-form-row intake-form-row--half">
-                  <div class="intake-field">
-                    <label class="intake-label">Phone *</label>
-                    <input type="tel" class="intake-input" value={ticketContact.phone} onInput={(e: any) => setTicketContact(p => ({ ...p, phone: formatPhone(e.target.value) }))} placeholder="(912) 555-0123" />
-                  </div>
-                  <div class="intake-field">
-                    <label class="intake-label">Email</label>
-                    <input type="email" class="intake-input" value={ticketContact.email} onInput={(e: any) => setTicketContact(p => ({ ...p, email: e.target.value }))} placeholder="your@email.com" />
-                  </div>
-                </div>
-                <div class="intake-field">
-                  <label class="intake-label">Tell us about your pool's condition *</label>
-                  <textarea class="intake-input intake-textarea" rows={3} value={ticketDescription} onInput={(e: any) => setTicketDescription(e.target.value)} placeholder="e.g. Pool has been green for 2 weeks, pump is running but water isn't clearing..." />
-                </div>
-              </div>
-
-              <div class="intake-ticket-pricing-note">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-                <span><strong>$50 green pool evaluation</strong> — $150 if equipment is also down</span>
-              </div>
-
-              {ticketError && <p class="intake-submit-error">{ticketError}</p>}
-
-              <button type="button" class="intake-cta-btn" style="width: 100%; margin-top: 0.75rem;" disabled={ticketSubmitting} onClick={() => submitTicket('green_pool')}>
-                {ticketSubmitting ? 'Submitting...' : 'Submit Request'}
-              </button>
-            </div>
-          )}
-
-          <div style="margin-top: 1rem; text-align: center;">
-            <a href="/services/green-pool-cleaning/" class="intake-outline-btn" style="display: inline-flex;">Learn About Green Pool Recovery</a>
+          <div class="intake-sorry-actions">
+            <a href="tel:9124590160" class="intake-outline-btn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              (912) 459-0160
+            </a>
           </div>
           <div style="text-align: center; margin-top: 0.75rem;">
             <button type="button" class="intake-text-btn" onClick={resetTicketState}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Go Back
             </button>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  /* ══════════════════════════════════
+     P2-2b — Renovation Redirect (with ticket form)
+     Mirrors the Equipment / Green-pool redirects so all three non-
+     maintenance services use the same compact summary-card +
+     inline-ticket-form layout. Renovation is a partner referral
+     (PSP), so the description prompt is about scope rather than
+     a fault report.
+     ══════════════════════════════════ */
+  function renderRenovationRedirect() {
+    if (ticketSubmitted) {
+      return (
+        <>
+          <div class="intake-step-header">
+            <div class="intake-step-icon" style="background: #dcfce7;">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <h2 class="intake-step-title">We've got your request!</h2>
+            <p class="intake-step-subtitle">We'll have someone call you back shortly about your renovation project.</p>
+          </div>
+          <div class="intake-sorry-content">
+            <div class="intake-sorry-actions">
+              <button type="button" class="intake-text-btn" onClick={resetTicketState}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Back to Services
+              </button>
+            </div>
+          </div>
+        </>
+      );
+    }
+
+    return (
+      <>
+        {renderTicketSummary('Renovation', 'images/icon-renovation.png')}
+
+        <div class="intake-sorry-content">
+          <div class="intake-ticket-form intake-ticket-form--inline">
+            <div class="intake-form-grid">
+              <div class="intake-field">
+                <label class="intake-label">Describe your project *</label>
+                <textarea class="intake-input intake-textarea" rows={4} value={ticketDescription} onInput={(e: any) => setTicketDescription(e.target.value)} placeholder="e.g. Replaster the pool, retile the spa, replace coping..." />
+              </div>
+            </div>
+
+            {ticketError && <p class="intake-submit-error">{ticketError}</p>}
+
+            <button type="button" class="intake-cta-btn" style="width: 100%; margin-top: 0.75rem;" disabled={ticketSubmitting} onClick={() => submitTicket('renovation')}>
+              {ticketSubmitting ? 'Submitting...' : 'Get a Call Back'}
+            </button>
+          </div>
+
+          <div class="intake-sorry-help intake-sorry-help--blue" style="margin-top: 1.25rem;">
+            <h3>What to expect:</h3>
+            <ul>
+              <li><strong>We partner with PSP for renovation projects</strong> — Custom quotes for replaster, retile, and full remodels</li>
+              <li><strong>We'll connect you with the right team</strong> — Site visit scheduled within a few days</li>
+            </ul>
+          </div>
+
+          <div class="intake-ticket-divider">
+            <span>or call us directly</span>
+          </div>
+
+          <div class="intake-sorry-actions">
+            <a href="tel:9124590160" class="intake-outline-btn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              (912) 459-0160
+            </a>
           </div>
         </div>
       </>
