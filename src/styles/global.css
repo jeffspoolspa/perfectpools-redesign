@@ -1291,24 +1291,24 @@ p:last-child {
   min-width: 0;
 }
 .route-card__header .route-card__icon {
-  width: 1.5rem;
-  height: 1.5rem;
-  border-radius: 0.35rem;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.45rem;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 .route-card__header .route-card__icon svg {
-  width: 0.9rem;
-  height: 0.9rem;
+  width: 1.2rem;
+  height: 1.2rem;
 }
 /* Title scales with the card's inline size via cqi so it always
    takes up the available width and never wraps to two lines.
    Prefixed with .route-card--expandable to beat the legacy
    .route-card h3 rule (0,1,1) on specificity. */
 .route-card--expandable .route-card__title {
-  font-size: clamp(0.9rem, 4.8cqi, 1.2rem);
+  font-size: clamp(1.05rem, 6.4cqi, 1.5rem);
   font-weight: 700;
   margin: 0;
   line-height: 1.1;
