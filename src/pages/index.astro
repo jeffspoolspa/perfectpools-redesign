@@ -920,6 +920,43 @@ const icons = {
       };
     };
 
+    const heroEl = document.querySelector<HTMLElement>('.hero--image');
+    // When the hero exceeds 100vh (because a route card form is open),
+    // shift sticky `top` to negative-overflow so the hero scrolls
+    // naturally for that distance before pinning. This keeps the
+    // methodology section's sticky scroll-over effect intact while
+    // making the full expanded hero reachable.
+    const updateHeroStickyTop = () => {
+      if (!heroEl) return;
+      const overflow = heroEl.offsetHeight - window.innerHeight;
+      heroEl.style.setProperty('--hero-sticky-top', overflow > 0 ? `-${overflow}px` : '0px');
+    };
+    let stickyRafId = 0;
+    let stickyRafUntil = 0;
+    const tickStickyTop = () => {
+      updateHeroStickyTop();
+      if (performance.now() < stickyRafUntil) {
+        stickyRafId = requestAnimationFrame(tickStickyTop);
+      } else {
+        stickyRafId = 0;
+      }
+    };
+    // Run a brief rAF loop covering the form open/close animation
+    // (SPRING_DURATION = 580ms) so the hero's --hero-sticky-top tracks
+    // the animating height in real time. ResizeObserver would be
+    // cleaner but isn't reliable in every embedded preview environment.
+    const startStickyTracking = () => {
+      stickyRafUntil = performance.now() + SPRING_DURATION + 100;
+      if (!stickyRafId) stickyRafId = requestAnimationFrame(tickStickyTop);
+    };
+    const syncHeroExpandedState = () => {
+      if (!heroEl) return;
+      const anyExpanded = Array.from(routeCards).some((c) => c.classList.contains('is-expanded'));
+      heroEl.classList.toggle('has-expanded-route', anyExpanded);
+      startStickyTracking();
+    };
+    window.addEventListener('resize', updateHeroStickyTop);
+
     routeToggles.forEach((toggle) => {
       toggle.addEventListener('click', () => {
         const type = toggle.dataset.routeToggle as 'maintenance' | 'repair';
@@ -957,6 +994,7 @@ const icons = {
             card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
           }, 240);
         }
+        syncHeroExpandedState();
       });
     });
 
