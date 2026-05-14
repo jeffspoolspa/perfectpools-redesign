@@ -1273,21 +1273,21 @@ p:last-child {
   width: 100%;
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-  gap: 0.1rem;
-  padding: 0.35rem 0.65rem 0.4rem;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.65rem 0.85rem 0.6rem;
   background: transparent;
   border: none;
   cursor: pointer;
   font-family: inherit;
-  text-align: left;
+  text-align: center;
   color: inherit;
 }
 .route-card__top {
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.55rem;
-  width: 100%;
   min-width: 0;
 }
 .route-card__header .route-card__icon {
