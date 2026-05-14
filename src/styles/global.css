@@ -1235,7 +1235,7 @@ p:last-child {
   .hero__route-picker {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 16px;
   }
   .hero__form-wrap {
     display: none;
