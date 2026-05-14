@@ -91,10 +91,34 @@ const icons = {
           </div>
         </div>
 
-        <!-- Contact form. On mobile, CSS reorders this above the text content
-             so it's the first thing the user sees in the hero. The route-card
-             alternative is archived at src/components/_archive/HeroRouteCards.astro. -->
-        <div class="hero__form-wrap reveal-up" style="--reveal-delay: 300ms">
+        <!-- Mobile-only route picker. The two compact cards sit in place of
+             the form on mobile; tapping one configures the form's tab and
+             animates the form open below. Hidden on desktop (≥1024). -->
+        <div class="hero__route-picker reveal-up" data-hero-route-picker style="--reveal-delay: 225ms">
+          <button type="button" class="route-card route-card--compact route-card--gradient" data-route-card="maintenance" aria-label="Weekly Pool Care — open form">
+            <div class="route-card__icon">
+              <Fragment set:html={icons.droplets} />
+            </div>
+            <div>
+              <h3>Weekly Pool Care</h3>
+              <p>From $50 + chemicals</p>
+            </div>
+          </button>
+          <button type="button" class="route-card route-card--compact route-card--white" data-route-card="repair" aria-label="Equipment Repairs — open form">
+            <div class="route-card__icon">
+              <Fragment set:html={icons.alertCircle} />
+            </div>
+            <div>
+              <h3>Equipment Repairs</h3>
+              <p>48-hour diagnosis</p>
+            </div>
+          </button>
+        </div>
+
+        <!-- Contact form. On mobile it's hidden until a route card is tapped,
+             then animates open below the picker (origin: top edge). On desktop
+             it sits in its own grid column visible by default. -->
+        <div class="hero__form-wrap reveal-up" data-hero-form-wrap style="--reveal-delay: 300ms">
           <form class="hero-form" data-hero-form data-active-tab="maintenance">
             <div class="hero-form__tabs" role="tablist" aria-label="Service type">
               <button
@@ -736,6 +760,27 @@ const icons = {
       e.preventDefault();
       const intakeTrigger = document.querySelector('[data-open-intake]') as HTMLButtonElement | null;
       if (intakeTrigger) intakeTrigger.click();
+    });
+
+    // Mobile route picker — tapping a card sets the form's active tab and
+    // toggles the form-wrap into its revealed state (CSS handles the
+    // origin-from-card animation). Scrolls the form into view after a
+    // short delay so the tap feels coupled to the reveal.
+    const routeCards = document.querySelectorAll<HTMLButtonElement>('[data-route-card]');
+    const formWrap = document.querySelector<HTMLElement>('[data-hero-form-wrap]');
+    routeCards.forEach((card) => {
+      card.addEventListener('click', () => {
+        const type = card.dataset.routeCard as 'maintenance' | 'repair';
+        updateHeroTab(type);
+        if (formWrap) {
+          formWrap.dataset.revealed = 'true';
+          window.setTimeout(() => {
+            formWrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }, 220);
+        }
+        // Keep the picker visually marking the active card
+        routeCards.forEach((c) => c.classList.toggle('is-active', c === card));
+      });
     });
   }
 
