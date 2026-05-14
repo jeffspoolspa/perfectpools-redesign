@@ -143,6 +143,15 @@ const ogImageUrl = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`
       // smooth-scrolls to the anchor. Replaces native instant jumps.
       // Affects every nav link site-wide.
       anchors: true,
+      // Tell Lenis to IGNORE wheel/touch events whose target lives
+      // inside the quote modal overlay. Without this, Lenis grabs
+      // every wheel event globally and preventDefault()s it — so even
+      // though `.intake-body` has `overflow-y: auto` and could scroll
+      // natively, the wheel events never reach native scroll. With
+      // `prevent` returning true for nodes inside `.intake-overlay`,
+      // Lenis steps out of the way and native scroll inside the modal
+      // works as expected.
+      prevent: (node) => !!(node as Element).closest?.('.intake-overlay'),
     });
 
     // Sync Lenis scroll position → ScrollTrigger

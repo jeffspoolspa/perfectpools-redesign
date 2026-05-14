@@ -3,6 +3,14 @@ import { useState } from 'preact/hooks';
 interface PricingConfiguratorProps {
   frequency: 'weekly' | 'biweekly';
   ctaHref: string;
+  /* Lock the service-body type and hide the Pool/Spa/Pool+Spa
+     selector. Used by the quote-modal flow where the user already
+     picked their body type on a previous step — no point asking
+     again. Pass 'pool' | 'spa' | 'combo'. */
+  lockedType?: 'pool' | 'spa' | 'combo';
+  /* Pre-check the fountain add-on. Used by the quote-modal flow
+     to carry over the answer the user gave earlier. */
+  initialFountain?: boolean;
 }
 
 const TYPES = [
@@ -18,9 +26,11 @@ const BIWEEKLY_VISITS = 2.17;
 const CHECK_SVG = `<svg width="16" height="16" viewBox="0 0 24 24" fill="#E28D33"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>`;
 const GREEN_CHECK = `<svg width="16" height="16" viewBox="0 0 24 24" fill="#059669"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>`;
 
-export default function PricingConfigurator({ frequency, ctaHref }: PricingConfiguratorProps) {
-  const [activeType, setActiveType] = useState<string>('pool');
-  const [hasFountain, setHasFountain] = useState(false);
+export default function PricingConfigurator({ frequency, ctaHref, lockedType, initialFountain }: PricingConfiguratorProps) {
+  /* When lockedType is provided, that value is used and the
+     selector is hidden — see the JSX below. */
+  const [activeType, setActiveType] = useState<string>(lockedType || 'pool');
+  const [hasFountain, setHasFountain] = useState(initialFountain || false);
 
   const isWeekly = frequency === 'weekly';
   const type = TYPES.find(t => t.id === activeType)!;
@@ -59,18 +69,21 @@ export default function PricingConfigurator({ frequency, ctaHref }: PricingConfi
         </span>
       </div>
 
-      {/* Service type tabs */}
-      <div class="pricing-config__types">
-        {TYPES.map(t => (
-          <button
-            key={t.id}
-            class={`pricing-config__type ${activeType === t.id ? 'pricing-config__type--active' : ''}`}
-            onClick={() => setActiveType(t.id)}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
+      {/* Service type tabs — hidden when lockedType is provided,
+          since the body was chosen on a previous step. */}
+      {!lockedType && (
+        <div class="pricing-config__types">
+          {TYPES.map(t => (
+            <button
+              key={t.id}
+              class={`pricing-config__type ${activeType === t.id ? 'pricing-config__type--active' : ''}`}
+              onClick={() => setActiveType(t.id)}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Fountain checkbox */}
       <label class="pricing-config__addon">

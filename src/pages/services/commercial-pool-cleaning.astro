@@ -1068,8 +1068,13 @@ const schema = [
 
   {/* Standalone manage-section was removed — its carousel content
       now lives as the default "overview" panel in the maint-plans
-      tabbed section above. The carousel <script> was kept (further
-      down) and still binds against the same IDs. */}
+      tabbed section above. The carousel script tag was kept (further
+      down) and still binds against the same IDs.
+      Note: the literal angle brackets around "script" used to live
+      in this comment but Vite's dep-scanner doesn't parse JSX
+      comments — it saw the bare `<script>` as a real opening tag
+      and tried to parse everything until the next `</script>` as
+      JS, blowing up the dev server. */}
 
   {/* Velocity-based pin bypass was REMOVED. The previous version
       toggled `body.is-fast-scrolling` whenever scroll velocity

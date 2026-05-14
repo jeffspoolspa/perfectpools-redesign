@@ -3422,6 +3422,45 @@ p:last-child {
   color: #0c4a6e;
 }
 
+/* Contact-row variant: instead of one combined `name · phone · email`
+   line with a single user glyph, render each piece (name, phone,
+   email) inline with its own glyph. Wraps to a new line on narrow
+   widths. Matches the design used in the consolidated ticket-form
+   summary card. */
+.gs-summary__row--contact {
+  align-items: center;
+}
+.gs-summary__contact-pieces {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.gs-summary__contact-piece {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: inherit;
+  font-size: inherit;
+  min-width: 0;
+  max-width: 100%;
+}
+.gs-summary__contact-piece > span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Compact `--inline` variant of the leading bubble icon — no
+   coloured background, just the glyph at full row text colour. */
+.gs-summary__icon--inline {
+  width: auto;
+  height: auto;
+  background: transparent;
+  color: inherit;
+}
+
 /* ────────────────────────────────────────────────────────────────
    V2 — Question card overrides (scoped to .intake-modal--v2 so the
    original modal's styling is untouched). Adopts the design's
@@ -3615,29 +3654,50 @@ p:last-child {
   display: none;
 }
 
-/* Service-interest options — icon cards in a 4-up row on desktop,
-   2x2 on phones. Each card has the icon centered on top with the
-   label below. Selected state: blue border + light-blue fill + a
-   blue check badge in the top-left corner (CSS pseudo-element). */
+/* Service-interest options — icon cards ALWAYS in one row (4 across)
+   regardless of viewport width. Each card has the icon centered on
+   top with the label below. Selected state: blue border + light-blue
+   fill + a blue check badge in the top-left corner.
+   Layout: cells are FIXED-WIDTH (not 1fr) so the 4 cards cluster
+   tightly to the left rather than stretching to fill the full
+   modal width. `justify-content: start` left-aligns the cluster
+   within the grid container — mirrors the design reference where
+   the cards sit as a compact group, not edge-to-edge. */
 .intake-modal--v2 .gs-service-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  /* Cells widened to 100px (was 88px) so the labels below each
+     card sit roughly under the card's edges rather than spilling
+     past — "Recurring Pool Maintenance" and "Green Pool Recovery"
+     wrap to 2 lines naturally inside this width without orphans. */
+  grid-template-columns: repeat(4, 100px);
+  justify-content: start;
+  /* Tighter gap (was 14px) so the row reads as a clustered group,
+     matching the design reference. */
   gap: 8px;
 }
-/* Each cell stacks the icon button on top and the label below it */
+/* Each cell stacks the icon button on top and the label below it.
+   `min-width: 0` lets the cell shrink below its content's intrinsic
+   width — important inside the 1fr grid tracks so all 4 cells stay
+   equal even when one label is much longer than the others. */
 .intake-modal--v2 .psf-service-cell {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   text-align: center;
+  min-width: 0;
 }
 .intake-modal--v2 .psf-service-label {
   font-size: 0.78rem;
   font-weight: 500;
   color: #0f2942;
-  line-height: 1.2;
+  line-height: 1.25;
   max-width: 100%;
+  /* Allow long labels like "Recurring Pool Maintenance" to break
+     between words and wrap to a second line within their cell
+     instead of pushing the grid wider. */
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 .intake-modal--v2 .psf-service-cell:has(.gs-service-card.selected) .psf-service-label {
   font-weight: 600;
@@ -3645,11 +3705,15 @@ p:last-child {
 }
 .intake-modal--v2 .gs-service-card {
   position: relative;
-  width: 64px;
-  height: 64px;
+  /* Bumped from 64×64 → 80×80 so the card feels more substantial
+     and the icon inside has more room to breathe. The surrounding
+     cell is 100px so there's still 10px on each side under the
+     card for the label to wrap into. */
+  width: 80px;
+  height: 80px;
   background: #fff;
   border: 1.5px solid #e3ebf3;
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 0;
   display: flex;
   align-items: center;
@@ -3667,36 +3731,19 @@ p:last-child {
 }
 .intake-modal--v2 .gs-service-card.selected,
 .intake-modal--v2 .gs-service-card[aria-pressed="true"] {
+  /* Selected state: blue border + tinted-blue fill only. The
+     check-badge pseudo-elements (::before / ::after) were removed
+     per design — the border + fill alone read clearly as
+     "selected" without crowding the small card. */
   border-color: #0284c7;
   background: #f0f8fd;
 }
-/* Blue check badge in the top-left of the selected card */
-.intake-modal--v2 .gs-service-card.selected::before {
-  content: '';
-  position: absolute;
-  top: -6px;
-  left: -6px;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #0284c7;
-  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.4);
-}
-.intake-modal--v2 .gs-service-card.selected::after {
-  content: '';
-  position: absolute;
-  top: -1px;
-  left: 1px;
-  width: 10px;
-  height: 6px;
-  border-left: 2px solid #fff;
-  border-bottom: 2px solid #fff;
-  transform: rotate(-45deg);
-}
 .intake-modal--v2 .gs-service-card__icon,
 .intake-modal--v2 .gs-service-card .gs-service-card-icon {
-  width: 26px;
-  height: 26px;
+  /* Icon scaled up from 26 → 34 to match the larger 80px card.
+     Keeps roughly the same icon-to-card ratio (~42%) as before. */
+  width: 34px;
+  height: 34px;
   background: transparent;
   color: #0c4a6e;
   margin: 0;
@@ -3714,6 +3761,17 @@ p:last-child {
   width: 100%;
   height: 100%;
 }
+/* Some service icons are full-color illustrations (PNG), not the
+   stroked currentColor SVGs above. They sit in the same slot and
+   need `object-fit: contain` so they letterbox into the 34px
+   square without cropping. */
+.intake-modal--v2 .gs-service-card__icon img,
+.intake-modal--v2 .gs-service-card .gs-service-card-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
 .intake-modal--v2 .gs-service-card h3 {
   font-size: 0.75rem;
   font-weight: 600;
@@ -3724,11 +3782,322 @@ p:last-child {
 .intake-modal--v2 .gs-service-card p {
   display: none;
 }
-@media (max-width: 520px) {
-  .intake-modal--v2 .gs-service-grid {
-    grid-template-columns: repeat(2, 1fr);
+
+/* ─────────────────────────────────────────────────────────────────
+   Section summary card — used when the user has selected a non-
+   maintenance service (Green Pool / Equipment / Renovation) and is
+   on the ticket-form stage. Consolidates EVERYTHING the user has
+   already given us (service + address + contact) into ONE summary
+   block at the top of the page, replacing the per-row top-rail
+   `.gs-summary` for this stage. Mirrors the design reference:
+     ┌────────────────────────────────────┐
+     │ SUMMARY                          ✏ │  ← __header
+     ├────────────────────────────────────┤
+     │ [icon] **Service Name**            │  ← __service (prominent)
+     │        [chip] [chip] [chip]        │
+     │                                    │
+     │  👤  John · 555-1234 · john@…      │  ← __row (flat)
+     │  📍  123 Main St, Savannah, GA     │
+     └────────────────────────────────────┘
+   ───────────────────────────────────────────────────────────────── */
+.intake-modal--v2 .gs-section-summary {
+  background: #fff;
+  border: 1px solid #e3ebf3;
+  border-radius: 14px;
+  margin-bottom: 20px;
+  overflow: hidden;
+  /* CRITICAL: prevent the parent `.intake-body` (display: flex,
+     flex-direction: column, flex: 1, overflow-y: auto) from
+     SHRINKING this card below its natural height when the modal
+     viewport is short. Without `flex-shrink: 0` the card collapses
+     and — because of `overflow: hidden` on this element — its
+     bottom content (the icon-box) gets clipped. The body's
+     own `overflow-y: auto` handles overflow at the body level, so
+     the card itself stays full-height and the page scrolls if
+     needed. */
+  flex-shrink: 0;
+}
+/* Top header bar: "SUMMARY" label + edit pencil */
+.intake-modal--v2 .gs-section-summary__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid #eef2f5;
+  background: #f9fafb;
+}
+.intake-modal--v2 .gs-section-summary__header-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #5a6c7d;
+}
+.intake-modal--v2 .gs-section-summary__edit {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  color: #5a6c7d;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.intake-modal--v2 .gs-section-summary__edit:hover {
+  background: #eef2f5;
+  color: #0f2942;
+}
+/* Body wraps the prominent service row + the flat sub-rows */
+.intake-modal--v2 .gs-section-summary__body {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+/* Prominent service row: boxed icon on the left, label + chips on
+   the right. */
+.intake-modal--v2 .gs-section-summary__service {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+.intake-modal--v2 .gs-section-summary__icon-box {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  background: #fff;
+  border: 1.5px solid #e3ebf3;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+}
+.intake-modal--v2 .gs-section-summary__icon-box img,
+.intake-modal--v2 .gs-section-summary__icon-box svg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+.intake-modal--v2 .gs-section-summary__service-body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 4px;
+}
+.intake-modal--v2 .gs-section-summary__title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0f2942;
+  line-height: 1.2;
+}
+/* Chip row below the service title — used on the maintenance quote
+   view to show property type / pool type / condition / body type
+   at a glance. Same shape as the design reference where each
+   answer becomes a small pill under the bold service name. */
+.intake-modal--v2 .gs-section-summary__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+.intake-modal--v2 .gs-section-summary__chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  background: #eef3f8;
+  color: #334155;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+/* Compact flat rows for address + contact info below the service.
+   Same visual pattern as the existing `.gs-summary__row`. */
+.intake-modal--v2 .gs-section-summary__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+  color: #334155;
+}
+.intake-modal--v2 .gs-section-summary__row-icon {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #5a6c7d;
+}
+.intake-modal--v2 .gs-section-summary__row-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Contact row variant — uses inline pieces instead of one combined
+   text span, so each piece (name, phone, email) gets its own glyph
+   inline. Wraps to multiple lines on narrow widths because each
+   piece is one self-contained chunk. */
+.intake-modal--v2 .gs-section-summary__row--contact {
+  flex-wrap: wrap;
+  align-items: center;
+  /* No leading row-icon since each piece carries its own glyph;
+     reclaim that gap by zero-ing the row's outer gap and re-adding
+     gaps per-piece below. */
+  gap: 14px;
+}
+.intake-modal--v2 .gs-section-summary__contact-piece {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #334155;
+  font-size: 0.85rem;
+  /* Each piece can shrink and truncate if extremely long — keeps
+     the layout from blowing out on long email addresses. */
+  min-width: 0;
+  max-width: 100%;
+}
+.intake-modal--v2 .gs-section-summary__contact-piece > span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Tap-to-add link variant — rendered when a row's data is missing
+   (e.g. user reached this stage with an empty contact/address).
+   Looks like a normal text row but is a styled button that jumps
+   back to the corresponding step in the flow. */
+.intake-modal--v2 button.gs-section-summary__row-text--missing {
+  appearance: none;
+  background: transparent;
+  border: none;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+  color: #0284c7;
+  font-size: inherit;
+  font-family: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: rgba(2, 132, 199, 0.35);
+  transition: text-decoration-color 0.15s ease;
+}
+.intake-modal--v2 button.gs-section-summary__row-text--missing:hover {
+  text-decoration-color: #0284c7;
+}
+
+/* Entry animation for the summary card — slides up & fades in over
+   400ms after the loading screen clears, so the new content feels
+   like it settles rather than snaps. Slightly longer than the
+   default 0.25s fade-in on `.intake-body`. */
+.intake-modal--v2 .gs-section-summary {
+  animation: gs-section-summary-in 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes gs-section-summary-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
+/* Stagger the body rows in after the card itself — service first,
+   then contact, then address — for a "compressing into one summary"
+   feel that mirrors what the user described wanting. OPACITY-ONLY
+   transitions (no transform) because the parent card has
+   `overflow: hidden` — a translateY animation on a row would shift
+   it 8px into the clip region during the animation and cut off
+   the bottom of the icon-box. Pure opacity has no clipping risk. */
+.intake-modal--v2 .gs-section-summary__service,
+.intake-modal--v2 .gs-section-summary__body > .gs-section-summary__row {
+  animation: gs-section-summary-row-in 0.32s ease-out both;
+}
+.intake-modal--v2 .gs-section-summary__service { animation-delay: 0.10s; }
+.intake-modal--v2 .gs-section-summary__body > .gs-section-summary__row:nth-of-type(2) { animation-delay: 0.18s; }
+.intake-modal--v2 .gs-section-summary__body > .gs-section-summary__row:nth-of-type(3) { animation-delay: 0.26s; }
+@keyframes gs-section-summary-row-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   Redirect-loading screen — brief "preparing your request" state
+   shown for ~750ms between picking a non-maintenance service and
+   the ticket-form view rendering. Smooths the transition so the
+   user doesn't see a blank-bar flash.
+   Visual: Perfect Pools logo centered, ring spinning around it,
+   "Preparing your request…" label pulsing below.
+   ───────────────────────────────────────────────────────────────── */
+.intake-modal--v2 .gs-redirect-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  min-height: 320px;
+  padding: 40px 20px;
+}
+.intake-modal--v2 .gs-redirect-loading__logo-wrap {
+  position: relative;
+  width: 88px;
+  height: 88px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* Spinning ring around the logo (separate layer so the logo itself
+   can hold a steady pulse animation without inheriting rotation). */
+.intake-modal--v2 .gs-redirect-loading__logo-wrap::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2.5px solid #e3ebf3;
+  border-top-color: #0284c7;
+  animation: gs-redirect-spin 1s linear infinite;
+}
+.intake-modal--v2 .gs-redirect-loading__logo {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+  animation: gs-redirect-logo-pulse 1.4s ease-in-out infinite;
+}
+.intake-modal--v2 .gs-redirect-loading__label {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: #5a6c7d;
+  letter-spacing: 0.02em;
+  animation: gs-redirect-label-pulse 1.4s ease-in-out infinite;
+}
+@keyframes gs-redirect-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes gs-redirect-logo-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.9; }
+  50% { transform: scale(1.06); opacity: 1; }
+}
+@keyframes gs-redirect-label-pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+/* Mobile breakpoint intentionally removed — the grid stays at 4
+   columns at every viewport width per design requirement. If
+   labels truncate at very narrow widths, tune `font-size` on
+   `.psf-service-label` rather than re-introducing a wrap. */
 
 /* Referral list → chip layout */
 .intake-modal--v2 .intake-surface-list {
@@ -10620,4 +10989,343 @@ p:last-child {
   line-height: 1.6;
   color: var(--color-text, #1e3a5f);
   margin: 0;
+}
+
+/* ====================================================================
+   ChangeablePricingSection (.cps)
+   Ported from watermelon-ui's changeable-pricing-section, restyled
+   with the Perfect Pools palette (navy/orange/green) and converted
+   from Tailwind class clouds to plain class names.
+
+   Outermost container is a soft-gray rounded "tray" that holds the
+   header (title + sliding frequency toggle), a stack of plan cards,
+   and a footer (fine print + CTA). The selected plan card has an
+   orange ring and expands a feature list under itself.
+   ==================================================================== */
+.cps {
+  width: 100%;
+  max-width: 460px;
+  margin: 0 auto;
+  background: #f3f4f6;
+  border-radius: 24px;
+  padding: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  /* Subtle outer ring so the tray reads as elevated even on tinted
+     backgrounds. */
+  outline: 1px solid rgba(228, 231, 235, 0.7);
+  outline-offset: -1px;
+}
+
+/* ── Header: title left, frequency toggle right ── */
+.cps__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 12px;
+  gap: 12px;
+}
+.cps__title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--color-primary);
+}
+
+/* Pill toggle — two buttons + a sliding background pill behind them.
+   The pill is a `::pseudo-style` span (`.cps__toggle-slider`) absolutely
+   positioned and translated based on `data-cycle`. Pure CSS — no JS
+   animation library needed. */
+.cps__toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 4px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  z-index: 0;
+}
+.cps__toggle-slider {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc(50% - 4px);
+  background: #fff;
+  border-radius: 999px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  z-index: -1;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.cps__toggle-slider[data-cycle="biweekly"] {
+  transform: translateX(100%);
+}
+.cps__toggle-btn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  min-width: 72px;
+  border-radius: 999px;
+  color: #9ca3af;
+  transition: color 0.25s ease;
+  z-index: 1;
+}
+.cps__toggle-btn.is-active {
+  color: var(--color-primary);
+}
+
+/* ── Plan list ── */
+.cps__plans {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.cps__plan {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  background: #fff;
+  border-radius: 18px;
+  outline: 1px solid rgba(228, 231, 235, 0.8);
+  outline-offset: -1px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  transition: outline-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+.cps__plan:hover {
+  outline-color: #d1d5db;
+}
+.cps__plan.is-selected {
+  outline: 1px solid var(--color-cta);
+  outline-offset: -1px;
+  box-shadow: 0 4px 16px rgba(226, 141, 51, 0.10);
+}
+.cps__plan-inner {
+  padding: 14px 16px;
+}
+.cps__plan-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+.cps__plan-left {
+  display: flex;
+  flex: 1 1 auto;
+  gap: 12px;
+  min-width: 0;
+}
+
+/* Radio dot — outline by default, filled orange with white check when
+   the plan is selected. The Check icon comes from the component. */
+.cps__radio {
+  flex-shrink: 0;
+  margin-top: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid #d1d5db;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.cps__plan.is-selected .cps__radio {
+  border-color: var(--color-cta);
+  background: var(--color-cta);
+}
+
+.cps__plan-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.cps__plan-name-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.cps__plan-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-primary);
+  line-height: 1.1;
+}
+.cps__plan-badge {
+  background: rgba(5, 150, 105, 0.12);
+  color: #047857;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 999px;
+  line-height: 1;
+}
+.cps__plan-desc {
+  font-size: 11px;
+  color: var(--color-text-light);
+  margin-top: 6px;
+  line-height: 1.35;
+}
+
+/* Right side: price + unit label. The amount has its own slide-in
+   animation that runs on every cycle toggle (re-keyed in JSX). */
+.cps__plan-price {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+.cps__plan-price-amount {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-primary);
+  line-height: 1;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  animation: cps-price-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes cps-price-in {
+  from { opacity: 0; transform: translateY(8px); filter: blur(4px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+.cps__plan-price-unit {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #9ca3af;
+  margin-top: 6px;
+  line-height: 1;
+}
+
+/* ── Expandable feature list under the selected plan ──
+   Uses CSS grid-template-rows trick (0fr → 1fr) for smooth open/
+   close animation without measuring content height. The inner div
+   is `overflow: hidden` so when the grid row is 0fr, content is
+   clipped to zero height; when it goes to 1fr, content takes its
+   natural height. */
+.cps__plan-features {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.2s ease;
+  opacity: 0;
+}
+.cps__plan-features.is-open {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+.cps__plan-features-inner {
+  overflow: hidden;
+  min-height: 0;
+}
+.cps__plan-features.is-open .cps__plan-features-inner {
+  padding-top: 14px;
+  margin-top: 14px;
+  border-top: 1px dashed #e5e7eb;
+}
+
+.cps__feature-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.cps__feature {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  line-height: 1.3;
+  color: var(--color-text);
+}
+.cps__feature-icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.cps__feature-text {
+  flex: 1 1 auto;
+}
+.cps__feature-info {
+  flex-shrink: 0;
+  color: #9ca3af;
+  display: inline-flex;
+  align-items: center;
+}
+/* Variants — Green Guarantee row gets a green tint to make the
+   value-prop pop; No-Guarantee row gets a muted red. */
+.cps__feature--green-guarantee .cps__feature-text {
+  color: var(--color-success);
+  font-weight: 600;
+}
+.cps__feature--no-guarantee .cps__feature-text {
+  color: #9ca3af;
+}
+
+/* ── Footer: fine-print left, CTA right ── */
+.cps__footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  margin-top: 16px;
+  padding: 0 12px 8px;
+}
+@media (min-width: 480px) {
+  .cps__footer {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
+.cps__footer-text {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #9ca3af;
+  line-height: 1.5;
+  text-align: center;
+}
+@media (min-width: 480px) {
+  .cps__footer-text { text-align: left; }
+}
+.cps__cta {
+  appearance: none;
+  border: 0;
+  cursor: pointer;
+  background: var(--color-cta);
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px 28px;
+  border-radius: 999px;
+  width: 100%;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+@media (min-width: 480px) {
+  .cps__cta { width: auto; }
+}
+.cps__cta:hover {
+  background: var(--color-orange-hover);
+}
+.cps__cta:active {
+  transform: scale(0.97);
 }
