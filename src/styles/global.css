@@ -1268,7 +1268,7 @@ p:last-child {
   display: flex;
   flex-direction: column;
   gap: 0.05rem;
-  padding: 0.3rem 0.65rem 2rem;
+  padding: 0.3rem 0.65rem 0;
   background: transparent;
   border: none;
   cursor: pointer;
