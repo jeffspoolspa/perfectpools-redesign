@@ -1,0 +1,949 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import customerData from '../data/maintenance-customer-coords.json';
+
+const geojson = {
+  type: 'FeatureCollection',
+  features: customerData.coords.map(([lng, lat]) => ({
+    type: 'Feature',
+    geometry: { type: 'Point', coordinates: [lng, lat] },
+    properties: {},
+  })),
+};
+
+const customerCount = customerData.count;
+
+// ---------- Tile-source toggle ------------------------------------
+// Two paths are wired up; flip USE_SELF_HOSTED_TILES to switch.
+//
+// false → OpenFreeMap CDN (free, no key, no SLA — fine for early prod)
+// true  → /public/tiles/coastal-ga.pmtiles (~84MB, zero recurring cost,
+//         served from your own domain via Vercel's edge CDN)
+//
+// The .pmtiles file was generated via `pmtiles extract` from a recent
+// Protomaps planet build, clipped to coastal GA/FL counties + buffer.
+// Regenerate with:
+//   pmtiles extract https://build.protomaps.com/<YYYYMMDD>.pmtiles \
+//     public/tiles/coastal-ga.pmtiles \
+//     --bbox=-82.5,29.8,-80.2,33.2 --maxzoom=14
+// ------------------------------------------------------------------
+const USE_SELF_HOSTED_TILES = false;
+const pmtilesUrl = `pmtiles://${import.meta.env.BASE_URL}tiles/coastal-ga.pmtiles`;
+---
+
+<BaseLayout
+  title="Service Area Map | Perfect Pools"
+  description="Explore Perfect Pools' service coverage across coastal Georgia and northern Florida. Enter your address to check if we serve your area."
+  canonicalPath="/map/"
+>
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" />
+  <script is:inline src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+  <script is:inline src="https://unpkg.com/pmtiles@3.2.1/dist/pmtiles.js"></script>
+  <script is:inline src="https://unpkg.com/protomaps-themes-base@4.5.0/dist/protomaps-themes-base.js"></script>
+
+  <section class="map-page">
+    <div class="map-page__sidebar">
+      <div class="map-page__intro">
+        <h1>Service Area</h1>
+        <p>
+          <strong>{customerCount}</strong> active pools serviced across coastal
+          Georgia and northern Florida — from Bryan County down through Glynn
+          and Camden into Nassau, FL.
+        </p>
+        <p class="map-page__tag">Coverage from Bryan County to Nassau, FL</p>
+      </div>
+
+      <div class="map-search">
+        <label for="address-search" class="map-search__label">
+          Check coverage for your address
+        </label>
+        <input
+          type="text"
+          id="address-search"
+          class="map-search__input"
+          placeholder="Start typing your address..."
+          autocomplete="off"
+        />
+        <ul id="address-results" class="map-search__results"></ul>
+      </div>
+
+      <div class="map-legend">
+        <div class="map-legend__title">Map key</div>
+        <ul class="map-legend__list">
+          <li class="map-legend__item">
+            <span class="map-legend__swatch map-legend__swatch--density"></span>
+            Coverage density — brighter blue = more pools we service
+          </li>
+          <li class="map-legend__item">
+            <span class="map-legend__swatch map-legend__swatch--search"></span>
+            Your searched address
+          </li>
+        </ul>
+      </div>
+
+      <div class="map-cta">
+        <p class="map-cta__lead">Not sure if we cover your area?</p>
+        <a href="tel:9124590160" class="map-cta__phone">(912) 459-0160</a>
+        <button type="button" class="btn btn--primary" data-open-intake>
+          Get a free quote
+        </button>
+      </div>
+    </div>
+
+    <div id="map" class="map-page__map">
+      <div class="map-loading" id="map-loading">Loading map…</div>
+    </div>
+  </section>
+
+  <script type="application/json" id="customer-geojson" set:html={JSON.stringify(geojson)}></script>
+  <script type="application/json" id="pmtiles-url" set:html={JSON.stringify(pmtilesUrl)}></script>
+
+  <script is:inline>
+    // -----------------------------------------------------------------
+    // Perfect Pools — Service Area Map (self-hosted edition)
+    // -----------------------------------------------------------------
+    //
+    // What's loading from where:
+    //   1. maplibre-gl       — CDN (unpkg), as UMD global window.maplibregl
+    //   2. pmtiles           — CDN (unpkg), as UMD global window.pmtiles;
+    //                          registers the pmtiles:// URL scheme with
+    //                          MapLibre so it can read tiles from a single
+    //                          static .pmtiles file via HTTP byte range
+    //                          requests
+    //   3. protomaps-themes-base — CDN (unpkg), as UMD global
+    //                          window.protomaps_themes_base; gives us a
+    //                          full MapLibre style spec (~68 layers) that
+    //                          matches the schema inside our .pmtiles file
+    //   4. /tiles/coastal-ga.pmtiles — the actual map imagery, ~84MB,
+    //                          served from /public/tiles/ at our own domain
+    //
+    // Everything is loaded as a UMD <script> (not as ESM imports) because
+    // Astro/Vite has trouble bundling MapLibre's web worker in dev mode.
+    // For production we'd want to move these to npm deps and bundle.
+    //
+    // Photon (address autocomplete) is the only external HTTP dependency
+    // remaining, and it only fires on user interaction.
+    // -----------------------------------------------------------------
+
+    const { layersWithPartialCustomTheme, namedTheme } = window.protomaps_themes_base;
+    const maplibregl = window.maplibregl;
+    const { Protocol } = window.pmtiles;
+
+    const useSelfHostedTiles = false; // flip to true after testing the .pmtiles file
+
+    // Store locations — pinned with brand logo markers on top of the
+    // coverage heatmap. Coordinates geocoded via Nominatim / US Census.
+    const stores = [
+      {
+        brand: 'perfectpools',
+        name: 'Perfect Pools — Richmond Hill',
+        address: '8989 Ford Ave, Richmond Hill, GA 31324',
+        lng: -81.3237, lat: 31.9570,
+        logo: '/images/perfect-pools-logo.png',
+      },
+      {
+        brand: 'perfectpools',
+        name: 'Perfect Pools — Garden City',
+        address: '605 US-80, Garden City, GA 31408',
+        lng: -81.1488, lat: 32.0933,
+        logo: '/images/perfect-pools-logo.png',
+      },
+      {
+        brand: 'jeffs',
+        name: "Jeff's Pool & Spa Service — Brunswick",
+        address: '170 Key Circle Dr, Brunswick, GA 31520',
+        lng: -81.4931, lat: 31.2017,
+        logo: '/images/jeffs-pool-spa-logo.png',
+      },
+      {
+        brand: 'jeffs',
+        name: "Jeff's Pool & Spa Service — St. Marys",
+        address: '546 Charlie Smith Sr Hwy, St. Marys, GA 31558',
+        lng: -81.5763, lat: 30.7571,
+        logo: '/images/jeffs-pool-spa-logo.png',
+      },
+    ];
+
+    // Brand palette mirrors src/styles/global.css
+    const NAVY = '#1E3A5F';
+    const NAVY_DARK = '#0B1320';
+    const DEEP_BLUE = '#145BB8';
+    const AMBER = '#E28D33';
+    const SAND = '#F9F6F0';
+    const SAND_TINT = '#EFE9DC';
+    const SEA_MIST = '#8BA1B5';
+    const ROAD_LIGHT = '#E8E0CC';
+    const ROAD_MAJOR = '#D6CCB6';
+
+    const SERVICE_CENTER = [-81.4, 31.4];
+    const SERVICE_BOUNDS = [[-82.5, 29.8], [-80.2, 33.2]];
+
+    const geojson = JSON.parse(document.getElementById('customer-geojson').textContent);
+    const pmtilesUrl = JSON.parse(document.getElementById('pmtiles-url').textContent);
+
+    // Register the pmtiles:// protocol with MapLibre so it knows how to
+    // resolve URLs that start with pmtiles://. Under the hood this issues
+    // HTTP Range requests to fetch just the bytes for individual tiles —
+    // the browser never downloads the whole 84MB file.
+    const protocol = new Protocol();
+    maplibregl.addProtocol('pmtiles', protocol.tile);
+
+    // The Protomaps basemap schema names its source layer "protomaps".
+    // Our style needs a source pointing at the pmtiles URL, plus the
+    // 50-ish layer definitions that protomaps-themes-base generates for us.
+    const SOURCE = 'protomaps';
+
+    // Start from the "light" named theme, then override just the colors
+    // that need to match our brand.
+    const partialTheme = {
+      ...namedTheme('light'),
+      background: SAND,
+      earth: SAND,
+      water: NAVY,
+      park_a: SAND_TINT,
+      park_b: SAND_TINT,
+      wood_a: SAND_TINT,
+      wood_b: SAND_TINT,
+      pedestrian: ROAD_LIGHT,
+      // Roads: muted neutrals so the map reads as background, not foreground
+      other: ROAD_LIGHT,
+      minor_a: ROAD_LIGHT,
+      minor_b: ROAD_LIGHT,
+      link: ROAD_LIGHT,
+      medium: ROAD_LIGHT,
+      major: ROAD_MAJOR,
+      highway: ROAD_MAJOR,
+      // Boundaries faint
+      boundaries: SEA_MIST,
+    };
+
+    // Build a brand-recolored MapLibre style. We have two paths:
+    //   - useSelfHostedTiles = true: read tiles from /tiles/coastal-ga.pmtiles
+    //     and build the style from protomaps-themes-base (the file uses the
+    //     Protomaps schema). Zero external HTTP at runtime except glyphs.
+    //   - useSelfHostedTiles = false: use OpenFreeMap's hosted positron
+    //     style and recolor layers after load. Fast to set up; depends on
+    //     openfreemap.org being up.
+    let style;
+    if (useSelfHostedTiles) {
+      const protocol = new Protocol();
+      maplibregl.addProtocol('pmtiles', protocol.tile);
+      style = {
+        version: 8,
+        glyphs: 'https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf',
+        sprite: 'https://protomaps.github.io/basemaps-assets/sprites/v4/light',
+        sources: {
+          [SOURCE]: {
+            type: 'vector',
+            url: pmtilesUrl,
+            attribution: '<a href="https://openstreetmap.org">© OpenStreetMap</a>',
+          },
+        },
+        layers: layersWithPartialCustomTheme(SOURCE, 'light', partialTheme, 'en'),
+      };
+    } else {
+      style = 'https://tiles.openfreemap.org/styles/positron';
+    }
+
+    const map = new maplibregl.Map({
+      container: 'map',
+      style,
+      center: SERVICE_CENTER,
+      zoom: 7.5,
+      maxBounds: SERVICE_BOUNDS,
+      minZoom: 6.5,
+      maxZoom: useSelfHostedTiles ? 14 : 17, // .pmtiles file only has tiles up to z14
+      cooperativeGestures: true,
+    });
+
+    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+
+    // Surface map errors loudly during dev — pmtiles / style problems are
+    // otherwise opaque ("[object Object]" in console).
+    map.on('error', (e) => {
+      console.error('[map error]', e.error?.message || e.error || e, e);
+    });
+
+    // Expose for debugging from the devtools console.
+    window.__map = map;
+
+    // MapLibre sometimes initializes its canvas at a wrong size if the map
+    // container's layout hasn't settled yet (CSS grid / flex containers
+    // resolve after the script runs). Force a resize on next tick and
+    // watch for subsequent container changes so the canvas always tracks.
+    requestAnimationFrame(() => map.resize());
+    const ro = new ResizeObserver(() => map.resize());
+    ro.observe(document.getElementById('map'));
+
+    // Run our setup once the style spec is fully parsed and ready for
+    // layer mutations. We don't wait for `load` (which also waits for
+    // tile rendering) because that can hang in some browser contexts —
+    // styledata is enough for what we need.
+    let setupDone = false;
+    function runSetupOnce() {
+      if (setupDone) return;
+      // We need the style's basemap source registered before we can stack
+      // our own layers on top. Check by feature: at least one source from
+      // the basemap must be present (positron uses "openmaptiles").
+      const sources = map.getStyle()?.sources || {};
+      if (!Object.keys(sources).some((k) => k !== 'customers')) return;
+      setupDone = true;
+      if (!useSelfHostedTiles) brandTheOpenFreeMapStyle();
+      addCustomerLayer();
+      addStoreMarkers();
+      fitToCustomerExtent();
+      document.getElementById('map-loading')?.remove();
+    }
+    map.on('styledata', runSetupOnce);
+    map.on('load', runSetupOnce);
+    // Fallback: poll a few times in case neither event fires
+    // (some browser contexts where the load event hangs).
+    for (let i = 1; i <= 8; i++) setTimeout(runSetupOnce, i * 500);
+
+    // Store markers — one HTML element per location, branded with the
+    // company logo. MapLibre's Marker class anchors a DOM node at a
+    // geographic coordinate; it sits above the canvas naturally so the
+    // heatmap underneath doesn't obscure it.
+    function addStoreMarkers() {
+      // Hide basemap city/town labels for the cities where we have a
+      // physical store — the logo marker already serves as the label,
+      // so showing the basemap text on top of (or next to) the logo is
+      // visual duplication. All OTHER cities keep their labels.
+      const storeCityNames = [
+        'Richmond Hill',
+        'Garden City',
+        'Brunswick',
+        'St. Marys', 'Saint Marys', 'St Marys',
+      ];
+      const labelLayersToFilter = ['label_city', 'label_town', 'label_other', 'label_village'];
+      // Use `match` (older, broadly supported) rather than `in` for the
+      // exclusion check — some MapLibre versions don't support `in` with
+      // a literal array.
+      const excludeStoreCities = [
+        '!',
+        ['match', ['get', 'name'], storeCityNames, true, false],
+      ];
+      for (const layerId of labelLayersToFilter) {
+        const layer = map.getStyle().layers.find((l) => l.id === layerId);
+        if (!layer) continue;
+        const existingFilter = layer.filter;
+        const newFilter = existingFilter
+          ? ['all', existingFilter, excludeStoreCities]
+          : excludeStoreCities;
+        try { map.setFilter(layerId, newFilter); } catch (e) { /* skip if invalid */ }
+      }
+
+      for (const s of stores) {
+        const el = document.createElement('div');
+        el.className = `store-marker store-marker--${s.brand}`;
+        const img = document.createElement('img');
+        img.src = s.logo;
+        img.alt = s.name;
+        img.loading = 'lazy';
+        el.appendChild(img);
+
+        const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(s.address)}`;
+        const popup = new maplibregl.Popup({ offset: 28, closeButton: false }).setHTML(`
+          <div class="store-popup">
+            <div class="store-popup__name">${s.name}</div>
+            <div class="store-popup__addr">${s.address}</div>
+            <a class="store-popup__directions" href="${directionsUrl}" target="_blank" rel="noopener">Get directions →</a>
+          </div>
+        `);
+
+        new maplibregl.Marker({ element: el, anchor: 'center' })
+          .setLngLat([s.lng, s.lat])
+          .setPopup(popup)
+          .addTo(map);
+      }
+    }
+
+    // OpenFreeMap's "positron" style uses well-named layer IDs. We sniff
+    // each layer's id and recolor by category so the basemap matches the
+    // Perfect Pools palette (navy water, warm-sand land, muted roads).
+    // Only runs when self-hosted PMTiles is off — Protomaps style is
+    // already themed via partialTheme at construction time.
+    function brandTheOpenFreeMapStyle() {
+      for (const layer of map.getStyle().layers || []) {
+        const id = layer.id;
+        if (!id) continue;
+        try {
+          if (id === 'background') {
+            map.setPaintProperty(id, 'background-color', SAND);
+          } else if (id.includes('water')) {
+            if (layer.type === 'fill') {
+              map.setPaintProperty(id, 'fill-color', NAVY);
+              map.setPaintProperty(id, 'fill-opacity', 0.85);
+            } else if (layer.type === 'line') {
+              map.setPaintProperty(id, 'line-color', NAVY_DARK);
+            }
+          } else if (id.includes('park') || id.includes('wood') || id.includes('landcover')) {
+            if (layer.type === 'fill') {
+              map.setPaintProperty(id, 'fill-color', SAND_TINT);
+              map.setPaintProperty(id, 'fill-opacity', 0.7);
+            }
+          } else if (id.includes('road') || id.includes('highway') || id.includes('street') || id.includes('motorway')) {
+            if (layer.type === 'line') {
+              const isMajor = id.includes('motorway') || id.includes('trunk');
+              map.setPaintProperty(id, 'line-color', isMajor ? ROAD_MAJOR : ROAD_LIGHT);
+            }
+          } else if (id.includes('boundary') || id.includes('admin')) {
+            if (layer.type === 'line') {
+              map.setPaintProperty(id, 'line-color', SEA_MIST);
+              map.setPaintProperty(id, 'line-opacity', 0.4);
+            }
+          } else if (id.includes('label') || id.includes('place') || id.includes('poi')) {
+            if (layer.type === 'symbol') {
+              map.setPaintProperty(id, 'text-color', NAVY_DARK);
+              map.setPaintProperty(id, 'text-halo-color', SAND);
+              map.setPaintProperty(id, 'text-halo-width', 2);
+              // Many basemap styles ship with icon-optional: false on city
+              // labels — if the sprite icon doesn't render, the text won't
+              // either. We don't care about the dot icons, so unblock the
+              // text by making the icon optional.
+              try { map.setLayoutProperty(id, 'icon-optional', true); } catch (e) {}
+              try { map.setLayoutProperty(id, 'text-allow-overlap', true); } catch (e) {}
+            }
+          }
+        } catch (e) { /* silently skip layers that don't support the prop */ }
+      }
+    }
+
+    function addCustomerLayer() {
+      map.addSource('customers', {
+        type: 'geojson',
+        data: geojson,
+      });
+
+      // Two stacked heatmaps in the same brand color, working together to
+      // produce a single cohesive service-area shape rather than 634
+      // individual points:
+      //
+      //   service-halo     — large radius, gentle alpha. Even a single
+      //                      customer in an area "lights up" a soft
+      //                      neighborhood; many customers in a region
+      //                      blend into one continuous coverage zone.
+      //                      Defines the OUTER footprint of where we
+      //                      service.
+      //
+      //   service-hotspots — smaller radius, higher intensity, threshold
+      //                      ramp (transparent until density passes ~0.3).
+      //                      Visible only inside the densest pockets,
+      //                      where we have lots of customers tightly
+      //                      packed. Adds the "darker patch" effect of
+      //                      the reference design without breaking the
+      //                      cohesion of the halo.
+
+      map.addLayer({
+        id: 'service-halo',
+        type: 'heatmap',
+        source: 'customers',
+        paint: {
+          'heatmap-weight': 1,
+          // Flatter intensity curve so the inside of the coverage area is
+          // a more uniform tint rather than a peak-and-valley terrain map.
+          // Low intensity so 600+ overlapping points don't pile up into a
+          // solid wash. Each point contributes a small amount; the
+          // accumulated density saturates at a moderate value so the
+          // basemap still shows through.
+          'heatmap-intensity': [
+            'interpolate', ['linear'], ['zoom'],
+            5, 0.4,
+            9, 0.5,
+            13, 0.4,
+          ],
+          // Quickly saturating ramp with a low cap: anywhere with even a
+          // few customers reads at the same uniform tint, but it's never
+          // dark enough to hide the basemap.
+          'heatmap-color': [
+            'interpolate', ['linear'], ['heatmap-density'],
+            0,    'rgba(20, 91, 184, 0)',
+            0.05, 'rgba(20, 91, 184, 0.08)',
+            0.2,  'rgba(20, 91, 184, 0.18)',
+            0.5,  'rgba(20, 91, 184, 0.22)',
+            1.0,  'rgba(20, 91, 184, 0.24)',
+          ],
+          // Moderate radius — wide enough to merge street-level customers
+          // into a city-area blob, narrow enough that the blob still
+          // hugs the actual coverage and leaves white space outside it.
+          'heatmap-radius': [
+            'interpolate', ['linear'], ['zoom'],
+            5,  60,
+            8,  110,
+            11, 170,
+            14, 230,
+            17, 320,
+          ],
+          'heatmap-opacity': [
+            'interpolate', ['linear'], ['zoom'],
+            7,  0.7,
+            13, 0.5,
+            16, 0.2,
+          ],
+        },
+      });
+
+      map.addLayer({
+        id: 'service-hotspots',
+        type: 'heatmap',
+        source: 'customers',
+        paint: {
+          'heatmap-weight': 1,
+          'heatmap-intensity': [
+            'interpolate', ['linear'], ['zoom'],
+            5, 0.3,
+            9, 0.55,
+            13, 0.7,
+          ],
+          // Threshold ramp: invisible below ~40% density so only the
+          // densest pockets get the darker tint. Modest cap (~25%) so
+          // hotspots stand out from the halo without obscuring the map.
+          'heatmap-color': [
+            'interpolate', ['linear'], ['heatmap-density'],
+            0,    'rgba(20, 91, 184, 0)',
+            0.4,  'rgba(20, 91, 184, 0)',
+            0.65, 'rgba(20, 91, 184, 0.12)',
+            0.9,  'rgba(20, 91, 184, 0.20)',
+            1.0,  'rgba(20, 91, 184, 0.24)',
+          ],
+          'heatmap-radius': [
+            'interpolate', ['linear'], ['zoom'],
+            5,  30,
+            8,  60,
+            11, 95,
+            14, 135,
+          ],
+          'heatmap-opacity': [
+            'interpolate', ['linear'], ['zoom'],
+            7,  0.7,
+            13, 0.4,
+            16, 0.1,
+          ],
+        },
+      });
+
+      // Pull water (ocean, rivers, marshes) ABOVE the heatmap layers so
+      // it paints on top of them, effectively masking the coverage blob
+      // to land only. Pool service doesn't extend into the Atlantic —
+      // showing the blue wash over water is just visual noise.
+      const waterLayerIds = (map.getStyle().layers || [])
+        .filter((l) => /^water|waterway|^marine|^coastline/.test(l.id))
+        .map((l) => l.id);
+      for (const id of waterLayerIds) {
+        try { map.moveLayer(id); } catch (e) { /* not present, skip */ }
+      }
+
+      // Then lift city / place / state labels on top of EVERYTHING so
+      // town names stay legible regardless of overlap or water masking.
+      const labelLayerIds = (map.getStyle().layers || [])
+        .filter((l) => l.type === 'symbol')
+        .filter((l) => /place|label|city|town|country|state|continent/i.test(l.id))
+        .map((l) => l.id);
+      for (const id of labelLayerIds) {
+        try { map.moveLayer(id); } catch (e) { /* not present, skip */ }
+      }
+    }
+
+    function fitToCustomerExtent() {
+      const coords = geojson.features.map((f) => f.geometry.coordinates);
+      const lngs = coords.map((c) => c[0]);
+      const lats = coords.map((c) => c[1]);
+      const bounds = [
+        [Math.min(...lngs), Math.min(...lats)],
+        [Math.max(...lngs), Math.max(...lats)],
+      ];
+      map.fitBounds(bounds, { padding: 60, duration: 0 });
+    }
+
+    // ---------- Photon address autocomplete ----------
+    const input = document.getElementById('address-search');
+    const results = document.getElementById('address-results');
+    let searchMarker = null;
+    let debounceTimer = null;
+    let lastQuery = '';
+
+    input.addEventListener('input', (e) => {
+      const q = e.target.value.trim();
+      if (debounceTimer) clearTimeout(debounceTimer);
+      if (q.length < 3) { results.innerHTML = ''; return; }
+      debounceTimer = setTimeout(() => fetchSuggestions(q), 250);
+    });
+
+    async function fetchSuggestions(q) {
+      if (q === lastQuery) return;
+      lastQuery = q;
+      const url = new URL('https://photon.komoot.io/api/');
+      url.searchParams.set('q', q);
+      url.searchParams.set('limit', '6');
+      url.searchParams.set('lat', String(SERVICE_CENTER[1]));
+      url.searchParams.set('lon', String(SERVICE_CENTER[0]));
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        renderSuggestions(data.features || []);
+      } catch (err) {
+        results.innerHTML = '<li class="map-search__error">Search failed. Try again.</li>';
+      }
+    }
+
+    function renderSuggestions(features) {
+      if (!features.length) {
+        results.innerHTML = '<li class="map-search__empty">No matches</li>';
+        return;
+      }
+      results.innerHTML = features.map((f) => {
+        const p = f.properties;
+        const label = [p.name, p.street, p.city, p.state, p.country].filter(Boolean).join(', ');
+        const [lng, lat] = f.geometry.coordinates;
+        return `<li class="map-search__result" data-lat="${lat}" data-lng="${lng}" data-label="${escapeAttr(label)}">${label}</li>`;
+      }).join('');
+    }
+
+    function escapeAttr(s) {
+      return s.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    results.addEventListener('click', (e) => {
+      const li = e.target.closest('.map-search__result');
+      if (!li) return;
+      const lat = parseFloat(li.dataset.lat);
+      const lng = parseFloat(li.dataset.lng);
+      const label = li.dataset.label;
+      dropSearchPin(lat, lng, label);
+      input.value = label;
+      results.innerHTML = '';
+    });
+
+    function dropSearchPin(lat, lng, label) {
+      if (searchMarker) searchMarker.remove();
+      const el = document.createElement('div');
+      el.className = 'search-pin';
+      const popup = new maplibregl.Popup({ offset: 22, closeButton: false }).setHTML(`
+        <div class="search-popup">
+          <div class="search-popup__label">Searched address</div>
+          <div class="search-popup__addr">${label}</div>
+        </div>
+      `);
+      searchMarker = new maplibregl.Marker({ element: el })
+        .setLngLat([lng, lat])
+        .setPopup(popup)
+        .addTo(map);
+
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reducedMotion) {
+        map.jumpTo({ center: [lng, lat], zoom: 14 });
+        searchMarker.togglePopup();
+      } else {
+        map.flyTo({ center: [lng, lat], zoom: 14, speed: 1.2, curve: 1.5 });
+        map.once('moveend', () => searchMarker.togglePopup());
+      }
+    }
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.map-search')) results.innerHTML = '';
+    });
+  </script>
+
+  <style>
+    .map-page {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      min-height: calc(100vh - 80px);
+      background: var(--color-light-bg);
+    }
+
+    @media (max-width: 900px) {
+      .map-page {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 60vh;
+      }
+    }
+
+    .map-page__sidebar {
+      padding: var(--space-8) var(--space-6);
+      background: white;
+      border-right: 1px solid var(--color-gray-200);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-8);
+    }
+
+    .map-page__intro h1 {
+      font-size: var(--text-3xl);
+      color: var(--color-primary);
+      margin: 0 0 var(--space-3) 0;
+    }
+    .map-page__intro p {
+      color: var(--color-text-light);
+      font-size: var(--text-base);
+      line-height: 1.55;
+      margin: 0 0 var(--space-2) 0;
+    }
+    .map-page__intro strong {
+      color: var(--color-primary);
+      font-weight: 700;
+    }
+    .map-page__tag {
+      font-size: var(--text-xs) !important;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--color-cta) !important;
+      font-weight: 600;
+    }
+
+    .map-page__map {
+      position: relative;
+      min-height: 600px;
+      width: 100%;
+    }
+
+    .map-loading {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      color: var(--color-text-muted);
+      background: var(--color-light-bg);
+      font-size: var(--text-sm);
+      z-index: 1;
+    }
+
+    .map-search { position: relative; }
+
+    .map-search__label {
+      display: block;
+      font-size: var(--text-xs);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 600;
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-2);
+    }
+
+    .map-search__input {
+      width: 100%;
+      padding: var(--space-3) var(--space-4);
+      font-size: var(--text-base);
+      font-family: inherit;
+      border: 1px solid var(--color-gray-300);
+      border-radius: 8px;
+      background: white;
+      color: var(--color-text);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .map-search__input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.12);
+    }
+
+    .map-search__results {
+      list-style: none;
+      padding: 0;
+      margin: var(--space-1) 0 0 0;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid var(--color-gray-200);
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(11, 19, 32, 0.08);
+      max-height: 280px;
+      overflow-y: auto;
+      z-index: 10;
+    }
+    .map-search__results:empty { display: none; }
+
+    .map-search__result {
+      padding: var(--space-3) var(--space-4);
+      font-size: var(--text-sm);
+      cursor: pointer;
+      border-bottom: 1px solid var(--color-gray-100);
+      line-height: 1.4;
+    }
+    .map-search__result:last-child { border-bottom: none; }
+    .map-search__result:hover { background: var(--color-light-bg); }
+
+    .map-search__empty,
+    .map-search__error {
+      padding: var(--space-3) var(--space-4);
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+    }
+
+    .map-legend__title {
+      font-size: var(--text-xs);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 600;
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-3);
+    }
+    .map-legend__list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+    .map-legend__item {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-3);
+      font-size: var(--text-sm);
+      color: var(--color-text);
+      line-height: 1.45;
+    }
+    .map-legend__swatch {
+      flex-shrink: 0;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid white;
+      box-shadow: 0 1px 4px rgba(11, 19, 32, 0.15);
+      margin-top: 1px;
+    }
+    /* Density swatch — short horizontal gradient matching the heatmap ramp.
+       Rectangular pill instead of a dot so it reads as "gradient/intensity". */
+    .map-legend__swatch--density {
+      width: 44px;
+      height: 14px;
+      border-radius: 7px;
+      margin-top: 5px;
+      background: linear-gradient(
+        90deg,
+        rgba(20, 91, 184, 0.20) 0%,
+        rgba(20, 91, 184, 0.50) 50%,
+        rgba(20, 91, 184, 0.85) 100%
+      );
+      border: none;
+      box-shadow: none;
+    }
+    .map-legend__swatch--search { background: #E28D33; }
+
+    .map-cta {
+      padding: var(--space-5);
+      background: var(--color-light-bg);
+      border-radius: 12px;
+      border: 1px solid var(--color-gray-200);
+      margin-top: auto;
+    }
+    .map-cta__lead {
+      margin: 0 0 var(--space-2) 0;
+      font-size: var(--text-sm);
+      color: var(--color-text-light);
+    }
+    .map-cta__phone {
+      display: block;
+      font-size: var(--text-xl);
+      font-weight: 700;
+      color: var(--color-primary);
+      text-decoration: none;
+      margin-bottom: var(--space-3);
+    }
+    .map-cta .btn { width: 100%; }
+
+    :global(.search-pin) {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #E28D33;
+      border: 3px solid white;
+      box-shadow: 0 2px 8px rgba(11, 19, 32, 0.25);
+      cursor: pointer;
+      animation: search-pin-pulse 1.6s ease-out 2;
+    }
+
+    /* Store markers — logo painted straight onto the map with no
+       container. Sized by HEIGHT so logos of different aspect ratios
+       (Perfect Pools ~3:2, Jeff's ~5:2) read as equally-sized badges:
+       same vertical presence, width varies with each logo's shape.
+       A drop-shadow filter keeps them legible against both the cream
+       land and the navy water without needing a backdrop. */
+    :global(.store-marker) {
+      height: 56px;
+      width: auto;
+      cursor: pointer;
+      transition: transform 0.18s ease;
+      filter: drop-shadow(0 2px 4px rgba(11, 19, 32, 0.35)) drop-shadow(0 0 2px rgba(255, 255, 255, 0.9));
+    }
+    :global(.store-marker:hover) {
+      transform: scale(1.08);
+    }
+    :global(.store-marker img) {
+      height: 100%;
+      width: auto;
+      display: block;
+      pointer-events: none;
+    }
+
+    /* Store popup */
+    :global(.store-popup) {
+      min-width: 200px;
+      max-width: 280px;
+    }
+    :global(.store-popup__name) {
+      font-size: var(--text-sm);
+      font-weight: 700;
+      color: var(--color-primary);
+      margin-bottom: 4px;
+    }
+    :global(.store-popup__addr) {
+      font-size: 0.8125rem;
+      color: var(--color-text-light);
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+    :global(.store-popup__directions) {
+      display: inline-block;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--color-cta);
+      text-decoration: none;
+    }
+    :global(.store-popup__directions:hover) {
+      text-decoration: underline;
+    }
+
+    @keyframes search-pin-pulse {
+      0%   { box-shadow: 0 2px 8px rgba(11, 19, 32, 0.25), 0 0 0 0   rgba(226, 141, 51, 0.5); }
+      70%  { box-shadow: 0 2px 8px rgba(11, 19, 32, 0.25), 0 0 0 22px rgba(226, 141, 51, 0); }
+      100% { box-shadow: 0 2px 8px rgba(11, 19, 32, 0.25), 0 0 0 0   rgba(226, 141, 51, 0); }
+    }
+
+    :global(.maplibregl-popup-content) {
+      padding: var(--space-3) var(--space-4);
+      border-radius: 10px;
+      font-family: inherit;
+      box-shadow: 0 8px 24px rgba(11, 19, 32, 0.14);
+      border: 1px solid var(--color-gray-200);
+    }
+    :global(.maplibregl-popup-tip) {
+      border-top-color: white !important;
+    }
+
+    :global(.search-popup__label) {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 600;
+      color: var(--color-cta);
+      margin-bottom: 2px;
+    }
+    :global(.search-popup__addr) {
+      font-size: var(--text-sm);
+      color: var(--color-primary);
+      max-width: 240px;
+      line-height: 1.4;
+    }
+
+    :global(.maplibregl-ctrl-attrib) {
+      font-size: 10px;
+      background: rgba(255,255,255,0.7);
+    }
+  </style>
+</BaseLayout>

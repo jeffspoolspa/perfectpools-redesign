@@ -9,3 +9,7 @@ dist/
 .claude/
 references/
 patterns/
+
+# Generated map tiles — 80–150MB depending on bbox/zoom.
+# Regenerate with `pmtiles extract` (command in src/pages/map.astro).
+public/tiles/
