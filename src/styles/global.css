@@ -1140,7 +1140,7 @@ p:last-child {
 .hero--image > .container > .hero__grid > div:first-child > p {
   color: rgba(255, 255, 255, 0.9);
   font-size: var(--text-lg);
-  margin-bottom: 2.5rem;
+  margin-bottom: 1.25rem;
 }
 
 .hero__footer {
