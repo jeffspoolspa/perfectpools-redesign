@@ -863,6 +863,13 @@ p:last-child {
   align-items: stretch;
   justify-items: stretch;
 }
+/* If the chip count is odd, the trailing chip lands alone in row 2.
+   Span both columns and shrink-to-content + center so it sits
+   centered below the pair above instead of left-aligned. */
+.hero__chips > :nth-child(odd):last-child {
+  grid-column: 1 / -1;
+  justify-self: center;
+}
 @media (min-width: 1024px) {
   .hero__chips {
     display: flex;
