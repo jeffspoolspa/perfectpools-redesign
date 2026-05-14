@@ -748,27 +748,36 @@ const icons = {
     if (revealEls.length && 'IntersectionObserver' in window) {
       const io = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('is-visible');
-            // When the methodology header chars start revealing, also
-            // wipe the cloudy-veil from the section (clip-path animates
-            // left-to-right) AND manually trigger all .method-cards in
-            // the same section. The cards are in a horizontal carousel
-            // on mobile, so cards 2/3 sit off-screen horizontally and
-            // IO never fires for them on its own. The header is the
-            // single source of truth for "this section is now active."
-            if (entry.target.classList.contains('reveal-chars')) {
-              const meth = entry.target.closest('.methodology--water');
-              if (meth) {
-                meth.classList.add('is-clearing');
-                meth.querySelectorAll('.method-card.reveal-up').forEach((card) => {
-                  card.classList.add('is-visible');
-                  io.unobserve(card);
-                });
-              }
-            }
+          // Already-visible guard: the unobserve below normally prevents
+          // re-firing, but this is a belt-and-suspenders check so the
+          // animation can never replay if the IO emits an extra entry
+          // for any reason. Reveals are once-per-page-load.
+          if (!entry.isIntersecting) return;
+          if (entry.target.classList.contains('is-visible')) {
             io.unobserve(entry.target);
+            return;
           }
+          entry.target.classList.add('is-visible');
+          // When the methodology header chars start revealing, also
+          // wipe the cloudy-veil from the section (clip-path animates
+          // left-to-right) AND manually trigger all .method-cards in
+          // the same section. The cards are in a horizontal carousel
+          // on mobile, so cards 2/3 sit off-screen horizontally and
+          // IO never fires for them on its own. The header is the
+          // single source of truth for "this section is now active."
+          if (entry.target.classList.contains('reveal-chars')) {
+            const meth = entry.target.closest('.methodology--water');
+            if (meth && !meth.classList.contains('is-clearing')) {
+              meth.classList.add('is-clearing');
+              meth.querySelectorAll('.method-card.reveal-up').forEach((card) => {
+                if (!card.classList.contains('is-visible')) {
+                  card.classList.add('is-visible');
+                }
+                io.unobserve(card);
+              });
+            }
+          }
+          io.unobserve(entry.target);
         });
       }, { rootMargin: '0px 0px -10% 0px', threshold: 0.15 });
       revealEls.forEach((el) => io.observe(el));
