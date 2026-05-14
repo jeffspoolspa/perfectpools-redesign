@@ -1303,6 +1303,24 @@ p:last-child {
   width: 1.2rem;
   height: 1.2rem;
 }
+/* Strip the legacy icon-tile background. Icons now sit directly on
+   the card surface, no rounded box behind them. */
+.route-card.route-card--expandable .route-card__icon {
+  background: transparent;
+  backdrop-filter: none;
+  border-radius: 0;
+}
+/* Maintenance (gradient) card: icon stroke stays white. */
+.route-card.route-card--expandable.route-card--gradient .route-card__icon .icon {
+  color: #fff;
+}
+/* Equipment Repairs (white) card: icon stroke + title both in the
+   brand primary color, so the white card mirrors the maintenance
+   card's hue (just on a white surface instead of a gradient one). */
+.route-card.route-card--expandable.route-card--white .route-card__icon .icon,
+.route-card.route-card--expandable.route-card--white .route-card__title {
+  color: var(--color-primary);
+}
 /* Title scales with the card's inline size via cqi so it always
    takes up the available width and never wraps to two lines.
    Prefixed with .route-card--expandable to beat the legacy
