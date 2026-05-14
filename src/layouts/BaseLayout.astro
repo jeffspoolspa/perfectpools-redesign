@@ -118,6 +118,16 @@ const ogImageUrl = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`
 
     gsap.registerPlugin(ScrollTrigger);
 
+    // Mobile URL-bar resize fix. iOS Safari (and Chrome on iOS) fires a
+    // window `resize` event every time the address bar shows/hides as
+    // the user changes scroll direction. ScrollTrigger listens for
+    // resize and calls .refresh(), which recomputes every pin/scrub
+    // position — visible to the user as containers jumping around when
+    // the URL bar appears. ignoreMobileResize: true tells ScrollTrigger
+    // to skip refresh for these mobile-only resize events (it still
+    // refreshes on real layout changes).
+    ScrollTrigger.config({ ignoreMobileResize: true });
+
     const lenis = new Lenis({
       // A2: lerp instead of duration. Lerp = each frame moves N% toward
       // target. Gives the "weighted, viscous" feel Studio Freight uses by

@@ -2506,9 +2506,16 @@ const schema = [
      cleaning-v2 only. */
   :global(.site-header) {
     transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: transform;
     border-bottom: 0;
     box-shadow: none;
+  }
+  /* `will-change: transform` only while the chapter slide is active.
+     Setting it permanently created a containing block on the header,
+     which broke the mobile nav drawer's `position: fixed` (constrained
+     it to the 64px header box instead of the viewport — drawer was
+     showing only the first link with the rest overflow-clipped). */
+  :global(body.is-mp-chapter .site-header) {
+    will-change: transform;
   }
   /* Hide the global scroll-progress bar on this page. It's a 2px
      blue line fixed at top:0 that fills horizontally as the user
