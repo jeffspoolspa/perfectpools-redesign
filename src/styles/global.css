@@ -2016,15 +2016,10 @@ p:last-child {
   color: #fff;
   text-shadow: 0 2px 12px rgba(0, 20, 40, 0.4);
 }
-/* Mobile override — must live AFTER the white-color rule above to win the cascade. */
-@media (max-width: 767px) {
-  .methodology--water .section-header h2,
-  .methodology--water .section-header h2 span,
-  .methodology--water .section-header p {
-    color: var(--color-primary);
-    text-shadow: none;
-  }
-}
+/* (Earlier mobile override here recolored the heading to navy when
+   the section was white. Removed — methodology is now dark on
+   every viewport, so white text from the rule above applies
+   universally.) */
 .methodology--water .section-header {
   margin-bottom: 4rem;
 }
