@@ -1233,6 +1233,10 @@ p:last-child {
    Placed AFTER the desktop hero rules so source-order wins the
    cascade (same specificity as the desktop overrides it needs to
    beat). */
+/* Tablet + mobile (≤1023px) — anywhere the hero stops being a 2-col
+   layout. Shared rules: text wrapper promotes its children into the
+   grid via `display: contents`, grid gap zeroes out, the call
+   button hides, the chip row reorders below the form/picker. */
 @media (max-width: 1023px) {
   .hero--image > .container > .hero__grid > div:first-child {
     display: contents;
@@ -1240,25 +1244,31 @@ p:last-child {
   .hero__grid {
     gap: 0;
   }
-  .hero__form-wrap {
-    max-width: 100%;
-  }
   .hero__buttons {
     display: none;
   }
   .hero__chips {
     order: 1;
   }
-  /* Mobile-only: show the route picker (full-width cards stacked
-     vertically, each a self-contained mini-form). Hide the
-     standalone .hero-form below — each card has its own form. */
+  /* Tablet (501-1023px): the standalone form stays visible but
+     centered horizontally in the single-column grid. The
+     route-picker stays hidden — that's a phones-only swap. */
+  .hero__form-wrap {
+    justify-self: center;
+    margin-inline: auto;
+  }
+}
+
+/* Phones (≤500px): swap the standalone form for the route-picker
+   cards. Each card is a self-contained mini-form (see index.astro). */
+@media (max-width: 500px) {
+  .hero__form-wrap {
+    display: none;
+  }
   .hero__route-picker {
     display: flex;
     flex-direction: column;
     gap: 16px;
-  }
-  .hero__form-wrap {
-    display: none;
   }
 }
 
