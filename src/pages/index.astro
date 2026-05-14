@@ -752,11 +752,20 @@ const icons = {
             entry.target.classList.add('is-visible');
             // When the methodology header chars start revealing, also
             // wipe the cloudy-veil from the section (clip-path animates
-            // left-to-right). Same trigger so the visual story —
-            // "starts cloudy, ends clear" — syncs with the heading.
+            // left-to-right) AND manually trigger all .method-cards in
+            // the same section. The cards are in a horizontal carousel
+            // on mobile, so cards 2/3 sit off-screen horizontally and
+            // IO never fires for them on its own. The header is the
+            // single source of truth for "this section is now active."
             if (entry.target.classList.contains('reveal-chars')) {
               const meth = entry.target.closest('.methodology--water');
-              if (meth) meth.classList.add('is-clearing');
+              if (meth) {
+                meth.classList.add('is-clearing');
+                meth.querySelectorAll('.method-card.reveal-up').forEach((card) => {
+                  card.classList.add('is-visible');
+                  io.unobserve(card);
+                });
+              }
             }
             io.unobserve(entry.target);
           }
