@@ -203,13 +203,15 @@ const icons = {
     <div class="container">
       <div class="section-header">
         <h2 class="reveal-chars">Clear water isn't luck. Here's how we keep it that way.</h2>
-        <p class="reveal-up" style="--reveal-delay: 1800ms">Our methodology separates us from every other pool company</p>
+        {/* Subtitle + cards are NOT separately animated. They sit fully
+            rendered behind the cloudy-veil (the second layer with
+            backdrop-blur), so the veil's left-to-right wipe is what
+            reveals them — no stagger, the wipe IS the reveal. */}
+        <p>Our methodology separates us from every other pool company</p>
       </div>
 
       <div class="methodology__grid">
-        <!-- Card delays start after the 11 words finish animating (~950ms),
-             with 200ms between each card. -->
-        <div class="method-card reveal-up" style="--reveal-delay: 2200ms">
+        <div class="method-card">
           <div class="method-card__icon">
             <Fragment set:html={icons.testTube} />
           </div>
@@ -217,7 +219,7 @@ const icons = {
           <p>We test and adjust pH, alkalinity, sanitizer levels, and calcium hardness as a system—because one number out of range affects everything else.</p>
         </div>
 
-        <div class="method-card reveal-up" style="--reveal-delay: 2350ms">
+        <div class="method-card">
           <div class="method-card__icon">
             <Fragment set:html={icons.alertCircle} />
           </div>
@@ -225,7 +227,7 @@ const icons = {
           <p>Every visit includes a full equipment check. We monitor pump pressure, filter condition, and water flow to flag issues early.</p>
         </div>
 
-        <div class="method-card reveal-up" style="--reveal-delay: 2500ms">
+        <div class="method-card">
           <div class="method-card__icon">
             <Fragment set:html={icons.eye} />
           </div>
@@ -758,23 +760,14 @@ const icons = {
             return;
           }
           entry.target.classList.add('is-visible');
-          // When the methodology header chars start revealing, also
-          // wipe the cloudy-veil from the section (clip-path animates
-          // left-to-right) AND manually trigger all .method-cards in
-          // the same section. The cards are in a horizontal carousel
-          // on mobile, so cards 2/3 sit off-screen horizontally and
-          // IO never fires for them on its own. The header is the
-          // single source of truth for "this section is now active."
+          // When the methodology header chars start revealing, wipe
+          // the cloudy-veil from the section. The veil's transform
+          // sweep is the SOLE reveal for the subtitle + cards beneath
+          // — they're statically painted, the wipe exposes them.
           if (entry.target.classList.contains('reveal-chars')) {
             const meth = entry.target.closest('.methodology--water');
             if (meth && !meth.classList.contains('is-clearing')) {
               meth.classList.add('is-clearing');
-              meth.querySelectorAll('.method-card.reveal-up').forEach((card) => {
-                if (!card.classList.contains('is-visible')) {
-                  card.classList.add('is-visible');
-                }
-                io.unobserve(card);
-              });
             }
           }
           io.unobserve(entry.target);
