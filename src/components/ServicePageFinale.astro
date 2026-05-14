@@ -60,9 +60,9 @@ const base = import.meta.env.BASE_URL;
           <h2>Real reviews, real results.</h2>
         </header>
 
-        <div class="svc-finale__reviews-grid" data-svc-review-grid>
-          {REVIEWS.slice(0, 3).map((r, i) => (
-            <article class={`review-tile ${i === 0 ? 'is-active' : ''}`} data-svc-review-index={i}>
+        <div class="svc-finale__reviews-grid">
+          {REVIEWS.slice(0, 3).map((r) => (
+            <article class="review-tile">
               <div class="review-tile__stars" aria-label={`${r.stars} out of 5 stars`}>
                 {'★'.repeat(r.stars)}
               </div>
@@ -70,22 +70,6 @@ const base = import.meta.env.BASE_URL;
               <span class="review-tile__name">— {r.name}</span>
             </article>
           ))}
-        </div>
-
-        {/* Mobile-only nav — hidden ≥769px where all 3 tiles fit on
-            one row. Cycles `.is-active` on tiles + dots. */}
-        <div class="svc-finale__reviews-nav" data-svc-review-nav>
-          <button type="button" class="svc-finale__reviews-arrow" data-svc-review-prev aria-label="Previous review">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-          </button>
-          <div class="svc-finale__reviews-dots">
-            {REVIEWS.slice(0, 3).map((_, i) => (
-              <button type="button" class={`svc-finale__reviews-dot ${i === 0 ? 'is-active' : ''}`} data-svc-review-dot={i} aria-label={`Show review ${i + 1}`}></button>
-            ))}
-          </div>
-          <button type="button" class="svc-finale__reviews-arrow" data-svc-review-next aria-label="Next review">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-          </button>
         </div>
 
         <div class="svc-finale__reviews-cta">
@@ -220,19 +204,11 @@ const base = import.meta.env.BASE_URL;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: var(--space-5);
   }
-  @media (max-width: 768px) {
-    .svc-finale__reviews-grid {
-      display: block;
-    }
-    .svc-finale__reviews-grid > :global(.review-tile) {
-      display: none;
-    }
-    .svc-finale__reviews-grid > :global(.review-tile.is-active) {
-      display: flex;
-    }
-  }
 
-  /* Tile (re-declared scoped here so the component is self-contained). */
+  /* Tile (re-declared scoped here so the component is self-contained).
+     IMPORTANT: this block must come BEFORE the mobile media query
+     below — the mobile rule's `display: none` has the same specificity
+     as `display: flex` here and would otherwise lose by source order. */
   .svc-finale__reviews-grid :global(.review-tile) {
     background: var(--color-bg-alt, #F9F6F0);
     border: 1px solid var(--color-border, #e5e7eb);
@@ -264,54 +240,31 @@ const base = import.meta.env.BASE_URL;
     color: var(--color-text-light, #5a6c7d);
   }
 
-  /* Mobile review nav. */
-  .svc-finale__reviews-nav {
-    display: none;
-  }
+  /* Mobile: turn the 3-up grid into a horizontal scroll-snap carousel.
+     Native swipe handles navigation — no arrows, no dots. Each tile
+     is ~85% wide so the next one peeks from the right edge as a
+     swipe affordance. */
   @media (max-width: 768px) {
-    .svc-finale__reviews-nav {
+    .svc-finale__reviews-grid {
       display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: var(--space-4);
-      margin-top: var(--space-5);
+      gap: 0.85rem;
+      overflow-x: auto;
+      overflow-y: visible;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      /* Pull edges out so cards run flush to the pill's inner padding
+         and one card snaps fully centered with peek on the next. */
+      margin-inline: calc(var(--space-6) * -1);
+      padding: 0.25rem var(--space-6);
     }
-  }
-  .svc-finale__reviews-arrow {
-    width: 40px;
-    height: 40px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 999px;
-    border: 1px solid var(--color-border, #e5e7eb);
-    background: var(--color-white, #fff);
-    color: var(--color-primary, #1E3A5F);
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-    transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
-  }
-  .svc-finale__reviews-arrow:active {
-    transform: scale(0.95);
-  }
-  .svc-finale__reviews-dots {
-    display: flex;
-    gap: 0.5rem;
-  }
-  .svc-finale__reviews-dot {
-    width: 8px;
-    height: 8px;
-    padding: 0;
-    border: none;
-    border-radius: 999px;
-    background: color-mix(in srgb, var(--color-primary, #1E3A5F) 25%, transparent);
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-    transition: background 150ms ease, transform 150ms ease;
-  }
-  .svc-finale__reviews-dot.is-active {
-    background: var(--color-primary, #1E3A5F);
-    transform: scale(1.15);
+    .svc-finale__reviews-grid::-webkit-scrollbar { display: none; }
+    .svc-finale__reviews-grid > :global(.review-tile) {
+      flex: 0 0 85%;
+      min-width: 0;
+      scroll-snap-align: center;
+    }
   }
 
   .svc-finale__reviews-cta {
@@ -382,7 +335,12 @@ const base = import.meta.env.BASE_URL;
   .svc-finale__pill--cta p {
     color: rgba(255, 255, 255, 0.78);
     max-width: 540px;
-    margin: 0 auto var(--space-7);
+    /* Was var(--space-7) — that var doesn't exist in this design
+       system, so the whole margin declaration silently collapsed and
+       the universal `* { margin: 0 }` reset took over (no breathing
+       room between subtitle and CTA buttons). 1.75rem matches what
+       --space-7 would have been (1.5 → 2rem step). */
+    margin: 0 auto 1.75rem;
     line-height: 1.6;
     font-size: clamp(0.95rem, 1.1vw, 1.05rem);
   }
@@ -406,30 +364,3 @@ const base = import.meta.env.BASE_URL;
     }
   }
 </style>
-
-<script>
-  // Reviews carousel — mobile-only behavior. Cycles `.is-active` on
-  // the tiles so the mobile-only CSS shows a single review at a time.
-  // Wraps around in both directions. Multiple ServicePageFinale
-  // instances per page would each get their own state; we wire them
-  // all up.
-  document.querySelectorAll<HTMLElement>('[data-svc-review-grid]').forEach((grid) => {
-    const tiles = Array.from(grid.querySelectorAll<HTMLElement>('.review-tile'));
-    if (tiles.length < 2) return;
-    // Find the matching nav inside the same .svc-finale section.
-    const finale = grid.closest('.svc-finale');
-    const nav = finale?.querySelector<HTMLElement>('[data-svc-review-nav]');
-    const prevBtn = nav?.querySelector<HTMLButtonElement>('[data-svc-review-prev]');
-    const nextBtn = nav?.querySelector<HTMLButtonElement>('[data-svc-review-next]');
-    const dots = Array.from(nav?.querySelectorAll<HTMLButtonElement>('[data-svc-review-dot]') ?? []);
-    let active = 0;
-    const setActive = (i: number) => {
-      active = (i + tiles.length) % tiles.length;
-      tiles.forEach((t, idx) => t.classList.toggle('is-active', idx === active));
-      dots.forEach((d, idx) => d.classList.toggle('is-active', idx === active));
-    };
-    prevBtn?.addEventListener('click', () => setActive(active - 1));
-    nextBtn?.addEventListener('click', () => setActive(active + 1));
-    dots.forEach((d, idx) => d.addEventListener('click', () => setActive(idx)));
-  });
-</script>

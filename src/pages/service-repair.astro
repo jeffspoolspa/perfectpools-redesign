@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import FAQ from '../components/FAQ.astro';
+import ServicePageFinale from '../components/ServicePageFinale.astro';
 
 const faqs = [
   { question: 'How much does a site visit cost?', answer: 'Residential site visits are $150 and commercial site visits are $185. This covers travel, on-site inspection, equipment documentation, and the office time our team spends researching your specific equipment configuration to build an accurate estimate.' },
@@ -336,28 +336,15 @@ const equipment = [
     </div>
   </section>
 
-  <!-- ============ CTA ============ -->
-  <section class="cta-section">
-    <div class="container">
-      <h2>Need a Diagnosis?</h2>
-      <p>Schedule a site visit and let our team assess your equipment. You'll get a detailed estimate with every cost laid out — no surprises, no pressure.</p>
-      <div class="cta-section__buttons">
-        <button type="button" class="btn btn--cta btn--lg" data-open-intake>Schedule a Site Visit</button>
-        <a href="tel:9124590160" class="btn btn--outline-white btn--lg">Call (912) 459-0160</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ FAQ ============ -->
-  <section class="section">
-    <div class="container">
-      <div class="section-header" style="max-width: 720px; margin-bottom: var(--space-12);">
-        <span class="section-label">Common questions</span>
-        <h2>Service & Repair FAQ</h2>
-      </div>
-      <FAQ items={faqs} />
-    </div>
-  </section>
+  <ServicePageFinale
+    faqs={faqs}
+    ctaHeading="Need a Diagnosis?"
+    ctaText="Schedule a site visit and let our team assess your equipment. You'll get a detailed estimate with every cost laid out — no surprises, no pressure."
+    ctaButtons={[
+      { label: 'Schedule a Site Visit', openIntake: true, variant: 'cta' },
+      { label: 'Call (912) 459-0160', href: 'tel:9124590160', variant: 'outline-white' },
+    ]}
+  />
 
   <!-- Diagram hover → slide diagram, fade in info card -->
   <script>
