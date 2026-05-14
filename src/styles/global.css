@@ -1247,12 +1247,14 @@ p:last-child {
    near the route-card section. Source-order matters because the
    mobile rule has the same specificity and needs to come AFTER.) */
 
-/* Expandable route-card variant — full-width button-style card.
-   Header has TWO logical lines: a top row with icon · title · chevron
-   (only the title sits in line with the icon), and a thin subtitle
-   line below it that spans the full button width. The title scales
-   with the button width (cqi units) and never wraps to two lines. */
-.route-card--expandable {
+/* Expandable route-card variant. NOTE: many of the rules below use
+   `.route-card--expandable` as a parent prefix to bump specificity
+   to (0,2,0). Without that prefix, the legacy descendant selectors
+   `.route-card p` / `.route-card h3` / `.route-card { padding }`
+   (all defined later in this file at specificity (0,1,1)) would
+   win the cascade and add unwanted padding/margins/fonts to the
+   compact button-style cards. */
+.route-card.route-card--expandable {
   padding: 0;
   width: 100%;
   border-radius: var(--radius-md, 16px);
@@ -1260,7 +1262,7 @@ p:last-child {
   container-type: inline-size;
   transition: box-shadow 250ms ease;
 }
-.route-card--expandable.is-expanded {
+.route-card.route-card--expandable.is-expanded {
   box-shadow: 0 18px 38px rgba(0, 0, 0, 0.22);
 }
 /* Header is a tight flex column: icon+title row at the top, subtitle
@@ -1302,8 +1304,10 @@ p:last-child {
   height: 0.9rem;
 }
 /* Title scales with the card's inline size via cqi so it always
-   takes up the available width and never wraps to two lines. */
-.route-card__title {
+   takes up the available width and never wraps to two lines.
+   Prefixed with .route-card--expandable to beat the legacy
+   .route-card h3 rule (0,1,1) on specificity. */
+.route-card--expandable .route-card__title {
   font-size: clamp(0.9rem, 4.8cqi, 1.2rem);
   font-weight: 700;
   margin: 0;
@@ -1313,10 +1317,11 @@ p:last-child {
   text-overflow: ellipsis;
   min-width: 0;
 }
-/* Subtitle anchors at the bottom of the collapsed card with
-   visible space above it (the min-height of the header creates
-   that gap via space-between). */
-.route-card__subtitle {
+/* Subtitle below the icon row. Prefixed with .route-card--expandable
+   so it beats .route-card p (0,1,1) — that legacy rule sets
+   margin-bottom: 1rem which was creating the mystery gap below the
+   subtitle. */
+.route-card--expandable .route-card__subtitle {
   font-size: 0.7rem;
   margin: 0;
   line-height: 1.1;
