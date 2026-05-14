@@ -1803,34 +1803,12 @@ p:last-child {
    canvas (z-index:0), but in tree order comes BEFORE the content container
    (also z-index:1) so the container text renders on top of the fade and never
    gets obscured. */
+/* The .methodology__fade-top frosted band at the top of the section
+   is redundant now that the .methodology__cloudy-veil covers the
+   whole section with blur as the starting state. Hide the element so
+   the cloudy-veil is the single source of the entry blur effect. */
 .methodology__fade-top {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 9vh;
-  pointer-events: none;
-  z-index: 1;
-  /* Frosted-glass band at the top edge: very light white tint +
-     backdrop-blur picks up the tile/shader colors beneath. The
-     mask-image fades the effect (band + blur) out toward the
-     bottom so the band is concentrated at the very top edge and
-     gradually disappears into the rest of the section. */
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  mask-image: linear-gradient(
-    to bottom,
-    #000 0%,
-    #000 35%,
-    transparent 100%
-  );
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    #000 0%,
-    #000 35%,
-    transparent 100%
-  );
+  display: none;
 }
 
 /* Methodology bottom fade — fades the tile pattern into the services-dark
@@ -2021,9 +1999,38 @@ p:last-child {
   );
 }
 
-.methodology--water > *:not(#methodology-liquid-mount):not(.methodology__fade-top):not(.methodology__fade-bottom) {
+.methodology--water > *:not(#methodology-liquid-mount):not(.methodology__fade-top):not(.methodology__fade-bottom):not(.methodology__cloudy-veil) {
   position: relative;
   z-index: 1;
+}
+
+/* "Cloudy water" backdrop-blur veil — sits above the tile + shader
+   but below the content (z-index 0 in tree order after them). On
+   .is-clearing (added when the header reveal kicks in), clip-path
+   wipes the veil away from the LEFT edge so the clear water is
+   revealed left-to-right, matching the heading "Clear water isn't
+   luck. Here's how we keep it that way." */
+.methodology__cloudy-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(24px) brightness(1.05);
+  -webkit-backdrop-filter: blur(24px) brightness(1.05);
+  /* Slide the veil off to the right so the clear water is revealed
+     left-to-right. The parent section has overflow: hidden so the
+     veil sliding past the right edge just disappears. transform is
+     GPU-accelerated and interpolates reliably (clip-path inset
+     interpolation was inconsistent in some browsers). */
+  transform: translate3d(0, 0, 0);
+  transition: transform 2800ms cubic-bezier(0.45, 0.05, 0.55, 0.95);
+}
+.methodology--water.is-clearing .methodology__cloudy-veil {
+  transform: translate3d(100%, 0, 0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .methodology__cloudy-veil { display: none; }
 }
 .methodology__wave-top,
 .methodology__wave-bottom {

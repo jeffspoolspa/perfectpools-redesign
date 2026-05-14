@@ -196,6 +196,10 @@ const icons = {
     <!-- Top gradient fade: methodology starts from its dark base and reveals the tile pattern — meets the hero's bottom fade in the same color. -->
     <div class="methodology__fade-top" aria-hidden="true"></div>
     <div id="methodology-liquid-mount"></div>
+    <!-- "Cloudy water" backdrop-blur veil — covers the whole section
+         on entry, then clip-path wipes it away left-to-right as the
+         heading reveals (mirroring "isn't luck → we keep it clear"). -->
+    <div class="methodology__cloudy-veil" aria-hidden="true"></div>
     <div class="container">
       <div class="section-header">
         <h2 class="reveal-chars">Clear water isn't luck. Here's how we keep it that way.</h2>
@@ -746,6 +750,14 @@ const icons = {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             entry.target.classList.add('is-visible');
+            // When the methodology header chars start revealing, also
+            // wipe the cloudy-veil from the section (clip-path animates
+            // left-to-right). Same trigger so the visual story —
+            // "starts cloudy, ends clear" — syncs with the heading.
+            if (entry.target.classList.contains('reveal-chars')) {
+              const meth = entry.target.closest('.methodology--water');
+              if (meth) meth.classList.add('is-clearing');
+            }
             io.unobserve(entry.target);
           }
         });
@@ -753,9 +765,13 @@ const icons = {
       revealEls.forEach((el) => io.observe(el));
     } else {
       revealEls.forEach((el) => el.classList.add('is-visible'));
+      const meth = document.querySelector('.methodology--water');
+      if (meth) meth.classList.add('is-clearing');
     }
   } else {
     document.querySelectorAll('.reveal-up, .reveal-words, .reveal-chars').forEach((el) => el.classList.add('is-visible'));
+    const meth = document.querySelector('.methodology--water');
+    if (meth) meth.classList.add('is-clearing');
   }
 
   // ===== Hero contact form tabs =====
