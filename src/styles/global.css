@@ -46,16 +46,20 @@
   --font-heading: 'Plus Jakarta Sans', system-ui, sans-serif;
   --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
 
-  /* Font Sizes */
-  --text-xs: 0.75rem;
-  --text-sm: 0.875rem;
-  --text-base: 1rem;
-  --text-lg: 1.125rem;
-  --text-xl: 1.25rem;
-  --text-2xl: 1.5rem;
-  --text-3xl: 1.875rem;
-  --text-4xl: 2.25rem;
-  --text-5xl: 3rem;
+  /* Font Sizes — fluid clamp() between 375px viewport (mobile floor) and
+     1440px viewport (desktop ceiling). Linear interpolation in between:
+     output = MIN + (MAX − MIN) * (100vw − 375px) / 1065px. Below 375px
+     the floor holds; above 1440px the ceiling holds. Desktop sizes are
+     unchanged from the previous fixed values — only mobile shrinks. */
+  --text-xs:   clamp(0.6875rem, 0.65rem + 0.094vw, 0.75rem);   /* 11→12px */
+  --text-sm:   clamp(0.8125rem, 0.79rem + 0.094vw, 0.875rem);  /* 13→14px */
+  --text-base: clamp(0.9375rem, 0.92rem + 0.094vw, 1rem);      /* 15→16px */
+  --text-lg:   clamp(1rem, 0.957rem + 0.188vw, 1.125rem);      /* 16→18px */
+  --text-xl:   clamp(1.0625rem, 0.997rem + 0.282vw, 1.25rem);  /* 17→20px */
+  --text-2xl:  clamp(1.25rem, 1.162rem + 0.376vw, 1.5rem);     /* 20→24px */
+  --text-3xl:  clamp(1.5rem, 1.368rem + 0.563vw, 1.875rem);    /* 24→30px */
+  --text-4xl:  clamp(1.625rem, 1.405rem + 0.939vw, 2.25rem);   /* 26→36px */
+  --text-5xl:  clamp(2rem, 1.648rem + 1.502vw, 3rem);          /* 32→48px */
 
   /* Spacing */
   --space-1: 0.25rem;
@@ -822,6 +826,16 @@ p:last-child {
   overflow: hidden;
   text-align: left;
 }
+/* On phones the form + text stack is taller than the viewport, so
+   centering pushes the form above the fold (behind the header). Anchor
+   the hero to the top instead so the form begins right under the header,
+   and shrink the top padding so the badge sits closer to the header. */
+@media (max-width: 500px) {
+  .hero--image {
+    justify-content: flex-start;
+    padding-top: 1.25rem;
+  }
+}
 @media (min-width: 900px) {
   .hero--image {
     padding-top: 6rem;
@@ -835,17 +849,40 @@ p:last-child {
   }
 }
 
-/* Trust chips inline in hero — replaces the old trust-badges strip */
+/* Trust chips inline in hero. Below 1024px (where the hero stops
+   being a 2-col layout and switches to "mobile" UI), chips stack
+   in a 2-col grid: rows of 2 with the third pill landing on its
+   own line below — always 2-over-1 regardless of viewport width.
+   At ≥1024px they sit in a single nowrap row alongside the
+   text/form columns. */
 .hero__chips {
-  display: flex;
-  flex-wrap: nowrap;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.5rem;
   margin: 1.5rem 0 0 0;
-  align-items: center;
+  align-items: stretch;
+  justify-items: stretch;
+}
+/* If the chip count is odd, the trailing chip lands alone in row 2.
+   Span both columns and width-match a single column (50% of the
+   merged span minus half the gap) so the lone chip looks identical
+   in size to the pair above, just horizontally centered. */
+.hero__chips > :nth-child(odd):last-child {
+  grid-column: 1 / -1;
+  justify-self: center;
+  width: calc(50% - 4px);
+}
+@media (min-width: 1024px) {
+  .hero__chips {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+  }
 }
 .hero__chip {
-  display: inline-flex;
+  display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.4rem;
   padding: 0.4rem 0.7rem;
   background: rgba(255, 255, 255, 0.12);
@@ -856,6 +893,7 @@ p:last-child {
   font-weight: 600;
   letter-spacing: 0.01em;
   white-space: nowrap;
+  min-width: 0;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
@@ -905,21 +943,21 @@ p:last-child {
   color: rgba(255, 255, 255, 0.92);
 }
 .hero-form[data-active-tab="maintenance"] .hero-form__input {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.32);
+  border-color: rgba(255, 255, 255, 0.32);
   color: #ffffff;
 }
 .hero-form[data-active-tab="maintenance"] .hero-form__input::placeholder {
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.85);
 }
 .hero-form[data-active-tab="maintenance"] .hero-form__input:hover:not(:focus) {
-  background: rgba(255, 255, 255, 0.18);
-  border-color: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.42);
+  border-color: rgba(255, 255, 255, 0.45);
 }
 .hero-form[data-active-tab="maintenance"] .hero-form__input:focus {
-  background: rgba(255, 255, 255, 0.22);
-  border-color: rgba(255, 255, 255, 0.6);
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.5);
+  border-color: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
 }
 .hero-form[data-active-tab="maintenance"] .hero-form__submit {
   background: #ffffff;
@@ -984,42 +1022,49 @@ p:last-child {
 .hero-form__tabs {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  padding: 0.4rem;
-  gap: 0.4rem;
+  padding: 0.3rem;
+  gap: 0.3rem;
   border-bottom: 1px solid transparent;
 }
 .hero-form__tab {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem 0.75rem;
+  gap: 0.4rem;
+  padding: 0.5rem 0.6rem;
   border: none;
   background: transparent;
-  border-radius: 12px;
+  border-radius: 10px;
   font-family: inherit;
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   font-weight: 600;
   cursor: pointer;
   transition: background 150ms ease, color 150ms ease, box-shadow 150ms ease;
 }
 .hero-form__tab .icon {
-  width: 1.1rem;
-  height: 1.1rem;
+  width: 0.9rem;
+  height: 0.9rem;
   flex-shrink: 0;
 }
 .hero-form__body {
-  padding: 1.5rem;
+  padding: 1rem 1.5rem 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
 }
 .hero-form__blurb {
-  margin: 0 0 0.5rem 0;
+  margin: 0;
   font-size: 0.95rem;
   line-height: 1.5;
   font-weight: 500;
+  text-align: center;
   transition: color 300ms ease;
+}
+/* Pull the first row of fields up toward the blurb. Flex `gap` ignores
+   negative margins on the blurb itself (most browsers treat gap as an
+   inviolable minimum), so we move the next-element instead. */
+.hero-form__blurb + * {
+  margin-top: -2rem;
 }
 .hero-form__blurb strong {
   font-weight: 700;
@@ -1035,7 +1080,9 @@ p:last-child {
   border: 1px solid;
   border-radius: 12px;
   font-family: inherit;
-  font-size: 0.95rem;
+  /* 16px is the iOS Safari threshold — anything smaller triggers
+     auto-zoom when the field is tapped on mobile. */
+  font-size: 16px;
   transition: background 250ms ease, border-color 150ms ease, box-shadow 150ms ease, color 300ms ease;
 }
 .hero-form__input:focus {
@@ -1046,24 +1093,6 @@ p:last-child {
   border: none;
   cursor: pointer;
   transition: background 300ms ease, color 300ms ease, transform 150ms ease, box-shadow 200ms ease;
-}
-
-/* Phones only (≤500px): show the two route cards, hide the contact form.
-   Everything wider: show the contact form, hide the cards. */
-@media (max-width: 500px) {
-  .hero__form-wrap {
-    display: none;
-  }
-  .hero__cards {
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-  }
-}
-@media (min-width: 501px) {
-  .hero__cards {
-    display: none;
-  }
 }
 
 /* Remove gaps between dark sections */
@@ -1120,7 +1149,7 @@ p:last-child {
 }
 
 .hero--image h1 {
-  font-size: 2.5rem;
+  font-size: clamp(1.625rem, 0.79rem + 3.56vw, 2.5rem); /* 26→40px between 375 and 768 viewport */
   font-weight: 700;
   line-height: 1.1;
   letter-spacing: -0.02em;
@@ -1130,7 +1159,7 @@ p:last-child {
 .hero--image > .container > .hero__grid > div:first-child > p {
   color: rgba(255, 255, 255, 0.9);
   font-size: var(--text-lg);
-  margin-bottom: 2.5rem;
+  margin-bottom: 1.25rem;
 }
 
 .hero__footer {
@@ -1182,6 +1211,248 @@ p:last-child {
     grid-template-columns: 1fr 1fr;
     gap: 4rem;
   }
+}
+
+/* Mobile route picker hidden by default (tablet+/desktop). Mobile
+   @media block below overrides to display: grid. Source order
+   matters: this default MUST come before the @media rule so the
+   mobile rule wins the cascade at small widths. */
+.hero__route-picker {
+  display: none;
+}
+
+/* Mobile (≤1023px — anywhere the hero stops being a 2-col layout):
+   the contact form gets replaced by the route-picker cards as the
+   primary above-the-fold action. Order: badge → h1 → p → picker →
+   call → chips. The text wrapper uses `display: contents` so its
+   children become direct grid items and the picker (a sibling of
+   the wrapper) can interleave via `order`. The 3rem grid gap is
+   zeroed because with `display: contents` it would otherwise fire
+   between every promoted child — element margins (badge mb 2rem,
+   p mb 2.5rem) keep providing the rhythm exactly as on desktop.
+   Placed AFTER the desktop hero rules so source-order wins the
+   cascade (same specificity as the desktop overrides it needs to
+   beat). */
+/* Tablet + mobile (≤1023px) — anywhere the hero stops being a 2-col
+   layout. Shared rules: text wrapper promotes its children into the
+   grid via `display: contents`, grid gap zeroes out, the call
+   button hides, the chip row reorders below the form/picker. */
+@media (max-width: 1023px) {
+  .hero--image > .container > .hero__grid > div:first-child {
+    display: contents;
+  }
+  .hero__grid {
+    gap: 0;
+  }
+  .hero__buttons {
+    display: none;
+  }
+  .hero__chips {
+    order: 1;
+  }
+  /* Tablet (501-1023px): the standalone form stays visible but
+     centered horizontally in the single-column grid. The
+     route-picker stays hidden — that's a phones-only swap. */
+  .hero__form-wrap {
+    justify-self: center;
+    margin-inline: auto;
+  }
+}
+
+/* Phones (≤500px): swap the standalone form for the route-picker
+   cards. Each card is a self-contained mini-form (see index.astro). */
+@media (max-width: 500px) {
+  .hero__form-wrap {
+    display: none;
+  }
+  .hero__route-picker {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+}
+
+/* (default display:none for .hero__route-picker is set above the
+   mobile @media block — see ".hero__route-picker { display:none }"
+   near the route-card section. Source-order matters because the
+   mobile rule has the same specificity and needs to come AFTER.) */
+
+/* Expandable route-card variant. NOTE: many of the rules below use
+   `.route-card--expandable` as a parent prefix to bump specificity
+   to (0,2,0). Without that prefix, the legacy descendant selectors
+   `.route-card p` / `.route-card h3` / `.route-card { padding }`
+   (all defined later in this file at specificity (0,1,1)) would
+   win the cascade and add unwanted padding/margins/fonts to the
+   compact button-style cards. */
+.route-card.route-card--expandable {
+  padding: 0;
+  width: 100%;
+  border-radius: var(--radius-md, 16px);
+  overflow: hidden;
+  container-type: inline-size;
+  transition: box-shadow 250ms ease;
+}
+.route-card.route-card--expandable.is-expanded {
+  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.22);
+}
+/* Header is a tight flex column: icon+title row at the top, subtitle
+   directly below it. No min-height — the card stays as compact as
+   the button-style version, just with a subtitle line tucked in
+   under the title. No chevron. */
+/* Header is a vertical column: small icon centered at top, title +
+   subtitle centered below. */
+.route-card__header {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 1rem 1.4rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: center;
+  color: inherit;
+}
+.route-card__header .route-card__icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 0;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.route-card__header .route-card__icon svg {
+  width: 100%;
+  height: 100%;
+}
+/* Strip the legacy icon-tile background. Icons now sit directly on
+   the card surface, no rounded box behind them. */
+.route-card.route-card--expandable .route-card__icon {
+  background: transparent;
+  backdrop-filter: none;
+  border-radius: 0;
+}
+/* Maintenance (gradient) card: icon stroke stays white. */
+.route-card.route-card--expandable.route-card--gradient .route-card__icon .icon {
+  color: #fff;
+}
+/* Equipment Repairs (white) card: icon stroke + title both in the
+   brand primary color, so the white card mirrors the maintenance
+   card's hue (just on a white surface instead of a gradient one). */
+.route-card.route-card--expandable.route-card--white .route-card__icon .icon,
+.route-card.route-card--expandable.route-card--white .route-card__title {
+  color: var(--color-primary);
+}
+/* Title scales with the card's inline size via cqi so it always
+   takes up the available width and never wraps to two lines.
+   Prefixed with .route-card--expandable to beat the legacy
+   .route-card h3 rule (0,1,1) on specificity. */
+.route-card--expandable .route-card__title {
+  font-size: clamp(1.05rem, 6.4cqi, 1.5rem);
+  font-weight: 700;
+  margin: 0;
+  /* line-height 1.3 (was 1.1) so descenders like "y" in Weekly
+     don't get clipped by overflow: hidden (needed for ellipsis). */
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+/* Subtitle below the icon row. Prefixed with .route-card--expandable
+   so it beats .route-card p (0,1,1) — that legacy rule sets
+   margin-bottom: 1rem which was creating the mystery gap below the
+   subtitle. */
+.route-card--expandable .route-card__subtitle {
+  font-size: 0.95rem;
+  margin: 0.4rem 0 0;
+  line-height: 1.35;
+  opacity: 0.9;
+  font-weight: 500;
+  max-width: 38ch;
+}
+.route-card--expandable.is-expanded .route-card__chevron {
+  transform: rotate(180deg);
+}
+/* Form area collapsed by default. Open/close is driven by the JS
+   spring animator (see index.astro), not CSS transitions, so it can
+   preserve velocity when the user rapid-taps between cards. The
+   .is-expanded selector still drives the chevron rotate + box-shadow
+   on the parent card. */
+.route-card__form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0 1rem;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  /* horizontal padding stays via CSS; vertical padding + max-height
+     + opacity are driven by JS via WAAPI inline styles. */
+}
+.route-card__form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+.route-card__form .hero-form__input {
+  width: 100%;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid;
+  border-radius: 10px;
+  font-family: inherit;
+  /* 16px floor to prevent iOS Safari auto-zoom on tap. */
+  font-size: 16px;
+  transition: background 200ms ease, border-color 150ms ease;
+}
+.route-card--gradient .route-card__form .hero-form__input {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.32);
+  color: #fff;
+}
+.route-card--gradient .route-card__form .hero-form__input::placeholder {
+  color: rgba(255, 255, 255, 0.85);
+}
+.route-card--gradient .route-card__form .hero-form__input:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.28);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+.route-card--white .route-card__form .hero-form__input {
+  background: rgba(10, 30, 55, 0.04);
+  border-color: rgba(10, 30, 55, 0.12);
+  color: var(--color-text, #0f2942);
+}
+.route-card--white .route-card__form .hero-form__input::placeholder {
+  color: var(--color-text-light, #5a6c7d);
+}
+.route-card--white .route-card__form .hero-form__input:focus {
+  outline: none;
+  background: #fff;
+  border-color: var(--color-primary, #1E3A5F);
+}
+.route-card__submit {
+  margin-top: 0.25rem;
+}
+.route-card--gradient .route-card__submit {
+  background: #ffffff;
+  color: var(--color-primary, #1E3A5F);
+  border: none;
+}
+.route-card--white .route-card__submit {
+  background: linear-gradient(135deg, var(--color-primary, #1E3A5F), var(--color-cyan, #06b6d4));
+  color: #fff;
+  border: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .route-card__chevron {
+    transition: none;
+  }
+  /* Form animation honors reduced-motion at the JS layer (skip the
+     spring, snap to target). See animateRouteForm() in index.astro. */
 }
 
 /* --- Route Cards (hero intent-based routing) ---
@@ -1640,9 +1911,8 @@ p:last-child {
 .reveal-up {
   opacity: 0;
   transform: translateY(20px);
-  /* Crisp ease-out; under 300ms feels snappy for scroll-revealed content without feeling rushed. */
-  transition: opacity 500ms cubic-bezier(0.16, 1, 0.3, 1),
-              transform 500ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 320ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
   transition-delay: var(--reveal-delay, 0ms);
   will-change: opacity, transform;
 }
@@ -1657,9 +1927,9 @@ p:last-child {
   display: inline-block;
   opacity: 0;
   transform: translateY(18px);
-  transition: opacity 500ms cubic-bezier(0.16, 1, 0.3, 1),
-              transform 500ms cubic-bezier(0.16, 1, 0.3, 1);
-  transition-delay: calc(var(--word-index, 0) * 50ms);
+  transition: opacity 320ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: calc(var(--word-index, 0) * 35ms);
   will-change: opacity, transform;
 }
 .reveal-words.is-visible span {
@@ -1804,8 +2074,8 @@ p:last-child {
    re-specify the reveal transition here with the inline --reveal-delay.
    Smoother: longer duration + gentle cubic-bezier curve. */
 .method-card.reveal-up {
-  transition: opacity 500ms cubic-bezier(0.16, 1, 0.3, 1),
-              transform 500ms cubic-bezier(0.16, 1, 0.3, 1),
+  transition: opacity 320ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 320ms cubic-bezier(0.16, 1, 0.3, 1),
               box-shadow var(--transition-base);
   transition-delay: var(--reveal-delay, 0ms), var(--reveal-delay, 0ms), 0ms;
 }
@@ -2816,6 +3086,642 @@ p:last-child {
 .intake-close-btn:hover {
   background: #f3f4f6;
   color: #111827;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   V2 modal — persistent hero (brand strip + illustration banner)
+   visible across every step. Layout follows the "Pool Service
+   Intake Form" reference: bar on top, body below with copy on
+   the left and the illustration anchored right via background-image.
+   ────────────────────────────────────────────────────────────── */
+.intake-hero {
+  position: relative;
+  flex-shrink: 0;
+  color: #fff;
+  background-color: #082f49;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+  overflow: hidden;
+  isolation: isolate;
+  /* Lock the hero to the artwork's 3:1 aspect ratio. Combined with
+     container-type below, every nested element (logo, text, padding)
+     can size itself off cqi units so the WHOLE hero scales as a
+     unit when the modal width changes — no more text crashing into
+     the illustration on narrow viewports. */
+  aspect-ratio: 2172 / 724;
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+}
+/* Diagonal sheen */
+.intake-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0) 22%,
+    rgba(125, 211, 252, 0.10) 30%,
+    rgba(125, 211, 252, 0.10) 32%,
+    rgba(255, 255, 255, 0) 40%,
+    rgba(255, 255, 255, 0) 58%,
+    rgba(125, 211, 252, 0.06) 64%,
+    rgba(255, 255, 255, 0) 72%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+.intake-hero__bar {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2.5cqi 3.5cqi 0;
+  gap: 2cqi;
+}
+.intake-hero__brand {
+  display: flex;
+  align-items: center;
+  gap: 2.2cqi;
+  min-width: 0;
+}
+/* Real Perfect Pools logo image — scales with hero width via cqi. */
+.intake-hero__logo {
+  height: 10cqi;
+  width: auto;
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35));
+}
+.intake-hero__divider {
+  width: 1px;
+  height: 7cqi;
+  background: rgba(255, 255, 255, 0.25);
+  flex-shrink: 0;
+}
+.intake-hero__brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+  min-width: 0;
+}
+.intake-hero__brand-text strong {
+  font-weight: 700;
+  font-size: 3.2cqi;
+  letter-spacing: 0.04em;
+  color: #fff;
+}
+.intake-hero__brand-text span {
+  font-size: 2.4cqi;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #7dd3fc;
+  font-weight: 600;
+  margin-top: 0.6cqi;
+}
+.intake-hero__close {
+  width: 7cqi;
+  height: 7cqi;
+  min-width: 32px;
+  min-height: 32px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.04);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 150ms ease;
+  flex-shrink: 0;
+}
+.intake-hero__close svg {
+  width: 50%;
+  height: 50%;
+}
+.intake-hero__close:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+/* Body sits below the brand bar and fills the remaining hero
+   height (driven by aspect-ratio). Title is white, left-aligned,
+   vertically centered with cqi-scaled left/right padding. */
+.intake-hero__body {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 0 4cqi 2cqi;
+}
+.intake-hero__eyebrow {
+  display: inline-block;
+  font-size: 0.66rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #7dd3fc;
+  margin-bottom: 10px;
+}
+.intake-hero__title {
+  color: #fff;
+  font-weight: 700;
+  font-size: 5cqi;
+  line-height: 1.1;
+  margin: 0;
+  letter-spacing: -0.015em;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+  /* Cap text width so it never crashes into the illustration on
+     the right side of the artwork. */
+  max-width: 60%;
+}
+.intake-hero__progress {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.72);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: 0.04em;
+}
+.intake-hero__dots {
+  display: flex;
+  gap: 5px;
+}
+.intake-hero__dots i {
+  width: 22px;
+  height: 4px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.18);
+  display: inline-block;
+}
+.intake-hero__dots i.on {
+  background: #7dd3fc;
+  box-shadow: 0 0 8px rgba(125, 211, 252, 0.6);
+}
+/* Mobile sizing handled by cqi units — no media query needed. */
+
+/* ────────────────────────────────────────────────────────────────
+   V2 — Live "Your Pool" summary chip rail
+   Rendered between the progress bar and the step body. Fills with
+   chips as the user answers fields, implementing the "summarize
+   while it asks" pattern from the design.
+   ────────────────────────────────────────────────────────────── */
+.gs-summary {
+  background: linear-gradient(180deg, #f6fbff 0%, #eef7fd 100%);
+  border-bottom: 1px solid #e3ebf3;
+  padding: 12px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.gs-summary__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #0c4a6e;
+}
+.gs-summary__head span:last-child {
+  color: #6b7e96;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+.gs-summary__empty {
+  color: #6b7e96;
+  font-size: 0.82rem;
+  font-style: italic;
+}
+/* Each summary row owns one section. Edit pencil jumps back to that
+   section's page (not always to address). Address row is visually
+   distinct via a green pin; other rows use a small neutral icon. */
+.gs-summary__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  border-top: 1px solid rgba(207, 228, 243, 0.5);
+}
+.gs-summary__row:first-child {
+  border-top: none;
+  padding-top: 2px;
+}
+.gs-summary__row-text {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #0c4a6e;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  flex: 1;
+}
+.gs-summary__row--address .gs-summary__row-text {
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+.gs-summary__pin {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #16a34a;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 1px 4px rgba(22, 163, 74, 0.35);
+}
+.gs-summary__icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #e0f2fe;
+  color: #0c4a6e;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.gs-summary__edit {
+  border: none;
+  background: transparent;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #3d5573;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  flex-shrink: 0;
+}
+.gs-summary__edit:hover {
+  background: #eef3f8;
+  color: #0c4a6e;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   V2 — Question card overrides (scoped to .intake-modal--v2 so the
+   original modal's styling is untouched). Adopts the design's
+   tighter option-card look: smaller padding, square corners with a
+   subtle radius, blue accent on selection.
+   ────────────────────────────────────────────────────────────── */
+.intake-modal--v2 .intake-step-header {
+  margin-bottom: 1rem;
+}
+.intake-modal--v2 .intake-step-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+.intake-modal--v2 .intake-step-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+.intake-modal--v2 .intake-step-subtitle {
+  font-size: 0.85rem;
+}
+
+/* Follow-up questions on the progressive page (property, pool type,
+   condition, body) render the existing .intake-choice markup but
+   restyled as compact chip pills — text-only, horizontal flex,
+   wraps onto multiple lines like the CALL DAD reference. */
+.intake-modal--v2 .intake-choice-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  grid-template-columns: none;
+}
+.intake-modal--v2 .intake-choice {
+  flex: 0 0 auto;
+  padding: 9px 14px;
+  border-width: 1.5px;
+  border-radius: 10px;
+  border-color: #e3ebf3;
+  text-align: left;
+  background: #fff;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 0;
+  box-shadow: none;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.intake-modal--v2 .intake-choice:hover {
+  border-color: #bcd6ea;
+  background: #fff;
+  border-radius: 10px;
+  transform: none;
+  box-shadow: none;
+}
+.intake-modal--v2 .intake-choice.selected,
+.intake-modal--v2 .intake-choice[data-selected="true"] {
+  border-color: #7fbde2;
+  background: #dceefa;
+}
+.intake-modal--v2 .intake-choice-icon {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  background: transparent;
+  color: #0c4a6e;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.intake-modal--v2 .intake-choice-icon--emoji {
+  font-size: 1rem;
+  background: transparent;
+}
+.intake-modal--v2 .intake-choice h3 {
+  font-size: 0.86rem;
+  font-weight: 500;
+  margin: 0;
+  line-height: 1.2;
+  color: #0f2942;
+}
+.intake-modal--v2 .intake-choice.selected h3 {
+  font-weight: 600;
+  color: #0c4a6e;
+}
+.intake-modal--v2 .intake-choice p {
+  display: none;
+}
+/* Drop the emoji/icon glyph for follow-up chips on the progressive
+   page — only the service-interest icon cards keep their icons. */
+.intake-modal--v2 .psf-progressive .intake-choice-icon {
+  display: none;
+}
+
+/* V2 progressive pool-questions page — vertical stack with breathing
+   room between each question. Each question reveals after the prior
+   selection (markup gates visibility); CSS just spaces them out. */
+.intake-modal--v2 .psf-progressive {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.intake-modal--v2 .psf-q {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  /* Animate in from a touch above on mount so each newly-revealed
+     question feels like it's emerging from the prior one. The first
+     question fires this on initial open too, which gives the modal
+     body a soft entrance. */
+  animation: psf-q-reveal 380ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes psf-q-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .intake-modal--v2 .psf-q {
+    animation: none;
+  }
+}
+.intake-modal--v2 .psf-q__label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #0f2942;
+  margin: 0;
+  line-height: 1.3;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+/* Tooltip-on-hover info icon next to question labels. The data-tooltip
+   attribute carries the descriptive text; ::after renders it as a small
+   floating bubble above the icon on hover/focus. */
+.intake-modal--v2 .psf-q__info {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7e96;
+  cursor: help;
+  transition: color 0.15s ease;
+}
+.intake-modal--v2 .psf-q__info:hover,
+.intake-modal--v2 .psf-q__info:focus {
+  color: #0c4a6e;
+  outline: none;
+}
+.intake-modal--v2 .psf-q__info::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: #0c4a6e;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 6px 10px;
+  border-radius: 6px;
+  max-width: 240px;
+  width: max-content;
+  text-align: center;
+  line-height: 1.35;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 150ms ease, visibility 150ms ease, transform 150ms ease;
+  pointer-events: none;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.intake-modal--v2 .psf-q__info:hover::after,
+.intake-modal--v2 .psf-q__info:focus::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Hide the entire progress bar on V2 (back arrow, track, step text).
+   The future model is progressive disclosure — answered questions
+   stay visible with an edit icon, so there's nothing to navigate
+   "back" to. The summary chip rail under the hero conveys progress. */
+.intake-modal--v2 .intake-progress-bar {
+  display: none;
+}
+
+/* Service-interest options — icon cards in a 4-up row on desktop,
+   2x2 on phones. Each card has the icon centered on top with the
+   label below. Selected state: blue border + light-blue fill + a
+   blue check badge in the top-left corner (CSS pseudo-element). */
+.intake-modal--v2 .gs-service-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+/* Each cell stacks the icon button on top and the label below it */
+.intake-modal--v2 .psf-service-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+.intake-modal--v2 .psf-service-label {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #0f2942;
+  line-height: 1.2;
+  max-width: 100%;
+}
+.intake-modal--v2 .psf-service-cell:has(.gs-service-card.selected) .psf-service-label {
+  font-weight: 600;
+  color: #0c4a6e;
+}
+.intake-modal--v2 .gs-service-card {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  background: #fff;
+  border: 1.5px solid #e3ebf3;
+  border-radius: 10px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  box-shadow: none;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.intake-modal--v2 .gs-service-card:hover {
+  border-color: #bcd6ea;
+  transform: none;
+  box-shadow: none;
+  background: #fff;
+}
+.intake-modal--v2 .gs-service-card.selected,
+.intake-modal--v2 .gs-service-card[aria-pressed="true"] {
+  border-color: #0284c7;
+  background: #f0f8fd;
+}
+/* Blue check badge in the top-left of the selected card */
+.intake-modal--v2 .gs-service-card.selected::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #0284c7;
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.4);
+}
+.intake-modal--v2 .gs-service-card.selected::after {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 1px;
+  width: 10px;
+  height: 6px;
+  border-left: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+  transform: rotate(-45deg);
+}
+.intake-modal--v2 .gs-service-card__icon,
+.intake-modal--v2 .gs-service-card .gs-service-card-icon {
+  width: 26px;
+  height: 26px;
+  background: transparent;
+  color: #0c4a6e;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.intake-modal--v2 .gs-service-card.selected .gs-service-card__icon,
+.intake-modal--v2 .gs-service-card.selected .gs-service-card-icon {
+  color: #0284c7;
+}
+.intake-modal--v2 .gs-service-card__icon svg,
+.intake-modal--v2 .gs-service-card .gs-service-card-icon svg {
+  width: 100%;
+  height: 100%;
+}
+.intake-modal--v2 .gs-service-card h3 {
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin: 0;
+  color: #0f2942;
+  line-height: 1.15;
+}
+.intake-modal--v2 .gs-service-card p {
+  display: none;
+}
+@media (max-width: 520px) {
+  .intake-modal--v2 .gs-service-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Referral list → chip layout */
+.intake-modal--v2 .intake-surface-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  flex-direction: row;
+}
+.intake-modal--v2 .intake-surface-item {
+  flex: 0 1 auto;
+  width: auto;
+  padding: 9px 14px;
+  border: 1.5px solid #e3ebf3;
+  border-radius: 10px;
+  background: #fff;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 0;
+  box-shadow: none;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.intake-modal--v2 .intake-surface-item:hover {
+  border-color: #bcd6ea;
+  background: #fff;
+}
+.intake-modal--v2 .intake-surface-item.selected {
+  background: #dceefa;
+  border-color: #7fbde2;
+  color: #0c4a6e;
+}
+.intake-modal--v2 .intake-surface-item h3 {
+  font-size: 0.86rem;
+  font-weight: 500;
+  margin: 0;
+  color: inherit;
+}
+.intake-modal--v2 .intake-surface-item.selected h3 {
+  font-weight: 600;
+}
+.intake-modal--v2 .intake-surface-item .intake-surface-radio {
+  display: none;
+}
+.intake-modal--v2 .intake-surface-item p {
+  display: none;
 }
 
 /* Progress bar */
@@ -4008,9 +4914,15 @@ p:last-child {
 
 /* ── Responsive ── */
 @media (max-width: 640px) {
+  /* Fullscreen modal on mobile — no overlay padding, no border radius. */
+  .intake-overlay {
+    padding: 0;
+  }
   .intake-modal {
-    border-radius: 0.75rem;
+    border-radius: 0;
     max-width: 100%;
+    max-height: 100dvh;
+    height: 100dvh;
   }
 
   .intake-body {

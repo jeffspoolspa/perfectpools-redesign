@@ -3,7 +3,10 @@ import TopBar from '../components/TopBar.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import CustomerIntakeForm from '../components/CustomerIntakeForm.tsx';
-import GetStartedQuote from '../components/GetStartedQuote.tsx';
+// Iterating on the modal UX in V2. Original is preserved at
+// src/components/GetStartedQuote.tsx as the immediate revert path —
+// swap the import back if V2 doesn't pan out.
+import GetStartedQuote from '../components/GetStartedQuoteV2.tsx';
 import '../styles/global.css';
 import '../styles/fluid.css';
 // Component-tool styles for the LSI calculator, sanitation tabs,
@@ -91,6 +94,20 @@ const ogImageUrl = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`
 
   <!-- Get Started Quote Modal (Preact island) -->
   <GetStartedQuote client:load basePath={import.meta.env.BASE_URL} />
+
+  {import.meta.env.DEV && <div id="pp-viewport-indicator" aria-hidden="true">—</div>}
+  <script>
+    // Dev viewport indicator — script always renders, no-ops if the div
+    // isn't present (production builds skip the div via the DEV gate).
+    const ppViewportEl = document.getElementById('pp-viewport-indicator');
+    if (ppViewportEl) {
+      const update = () => {
+        ppViewportEl.textContent = `${window.innerWidth} × ${window.innerHeight}`;
+      };
+      update();
+      window.addEventListener('resize', update);
+    }
+  </script>
 
   <!-- Lenis smooth scroll + GSAP sync -->
   <script>
@@ -294,6 +311,21 @@ const ogImageUrl = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`
       z-index: 9999;
       pointer-events: none;
       will-change: transform;
+    }
+
+    #pp-viewport-indicator {
+      position: fixed;
+      bottom: 8px;
+      right: 8px;
+      z-index: 99999;
+      padding: 4px 8px;
+      font: 500 11px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+      color: #fff;
+      background: rgba(0, 0, 0, 0.7);
+      border-radius: 4px;
+      pointer-events: none;
+      user-select: none;
+      letter-spacing: 0.02em;
     }
   </style>
 </body>

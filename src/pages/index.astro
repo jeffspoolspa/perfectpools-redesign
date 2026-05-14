@@ -35,6 +35,7 @@ const icons = {
   star: '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none" class="icon"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
   droplets: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"/></svg>',
   alertCircle: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+  wrench: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>',
   arrowRight: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>',
   shield: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>',
   clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
@@ -68,14 +69,14 @@ const icons = {
             <span>Pool Service Provider Across Coastal Counties</span>
           </div>
 
-          <h1 class="reveal-up" style="--reveal-delay: 150ms">Pool care you can count on.</h1>
-          <p class="reveal-up" style="--reveal-delay: 300ms">Highest-quality service. Experienced technicians. Clear communication and transparent pricing.</p>
+          <h1 class="reveal-up" style="--reveal-delay: 75ms">Pool care you can count on.</h1>
+          <p class="reveal-up" style="--reveal-delay: 150ms">Highest-quality service. Experienced technicians. Clear communication and transparent pricing.</p>
 
-          <div class="hero__buttons reveal-up" style="--reveal-delay: 450ms">
+          <div class="hero__buttons reveal-up" style="--reveal-delay: 225ms">
             <a href="tel:9124590160" class="btn btn--cta btn--lg">Call (912) 459-0160</a>
           </div>
 
-          <div class="hero__chips reveal-up" style="--reveal-delay: 600ms">
+          <div class="hero__chips reveal-up" style="--reveal-delay: 300ms">
             <span class="hero__chip">
               <Fragment set:html={icons.shield} />
               Licensed &amp; Insured
@@ -91,40 +92,56 @@ const icons = {
           </div>
         </div>
 
-        <!-- Right: Mobile shows the two original route cards; desktop shows the contact form. -->
-        <div class="hero__cards reveal-up" style="--reveal-delay: 600ms">
-          <a href={`${import.meta.env.BASE_URL}services/residential-pool-cleaning/`} class="route-card route-card--gradient">
-            <div class="route-card__inner">
+        <!-- Mobile-only route picker. Each card is a self-contained
+             mini-form: tapping the header expands the card downward to
+             reveal the contact fields + submit button. One card stays
+             open at a time; tapping the other collapses the first.
+             Hidden on desktop (≥1024) where the standalone .hero-form
+             below renders instead. -->
+        <div class="hero__route-picker reveal-up" data-hero-route-picker style="--reveal-delay: 225ms">
+          <div class="route-card route-card--gradient route-card--expandable" data-route-card="maintenance">
+            <button type="button" class="route-card__header" data-route-toggle="maintenance" aria-expanded="false" aria-controls="route-form-maintenance">
               <div class="route-card__icon">
                 <Fragment set:html={icons.droplets} />
               </div>
-              <div>
-                <h3>Weekly Pool Care</h3>
-                <p>Ongoing maintenance starting from $50 plus chemicals</p>
-                <span class="route-card__link">
-                  See Plans <Fragment set:html={icons.arrowRight} />
-                </span>
+              <h3 class="route-card__title">Weekly Pool Care</h3>
+              <p class="route-card__subtitle">Ongoing maintenance starting from $50 plus chemicals</p>
+            </button>
+            <form id="route-form-maintenance" class="route-card__form" data-route-form="maintenance">
+              <div class="route-card__form-row">
+                <input type="text" name="first_name" placeholder="First name" autocomplete="given-name" required class="hero-form__input" />
+                <input type="text" name="last_name" placeholder="Last name" autocomplete="family-name" required class="hero-form__input" />
               </div>
-            </div>
-          </a>
+              <input type="email" name="email" placeholder="Email" autocomplete="email" required class="hero-form__input" />
+              <input type="tel" name="phone" placeholder="Phone" autocomplete="tel" required class="hero-form__input" />
+              <button type="submit" class="btn btn--lg btn--block route-card__submit">Get a Quote</button>
+            </form>
+          </div>
 
-          <a href={`${import.meta.env.BASE_URL}service-repair/`} class="route-card route-card--white">
-            <div class="route-card__inner">
+          <div class="route-card route-card--white route-card--expandable" data-route-card="repair">
+            <button type="button" class="route-card__header" data-route-toggle="repair" aria-expanded="false" aria-controls="route-form-repair">
               <div class="route-card__icon">
-                <Fragment set:html={icons.alertCircle} />
+                <Fragment set:html={icons.wrench} />
               </div>
-              <div>
-                <h3>Equipment Repairs</h3>
-                <p>Need equipment repaired, replaced or installed? We diagnose most issues within 48 hours</p>
-                <span class="route-card__link">
-                  Schedule Visit <Fragment set:html={icons.arrowRight} />
-                </span>
+              <h3 class="route-card__title">Equipment Repairs</h3>
+              <p class="route-card__subtitle">Need equipment repaired, replaced or installed?</p>
+            </button>
+            <form id="route-form-repair" class="route-card__form" data-route-form="repair">
+              <div class="route-card__form-row">
+                <input type="text" name="first_name" placeholder="First name" autocomplete="given-name" required class="hero-form__input" />
+                <input type="text" name="last_name" placeholder="Last name" autocomplete="family-name" required class="hero-form__input" />
               </div>
-            </div>
-          </a>
+              <input type="email" name="email" placeholder="Email" autocomplete="email" required class="hero-form__input" />
+              <input type="tel" name="phone" placeholder="Phone" autocomplete="tel" required class="hero-form__input" />
+              <button type="submit" class="btn btn--lg btn--block route-card__submit">Request a Call</button>
+            </form>
+          </div>
         </div>
 
-        <div class="hero__form-wrap reveal-up" style="--reveal-delay: 600ms">
+        <!-- Contact form. On mobile it's hidden until a route card is tapped,
+             then animates open below the picker (origin: top edge). On desktop
+             it sits in its own grid column visible by default. -->
+        <div class="hero__form-wrap reveal-up" data-hero-form-wrap style="--reveal-delay: 300ms">
           <form class="hero-form" data-hero-form data-active-tab="maintenance">
             <div class="hero-form__tabs" role="tablist" aria-label="Service type">
               <button
@@ -166,7 +183,7 @@ const icons = {
         </div>
       </div>
 
-      <div class="hero__footer reveal-up" style="--reveal-delay: 900ms">
+      <div class="hero__footer reveal-up" style="--reveal-delay: 450ms">
         <a href={`${import.meta.env.BASE_URL}our-approach`}>First time pool owner? Start here &rarr;</a>
       </div>
     </div>
@@ -194,7 +211,7 @@ const icons = {
           <span style="--word-index: 9">that</span>{' '}
           <span style="--word-index: 10">way.</span>
         </h2>
-        <p class="reveal-up" style="--reveal-delay: 900ms">Our methodology separates us from every other pool company</p>
+        <p class="reveal-up" style="--reveal-delay: 450ms">Our methodology separates us from every other pool company</p>
       </div>
 
       <!-- Mobile-only tab bar showing there are 3 cards. Hidden on tablet+. -->
@@ -206,7 +223,7 @@ const icons = {
       <div class="methodology__grid">
         <!-- Card delays start after the 11 words finish animating (~950ms),
              with 200ms between each card. -->
-        <div class="method-card reveal-up" style="--reveal-delay: 1000ms">
+        <div class="method-card reveal-up" style="--reveal-delay: 500ms">
           <div class="method-card__icon">
             <Fragment set:html={icons.testTube} />
           </div>
@@ -214,7 +231,7 @@ const icons = {
           <p>We test and adjust pH, alkalinity, sanitizer levels, and calcium hardness as a system—because one number out of range affects everything else.</p>
         </div>
 
-        <div class="method-card reveal-up" style="--reveal-delay: 1250ms">
+        <div class="method-card reveal-up" style="--reveal-delay: 625ms">
           <div class="method-card__icon">
             <Fragment set:html={icons.alertCircle} />
           </div>
@@ -222,7 +239,7 @@ const icons = {
           <p>Every visit includes a full equipment check. We monitor pump pressure, filter condition, and water flow to flag issues early.</p>
         </div>
 
-        <div class="method-card reveal-up" style="--reveal-delay: 1500ms">
+        <div class="method-card reveal-up" style="--reveal-delay: 750ms">
           <div class="method-card__icon">
             <Fragment set:html={icons.eye} />
           </div>
@@ -247,12 +264,12 @@ const icons = {
           <span style="--word-index: 1">We</span>{' '}
           <span style="--word-index: 2">Do</span>
         </h2>
-        <p class="reveal-up" style="--reveal-delay: 300ms">Ongoing maintenance plans and on-demand repairs for residential and commercial pools.</p>
+        <p class="reveal-up" style="--reveal-delay: 150ms">Ongoing maintenance plans and on-demand repairs for residential and commercial pools.</p>
       </div>
 
       <div class="services-dark__grid">
         <!-- Left Column: Pool Cleaning -->
-        <div class="reveal-up" style="--reveal-delay: 600ms">
+        <div class="reveal-up" style="--reveal-delay: 300ms">
           <div class="services-dark__col-header">
             <Fragment set:html={icons.droplets} />
             <h3>Pool Cleaning</h3>
@@ -301,7 +318,7 @@ const icons = {
         </div>
 
         <!-- Right Column: Equipment & Repair -->
-        <div class="reveal-up" style="--reveal-delay: 900ms">
+        <div class="reveal-up" style="--reveal-delay: 450ms">
           <div class="services-dark__col-header">
             <Fragment set:html={icons.settings} />
             <h3>Equipment & Repair</h3>
@@ -385,13 +402,13 @@ const icons = {
     <div class="container max-w-4xl mx-auto text-center">
       <h2 class="reveal-up">Complete Pool Care. Built on Local Trust.</h2>
 
-      <p class="reveal-up" style="--reveal-delay: 150ms">We brought together the best local pool professionals in coastal Georgia — and gave them the resources to do even more. From weekly maintenance to full equipment service, one team that knows your pool inside and out.</p>
+      <p class="reveal-up" style="--reveal-delay: 75ms">We brought together the best local pool professionals in coastal Georgia — and gave them the resources to do even more. From weekly maintenance to full equipment service, one team that knows your pool inside and out.</p>
 
-      <p class="reveal-up" style="--reveal-delay: 300ms">The result is a dedicated service company with the technical depth to handle equipment, the local presence to know your pool, and the operational foundation to deliver consistent care year after year.</p>
+      <p class="reveal-up" style="--reveal-delay: 150ms">The result is a dedicated service company with the technical depth to handle equipment, the local presence to know your pool, and the operational foundation to deliver consistent care year after year.</p>
 
-      <p class="highlight reveal-up" style="--reveal-delay: 450ms">Your pool is a 15–20 year asset. It deserves a true service partner.</p>
+      <p class="highlight reveal-up" style="--reveal-delay: 225ms">Your pool is a 15–20 year asset. It deserves a true service partner.</p>
 
-      <div class="reveal-up" style="--reveal-delay: 600ms; margin-top:2rem;">
+      <div class="reveal-up" style="--reveal-delay: 300ms; margin-top:2rem;">
         <a href={`${import.meta.env.BASE_URL}our-approach/#our-story`} class="btn btn--primary btn--lg">Read Our Story</a>
       </div>
     </div>
@@ -418,16 +435,16 @@ const icons = {
 
         <!-- Right: Content -->
         <div class="coastal-content">
-          <h2 class="coastal-content__title reveal-up" style="--reveal-delay: 150ms">
+          <h2 class="coastal-content__title reveal-up" style="--reveal-delay: 75ms">
             Engineered for<br/>the Coast
           </h2>
-          <p class="coastal-content__desc reveal-up" style="--reveal-delay: 300ms">
+          <p class="coastal-content__desc reveal-up" style="--reveal-delay: 150ms">
             Local environments demand local expertise. We've built our methodology
             specifically to combat the unique challenges of coastal pool ownership.
           </p>
 
           <!-- Address Checker -->
-          <div class="coastal-checker reveal-up" style="--reveal-delay: 450ms">
+          <div class="coastal-checker reveal-up" style="--reveal-delay: 225ms">
             <h3 class="coastal-checker__title">Check Your Address</h3>
             <p class="coastal-checker__desc">Enter your address to see if you're within our service area.</p>
             <div id="service-area-checker"></div>
@@ -518,10 +535,10 @@ const icons = {
       <div class="section-header reveal-up">
         <h2>What our customers say</h2>
       </div>
-      <div class="reveal-up" style="--reveal-delay: 200ms">
+      <div class="reveal-up" style="--reveal-delay: 100ms">
         <ReviewCarousel />
       </div>
-      <div class="text-center reveal-up" style="--reveal-delay: 400ms; margin-top:2rem;">
+      <div class="text-center reveal-up" style="--reveal-delay: 200ms; margin-top:2rem;">
         <a href="https://g.page/r/CVrU0W_3-NRyEAE/review" target="_blank" rel="noopener" class="btn btn--outline">Read All Reviews on Google</a>
       </div>
     </div>
@@ -539,7 +556,7 @@ const icons = {
     <div class="cta-image__overlay"></div>
     <div class="container cta-image__content">
       <h2 class="reveal-up">Ready for worry-free pool care?</h2>
-      <div class="cta-image__buttons reveal-up" style="--reveal-delay: 200ms">
+      <div class="cta-image__buttons reveal-up" style="--reveal-delay: 100ms">
         <button type="button" class="btn btn--cta btn--lg" data-open-intake>Get a Quote</button>
         <a href="tel:9124590160" class="btn btn--outline-white btn--lg">Call (912) 459-0160</a>
       </div>
@@ -766,6 +783,145 @@ const icons = {
       e.preventDefault();
       const intakeTrigger = document.querySelector('[data-open-intake]') as HTMLButtonElement | null;
       if (intakeTrigger) intakeTrigger.click();
+    });
+
+    // Mobile route picker — each card is a self-contained mini-form.
+    // Form expand/collapse runs via WAAPI with a spring-like linear()
+    // easing. WAAPI lets us cancel an in-flight animation and start a
+    // new one FROM THE CURRENT VALUE so rapid taps between cards stay
+    // visually coordinated (no snap-to-end then jump-to-start).
+    const routeCards = document.querySelectorAll<HTMLElement>('[data-route-card]');
+    const routeToggles = document.querySelectorAll<HTMLButtonElement>('[data-route-toggle]');
+    const routeForms = document.querySelectorAll<HTMLFormElement>('[data-route-form]');
+
+    // Spring approximation: ~580ms, near-zero bounce (≈ Apple spring
+    // with duration 0.55s, bounce 0.015). Peak overshoot is ~1.2%
+    // (≈3px on a 264px form) — visually unnoticeable but keeps the
+    // spring "settle" character vs a pure ease-out.
+    const SPRING_EASE = 'linear(0, 0.012 4%, 0.05 7%, 0.13 12%, 0.252 17%, 0.412 23%, 0.59 30%, 0.762 38%, 0.892 45%, 0.971 52%, 1.005 58%, 1.012 63%, 1.005 70%, 0.999 78%, 1)';
+    const SPRING_DURATION = 580;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const animateForm = (form: HTMLElement, opening: boolean) => {
+      // Capture the CURRENT animated value before we cancel anything,
+      // so we resume from where we are (not from the CSS base state).
+      const cs = getComputedStyle(form);
+      const fromMaxHeight = parseFloat(cs.maxHeight) || 0;
+      const fromOpacity = parseFloat(cs.opacity) || 0;
+      const fromPaddingTop = parseFloat(cs.paddingTop) || 0;
+      const fromPaddingBottom = parseFloat(cs.paddingBottom) || 0;
+
+      const inFlight = (form as any).__anim as Animation | null;
+      if (inFlight) inFlight.cancel();
+
+      // Compute target. For opening, measure natural height by briefly
+      // applying the open state inline.
+      let targetMaxHeight: number;
+      let targetOpacity: number;
+      let targetPaddingTop: number;
+      let targetPaddingBottom: number;
+      if (opening) {
+        const prev = {
+          maxHeight: form.style.maxHeight,
+          paddingTop: form.style.paddingTop,
+          paddingBottom: form.style.paddingBottom,
+        };
+        form.style.maxHeight = 'none';
+        form.style.paddingTop = '8px';
+        form.style.paddingBottom = '16px';
+        targetMaxHeight = form.scrollHeight;
+        form.style.maxHeight = prev.maxHeight;
+        form.style.paddingTop = prev.paddingTop;
+        form.style.paddingBottom = prev.paddingBottom;
+        targetOpacity = 1;
+        targetPaddingTop = 8;
+        targetPaddingBottom = 16;
+      } else {
+        targetMaxHeight = 0;
+        targetOpacity = 0;
+        targetPaddingTop = 0;
+        targetPaddingBottom = 0;
+      }
+
+      if (reducedMotion) {
+        form.style.maxHeight = targetMaxHeight + 'px';
+        form.style.opacity = String(targetOpacity);
+        form.style.paddingTop = targetPaddingTop + 'px';
+        form.style.paddingBottom = targetPaddingBottom + 'px';
+        (form as any).__anim = null;
+        return;
+      }
+
+      const anim = form.animate(
+        [
+          { maxHeight: fromMaxHeight + 'px', opacity: fromOpacity, paddingTop: fromPaddingTop + 'px', paddingBottom: fromPaddingBottom + 'px' },
+          { maxHeight: targetMaxHeight + 'px', opacity: targetOpacity, paddingTop: targetPaddingTop + 'px', paddingBottom: targetPaddingBottom + 'px' },
+        ],
+        {
+          duration: SPRING_DURATION,
+          easing: SPRING_EASE,
+          fill: 'forwards',
+        }
+      );
+      (form as any).__anim = anim;
+      anim.onfinish = () => {
+        // Lock final values inline so they persist after we cancel
+        // (cancel() removes the WAAPI effect; without commitStyles
+        // the element snaps back to the CSS base state).
+        try { anim.commitStyles(); } catch {}
+        anim.cancel();
+        (form as any).__anim = null;
+      };
+    };
+
+    routeToggles.forEach((toggle) => {
+      toggle.addEventListener('click', () => {
+        const type = toggle.dataset.routeToggle as 'maintenance' | 'repair';
+        const card = toggle.closest('[data-route-card]') as HTMLElement | null;
+        if (!card) return;
+        const wasExpanded = card.classList.contains('is-expanded');
+
+        // Collapse every other open card via the animator (so the
+        // closing animation matches the opening one in timing).
+        routeCards.forEach((c) => {
+          if (c === card) return;
+          if (c.classList.contains('is-expanded')) {
+            c.classList.remove('is-expanded');
+            const otherToggle = c.querySelector('[data-route-toggle]') as HTMLButtonElement | null;
+            if (otherToggle) otherToggle.setAttribute('aria-expanded', 'false');
+            const otherForm = c.querySelector('[data-route-form]') as HTMLElement | null;
+            if (otherForm) animateForm(otherForm, false);
+          }
+        });
+
+        if (wasExpanded) {
+          // Tapping the open card collapses it
+          card.classList.remove('is-expanded');
+          toggle.setAttribute('aria-expanded', 'false');
+          const form = card.querySelector('[data-route-form]') as HTMLElement | null;
+          if (form) animateForm(form, false);
+        } else {
+          // Open this card
+          card.classList.add('is-expanded');
+          toggle.setAttribute('aria-expanded', 'true');
+          updateHeroTab(type);
+          const form = card.querySelector('[data-route-form]') as HTMLElement | null;
+          if (form) animateForm(form, true);
+          window.setTimeout(() => {
+            card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }, 240);
+        }
+      });
+    });
+
+    routeForms.forEach((form) => {
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const type = form.dataset.routeForm as 'maintenance' | 'repair';
+        updateHeroTab(type);
+        const intakeTrigger = document.querySelector('[data-open-intake]') as HTMLButtonElement | null;
+        if (intakeTrigger) intakeTrigger.click();
+      });
     });
   }
 
