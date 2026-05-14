@@ -819,8 +819,9 @@ p:last-child {
    sections (z-index: 1) scroll OVER it. Same effect used on the
    service-repair hero. */
 .hero--image {
+  --hero-sticky-top: 0px;
   position: sticky;
-  top: 0;
+  top: var(--hero-sticky-top);
   z-index: 0;
   min-height: 100vh;
   display: flex;
@@ -830,6 +831,16 @@ p:last-child {
   padding-bottom: 3rem;
   overflow: hidden;
   text-align: left;
+}
+/* When a route card form is expanded the hero grows past 100vh. With
+   `top: 0` sticky, the bottom would be unreachable (sticky pins the
+   top, methodology slides up over the rest). JS sets --hero-sticky-top
+   to a negative value equal to the overflow, so the hero scrolls
+   through naturally first (revealing the bottom + form), then pins
+   for the methodology scroll-over. Anchor content to top so growth
+   adds at the bottom rather than shifting everything upward. */
+.hero--image.has-expanded-route {
+  justify-content: flex-start;
 }
 /* Every section after the sticky hero must paint over it. Background
    color is restated explicitly per-section because my ~section rule
@@ -844,6 +855,7 @@ p:last-child {
 .hero.hero--image ~ .services-dark { background-color: #1E3A5F; }
 .hero.hero--image ~ .partner-section { background-color: var(--color-white); }
 .hero.hero--image ~ .reviews-home { background-color: var(--color-light-bg); }
+.hero.hero--image ~ .coastal-section { background-color: #1E3A5F; }
 /* On phones the form + text stack is taller than the viewport, so
    centering pushes the form above the fold (behind the header). Anchor
    the hero to the top instead so the form begins right under the header,
