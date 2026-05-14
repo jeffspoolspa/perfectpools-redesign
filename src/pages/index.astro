@@ -198,19 +198,7 @@ const icons = {
     <div id="methodology-liquid-mount"></div>
     <div class="container">
       <div class="section-header">
-        <h2 class="reveal-words">
-          <span style="--word-index: 0">Clear</span>{' '}
-          <span style="--word-index: 1">water</span>{' '}
-          <span style="--word-index: 2">isn't</span>{' '}
-          <span style="--word-index: 3">luck.</span>{' '}
-          <span style="--word-index: 4">Here's</span>{' '}
-          <span style="--word-index: 5">how</span>{' '}
-          <span style="--word-index: 6">we</span>{' '}
-          <span style="--word-index: 7">keep</span>{' '}
-          <span style="--word-index: 8">it</span>{' '}
-          <span style="--word-index: 9">that</span>{' '}
-          <span style="--word-index: 10">way.</span>
-        </h2>
+        <h2 class="reveal-chars">Clear water isn't luck. Here's how we keep it that way.</h2>
         <p class="reveal-up" style="--reveal-delay: 450ms">Our methodology separates us from every other pool company</p>
       </div>
 
@@ -720,10 +708,32 @@ const icons = {
   }
 
   // ===== Scroll-triggered reveal =====
-  // Elements with .reveal-up or .reveal-words fade/slide in when they enter
-  // the viewport. Once revealed they stay revealed (unobserve after first intersection).
+  // Elements with .reveal-up / .reveal-words / .reveal-chars fade/slide in
+  // when they enter the viewport. Once revealed they stay revealed
+  // (unobserve after first intersection).
+
+  // Pre-process .reveal-chars: split text content into per-character
+  // <span class="char"> elements with a sequential --char-index. The
+  // CSS @keyframes uses that var to stagger each character's entrance.
+  document.querySelectorAll<HTMLElement>('.reveal-chars').forEach((el) => {
+    const text = el.textContent || '';
+    el.textContent = '';
+    let idx = 0;
+    for (const ch of text) {
+      if (ch === ' ') {
+        el.append(' ');
+      } else {
+        const span = document.createElement('span');
+        span.className = 'char';
+        span.textContent = ch;
+        span.style.setProperty('--char-index', String(idx++));
+        el.appendChild(span);
+      }
+    }
+  });
+
   if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    const revealEls = document.querySelectorAll('.reveal-up, .reveal-words');
+    const revealEls = document.querySelectorAll('.reveal-up, .reveal-words, .reveal-chars');
     if (revealEls.length && 'IntersectionObserver' in window) {
       const io = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
@@ -738,7 +748,7 @@ const icons = {
       revealEls.forEach((el) => el.classList.add('is-visible'));
     }
   } else {
-    document.querySelectorAll('.reveal-up, .reveal-words').forEach((el) => el.classList.add('is-visible'));
+    document.querySelectorAll('.reveal-up, .reveal-words, .reveal-chars').forEach((el) => el.classList.add('is-visible'));
   }
 
   // ===== Hero contact form tabs =====

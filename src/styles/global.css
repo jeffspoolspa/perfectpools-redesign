@@ -1932,12 +1932,33 @@ p:last-child {
   transform: translateY(0);
 }
 
+/* Character-by-character headline reveal — each char inside
+   .reveal-chars (split via JS in index.astro) animates in via
+   @keyframes with a per-char delay based on --char-index. */
+.reveal-chars .char {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(14px);
+  will-change: opacity, transform;
+}
+.reveal-chars.is-visible .char {
+  animation: reveal-char 480ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: calc(var(--char-index, 0) * 28ms);
+}
+@keyframes reveal-char {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .reveal-up,
-  .reveal-words span {
+  .reveal-words span,
+  .reveal-chars .char,
+  .reveal-chars.is-visible .char {
     opacity: 1;
     transform: none;
     transition: none;
+    animation: none;
   }
 }
 
@@ -2051,12 +2072,10 @@ p:last-child {
   transition: transform var(--transition-base), box-shadow var(--transition-base);
 }
 
-@media (hover: hover) and (pointer: fine) {
-  .method-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-lg);
-  }
-}
+/* Hover effect intentionally removed — was causing a glitch where a
+   card mid-reveal would settle ~4px below its end position when the
+   pointer happened to be over it (the hover transform competed with
+   the reveal transform). */
 
 /* Higher-specificity reveal transition for method cards — must live AFTER
    .method-card so it wins the cascade. The shorthand `transition` on
@@ -2068,6 +2087,12 @@ p:last-child {
               transform 320ms cubic-bezier(0.16, 1, 0.3, 1),
               box-shadow var(--transition-base);
   transition-delay: var(--reveal-delay, 0ms), var(--reveal-delay, 0ms), 0ms;
+}
+/* Mobile (carousel layout): all three cards reveal together instead
+   of staggering left-to-right. Uses !important to beat the inline
+   --reveal-delay set on each card in the markup. */
+@media (max-width: 767px) {
+  .method-card { --reveal-delay: 500ms !important; }
 }
 
 .method-card__icon {
