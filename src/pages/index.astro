@@ -214,12 +214,6 @@ const icons = {
         <p class="reveal-up" style="--reveal-delay: 450ms">Our methodology separates us from every other pool company</p>
       </div>
 
-      <!-- Mobile-only tab bar showing there are 3 cards. Hidden on tablet+. -->
-      <div class="methodology__tabs" role="tablist" aria-label="Method cards">
-        <button type="button" class="methodology__tab is-active" data-card-index="0" aria-label="Chemistry principle"></button>
-        <button type="button" class="methodology__tab" data-card-index="1" aria-label="Problem detection principle"></button>
-        <button type="button" class="methodology__tab" data-card-index="2" aria-label="Visibility principle"></button>
-      </div>
       <div class="methodology__grid">
         <!-- Card delays start after the 11 words finish animating (~950ms),
              with 200ms between each card. -->
@@ -926,40 +920,12 @@ const icons = {
     });
   }
 
-  // ===== Methodology mobile carousel + tabs =====
-  // On mobile the method-cards become a horizontal scroll-snap carousel.
-  // Tabs sync with the active card, and clicking a tab scrolls to that card.
-  const methGrid = document.querySelector('.methodology__grid') as HTMLElement | null;
-  const methTabs = document.querySelectorAll<HTMLButtonElement>('.methodology__tab');
-  if (methGrid && methTabs.length > 0) {
-    const methCards = methGrid.querySelectorAll<HTMLElement>('.method-card');
-    methTabs.forEach((tab, i) => {
-      tab.addEventListener('click', () => {
-        const card = methCards[i];
-        if (!card) return;
-        methGrid.scrollTo({ left: card.offsetLeft - (methGrid.clientWidth - card.offsetWidth) / 2, behavior: 'smooth' });
-      });
-    });
-    let methTicking = false;
-    const updateMethTabs = () => {
-      const center = methGrid.scrollLeft + methGrid.clientWidth / 2;
-      let activeIdx = 0;
-      let minDist = Infinity;
-      methCards.forEach((c, i) => {
-        const dist = Math.abs((c.offsetLeft + c.offsetWidth / 2) - center);
-        if (dist < minDist) { minDist = dist; activeIdx = i; }
-      });
-      methTabs.forEach((t, i) => t.classList.toggle('is-active', i === activeIdx));
-      methTicking = false;
-    };
-    methGrid.addEventListener('scroll', () => {
-      if (!methTicking) {
-        requestAnimationFrame(updateMethTabs);
-        methTicking = true;
-      }
-    }, { passive: true });
-    updateMethTabs();
-  }
+  // ===== Methodology mobile carousel =====
+  // The .methodology__grid is a horizontal scroll-snap carousel on
+  // mobile (CSS-only — see grid-related rules in global.css). The
+  // pill indicator strip + its JS sync handler were removed — the
+  // swipe affordance is obvious from the cards themselves and the
+  // peek of the next card from the right edge.
 
   // ===== Hero exit progress (scroll-linked) =====
   // Exposes --hero-exit (0..1) on the hero element as the user scrolls through it.
