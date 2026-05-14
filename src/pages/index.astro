@@ -100,13 +100,13 @@ const icons = {
         <div class="hero__route-picker reveal-up" data-hero-route-picker style="--reveal-delay: 225ms">
           <div class="route-card route-card--gradient route-card--expandable" data-route-card="maintenance">
             <button type="button" class="route-card__header" data-route-toggle="maintenance" aria-expanded="false" aria-controls="route-form-maintenance">
-              <div class="route-card__top">
-                <div class="route-card__icon">
-                  <Fragment set:html={icons.droplets} />
-                </div>
-                <h3 class="route-card__title">Weekly Pool Care</h3>
+              <div class="route-card__icon">
+                <Fragment set:html={icons.droplets} />
               </div>
-              <p class="route-card__subtitle">Ongoing maintenance starting from $50 plus chemicals</p>
+              <div class="route-card__text">
+                <h3 class="route-card__title">Weekly Pool Care</h3>
+                <p class="route-card__subtitle">Ongoing maintenance starting from $50 plus chemicals</p>
+              </div>
             </button>
             <form id="route-form-maintenance" class="route-card__form" data-route-form="maintenance">
               <div class="route-card__form-row">
@@ -121,13 +121,13 @@ const icons = {
 
           <div class="route-card route-card--white route-card--expandable" data-route-card="repair">
             <button type="button" class="route-card__header" data-route-toggle="repair" aria-expanded="false" aria-controls="route-form-repair">
-              <div class="route-card__top">
-                <div class="route-card__icon">
-                  <Fragment set:html={icons.alertCircle} />
-                </div>
-                <h3 class="route-card__title">Equipment Repairs</h3>
+              <div class="route-card__icon">
+                <Fragment set:html={icons.alertCircle} />
               </div>
-              <p class="route-card__subtitle">Pump, filter, or heater issues — diagnosed within 48 hours</p>
+              <div class="route-card__text">
+                <h3 class="route-card__title">Equipment Repairs</h3>
+                <p class="route-card__subtitle">Pump, filter, or heater issues — diagnosed within 48 hours</p>
+              </div>
             </button>
             <form id="route-form-repair" class="route-card__form" data-route-form="repair">
               <div class="route-card__form-row">
