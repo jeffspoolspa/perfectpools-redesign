@@ -199,13 +199,13 @@ const icons = {
     <div class="container">
       <div class="section-header">
         <h2 class="reveal-chars">Clear water isn't luck. Here's how we keep it that way.</h2>
-        <p class="reveal-up" style="--reveal-delay: 450ms">Our methodology separates us from every other pool company</p>
+        <p class="reveal-up" style="--reveal-delay: 1800ms">Our methodology separates us from every other pool company</p>
       </div>
 
       <div class="methodology__grid">
         <!-- Card delays start after the 11 words finish animating (~950ms),
              with 200ms between each card. -->
-        <div class="method-card reveal-up" style="--reveal-delay: 500ms">
+        <div class="method-card reveal-up" style="--reveal-delay: 2200ms">
           <div class="method-card__icon">
             <Fragment set:html={icons.testTube} />
           </div>
@@ -213,7 +213,7 @@ const icons = {
           <p>We test and adjust pH, alkalinity, sanitizer levels, and calcium hardness as a system—because one number out of range affects everything else.</p>
         </div>
 
-        <div class="method-card reveal-up" style="--reveal-delay: 625ms">
+        <div class="method-card reveal-up" style="--reveal-delay: 2350ms">
           <div class="method-card__icon">
             <Fragment set:html={icons.alertCircle} />
           </div>
@@ -221,7 +221,7 @@ const icons = {
           <p>Every visit includes a full equipment check. We monitor pump pressure, filter condition, and water flow to flag issues early.</p>
         </div>
 
-        <div class="method-card reveal-up" style="--reveal-delay: 750ms">
+        <div class="method-card reveal-up" style="--reveal-delay: 2500ms">
           <div class="method-card__icon">
             <Fragment set:html={icons.eye} />
           </div>
@@ -712,24 +712,31 @@ const icons = {
   // when they enter the viewport. Once revealed they stay revealed
   // (unobserve after first intersection).
 
-  // Pre-process .reveal-chars: split text content into per-character
+  // Pre-process .reveal-chars: split text content into <span class="word">
+  // wrappers (each display:inline-block + white-space:nowrap so a word
+  // can never break mid-character across lines) containing per-character
   // <span class="char"> elements with a sequential --char-index. The
   // CSS @keyframes uses that var to stagger each character's entrance.
   document.querySelectorAll<HTMLElement>('.reveal-chars').forEach((el) => {
     const text = el.textContent || '';
     el.textContent = '';
-    let idx = 0;
-    for (const ch of text) {
-      if (ch === ' ') {
-        el.append(' ');
-      } else {
+    const words = text.split(' ');
+    let charIdx = 0;
+    words.forEach((word, wi) => {
+      const wordSpan = document.createElement('span');
+      wordSpan.className = 'word';
+      for (const ch of word) {
         const span = document.createElement('span');
         span.className = 'char';
         span.textContent = ch;
-        span.style.setProperty('--char-index', String(idx++));
-        el.appendChild(span);
+        span.style.setProperty('--char-index', String(charIdx++));
+        wordSpan.appendChild(span);
       }
-    }
+      el.appendChild(wordSpan);
+      if (wi < words.length - 1) {
+        el.append(' ');
+      }
+    });
   });
 
   if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {

@@ -1934,7 +1934,12 @@ p:last-child {
 
 /* Character-by-character headline reveal — each char inside
    .reveal-chars (split via JS in index.astro) animates in via
-   @keyframes with a per-char delay based on --char-index. */
+   @keyframes with a per-char delay based on --char-index.
+   .word wrappers keep characters from breaking across lines. */
+.reveal-chars .word {
+  display: inline-block;
+  white-space: nowrap;
+}
 .reveal-chars .char {
   display: inline-block;
   opacity: 0;
@@ -2090,9 +2095,11 @@ p:last-child {
 }
 /* Mobile (carousel layout): all three cards reveal together instead
    of staggering left-to-right. Uses !important to beat the inline
-   --reveal-delay set on each card in the markup. */
+   --reveal-delay set on each card in the markup. Value matches the
+   first card's desktop delay so the cards still wait for the
+   header + subtitle to finish first. */
 @media (max-width: 767px) {
-  .method-card { --reveal-delay: 500ms !important; }
+  .method-card { --reveal-delay: 2200ms !important; }
 }
 
 .method-card__icon {
