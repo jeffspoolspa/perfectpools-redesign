@@ -1194,6 +1194,14 @@ p:last-child {
   }
 }
 
+/* Mobile route picker hidden by default (tablet+/desktop). Mobile
+   @media block below overrides to display: grid. Source order
+   matters: this default MUST come before the @media rule so the
+   mobile rule wins the cascade at small widths. */
+.hero__route-picker {
+  display: none;
+}
+
 /* Phones (≤500px): the contact form replaces the old route-card pair as the
    primary above-the-fold action. Order: badge → h1 → p → form → call → chips.
    The text wrapper uses `display: contents` so its children become direct
@@ -1259,11 +1267,10 @@ p:last-child {
   }
 }
 
-/* Hidden by default on tablet/desktop — the form sits in its own grid
-   column there, no card picker needed. */
-.hero__route-picker {
-  display: none;
-}
+/* (default display:none for .hero__route-picker is set above the
+   mobile @media block — see ".hero__route-picker { display:none }"
+   near the route-card section. Source-order matters because the
+   mobile rule has the same specificity and needs to come AFTER.) */
 
 /* Compact card variant for the mobile route picker — short enough that
    both cards fit on screen alongside the hero text. Resets button-element
