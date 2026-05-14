@@ -1,7 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import FAQ from '../../components/FAQ.astro';
-import CTASection from '../../components/CTASection.astro';
+import ServicePageFinale from '../../components/ServicePageFinale.astro';
 
 const base = import.meta.env.BASE_URL;
 
@@ -577,76 +576,15 @@ const schema = [
     </div>
   </section>
 
-  <!-- Social Proof -->
-  <section class="section section--alt">
-    <div class="container">
-      <div class="section-header">
-        <h2>What homeowners say</h2>
-        <p class="section-header__subtitle">Real feedback from residential customers</p>
-      </div>
-
-      <div class="reviews-grid">
-        <div class="review-card">
-          <div class="review-card__stars">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-          </div>
-          <p class="review-card__text">"We switched from our old pool company and immediately noticed the difference. The reports are detailed, the water has never looked better, and I actually understand what they're doing now."</p>
-          <div class="review-card__author">
-            <strong>Jennifer M.</strong>
-            <span>Homeowner, Richmond Hill</span>
-          </div>
-        </div>
-
-        <div class="review-card">
-          <div class="review-card__stars">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-          </div>
-          <p class="review-card__text">"First-time pool owner, totally overwhelmed. Perfect Pools handled everything and explained it in a way I could understand. Haven't had to call them once with an issue—it just works."</p>
-          <div class="review-card__author">
-            <strong>David K.</strong>
-            <span>Homeowner, Savannah</span>
-          </div>
-        </div>
-
-        <div class="review-card">
-          <div class="review-card__stars">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--color-accent)" stroke="var(--color-accent)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-          </div>
-          <p class="review-card__text">"The billing transparency is what sold me. I can see exactly what they added and what it cost. No mystery charges, no weird line items. It's refreshing."</p>
-          <div class="review-card__author">
-            <strong>Sarah T.</strong>
-            <span>Homeowner, Pooler</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <FAQ items={faqs} />
-
-  <!-- Final CTA -->
-  <section class="section">
-    <div class="container container--narrow text-center">
-      <h2>Get a quote for your pool</h2>
-      <p class="text-lg">Tell us about your pool and we'll send you a custom quote within 24 hours. Weekly service starts at $200/month.</p>
-      <div class="cta-buttons">
-        <button type="button" class="btn btn--accent btn--lg" data-open-intake>Get Your Quote</button>
-        <a href="/plans/" class="btn btn--outline btn--lg">See Plans & Pricing</a>
-      </div>
-    </div>
-  </section>
+  <ServicePageFinale
+    faqs={faqs}
+    ctaHeading="Get a quote for your pool"
+    ctaText="Tell us about your pool and we'll send you a custom quote within 24 hours. Weekly service starts at $200/month."
+    ctaButtons={[
+      { label: 'Get Your Quote', openIntake: true, variant: 'cta' },
+      { label: 'See Plans & Pricing', href: `${base}plans/`, variant: 'outline-white' },
+    ]}
+  />
 </BaseLayout>
 
 <script>
