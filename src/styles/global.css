@@ -849,24 +849,31 @@ p:last-child {
   }
 }
 
-/* Trust chips inline in hero — replaces the old trust-badges strip */
+/* Trust chips inline in hero. Below 1024px (where the hero stops
+   being a 2-col layout and switches to "mobile" UI), chips stack
+   in a 2-col grid: rows of 2 with the third pill landing on its
+   own line below — always 2-over-1 regardless of viewport width.
+   At ≥1024px they sit in a single nowrap row alongside the
+   text/form columns. */
 .hero__chips {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.5rem;
   margin: 1.5rem 0 0 0;
-  align-items: center;
+  align-items: stretch;
+  justify-items: stretch;
 }
 @media (min-width: 1024px) {
   .hero__chips {
+    display: flex;
     flex-wrap: nowrap;
     justify-content: flex-start;
   }
 }
 .hero__chip {
-  display: inline-flex;
+  display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.4rem;
   padding: 0.4rem 0.7rem;
   background: rgba(255, 255, 255, 0.12);
@@ -877,6 +884,7 @@ p:last-child {
   font-weight: 600;
   letter-spacing: 0.01em;
   white-space: nowrap;
+  min-width: 0;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
@@ -1204,18 +1212,19 @@ p:last-child {
   display: none;
 }
 
-/* Phones (≤500px): the contact form replaces the old route-card pair as the
-   primary above-the-fold action. Order: badge → h1 → p → form → call → chips.
-   The text wrapper uses `display: contents` so its children become direct
-   grid items and the form (a sibling of the wrapper) can interleave via
-   `order`. The 3rem grid gap is zeroed because with `display: contents` it
-   would otherwise fire between every promoted child — element margins
-   (badge mb 2rem, p mb 2.5rem) keep providing the rhythm exactly as on
-   desktop. The form keeps its desktop visual chrome (gradient/white card,
-   rounded corners, shadow) — only its position changes.
-   Placed AFTER the desktop hero rules so source-order wins the cascade
-   (same specificity as the desktop overrides it needs to beat). */
-@media (max-width: 500px) {
+/* Mobile (≤1023px — anywhere the hero stops being a 2-col layout):
+   the contact form gets replaced by the route-picker cards as the
+   primary above-the-fold action. Order: badge → h1 → p → picker →
+   call → chips. The text wrapper uses `display: contents` so its
+   children become direct grid items and the picker (a sibling of
+   the wrapper) can interleave via `order`. The 3rem grid gap is
+   zeroed because with `display: contents` it would otherwise fire
+   between every promoted child — element margins (badge mb 2rem,
+   p mb 2.5rem) keep providing the rhythm exactly as on desktop.
+   Placed AFTER the desktop hero rules so source-order wins the
+   cascade (same specificity as the desktop overrides it needs to
+   beat). */
+@media (max-width: 1023px) {
   .hero--image > .container > .hero__grid > div:first-child {
     display: contents;
   }
