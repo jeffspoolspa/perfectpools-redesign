@@ -91,28 +91,60 @@ const icons = {
           </div>
         </div>
 
-        <!-- Mobile-only route picker. The two compact cards sit in place of
-             the form on mobile; tapping one configures the form's tab and
-             animates the form open below. Hidden on desktop (≥1024). -->
+        <!-- Mobile-only route picker. Each card is a self-contained
+             mini-form: tapping the header expands the card downward to
+             reveal the contact fields + submit button. One card stays
+             open at a time; tapping the other collapses the first.
+             Hidden on desktop (≥1024) where the standalone .hero-form
+             below renders instead. -->
         <div class="hero__route-picker reveal-up" data-hero-route-picker style="--reveal-delay: 225ms">
-          <button type="button" class="route-card route-card--compact route-card--gradient" data-route-card="maintenance" aria-label="Weekly Pool Care — open form">
-            <div class="route-card__icon">
-              <Fragment set:html={icons.droplets} />
-            </div>
-            <div>
-              <h3>Weekly Pool Care</h3>
-              <p>From $50 + chemicals</p>
-            </div>
-          </button>
-          <button type="button" class="route-card route-card--compact route-card--white" data-route-card="repair" aria-label="Equipment Repairs — open form">
-            <div class="route-card__icon">
-              <Fragment set:html={icons.alertCircle} />
-            </div>
-            <div>
-              <h3>Equipment Repairs</h3>
-              <p>48-hour diagnosis</p>
-            </div>
-          </button>
+          <div class="route-card route-card--gradient route-card--expandable" data-route-card="maintenance">
+            <button type="button" class="route-card__header" data-route-toggle="maintenance" aria-expanded="false" aria-controls="route-form-maintenance">
+              <div class="route-card__icon">
+                <Fragment set:html={icons.droplets} />
+              </div>
+              <div class="route-card__title-block">
+                <h3>Weekly Pool Care</h3>
+                <p>From $50 + chemicals</p>
+              </div>
+              <div class="route-card__chevron" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+            </button>
+            <form id="route-form-maintenance" class="route-card__form" data-route-form="maintenance">
+              <div class="route-card__form-row">
+                <input type="text" name="first_name" placeholder="First name" autocomplete="given-name" required class="hero-form__input" />
+                <input type="text" name="last_name" placeholder="Last name" autocomplete="family-name" required class="hero-form__input" />
+              </div>
+              <input type="email" name="email" placeholder="Email" autocomplete="email" required class="hero-form__input" />
+              <input type="tel" name="phone" placeholder="Phone" autocomplete="tel" required class="hero-form__input" />
+              <button type="submit" class="btn btn--lg btn--block route-card__submit">Get a Quote</button>
+            </form>
+          </div>
+
+          <div class="route-card route-card--white route-card--expandable" data-route-card="repair">
+            <button type="button" class="route-card__header" data-route-toggle="repair" aria-expanded="false" aria-controls="route-form-repair">
+              <div class="route-card__icon">
+                <Fragment set:html={icons.alertCircle} />
+              </div>
+              <div class="route-card__title-block">
+                <h3>Equipment Repairs</h3>
+                <p>48-hour diagnosis</p>
+              </div>
+              <div class="route-card__chevron" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+            </button>
+            <form id="route-form-repair" class="route-card__form" data-route-form="repair">
+              <div class="route-card__form-row">
+                <input type="text" name="first_name" placeholder="First name" autocomplete="given-name" required class="hero-form__input" />
+                <input type="text" name="last_name" placeholder="Last name" autocomplete="family-name" required class="hero-form__input" />
+              </div>
+              <input type="email" name="email" placeholder="Email" autocomplete="email" required class="hero-form__input" />
+              <input type="tel" name="phone" placeholder="Phone" autocomplete="tel" required class="hero-form__input" />
+              <button type="submit" class="btn btn--lg btn--block route-card__submit">Request a Call</button>
+            </form>
+          </div>
         </div>
 
         <!-- Contact form. On mobile it's hidden until a route card is tapped,
@@ -762,24 +794,44 @@ const icons = {
       if (intakeTrigger) intakeTrigger.click();
     });
 
-    // Mobile route picker — tapping a card sets the form's active tab and
-    // toggles the form-wrap into its revealed state (CSS handles the
-    // origin-from-card animation). Scrolls the form into view after a
-    // short delay so the tap feels coupled to the reveal.
-    const routeCards = document.querySelectorAll<HTMLButtonElement>('[data-route-card]');
-    const formWrap = document.querySelector<HTMLElement>('[data-hero-form-wrap]');
-    routeCards.forEach((card) => {
-      card.addEventListener('click', () => {
-        const type = card.dataset.routeCard as 'maintenance' | 'repair';
-        updateHeroTab(type);
-        if (formWrap) {
-          formWrap.dataset.revealed = 'true';
+    // Mobile route picker — each card is a self-contained mini-form.
+    // Tapping the header toggles its expansion (CSS animates the form
+    // open). Only one card can be expanded at a time. Submitting either
+    // card form opens the intake modal with the matching tab pre-set.
+    const routeCards = document.querySelectorAll<HTMLElement>('[data-route-card]');
+    const routeToggles = document.querySelectorAll<HTMLButtonElement>('[data-route-toggle]');
+    const routeForms = document.querySelectorAll<HTMLFormElement>('[data-route-form]');
+
+    const collapseAll = () => {
+      routeCards.forEach((c) => c.classList.remove('is-expanded'));
+      routeToggles.forEach((t) => t.setAttribute('aria-expanded', 'false'));
+    };
+
+    routeToggles.forEach((toggle) => {
+      toggle.addEventListener('click', () => {
+        const type = toggle.dataset.routeToggle as 'maintenance' | 'repair';
+        const card = toggle.closest('[data-route-card]') as HTMLElement | null;
+        if (!card) return;
+        const wasExpanded = card.classList.contains('is-expanded');
+        collapseAll();
+        if (!wasExpanded) {
+          card.classList.add('is-expanded');
+          toggle.setAttribute('aria-expanded', 'true');
+          updateHeroTab(type);
           window.setTimeout(() => {
-            formWrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-          }, 220);
+            card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }, 240);
         }
-        // Keep the picker visually marking the active card
-        routeCards.forEach((c) => c.classList.toggle('is-active', c === card));
+      });
+    });
+
+    routeForms.forEach((form) => {
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const type = form.dataset.routeForm as 'maintenance' | 'repair';
+        updateHeroTab(type);
+        const intakeTrigger = document.querySelector('[data-open-intake]') as HTMLButtonElement | null;
+        if (intakeTrigger) intakeTrigger.click();
       });
     });
   }
