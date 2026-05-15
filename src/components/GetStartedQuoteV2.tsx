@@ -159,6 +159,7 @@ export interface QuoteFormData {
   referralSource: string;
   isInground: string;
   serviceType: string;
+  serviceTypeTouched: boolean;
   hasExtraBody: boolean;
   isBiweekly: boolean;
   leadContext: string;
@@ -271,7 +272,7 @@ const DEFAULT_FORM: QuoteFormData = {
   poolCondition: '',
   referralSource: '',
   isInground: '',
-  serviceType: 'pool', hasExtraBody: false, isBiweekly: false,
+  serviceType: '', serviceTypeTouched: false, hasExtraBody: false, isBiweekly: false,
   leadContext: '',
   contactPreference: '', quotePath: '',
 };
@@ -1376,7 +1377,7 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
 
         <div class="gs-body-grid">
           {SERVICE_BODY_OPTIONS.map(opt => (
-            <button key={opt.id} type="button" class={`gs-body-card${formData.serviceType === opt.id ? ' selected' : ''}`} onClick={() => updateForm({ serviceType: opt.id })}>
+            <button key={opt.id} type="button" class={`gs-body-card${formData.serviceTypeTouched && formData.serviceType === opt.id ? ' selected' : ''}`} onClick={() => updateForm({ serviceType: opt.id, serviceTypeTouched: true })}>
               <div class="gs-body-card-icon">{bodyIcons[opt.id]}</div>
               <h3>{opt.label}</h3>
               <p class="gs-body-card-price">from ${opt.price}/visit</p>
@@ -1412,7 +1413,7 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
         {showBiweekly && <p class="gs-biweekly-note">❄️ Bi-weekly is available September through February only</p>}
 
         <div class="intake-actions" style="margin-top: 1.5rem;">
-          <button type="button" class="intake-cta-btn" data-intake-advance onClick={goNext}>
+          <button type="button" class="intake-cta-btn" data-intake-advance disabled={!formData.serviceTypeTouched || !formData.serviceType} onClick={goNext}>
             Continue <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
           </button>
         </div>
@@ -1510,7 +1511,7 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
     const allAnswered = onCommercialMaintenance
       ? commercialFrequencyAnswered && commercialCompanyAnswered
       : onMaintenance
-      ? !!(showBody && formData.serviceType)
+      ? !!(showBody && formData.serviceTypeTouched && formData.serviceType)
       : !!(selectedTicketType && ticketQualifiersAnswered);
 
     // Continue handler: check the deferred filters in order. If any
@@ -1731,8 +1732,8 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
           </div>
         )}
 
-        {/* Q5: Body type — defaults to 'pool' from DEFAULT_FORM but
-            user can change to spa or pool+spa combo. */}
+        {/* Q5: Body type — required so the user explicitly chooses
+            pool, spa, or pool+spa combo before the quote unlocks. */}
         {showBody && (
           <div class="psf-q">
             <h3 class="psf-q__label">
@@ -1744,8 +1745,8 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
                 <button
                   key={sb.id}
                   type="button"
-                  class={`intake-choice${formData.serviceType === sb.id ? ' selected' : ''}`}
-                  onClick={() => updateForm({ serviceType: sb.id })}
+                  class={`intake-choice${formData.serviceTypeTouched && formData.serviceType === sb.id ? ' selected' : ''}`}
+                  onClick={() => updateForm({ serviceType: sb.id, serviceTypeTouched: true })}
                 >
                   <div class="intake-choice-icon intake-choice-icon--emoji">{sb.id === 'pool' ? '🏊' : sb.id === 'spa' ? '♨️' : '🌊'}</div>
                   <h3>{sb.label}</h3>

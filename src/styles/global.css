@@ -3488,6 +3488,10 @@ p:last-child {
   font-size: 0.85rem;
 }
 
+.intake-modal--v2 .intake-body {
+  overflow-x: hidden;
+}
+
 /* Follow-up questions on the progressive page (property, pool type,
    condition, body) render the existing .intake-choice markup but
    restyled as compact chip pills — text-only, horizontal flex,
@@ -3497,9 +3501,12 @@ p:last-child {
   flex-wrap: wrap;
   gap: 8px;
   grid-template-columns: none;
+  max-width: 100%;
+  min-width: 0;
 }
 .intake-modal--v2 .intake-choice {
   flex: 0 0 auto;
+  max-width: 100%;
   padding: 9px 14px;
   border-width: 1.5px;
   border-radius: 10px;
@@ -3545,6 +3552,7 @@ p:last-child {
   margin: 0;
   line-height: 1.2;
   color: #0f2942;
+  overflow-wrap: anywhere;
 }
 .intake-modal--v2 .intake-choice.selected h3 {
   font-weight: 600;
@@ -3566,11 +3574,18 @@ p:last-child {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
 }
 .intake-modal--v2 .psf-q {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   /* Animate in from a touch above on mount so each newly-revealed
      question feels like it's emerging from the prior one. The first
      question fires this on initial open too, which gives the modal
@@ -3653,9 +3668,12 @@ p:last-child {
 
 .intake-modal--v2 .psf-q--ticket-qualifier .intake-ticket-chip-grid {
   gap: 8px;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .intake-modal--v2 .psf-q--ticket-qualifier .intake-ticket-chip {
+  max-width: 100%;
   min-height: 0;
   padding: 9px 14px;
   border: 1.5px solid #e3ebf3;
@@ -3666,6 +3684,8 @@ p:last-child {
   font-weight: 500;
   line-height: 1.2;
   box-shadow: none;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .intake-modal--v2 .psf-q--ticket-qualifier .intake-ticket-chip:hover {
@@ -3700,14 +3720,10 @@ p:last-child {
    the cards sit as a compact group, not edge-to-edge. */
 .intake-modal--v2 .gs-service-grid {
   display: grid;
-  /* Cells widened to 100px (was 88px) so the labels below each
-     card sit roughly under the card's edges rather than spilling
-     past — "Recurring Pool Maintenance" and "Green Pool Recovery"
-     wrap to 2 lines naturally inside this width without orphans. */
-  grid-template-columns: repeat(4, 100px);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  width: 100%;
+  max-width: 424px;
   justify-content: start;
-  /* Tighter gap (was 14px) so the row reads as a clustered group,
-     matching the design reference. */
   gap: 8px;
 }
 /* Each cell stacks the icon button on top and the label below it.
@@ -3740,12 +3756,9 @@ p:last-child {
 }
 .intake-modal--v2 .gs-service-card {
   position: relative;
-  /* Bumped from 64×64 → 80×80 so the card feels more substantial
-     and the icon inside has more room to breathe. The surrounding
-     cell is 100px so there's still 10px on each side under the
-     card for the label to wrap into. */
-  width: 80px;
-  height: 80px;
+  width: clamp(58px, 100%, 80px);
+  aspect-ratio: 1;
+  height: auto;
   background: #fff;
   border: 1.5px solid #e3ebf3;
   border-radius: 12px;
@@ -3775,10 +3788,8 @@ p:last-child {
 }
 .intake-modal--v2 .gs-service-card__icon,
 .intake-modal--v2 .gs-service-card .gs-service-card-icon {
-  /* Icon scaled up from 26 → 34 to match the larger 80px card.
-     Keeps roughly the same icon-to-card ratio (~42%) as before. */
-  width: 34px;
-  height: 34px;
+  width: clamp(26px, 42%, 34px);
+  height: clamp(26px, 42%, 34px);
   background: transparent;
   color: #0c4a6e;
   margin: 0;
