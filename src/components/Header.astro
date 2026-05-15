@@ -69,6 +69,16 @@ function isActive(href: string): boolean {
     height: var(--header-height);
   }
 
+  /* On mobile the top bar above this header is sticky (carries the
+     persistent phone + Get a Quote), and the header scrolls away with
+     the page — only the top band stays pinned. On desktop the header
+     pins to the viewport top as before. */
+  @media (max-width: 767px) {
+    .site-header {
+      position: static;
+    }
+  }
+
   .header__inner {
     display: flex;
     align-items: center;
@@ -251,6 +261,19 @@ function isActive(href: string): boolean {
       transition: transform var(--transition-base);
       z-index: 99;
     }
+  }
+
+  /* On phone-sized viewports the header isn't sticky — only the top
+     bar is. When the user opens the drawer at any scroll position,
+     anchor it to the bottom edge of the persistent top bar rather
+     than where the (now-scrolled-away) header used to sit. */
+  @media (max-width: 767px) {
+    .header__nav {
+      top: var(--topbar-height);
+    }
+  }
+
+  @media (max-width: 1023px) {
 
     .header__nav.is-open {
       transform: translateX(0);
@@ -287,7 +310,10 @@ function isActive(href: string): boolean {
     }
   }
 
-  @media (max-width: 480px) {
+  /* Hide the header's Get a Quote button at the same breakpoint where
+     the top bar reveals its own version — keeps a single primary CTA
+     visible on mobile rather than stacking two of them. */
+  @media (max-width: 767px) {
     .header__actions {
       display: none;
     }

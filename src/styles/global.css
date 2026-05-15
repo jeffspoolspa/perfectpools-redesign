@@ -86,6 +86,7 @@
   --radius-sm: 12px;
   --radius-md: 16px;
   --radius-lg: 24px;
+  --radius-xl: 28px;
   --radius-full: 99px;          /* Pill buttons */
   --shadow-sm: 0 4px 12px rgba(30, 58, 95, 0.04);
   --shadow-md: 0 10px 40px rgba(30, 58, 95, 0.08);
