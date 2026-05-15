@@ -11668,6 +11668,10 @@ p:last-child {
   transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease, color 0.24s ease;
 }
 
+.intake-modal--v2 .gs-quote-pricing .chem-numberline__mobile-season {
+  display: none;
+}
+
 .intake-modal--v2 .gs-quote-pricing .chem-numberline__season-btn:hover {
   border-color: rgba(226, 141, 51, 0.32);
   background: #f3f4f6;
@@ -12299,5 +12303,58 @@ p:last-child {
   .intake-modal--v2 .gs-quote-pricing .cps__toggle-btn {
     flex: 1 1 0;
     min-width: 0;
+  }
+}
+
+@media (max-width: 540px) {
+  .intake-modal--v2 .gs-quote-pricing .chem-numberline {
+    --chem-range-band: 58px;
+  }
+
+  .intake-modal--v2 .gs-quote-pricing .chem-numberline__mobile-season {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 0.55rem;
+  }
+
+  .intake-modal--v2 .gs-quote-pricing .chem-numberline__mobile-season .chem-numberline__season-btn {
+    flex: 0 1 auto;
+    width: auto;
+    min-width: 96px;
+    max-width: 132px;
+  }
+
+  .intake-modal--v2 .gs-quote-pricing .chem-numberline__season-btn--inline {
+    display: none;
+  }
+
+  .intake-modal--v2 .gs-quote-pricing .cps__chem-chart .chem-numberline__header-row {
+    margin-bottom: 0.6rem;
+  }
+
+  .intake-modal--v2 .gs-quote-pricing .cps__chem-chart .chem-numberline__row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--chem-range-band);
+    gap: 10px;
+    align-items: center;
+  }
+
+  .intake-modal--v2 .gs-quote-pricing .cps__chem-chart .chem-numberline__track {
+    min-width: 0;
+  }
+
+  .intake-modal--v2 .gs-quote-pricing .cps__chem-chart .chem-numberline__range {
+    flex: none;
+    font-size: 0.62rem;
+    grid-column: 2;
+  }
+
+  .intake-modal--v2 .gs-quote-pricing .cps__chem-chart .chem-numberline__callout {
+    padding-left: 0;
+  }
+
+  .intake-modal--v2 .gs-quote-pricing .cps__chem-chart .chem-numberline__axis {
+    padding-left: 0;
+    padding-right: calc(var(--chem-range-band) + 0.5rem);
   }
 }

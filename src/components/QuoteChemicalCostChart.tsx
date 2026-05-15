@@ -318,8 +318,26 @@ function ChemNumberLine({ combined }: { combined: CombinedRow[] }) {
     ? 50
     : ((activeSeason.mid - activeSeason.low) / (activeSeason.high - activeSeason.low)) * 100;
 
+  const renderSeasonPicker = (modifierClass = '') => (
+    <button
+      type="button"
+      class={`chem-numberline__season chem-numberline__season-btn${modifierClass ? ` ${modifierClass}` : ''}`}
+      style={{ color: activeSeason.color }}
+      onClick={nextSeason}
+      aria-label={`Show next season. Current season: ${activeSeason.label}`}
+    >
+      <span class="chem-numberline__season-name">{activeSeason.label}</span>
+      <span class="chem-numberline__period">
+        {activeSeason.periodLines.map(line => <span key={line}>{line}</span>)}
+      </span>
+    </button>
+  );
+
   return (
     <div class="chem-numberline chem-numberline--single" data-season={activeSeason.cls}>
+      <div class="chem-numberline__mobile-season">
+        {renderSeasonPicker('chem-numberline__season-btn--mobile')}
+      </div>
       <div class="chem-numberline__header-row">
         <span class="chem-numberline__label">Monthly Chemical Demand</span>
         <span class="chem-numberline__range-header">Typical Range</span>
@@ -327,18 +345,7 @@ function ChemNumberLine({ combined }: { combined: CombinedRow[] }) {
       <div class="chem-numberline__rows">
         <div>
           <div class="chem-numberline__row">
-            <button
-              type="button"
-              class="chem-numberline__season chem-numberline__season-btn"
-              style={{ color: activeSeason.color }}
-              onClick={nextSeason}
-              aria-label={`Show next season. Current season: ${activeSeason.label}`}
-            >
-              <span class="chem-numberline__season-name">{activeSeason.label}</span>
-              <span class="chem-numberline__period">
-                {activeSeason.periodLines.map(line => <span key={line}>{line}</span>)}
-              </span>
-            </button>
+            {renderSeasonPicker('chem-numberline__season-btn--inline')}
             <div class="chem-numberline__track">
               <div
                 class={`chem-numberline__band chem-numberline__band--${activeSeason.cls}`}
