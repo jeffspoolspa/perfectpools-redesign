@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'preact/hooks';
-import ChemicalCostChart from './ChemicalCostChart';
 import { assetPath } from '../utils/base-url';
-import ChangeablePricingSection, { type PricingPlan } from './ChangeablePricingSection';
+import QuotePricingSection, { type PricingPlan } from './QuotePricingSection';
 
 /* ── Constants ── */
 const COUNTIES = ['Bryan', 'Chatham', 'Liberty', 'McIntosh', 'Glynn', 'Camden', 'Effingham'];
@@ -75,6 +74,15 @@ const SERVICE_BODY_OPTIONS = [
   { id: 'pool', label: 'Pool Only', price: 50 },
   { id: 'spa', label: 'Spa Only', price: 45 },
   { id: 'pool_spa_combo', label: 'Pool + Spa Combo', price: 60 },
+];
+
+const COMMERCIAL_FREQUENCY_OPTIONS = [
+  { value: 2, label: '2x per week' },
+  { value: 3, label: '3x per week' },
+  { value: 4, label: '4x per week' },
+  { value: 5, label: '5x per week' },
+  { value: 6, label: '6x per week' },
+  { value: 7, label: '7x per week' },
 ];
 
 const INCLUDED = [
@@ -158,6 +166,102 @@ export interface QuoteFormData {
   quotePath: string;
 }
 
+type TicketType = 'equipment' | 'green_pool' | 'renovation';
+type TicketQualifierState = Record<TicketType, Record<string, string>>;
+
+type TicketQualifierQuestion = {
+  id: string;
+  label: string;
+  options: Array<{ id: string; label: string }>;
+};
+
+const TICKET_QUALIFIER_CONFIG: Record<TicketType, { questions: TicketQualifierQuestion[] }> = {
+  equipment: {
+    questions: [
+      {
+        id: 'equipment_type',
+        label: 'What equipment is acting up?',
+        options: [
+          { id: 'pump', label: 'Pump' },
+          { id: 'filter', label: 'Filter' },
+          { id: 'heater', label: 'Heater' },
+          { id: 'cleaner_automation', label: 'Cleaner / automation' },
+          { id: 'not_sure', label: 'Not sure' },
+        ],
+      },
+      {
+        id: 'currently_running',
+        label: 'Is the system currently running?',
+        options: [
+          { id: 'yes', label: 'Yes' },
+          { id: 'no', label: 'No' },
+          { id: 'intermittent', label: 'Intermittent' },
+          { id: 'not_sure', label: 'Not sure' },
+        ],
+      },
+    ],
+  },
+  green_pool: {
+    questions: [
+      {
+        id: 'green_duration',
+        label: 'How long has it been green?',
+        options: [
+          { id: 'under_week', label: 'Under 1 week' },
+          { id: 'one_two_weeks', label: '1-2 weeks' },
+          { id: 'over_two_weeks', label: '2+ weeks' },
+          { id: 'not_sure', label: 'Not sure' },
+        ],
+      },
+      {
+        id: 'bottom_visible',
+        label: 'Can you see the pool bottom?',
+        options: [
+          { id: 'yes', label: 'Yes' },
+          { id: 'partially', label: 'Partially' },
+          { id: 'no', label: 'No' },
+        ],
+      },
+    ],
+  },
+  renovation: {
+    questions: [
+      {
+        id: 'project_type',
+        label: 'What kind of project?',
+        options: [
+          { id: 'resurface', label: 'Resurface' },
+          { id: 'tile_coping', label: 'Tile / coping' },
+          { id: 'full_remodel', label: 'Full remodel' },
+          { id: 'not_sure', label: 'Not sure' },
+        ],
+      },
+      {
+        id: 'timeline',
+        label: 'When are you hoping to start?',
+        options: [
+          { id: 'asap', label: 'ASAP' },
+          { id: 'one_three_months', label: '1-3 months' },
+          { id: 'planning_ahead', label: 'Planning ahead' },
+          { id: 'not_sure', label: 'Not sure' },
+        ],
+      },
+    ],
+  },
+};
+
+function createEmptyTicketQualifiers(): TicketQualifierState {
+  return { equipment: {}, green_pool: {}, renovation: {} };
+}
+
+function isTicketType(value: string): value is TicketType {
+  return value === 'equipment' || value === 'green_pool' || value === 'renovation';
+}
+
+function getCommercialFrequencyLabel(value: number) {
+  return COMMERCIAL_FREQUENCY_OPTIONS.find(option => option.value === value)?.label || `${value}x per week`;
+}
+
 const DEFAULT_FORM: QuoteFormData = {
   serviceInterest: '',
   addressStreet: '', addressCity: '', addressState: 'GA', addressZip: '', county: '', areaResult: '',
@@ -202,6 +306,7 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
   const [ticketSubmitting, setTicketSubmitting] = useState(false);
   const [ticketSubmitted, setTicketSubmitted] = useState(false);
   const [ticketDescription, setTicketDescription] = useState('');
+  const [ticketQualifiers, setTicketQualifiers] = useState<TicketQualifierState>(createEmptyTicketQualifiers());
   const [ticketError, setTicketError] = useState('');
   const [ticketContact, setTicketContact] = useState({ firstName: '', lastName: '', phone: '', email: '' });
 
@@ -263,6 +368,50 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
   /* ── Escape key ── */
   useEffect(() => {
     const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') handleClose(); };
+    if (isOpen) window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [isOpen]);
+
+  /* ── Enter-to-advance ──────────────────────────────────────
+     Lets keyboard users move through the modal by pressing Enter
+     whenever the current screen has an enabled forward/submit button.
+     Textareas keep normal Enter behavior, and Google Places keeps Enter
+     while autocomplete suggestions are visible. */
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (
+        e.key !== 'Enter' ||
+        e.defaultPrevented ||
+        e.metaKey ||
+        e.ctrlKey ||
+        e.altKey ||
+        e.shiftKey
+      ) return;
+
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+
+      if (target.closest('textarea, [contenteditable="true"]')) return;
+
+      const autocompleteOpen = Array.from(document.querySelectorAll<HTMLElement>('.pac-container .pac-item'))
+        .some(item => item.offsetParent !== null);
+      if (target.closest('.intake-search-input') && autocompleteOpen) return;
+
+      const modal = document.querySelector('.intake-overlay.is-open');
+      const advanceButton = Array.from(modal?.querySelectorAll<HTMLButtonElement>('button[data-intake-advance]') || [])
+        .find(button => !button.disabled && button.offsetParent !== null);
+
+      if (!advanceButton) return;
+
+      const nativeControl = target.closest('button, a, select');
+      const isAdvanceControl = nativeControl && (nativeControl as HTMLElement).matches('[data-intake-advance]');
+      const isSelectedQualifierChip = nativeControl && (nativeControl as HTMLElement).matches('.intake-ticket-chip.is-selected');
+      if (nativeControl && !isAdvanceControl && !isSelectedQualifierChip) return;
+
+      e.preventDefault();
+      advanceButton.click();
+    };
+
     if (isOpen) window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, [isOpen]);
@@ -456,26 +605,68 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
     window.location.href = assetPath(`get-started/?token=${lead.token}`);
   }
 
+  function updateTicketQualifier(type: TicketType, questionId: string, optionId: string) {
+    const currentAnswer = ticketQualifiers[type][questionId];
+    const nextAnswer = currentAnswer === optionId ? '' : optionId;
+    const nextTypeAnswers = { ...ticketQualifiers[type], [questionId]: nextAnswer };
+    const allQualifierQuestionsAnswered = TICKET_QUALIFIER_CONFIG[type].questions.every(question => !!nextTypeAnswers[question.id]);
+
+    setTicketQualifiers(prev => {
+      return {
+        ...prev,
+        [type]: {
+          ...prev[type],
+          [questionId]: nextAnswer,
+        },
+      };
+    });
+
+    if (nextAnswer && allQualifierQuestionsAnswered) {
+      window.setTimeout(() => {
+        const modal = document.querySelector('.intake-overlay.is-open');
+        const advanceButton = Array.from(modal?.querySelectorAll<HTMLButtonElement>('button[data-intake-advance]') || [])
+          .find(button => !button.disabled && button.offsetParent !== null);
+        advanceButton?.focus();
+      }, 30);
+    }
+  }
+
+  function buildTicketDescription(type: TicketType) {
+    const answers = ticketQualifiers[type];
+    const qualifierLines = TICKET_QUALIFIER_CONFIG[type].questions
+      .map(question => {
+        const selected = question.options.find(option => option.id === answers[question.id]);
+        return selected ? `${question.label}: ${selected.label}` : null;
+      })
+      .filter((line): line is string => Boolean(line));
+    const notes = ticketDescription.trim();
+    if (notes) qualifierLines.push(`Additional details: ${notes}`);
+    return qualifierLines.length
+      ? qualifierLines.join('\n')
+      : 'Customer requested a call back through the website quote form.';
+  }
+
   /* ── P2-2: Submit ticket (equipment / green pool / renovation) ── */
-  async function submitTicket(type: 'equipment' | 'green_pool' | 'renovation') {
+  async function submitTicket(type: TicketType) {
     setTicketError('');
     /* Contact info now comes from the main formData (collected in
        Step 2) — we no longer ask for it again on the ticket form.
        The user has already gone through Address → Contact → Service
-       by the time they reach this submission, so the form just
-       needs the description. */
+       by the time they reach this submission, so this form only adds
+       a few optional qualifiers for dispatch context. */
     const contact = {
       firstName: formData.firstName,
       lastName: formData.lastName,
       phone: formData.phone,
       email: formData.email,
     };
-    if (!contact.firstName.trim() || !contact.phone.replace(/\D/g, '').length || !ticketDescription.trim()) {
-      setTicketError('Please describe your issue. (If your contact info is missing, go back and edit it from the summary.)');
+    if (!contact.firstName.trim() || !contact.phone.replace(/\D/g, '').length) {
+      setTicketError('Contact info is missing. Go back and edit it from the summary.');
       return;
     }
     setTicketSubmitting(true);
     try {
+      const description = buildTicketDescription(type);
       // 1. Submit Airtable ticket (office dispatch)
       const ticketRes = await fetch(`${SUPABASE_URL}/functions/v1/submit-ticket`, {
         method: 'POST',
@@ -491,7 +682,7 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
           addressState: formData.addressState || 'GA',
           addressZip: formData.addressZip || '',
           county: formData.county || '',
-          description: ticketDescription.trim(),
+          description,
         }),
       });
       if (!ticketRes.ok) {
@@ -581,6 +772,7 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
     setTicketSubmitting(false);
     setTicketSubmitted(false);
     setTicketDescription('');
+    setTicketQualifiers(createEmptyTicketQualifiers());
     setTicketError('');
     setTicketContact({ firstName: '', lastName: '', phone: '', email: '' });
     setRedirect('');
@@ -667,7 +859,7 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
               - Maintenance quote view (currentStep === 5)
             In both cases the consolidated card already shows service +
             address + contact — we don't want the same info twice. */}
-        {currentStep > 1 && formData.addressStreet && currentStep !== 5 && !['green_pool', 'equipment', 'renovation'].includes(redirect) && (() => {
+        {currentStep > 1 && formData.addressStreet && currentStep !== 5 && !['green_pool', 'equipment', 'renovation', 'commercial'].includes(redirect) && (() => {
           // Each row is its own SECTION — its edit pencil jumps back to
           // the page that owns those answers, not always to step 1.
           // Rows render in flow order (address, contact, service, …)
@@ -929,7 +1121,7 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
               pencil that returns the user to the address page. */}
         </div>
         <div class="intake-actions" style="margin-top: 1.5rem;">
-          <button type="button" class="intake-cta-btn" disabled={!isValid || dupChecking} onClick={async () => {
+          <button type="button" class="intake-cta-btn" data-intake-advance disabled={!isValid || dupChecking} onClick={async () => {
             if (formData.duplicateResolution) {
               goNext();
               return;
@@ -1220,7 +1412,7 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
         {showBiweekly && <p class="gs-biweekly-note">❄️ Bi-weekly is available September through February only</p>}
 
         <div class="intake-actions" style="margin-top: 1.5rem;">
-          <button type="button" class="intake-cta-btn" onClick={goNext}>
+          <button type="button" class="intake-cta-btn" data-intake-advance onClick={goNext}>
             Continue <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
           </button>
         </div>
@@ -1296,16 +1488,30 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
     );
 
     const onMaintenance = formData.serviceInterest === 'maintenance';
+    const selectedTicketType = isTicketType(formData.serviceInterest) ? formData.serviceInterest : null;
+    const ticketQualifierQuestions = selectedTicketType ? TICKET_QUALIFIER_CONFIG[selectedTicketType].questions : [];
+    const ticketQualifiersAnswered = selectedTicketType
+      ? ticketQualifierQuestions.every(question => !!ticketQualifiers[selectedTicketType][question.id])
+      : false;
+    const onCommercialMaintenance = onMaintenance && formData.customerType === 'commercial';
+    const commercialFrequencyAnswered = commercialForm.closesForWinter !== null;
+    const commercialCompanyAnswered = !!commercialForm.companyName.trim();
     // Reveal each follow-up after the prior is answered, regardless of
     // WHAT they answered. Filtering for out-of-service answers
     // (commercial, above-ground, needs-repair) happens on Continue, not
     // on selection — so the user can change any selection without being
     // hard-redirected mid-flow.
     const showProperty = onMaintenance;
-    const showPoolType = showProperty && !!formData.customerType;
+    const showCommercialFrequency = onCommercialMaintenance;
+    const showCommercialCompany = showCommercialFrequency && commercialFrequencyAnswered;
+    const showPoolType = showProperty && !!formData.customerType && !onCommercialMaintenance;
     const showCondition = showPoolType && !!formData.isInground;
     const showBody = showCondition && !!formData.poolCondition;
-    const allAnswered = !!(showBody && formData.serviceType);
+    const allAnswered = onCommercialMaintenance
+      ? commercialFrequencyAnswered && commercialCompanyAnswered
+      : onMaintenance
+      ? !!(showBody && formData.serviceType)
+      : !!(selectedTicketType && ticketQualifiersAnswered);
 
     // Continue handler: check the deferred filters in order. If any
     // applies, swap to the corresponding redirect/sorry screen instead
@@ -1317,7 +1523,15 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
     // jump straight to step 5 (renderQuoteDisplay), which now shows
     // a consolidated summary card on top.
     const handleContinue = () => {
-      if (formData.customerType === 'commercial') { setRedirect('commercial'); return; }
+      if (selectedTicketType) {
+        setRedirectLoading(selectedTicketType);
+        window.setTimeout(() => {
+          setRedirect(selectedTicketType);
+          setRedirectLoading('');
+        }, 750);
+        return;
+      }
+      if (onCommercialMaintenance) { setRedirect('commercial'); return; }
       if (formData.isInground === 'above_ground') { setRedirect('above_ground'); return; }
       if (formData.poolCondition === 'needs_repair') { setRedirect('needs_repair'); return; }
       // Happy path → loader → quote.
@@ -1374,22 +1588,8 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
                   class={`gs-service-card${formData.serviceInterest === svc.id ? ' selected' : ''}`}
                   onClick={() => {
                     updateForm({ serviceInterest: svc.id });
-                    if (svc.id === 'maintenance') {
-                      setRedirect('');
-                    } else {
-                      /* Hold a brief loading screen before the
-                         ticket-form view paints, so the transition
-                         doesn't feel like a blank flash. After
-                         ~750ms we clear the loading flag and set
-                         the redirect, which triggers the actual
-                         render of the ticket form (via the early-
-                         return at the top of renderProgressivePoolPage). */
-                      setRedirectLoading(svc.id);
-                      window.setTimeout(() => {
-                        setRedirect(svc.id);
-                        setRedirectLoading('');
-                      }, 750);
-                    }
+                    setRedirect('');
+                    setRedirectLoading('');
                   }}
                   aria-label={svc.label}
                 >
@@ -1400,6 +1600,19 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
             ))}
           </div>
         </div>
+
+        {selectedTicketType && ticketQualifierQuestions.map((question, index) => {
+          const previousQuestion = ticketQualifierQuestions[index - 1];
+          const shouldShow = index === 0 || !!ticketQualifiers[selectedTicketType][previousQuestion.id];
+          if (!shouldShow) return null;
+
+          return (
+            <div class="psf-q psf-q--ticket-qualifier" key={`${selectedTicketType}-${question.id}`}>
+              <h3 class="psf-q__label">{question.label}</h3>
+              {renderTicketQualifierQuestion(selectedTicketType, question)}
+            </div>
+          );
+        })}
 
         {/* Q2: Property type */}
         {showProperty && (
@@ -1420,6 +1633,54 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
                   <h3>{ct.label}</h3>
                 </button>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* Commercial Q3: service frequency */}
+        {showCommercialFrequency && (
+          <div class="psf-q">
+            <h3 class="psf-q__label">
+              How often does this pool need service?
+              {infoIcon('2x per week is the minimum for commercial pools')}
+            </h3>
+            <div class="intake-choice-grid">
+              {COMMERCIAL_FREQUENCY_OPTIONS.map(option => (
+                <button
+                  key={option.value}
+                  type="button"
+                  class={`intake-choice${commercialForm.closesForWinter === false && commercialForm.summerFrequency === option.value ? ' selected' : ''}`}
+                  onClick={() => {
+                    setCommercialForm(prev => ({ ...prev, closesForWinter: false, summerFrequency: option.value, winterFrequency: option.value }));
+                    window.setTimeout(() => {
+                      const input = document.querySelector<HTMLInputElement>('[data-commercial-company-input]');
+                      input?.focus();
+                    }, 80);
+                  }}
+                >
+                  <h3>{option.label}</h3>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Commercial Q4: company / facility name */}
+        {showCommercialCompany && (
+          <div class="psf-q">
+            <h3 class="psf-q__label">
+              What is the company or facility name?
+              {infoIcon('This helps us prepare the commercial quote record')}
+            </h3>
+            <div class="intake-field" style="margin-bottom: 0;">
+              <input
+                data-commercial-company-input
+                type="text"
+                class="intake-input"
+                value={commercialForm.companyName}
+                onInput={(e: any) => setCommercialForm(prev => ({ ...prev, companyName: e.target.value }))}
+                placeholder="e.g. Oceanview HOA, Hampton Inn Savannah"
+              />
             </div>
           </div>
         )}
@@ -1497,7 +1758,7 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
         {/* Continue button — only after all relevant questions answered */}
         {allAnswered && (
           <div class="intake-actions" style="margin-top: 1.5rem;">
-            <button type="button" class="intake-cta-btn" onClick={handleContinue}>
+            <button type="button" class="intake-cta-btn" data-intake-advance onClick={handleContinue}>
               Continue
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
             </button>
@@ -1571,14 +1832,14 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
         )}
 
         <div class="intake-quote-content">
-          {/* Quote = adapted watermelon-ui `ChangeablePricingSection`,
+          {/* Quote = adapted watermelon-ui `QuotePricingSection`,
               repurposed for our Weekly ↔ Bi-Weekly frequency choice.
               The user already chose body type on the progressive
               page, so we pass `lockedPlanId` to hide the other plans.
               The toggle (top of the card) lets them flip between
               weekly + bi-weekly to compare. */}
           <div class="gs-quote-pricing">
-            <ChangeablePricingSection
+            <QuotePricingSection
               title="Your maintenance plan"
               plans={(() => {
                 /* All three body-type plans. Prices match the
@@ -1621,7 +1882,6 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
                     description: 'Both bodies, one weekly visit',
                     priceWeekly: '$60',
                     priceBiweekly: '$85',
-                    badge: 'Most popular',
                     features: [
                       { text: 'Green Free Guarantee', variant: 'green-guarantee', hasInfo: true },
                       { text: 'Complete water chemistry testing & balancing' },
@@ -1640,6 +1900,7 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
                 : 'pool'
               }
               initialCycle={formData.isBiweekly ? 'biweekly' : 'weekly'}
+              chemicalCostData={chemCostData}
               footerText="Chemicals billed separately based on usage. Cancel anytime."
               buttonText="Get Started"
               onContinue={(_planId, cycle) => {
@@ -1656,7 +1917,7 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
 
           <div class="intake-quote-actions">
             {/* Primary "Get Started Now" CTA is rendered INSIDE the
-                ChangeablePricingSection above; we just keep the
+                QuotePricingSection above; we just keep the
                 secondary email/text actions here so the user can
                 opt to receive the quote later instead of starting
                 the lead flow immediately. */}
@@ -1834,6 +2095,29 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
     );
   }
 
+  function renderTicketQualifierQuestion(type: TicketType, question: TicketQualifierQuestion) {
+    const answers = ticketQualifiers[type];
+
+    return (
+      <div class="intake-ticket-chip-grid" role="group" aria-label={question.label}>
+        {question.options.map(option => {
+          const isSelected = answers[question.id] === option.id;
+          return (
+            <button
+              type="button"
+              key={option.id}
+              class={`intake-ticket-chip ${isSelected ? 'is-selected' : ''}`}
+              aria-pressed={isSelected ? 'true' : 'false'}
+              onClick={() => updateTicketQualifier(type, question.id, option.id)}
+            >
+              {option.label}
+            </button>
+          );
+        })}
+      </div>
+    );
+  }
+
   /* ══════════════════════════════════
      P2-2 — Equipment Redirect (with ticket form)
      ══════════════════════════════════ */
@@ -1875,14 +2159,14 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
           <div class="intake-ticket-form intake-ticket-form--inline">
             <div class="intake-form-grid">
               <div class="intake-field">
-                <label class="intake-label">Describe your issue *</label>
+                <label class="intake-label">Describe your issue <span class="intake-label-optional">(optional)</span></label>
                 <textarea class="intake-input intake-textarea" rows={4} value={ticketDescription} onInput={(e: any) => setTicketDescription(e.target.value)} placeholder="e.g. Pump is making a loud noise, filter pressure is high, heater won't turn on..." />
               </div>
             </div>
 
             {ticketError && <p class="intake-submit-error">{ticketError}</p>}
 
-            <button type="button" class="intake-cta-btn" style="width: 100%; margin-top: 0.75rem;" disabled={ticketSubmitting} onClick={() => submitTicket('equipment')}>
+            <button type="button" class="intake-cta-btn" data-intake-advance style="width: 100%; margin-top: 0.75rem;" disabled={ticketSubmitting} onClick={() => submitTicket('equipment')}>
               {ticketSubmitting ? 'Submitting...' : 'Get a Call Back'}
             </button>
           </div>
@@ -1950,14 +2234,14 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
           <div class="intake-ticket-form intake-ticket-form--inline">
             <div class="intake-form-grid">
               <div class="intake-field">
-                <label class="intake-label">Tell us about your pool's condition *</label>
+                <label class="intake-label">Tell us about your pool's condition <span class="intake-label-optional">(optional)</span></label>
                 <textarea class="intake-input intake-textarea" rows={4} value={ticketDescription} onInput={(e: any) => setTicketDescription(e.target.value)} placeholder="e.g. Pool has been green for 2 weeks, pump is running but water isn't clearing..." />
               </div>
             </div>
 
             {ticketError && <p class="intake-submit-error">{ticketError}</p>}
 
-            <button type="button" class="intake-cta-btn" style="width: 100%; margin-top: 0.75rem;" disabled={ticketSubmitting} onClick={() => submitTicket('green_pool')}>
+            <button type="button" class="intake-cta-btn" data-intake-advance style="width: 100%; margin-top: 0.75rem;" disabled={ticketSubmitting} onClick={() => submitTicket('green_pool')}>
               {ticketSubmitting ? 'Submitting...' : 'Get a Call Back'}
             </button>
           </div>
@@ -2028,14 +2312,14 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
           <div class="intake-ticket-form intake-ticket-form--inline">
             <div class="intake-form-grid">
               <div class="intake-field">
-                <label class="intake-label">Describe your project *</label>
+                <label class="intake-label">Describe your project <span class="intake-label-optional">(optional)</span></label>
                 <textarea class="intake-input intake-textarea" rows={4} value={ticketDescription} onInput={(e: any) => setTicketDescription(e.target.value)} placeholder="e.g. Replaster the pool, retile the spa, replace coping..." />
               </div>
             </div>
 
             {ticketError && <p class="intake-submit-error">{ticketError}</p>}
 
-            <button type="button" class="intake-cta-btn" style="width: 100%; margin-top: 0.75rem;" disabled={ticketSubmitting} onClick={() => submitTicket('renovation')}>
+            <button type="button" class="intake-cta-btn" data-intake-advance style="width: 100%; margin-top: 0.75rem;" disabled={ticketSubmitting} onClick={() => submitTicket('renovation')}>
               {ticketSubmitting ? 'Submitting...' : 'Get a Call Back'}
             </button>
           </div>
@@ -2095,156 +2379,39 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
       );
     }
 
-    const freqOptions = [
-      { value: 2, label: '2x per week' },
-      { value: 3, label: '3x per week' },
-      { value: 4, label: '4x per week' },
-      { value: 5, label: '5x per week' },
-      { value: 6, label: '6x per week' },
-      { value: 7, label: '7x per week' },
-    ];
+    const commercialSummaryChips = [
+      commercialForm.companyName.trim(),
+      commercialForm.closesForWinter !== null ? getCommercialFrequencyLabel(commercialForm.summerFrequency) : '',
+    ].filter((chip): chip is string => Boolean(chip));
 
     return (
       <>
-        <div class="intake-step-header">
-          <div class="intake-step-icon intake-step-icon--commercial">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>
-          </div>
-          <h2 class="intake-step-title">Commercial Pool Service</h2>
-          <p class="intake-step-subtitle">Tell us about your facility and we'll put together a custom quote.</p>
-        </div>
+        {renderTicketSummary(
+          'Commercial Pool Service',
+          'images/icon-recurring-maintenance.svg',
+          () => { setRedirect(''); setCurrentStep(3); },
+          commercialSummaryChips
+        )}
 
-        <div class="intake-commercial-body">
-          {/* Your Info (read-only from previous steps) */}
-          <div class="intake-commercial-section">
-            <h3 class="intake-commercial-section-title">Your Info</h3>
-            <div class="intake-commercial-confirm">
-              <div class="intake-commercial-confirm-row">
-                <span class="intake-commercial-confirm-label">Name</span>
-                <span>{formData.firstName} {formData.lastName}</span>
-              </div>
-              {formData.email && (
-                <div class="intake-commercial-confirm-row">
-                  <span class="intake-commercial-confirm-label">Email</span>
-                  <span>{formData.email}</span>
-                </div>
-              )}
-              <div class="intake-commercial-confirm-row">
-                <span class="intake-commercial-confirm-label">Phone</span>
-                <span>{formData.phone}</span>
-              </div>
-              {formData.addressStreet && (
-                <div class="intake-commercial-confirm-row">
-                  <span class="intake-commercial-confirm-label">Address</span>
-                  <span>{formData.addressStreet}{formData.addressCity ? `, ${formData.addressCity}` : ''}{formData.addressState ? `, ${formData.addressState}` : ''} {formData.addressZip}</span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Company Details */}
-          <div class="intake-commercial-section">
-            <h3 class="intake-commercial-section-title">Company Details</h3>
-            <div class="intake-field">
-              <label class="intake-label">Company / Facility Name *</label>
-              <input type="text" class="intake-input" value={commercialForm.companyName} onInput={(e: any) => setCommercialForm(p => ({ ...p, companyName: e.target.value }))} placeholder="e.g. Oceanview HOA, Hampton Inn Savannah" />
-            </div>
-          </div>
-
-          {/* Service Frequency */}
-          <div class="intake-commercial-section">
-            <h3 class="intake-commercial-section-title">Service Frequency</h3>
-            <div class="intake-field">
-              <label class="intake-label">Do you close your pool for the winter?</label>
-              <div class="intake-toggle-btns">
-                <button type="button" class={`intake-toggle-btn${commercialForm.closesForWinter === false ? ' active' : ''}`} onClick={() => setCommercialForm(p => ({ ...p, closesForWinter: false }))}>No — Year-round</button>
-                <button type="button" class={`intake-toggle-btn${commercialForm.closesForWinter === true ? ' active' : ''}`} onClick={() => setCommercialForm(p => ({ ...p, closesForWinter: true }))}>Yes — Seasonal</button>
-              </div>
-            </div>
-
-            {commercialForm.closesForWinter === false && (
+        <div class="intake-sorry-content">
+          <div class="intake-ticket-form intake-ticket-form--inline">
+            <div class="intake-form-grid">
               <div class="intake-field">
-                <label class="intake-label">Service Frequency</label>
-                <select class="intake-input" value={commercialForm.summerFrequency} onChange={(e: any) => setCommercialForm(p => ({ ...p, summerFrequency: parseInt(e.target.value) }))}>
-                  {freqOptions.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
-                </select>
+                <label class="intake-label">Additional details <span class="intake-label-optional">(optional)</span></label>
+                <textarea
+                  class="intake-input intake-textarea"
+                  rows={4}
+                  value={commercialForm.commercialDescription}
+                  onInput={(e: any) => setCommercialForm(prev => ({ ...prev, commercialDescription: e.target.value }))}
+                  placeholder="Tell us about the facility, number of pools/spas, gate access, current service needs, or anything else helpful."
+                />
               </div>
-            )}
-
-            {commercialForm.closesForWinter === true && (
-              <div class="intake-freq-grid">
-                <div class="intake-field">
-                  <label class="intake-label">Summer Frequency</label>
-                  <select class="intake-input" value={commercialForm.summerFrequency} onChange={(e: any) => setCommercialForm(p => ({ ...p, summerFrequency: parseInt(e.target.value) }))}>
-                    {freqOptions.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
-                  </select>
-                </div>
-                <div class="intake-field">
-                  <label class="intake-label">Winter Frequency</label>
-                  <select class="intake-input" value={commercialForm.winterFrequency} onChange={(e: any) => setCommercialForm(p => ({ ...p, winterFrequency: parseInt(e.target.value) }))}>
-                    {freqOptions.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
-                  </select>
-                </div>
-              </div>
-            )}
-
-            {commercialForm.closesForWinter !== null && (
-              <p class="intake-freq-note">2x per week is the minimum required by us and the GA DPH for commercial pools.</p>
-            )}
-          </div>
-
-          {/* Property Manager */}
-          <div class="intake-commercial-section">
-            {!showPmFields ? (
-              <button type="button" class="intake-pm-toggle" onClick={() => setShowPmFields(true)}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                Add property manager contact
-              </button>
-            ) : (
-              <>
-                <h3 class="intake-commercial-section-title">Property Manager (Optional)</h3>
-                <div class="intake-form-grid">
-                  <div class="intake-field">
-                    <label class="intake-label">Name</label>
-                    <input type="text" class="intake-input" value={commercialForm.pmName} onInput={(e: any) => setCommercialForm(p => ({ ...p, pmName: e.target.value }))} placeholder="Property manager name" />
-                  </div>
-                  <div class="intake-form-row intake-form-row--half">
-                    <div class="intake-field">
-                      <label class="intake-label">Phone</label>
-                      <input type="tel" class="intake-input" value={commercialForm.pmPhone} onInput={(e: any) => setCommercialForm(p => ({ ...p, pmPhone: formatPhone(e.target.value) }))} placeholder="(912) 555-0123" />
-                    </div>
-                    <div class="intake-field">
-                      <label class="intake-label">Email</label>
-                      <input type="email" class="intake-input" value={commercialForm.pmEmail} onInput={(e: any) => setCommercialForm(p => ({ ...p, pmEmail: e.target.value }))} placeholder="pm@company.com" />
-                    </div>
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-
-          {/* Additional Details */}
-          <div class="intake-commercial-section">
-            <h3 class="intake-commercial-section-title">Additional Details <span style="font-weight: 400; color: var(--color-text-light);">(Optional)</span></h3>
-            <div class="intake-field">
-              <textarea class="intake-input intake-textarea" rows={3} value={commercialForm.commercialDescription} onInput={(e: any) => setCommercialForm(p => ({ ...p, commercialDescription: e.target.value }))} placeholder="Tell us about your facility, number of pools/spas, current service challenges, etc." />
             </div>
-          </div>
 
-          {/* Actions */}
-          {commercialError && <p class="intake-submit-error">{commercialError}</p>}
+            {commercialError && <p class="intake-submit-error">{commercialError}</p>}
 
-          <button type="button" class="intake-cta-btn" style="width: 100%;" disabled={commercialSubmitting} onClick={submitCommercialLead}>
-            {commercialSubmitting ? 'Submitting...' : 'Request Commercial Quote'}
-          </button>
-
-          <p style="text-align: center; color: var(--color-text-light); font-size: 0.85rem; margin-top: 0.75rem;">
-            Or call us at <a href="tel:9124590160" style="color: var(--color-primary); font-weight: 500;">(912) 459-0160</a>
-          </p>
-
-          <div style="text-align: center; margin-top: 0.5rem;">
-            <button type="button" class="intake-text-btn" onClick={resetCommercialState}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Go Back
+            <button type="button" class="intake-cta-btn" data-intake-advance style="width: 100%; margin-top: 0.75rem;" disabled={commercialSubmitting} onClick={submitCommercialLead}>
+              {commercialSubmitting ? 'Submitting...' : 'Request Commercial Quote'}
             </button>
           </div>
         </div>
@@ -2510,7 +2677,7 @@ function Step2Address({ formData, updateForm, onContinue }: {
         <div class="intake-area-result intake-area-result--success">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
           <span><strong>Great news!</strong> Join {heatmapCount > 50 ? `${heatmapCount}+` : '500+'} customers who trust Perfect Pools.</span>
-          <button class="intake-area-continue" onClick={onContinue}>
+          <button class="intake-area-continue" data-intake-advance onClick={onContinue}>
             Continue <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
           </button>
         </div>

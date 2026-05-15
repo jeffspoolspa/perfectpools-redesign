@@ -3438,6 +3438,9 @@ p:last-child {
   gap: 4px 12px;
   flex: 1 1 auto;
   min-width: 0;
+  color: #0c4a6e;
+  font-size: 0.88rem;
+  font-weight: 600;
 }
 .gs-summary__contact-piece {
   display: inline-flex;
@@ -3572,16 +3575,17 @@ p:last-child {
      question feels like it's emerging from the prior one. The first
      question fires this on initial open too, which gives the modal
      body a soft entrance. */
-  animation: psf-q-reveal 380ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: psf-q-reveal 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  transform-origin: top left;
 }
 @keyframes psf-q-reveal {
   from {
     opacity: 0;
-    transform: translateY(-12px);
+    transform: translateY(-10px) scale(0.985);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -3645,6 +3649,36 @@ p:last-child {
   opacity: 1;
   visibility: visible;
   transform: translateX(-50%) translateY(0);
+}
+
+.intake-modal--v2 .psf-q--ticket-qualifier .intake-ticket-chip-grid {
+  gap: 8px;
+}
+
+.intake-modal--v2 .psf-q--ticket-qualifier .intake-ticket-chip {
+  min-height: 0;
+  padding: 9px 14px;
+  border: 1.5px solid #e3ebf3;
+  border-radius: 10px;
+  background: #fff;
+  color: #0f2942;
+  font-size: 0.86rem;
+  font-weight: 500;
+  line-height: 1.2;
+  box-shadow: none;
+}
+
+.intake-modal--v2 .psf-q--ticket-qualifier .intake-ticket-chip:hover {
+  background: #fff;
+  border-color: #bcd6ea;
+}
+
+.intake-modal--v2 .psf-q--ticket-qualifier .intake-ticket-chip.is-selected {
+  background: #dceefa;
+  border-color: #7fbde2;
+  color: #0c4a6e;
+  font-weight: 600;
+  box-shadow: none;
 }
 
 /* Hide the entire progress bar on V2 (back arrow, track, step text).
@@ -5063,6 +5097,11 @@ p:last-child {
   font-weight: 600;
   margin-bottom: 0.5rem;
   color: #111827;
+}
+
+.intake-label-optional {
+  font-weight: 500;
+  color: var(--color-text-light);
 }
 
 /* ── Form fields (Step 7) ── */
@@ -7105,6 +7144,52 @@ p:last-child {
 @keyframes intake-slide-down {
   from { opacity: 0; transform: translateY(-8px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+.intake-ticket-qualifiers {
+  display: flex;
+  flex-direction: column;
+  gap: 0.95rem;
+  margin-bottom: 1.1rem;
+}
+
+.intake-ticket-qualifier {
+  display: flex;
+  flex-direction: column;
+}
+
+.intake-ticket-chip-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.intake-ticket-chip {
+  appearance: none;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 999px;
+  background: var(--color-gray-50);
+  color: var(--color-text);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.86rem;
+  font-weight: 600;
+  line-height: 1;
+  min-height: 2.25rem;
+  padding: 0.55rem 0.75rem;
+  transition: background 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease, color 0.16s ease;
+}
+
+.intake-ticket-chip:hover {
+  background: #fff7ed;
+  border-color: rgba(226, 141, 51, 0.45);
+}
+
+.intake-ticket-chip.is-selected {
+  background: #fff7ed;
+  border-color: rgba(226, 141, 51, 0.75);
+  box-shadow: inset 0 0 0 1px rgba(226, 141, 51, 0.25);
+  color: var(--color-primary);
 }
 
 /* Textarea styles */
@@ -11034,17 +11119,58 @@ p:last-child {
   color: var(--color-primary);
 }
 
+.cps__toggle-wrap {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.cps__winter-note {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 6px);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(30, 58, 95, 0.08);
+  color: var(--color-primary);
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 1px rgba(30, 58, 95, 0.08);
+  animation: cps-winter-note-pop 1s cubic-bezier(0.22, 1, 0.36, 1) both;
+  z-index: 3;
+}
+
+.cps__winter-note small {
+  color: rgba(30, 58, 95, 0.58);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
 /* Pill toggle — two buttons + a sliding background pill behind them.
    The pill is a `::pseudo-style` span (`.cps__toggle-slider`) absolutely
    positioned and translated based on `data-cycle`. Pure CSS — no JS
    animation library needed. */
 .cps__toggle {
   position: relative;
-  display: inline-flex;
+  display: inline-grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: center;
   padding: 4px;
   background: #e5e7eb;
   border-radius: 999px;
+  overflow: hidden;
+  isolation: isolate;
   z-index: 0;
 }
 .cps__toggle-slider {
@@ -11056,7 +11182,8 @@ p:last-child {
   background: #fff;
   border-radius: 999px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-  z-index: -1;
+  pointer-events: none;
+  z-index: 0;
   transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .cps__toggle-slider[data-cycle="biweekly"] {
@@ -11067,13 +11194,17 @@ p:last-child {
   border: 0;
   background: transparent;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
   font-family: var(--font-body);
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  padding: 6px 14px;
-  min-width: 72px;
+  padding: 6px 12px;
+  min-width: 94px;
   border-radius: 999px;
   color: #9ca3af;
   transition: color 0.25s ease;
@@ -11081,6 +11212,38 @@ p:last-child {
 }
 .cps__toggle-btn.is-active {
   color: var(--color-primary);
+}
+
+.cps__toggle-btn.is-locked {
+  color: #718096;
+}
+
+.cps__toggle-btn.is-locked svg {
+  flex: none;
+  opacity: 0.78;
+}
+
+.cps__toggle-btn.is-locked:hover {
+  color: var(--color-primary);
+}
+
+@keyframes cps-winter-note-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.94);
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(-2px) scale(1.03);
+  }
+  72% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
 }
 
 /* ── Plan list ── */
@@ -11124,26 +11287,6 @@ p:last-child {
   min-width: 0;
 }
 
-/* Radio dot — outline by default, filled orange with white check when
-   the plan is selected. The Check icon comes from the component. */
-.cps__radio {
-  flex-shrink: 0;
-  margin-top: 2px;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  border: 1.5px solid #d1d5db;
-  background: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: border-color 0.2s ease, background 0.2s ease;
-}
-.cps__plan.is-selected .cps__radio {
-  border-color: var(--color-cta);
-  background: var(--color-cta);
-}
-
 .cps__plan-info {
   display: flex;
   flex-direction: column;
@@ -11174,7 +11317,8 @@ p:last-child {
   line-height: 1;
 }
 .cps__plan-desc {
-  font-size: 11px;
+  font-size: 12.5px;
+  font-weight: 600;
   color: var(--color-text-light);
   margin-top: 6px;
   line-height: 1.35;
@@ -11187,13 +11331,13 @@ p:last-child {
   flex-direction: column;
   align-items: flex-end;
   flex-shrink: 0;
+  min-width: 92px;
 }
 .cps__plan-price-amount {
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 22px;
+  font-weight: 800;
   color: var(--color-primary);
   line-height: 1;
-  height: 18px;
   display: inline-flex;
   align-items: center;
   animation: cps-price-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -11211,7 +11355,6 @@ p:last-child {
   margin-top: 6px;
   line-height: 1;
 }
-
 /* ── Expandable feature list under the selected plan ──
    Uses CSS grid-template-rows trick (0fr → 1fr) for smooth open/
    close animation without measuring content height. The inner div
@@ -11237,6 +11380,14 @@ p:last-child {
   padding-top: 14px;
   margin-top: 14px;
   border-top: 1px dashed #e5e7eb;
+}
+
+.cps__features-heading {
+  display: block;
+  margin-bottom: 9px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--color-primary);
 }
 
 .cps__feature-list {
@@ -11278,6 +11429,450 @@ p:last-child {
 }
 .cps__feature--no-guarantee .cps__feature-text {
   color: #9ca3af;
+}
+
+.cps__chem-option {
+  overflow: hidden;
+  background: #fff;
+  border-radius: 18px;
+  outline: 1px solid rgba(228, 231, 235, 0.8);
+  outline-offset: -1px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  transition: outline-color 0.3s ease, box-shadow 0.3s ease;
+}
+.cps__chem-option:hover {
+  outline-color: #d1d5db;
+}
+.cps__chem-option.is-open {
+  outline: 1px solid rgba(226, 141, 51, 0.42);
+  outline-offset: -1px;
+  box-shadow: 0 4px 16px rgba(226, 141, 51, 0.08);
+}
+.cps__chem-trigger {
+  appearance: none;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  cursor: pointer;
+  font-family: var(--font-body);
+  text-align: left;
+  color: inherit;
+}
+.cps__chem-copy {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.cps__chem-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-primary);
+  line-height: 1.1;
+}
+.cps__chem-desc {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--color-text-light);
+  margin-top: 6px;
+  line-height: 1.35;
+}
+.cps__chem-summary {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.cps__chem-price {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+.cps__chem-price-amount {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--color-primary);
+  line-height: 1;
+  animation: cps-price-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.cps__chem-price-unit {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #9ca3af;
+  margin-top: 6px;
+  line-height: 1;
+}
+.cps__chem-details {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.2s ease;
+}
+.cps__chem-option.is-open .cps__chem-details {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+.cps__chem-details-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+.cps__chem-card {
+  margin: 0 16px 16px;
+  padding: 13px;
+  background: #f8fafc;
+  border: 1px solid rgba(30, 58, 95, 0.10);
+  border-radius: 14px;
+}
+.cps__chem-header {
+  margin-bottom: 0.7rem;
+}
+.cps__chem-header .chem-kicker {
+  margin-bottom: 0.25rem;
+}
+.cps__chem-header h4 {
+  margin: 0 0 0.25rem;
+  font-size: 0.98rem;
+  color: var(--color-primary);
+}
+.cps__chem-header p {
+  margin: 0;
+  font-size: 0.74rem;
+  line-height: 1.45;
+  color: var(--color-text-light);
+}
+.cps__chem-strain {
+  margin: 0;
+}
+.cps__chem-panel {
+  background: #fff;
+  border: 1px solid rgba(30, 58, 95, 0.08);
+}
+.cps__chem-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.cps__chem-row-label {
+  display: block;
+  margin-bottom: 0.18rem;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.cps__chem-row strong {
+  display: block;
+  font-size: 0.84rem;
+  line-height: 1.2;
+  color: var(--color-primary);
+}
+.cps__chem-value {
+  flex: 0 0 auto;
+}
+.cps__chem-note {
+  display: block;
+  margin-top: 0.45rem;
+}
+.cps__chem-chart {
+  margin-top: 0.75rem;
+}
+.cps__chem-chart .chem-chart-preheader {
+  margin: 0 0 0.5rem;
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
+.cps__chem-chart .chem-data-note {
+  margin-top: 0.65rem !important;
+  color: var(--color-text-muted);
+}
+.cps__chem-chart .chem-numberline {
+  margin-bottom: 0;
+  padding-bottom: 0.1rem;
+}
+.cps__chem-chart .chem-numberline__header-row {
+  margin-bottom: 0.7rem;
+}
+.cps__chem-chart .chem-numberline__row {
+  gap: 0.45rem;
+}
+.cps__chem-chart .chem-numberline__callout {
+  line-height: 1.25;
+}
+
+.intake-modal--v2 .gs-quote-pricing .chem-numberline {
+  --chem-season-band: 96px;
+  --chem-range-band: 70px;
+}
+
+.intake-modal--v2 .gs-quote-pricing .chem-numberline__row {
+  gap: 0.75rem;
+}
+
+.intake-modal--v2 .gs-quote-pricing .chem-numberline__season {
+  box-sizing: border-box;
+  flex: 0 0 var(--chem-season-band);
+  max-width: var(--chem-season-band);
+  transition: color 0.24s ease;
+}
+
+.intake-modal--v2 .gs-quote-pricing .chem-numberline__season-btn {
+  appearance: none;
+  border: 1px solid rgba(30, 58, 95, 0.10);
+  background: #f3f4f6;
+  box-shadow: 0 5px 14px rgba(30, 58, 95, 0.08);
+  cursor: pointer;
+  font-family: inherit;
+  line-height: 1.15;
+  padding: 0.38rem 0.48rem;
+  border-radius: 0.55rem;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  text-align: left;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease, color 0.24s ease;
+}
+
+.intake-modal--v2 .gs-quote-pricing .chem-numberline__season-btn:hover {
+  border-color: rgba(226, 141, 51, 0.32);
+  background: #f3f4f6;
+  box-shadow: 0 8px 18px rgba(30, 58, 95, 0.12);
+  transform: translateY(-1px);
+}
+
+.intake-modal--v2 .gs-quote-pricing .chem-numberline__season-btn:active {
+  box-shadow: 0 3px 8px rgba(30, 58, 95, 0.10);
+  transform: translateY(0);
+}
+
+.intake-modal--v2 .gs-quote-pricing .chem-numberline__season-btn:focus-visible {
+  outline: 2px solid rgba(30, 58, 95, 0.22);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.intake-modal--v2 .gs-quote-pricing .chem-numberline__season-name {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-bottom: 0;
+}
+
+.intake-modal--v2 .gs-quote-pricing .chem-numberline__band {
+  transition: left 0.42s cubic-bezier(0.22, 1, 0.36, 1),
+              width 0.42s cubic-bezier(0.22, 1, 0.36, 1),
+              background 0.24s ease;
+}
+
+.intake-modal--v2 .gs-quote-pricing .chem-numberline__period {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.intake-modal--v2 .gs-quote-pricing .chem-numberline__period span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.intake-modal--v2 .gs-quote-pricing .chem-numberline__mid {
+  transition: left 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.intake-modal--v2 .gs-quote-pricing .chem-numberline__range {
+  flex: 0 0 var(--chem-range-band);
+  transition: color 0.24s ease;
+}
+
+.intake-modal--v2 .gs-quote-pricing .chem-numberline__callout {
+  padding-left: calc(var(--chem-season-band) + 0.5rem);
+  transition: color 0.24s ease;
+}
+
+.intake-modal--v2 .gs-quote-pricing .chem-numberline__axis {
+  padding-left: calc(var(--chem-season-band) + 0.5rem);
+  padding-right: calc(var(--chem-range-band) + 0.5rem);
+}
+
+.cps__monthly {
+  margin-top: 12px;
+  border: 1px solid rgba(30, 58, 95, 0.12);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(30, 58, 95, 0.055), rgba(255, 255, 255, 0.86));
+  overflow: hidden;
+}
+
+.cps__monthly-summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 10px 14px;
+  padding: 13px 15px;
+}
+
+.cps__monthly-toggle {
+  appearance: none;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  font-family: var(--font-body);
+  color: inherit;
+  text-align: left;
+}
+
+.cps__monthly-copy {
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 7px;
+}
+
+.cps__monthly-label {
+  display: inline-flex;
+  align-items: baseline;
+  flex-wrap: nowrap;
+  gap: 0.35rem;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  color: var(--color-primary);
+  max-width: 100%;
+  white-space: nowrap;
+}
+
+.cps__monthly-math {
+  flex: 0 0 auto;
+  font-size: 0.76rem;
+  font-weight: 800;
+  color: var(--color-primary);
+  white-space: nowrap;
+}
+
+.cps__visit-toggle {
+  display: inline-flex;
+  width: fit-content;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid rgba(30, 58, 95, 0.10);
+  border-radius: 999px;
+  background: rgba(30, 58, 95, 0.07);
+}
+
+.cps__visit-toggle-btn {
+  appearance: none;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  line-height: 1;
+  padding: 6px 9px;
+  text-transform: uppercase;
+  transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cps__visit-toggle-btn.is-active {
+  background: #fff;
+  color: var(--color-primary);
+  box-shadow: 0 1px 3px rgba(30, 58, 95, 0.14);
+}
+
+.cps__monthly-price {
+  grid-column: 2;
+  grid-row: 1;
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-self: center;
+  align-items: flex-end;
+  text-align: right;
+}
+
+.cps__monthly-price-main {
+  font-size: 1.6rem;
+  font-weight: 850;
+  color: var(--color-primary);
+  line-height: 1;
+  animation: cps-price-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.cps__monthly-price-unit {
+  margin-top: 6px;
+  font-size: 0.61rem;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.cps__monthly-details {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.2s ease;
+}
+
+.cps__monthly.is-open .cps__monthly-details {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.cps__monthly-details-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.cps__monthly-chart,
+.cps__monthly-note {
+  margin: 0 15px 15px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(30, 58, 95, 0.10);
+}
+
+.cps__monthly-chart .chem-chart-preheader {
+  margin: 0 0 0.6rem;
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
+
+.cps__monthly-chart .chem-data-note {
+  color: var(--color-text-muted);
+}
+
+.cps__monthly-chart .chem-chart-title {
+  font-size: 0.66rem;
+  line-height: 1.35;
+}
+
+.cps__monthly-chart .chem-chart-subscript {
+  font-size: 0.55rem;
+}
+
+.cps__monthly-note {
+  font-size: 0.76rem;
+  line-height: 1.5;
+  color: var(--color-text-light);
 }
 
 /* ── Footer: fine-print left, CTA right ── */
@@ -11329,4 +11924,279 @@ p:last-child {
 }
 .cps__cta:active {
   transform: scale(0.97);
+}
+
+/* Quote modal variant — keep the reusable pricing component, but remove
+   the standalone tray so it belongs to the modal instead of sitting in it. */
+.intake-modal--v2 .gs-quote-pricing {
+  margin-bottom: 1rem;
+}
+
+.intake-modal--v2 .gs-quote-pricing .cps {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  outline: 0;
+}
+
+.intake-modal--v2 .gs-quote-pricing .cps__header {
+  align-items: flex-start;
+  padding: 0 0 0.875rem;
+  margin-bottom: 0.875rem;
+  border-bottom: 1px solid rgba(30, 58, 95, 0.10);
+}
+
+.intake-modal--v2 .gs-quote-pricing .cps__title {
+  font-size: 1.0625rem;
+  letter-spacing: 0;
+}
+
+.intake-modal--v2 .gs-quote-pricing .cps__toggle-wrap {
+  align-items: flex-end;
+}
+
+.intake-modal--v2 .gs-quote-pricing .cps__toggle {
+  background: rgba(30, 58, 95, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(30, 58, 95, 0.06);
+}
+
+.intake-modal--v2 .gs-quote-pricing .cps__plans {
+  position: relative;
+  gap: 0;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(30, 58, 95, 0.12);
+  border-bottom: 0;
+  border-radius: 0.875rem 0.875rem 0 0;
+}
+
+.intake-modal--v2 .gs-quote-pricing .cps__plans::before,
+.intake-modal--v2 .gs-quote-pricing .cps__monthly::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: rgba(226, 141, 51, 0.62);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.intake-modal--v2 .gs-quote-pricing .cps__plans::before {
+  border-top-left-radius: 0.875rem;
+}
+
+.intake-modal--v2 .gs-quote-pricing .cps__monthly::before {
+  border-bottom-left-radius: 0.875rem;
+}
+
+.intake-modal--v2 .gs-quote-pricing .cps__plan {
+  border: 0;
+  border-radius: 0;
+  outline: 0;
+  box-shadow: none;
+}
+
+.intake-modal--v2 .gs-quote-pricing .cps__plan:hover {
+  background: rgba(248, 250, 252, 0.86);
+  outline: 0;
+}
+
+.intake-modal--v2 .gs-quote-pricing .cps__plan.is-selected {
+  background: rgba(255, 255, 255, 0.94);
+  border-color: transparent;
+  outline: 0;
+  box-shadow: none;
+}
+
+.intake-modal--v2 .gs-quote-pricing .cps__chem-option {
+  border: 0;
+  border-top: 1px solid rgba(30, 58, 95, 0.10);
+  border-radius: 0;
+  outline: 0;
+  box-shadow: none;
+}
+
+.intake-modal--v2 .gs-quote-pricing .cps__chem-option:hover {
+  background: rgba(248, 250, 252, 0.86);
+  outline: 0;
+}
+
+.intake-modal--v2 .gs-quote-pricing .cps__chem-option.is-open {
+  border-color: rgba(30, 58, 95, 0.10);
+  background: rgba(255, 255, 255, 0.94);
+  outline: 0;
+  box-shadow: none;
+}
+
+.intake-modal--v2 .gs-quote-pricing .cps__monthly {
+  position: relative;
+  margin-top: 0;
+  border-color: rgba(30, 58, 95, 0.12);
+  border-radius: 0 0 0.875rem 0.875rem;
+  box-shadow: none;
+}
+
+.intake-modal--v2 .gs-quote-pricing .cps__monthly-summary {
+  border-top: 1px solid rgba(30, 58, 95, 0.10);
+}
+
+.intake-modal--v2 .gs-quote-pricing .cps__chem-card {
+  margin: 0;
+  padding: 0.875rem 1rem 1rem;
+  background: rgba(248, 250, 252, 0.82);
+  border: 0;
+  border-top: 1px solid rgba(30, 58, 95, 0.10);
+  border-radius: 0;
+}
+
+.intake-modal--v2 .gs-quote-pricing .cps__plan-inner {
+  padding: 1rem;
+}
+
+.intake-modal--v2 .gs-quote-pricing .cps__plan-features.is-open .cps__plan-features-inner {
+  padding-top: 0.875rem;
+  margin-top: 0.875rem;
+  border-top-color: rgba(30, 58, 95, 0.12);
+}
+
+.intake-modal--v2 .gs-quote-pricing .cps__footer {
+  align-items: stretch;
+  gap: 0.625rem;
+  margin-top: 0.875rem;
+  padding: 0.875rem 0 0;
+  border-top: 1px solid rgba(30, 58, 95, 0.10);
+}
+
+.intake-modal--v2 .gs-quote-pricing .cps__cta {
+  order: 1;
+  width: 100%;
+  border-radius: 0.5rem;
+  padding: 0.875rem 1.5rem;
+  font-size: 1.0625rem;
+}
+
+.intake-modal--v2 .gs-quote-pricing .cps__footer-text {
+  order: 2;
+  color: var(--color-text-muted);
+  letter-spacing: 0;
+  text-align: center;
+}
+
+@media (min-width: 480px) {
+  .intake-modal--v2 .gs-quote-pricing .cps__footer {
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+
+  .intake-modal--v2 .gs-quote-pricing .cps__cta {
+    width: 100%;
+  }
+}
+
+@media (max-width: 430px) {
+  .cps__plan-top {
+    gap: 8px;
+  }
+
+  .cps__plan-left {
+    gap: 9px;
+  }
+
+  .cps__plan-name {
+    font-size: 15px;
+  }
+
+  .cps__plan-price {
+    min-width: 86px;
+  }
+
+  .cps__chem-trigger {
+    gap: 8px;
+  }
+
+  .cps__chem-name {
+    font-size: 15px;
+  }
+
+  .cps__chem-summary {
+    gap: 7px;
+  }
+
+  .cps__chem-price-amount {
+    font-size: 20px;
+  }
+
+  .cps__chem-chart .chem-numberline__row {
+    display: grid;
+    grid-template-columns: minmax(86px, 96px) minmax(70px, 1fr) 58px;
+    gap: 10px;
+  }
+
+  .cps__chem-chart .chem-numberline__season {
+    max-width: 96px;
+    flex: none;
+    font-size: 0.62rem;
+  }
+
+  .cps__chem-chart .chem-numberline__range {
+    flex: none;
+    font-size: 0.62rem;
+  }
+
+  .cps__chem-chart .chem-numberline__callout {
+    padding-left: 106px;
+  }
+
+  .cps__monthly-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .cps__monthly-price {
+    grid-column: 1;
+    grid-row: auto;
+    justify-self: flex-start;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .cps__visit-toggle {
+    max-width: 100%;
+  }
+
+  .cps__visit-toggle-btn {
+    flex: 1 1 0;
+    white-space: normal;
+    line-height: 1.1;
+  }
+
+  .intake-modal--v2 .gs-quote-pricing .cps__header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .intake-modal--v2 .gs-quote-pricing .cps__toggle-wrap {
+    width: 100%;
+    align-items: stretch;
+  }
+
+  .intake-modal--v2 .gs-quote-pricing .cps__winter-note {
+    align-self: center;
+    left: 50%;
+    right: auto;
+    translate: -50% 0;
+  }
+
+  .intake-modal--v2 .gs-quote-pricing .cps__toggle {
+    width: 100%;
+  }
+
+  .intake-modal--v2 .gs-quote-pricing .cps__toggle-btn {
+    flex: 1 1 0;
+    min-width: 0;
+  }
 }
