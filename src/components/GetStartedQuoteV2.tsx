@@ -2468,6 +2468,17 @@ function Step2Address({ formData, updateForm, onContinue }: {
   const markerRef = useRef<any>(null);
   const [mapReady, setMapReady] = useState(false);
   const [heatmapCount, setHeatmapCount] = useState(0);
+  const savedAddress = [
+    formData.addressStreet,
+    formData.addressCity,
+    formData.addressState,
+    formData.addressZip,
+  ].filter(Boolean).join(', ').replace(/, ([A-Z]{2}), /, ', $1 ');
+
+  useEffect(() => {
+    if (!inputRef.current || !savedAddress || inputRef.current.value) return;
+    inputRef.current.value = savedAddress;
+  }, [savedAddress]);
 
   useEffect(() => {
     let cancelled = false;
@@ -2669,7 +2680,25 @@ function Step2Address({ formData, updateForm, onContinue }: {
       <div class="intake-search intake-search--hero">
         <div class="intake-search-wrapper">
           <svg class="intake-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          <input ref={inputRef} type="text" placeholder="Enter your address to check coverage..." class="intake-search-input intake-search-input--with-icon" autocomplete="off" onInput={() => { if (formData.areaResult) updateForm({ areaResult: '' }); }} />
+          <input
+            ref={inputRef}
+            type="text"
+            placeholder="Enter your address to check coverage..."
+            class="intake-search-input intake-search-input--with-icon"
+            autocomplete="off"
+            defaultValue={savedAddress}
+            onInput={() => {
+              if (!formData.areaResult && !formData.addressStreet) return;
+              updateForm({
+                areaResult: '',
+                county: '',
+                addressStreet: '',
+                addressCity: '',
+                addressState: 'GA',
+                addressZip: '',
+              });
+            }}
+          />
         </div>
       </div>
 
