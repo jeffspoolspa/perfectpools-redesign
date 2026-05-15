@@ -798,8 +798,8 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
      RENDER
      ═══════════════════════════════════════ */
   return (
-    <div class="intake-overlay is-open" onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }} role="dialog" aria-modal="true" aria-label="Get a quote">
-      <div class="intake-modal intake-modal--v2">
+    <div class={`intake-overlay is-open${currentStep === 5 ? ' intake-overlay--quote' : ''}`} onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }} role="dialog" aria-modal="true" aria-label="Get a quote">
+      <div class={`intake-modal intake-modal--v2${currentStep === 5 ? ' intake-modal--quote' : ''}`}>
         {/* Persistent hero — visible on every step. The new artwork
             already has the dark navy background with the
             pool/house/truck composition baked in on the right side,
@@ -984,7 +984,7 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
         {/* Step content. Flow: Address → Contact (with dup check) →
             Pool questions (progressive: service, property, pool type,
             condition, body type all on one page) → Referral → Quote. */}
-        <div class={`intake-body gs-fade-in`} key={currentStep + '-' + redirect + (showDupCheck ? '-dup' : '')}>
+        <div class={`intake-body gs-fade-in${currentStep === 5 ? ' intake-body--quote' : ''}`} key={currentStep + '-' + redirect + (showDupCheck ? '-dup' : '')}>
           {currentStep === 1 && renderStep2()}
           {currentStep === 2 && (showDupCheck ? renderDupCheck() : renderStep3())}
           {currentStep === 3 && renderProgressivePoolPage()}

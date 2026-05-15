@@ -138,7 +138,6 @@ function CompactChemView({
           </div>
         ) : (
           <div>
-            <p class="chem-chart-preheader">Large pools and high-debris properties get the chemicals they actually need, while smaller or screened-in pools pay less because they use less.</p>
             <p class="chem-data-note" style="margin-top: 0.75rem; margin-bottom: 0.25rem;">{dataNote}</p>
             {renderSeasonalChart(combined, competitorFlat, visitsPerMonthLabel)}
           </div>
