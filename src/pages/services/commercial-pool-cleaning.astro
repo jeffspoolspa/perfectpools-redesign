@@ -59,7 +59,7 @@ const schema = [
           below — so it gets dedicated space and breathing room
           before the Maintenance Plans chapter.) */}
       <div class="cph-hero__content">
-        <h1 class="cph-hero__title">Commercial Pool Care</h1>
+        <h1 class="cph-hero__title">Commercial<br class="cph-hero__title-br" />Pool Care</h1>
         <button type="button" class="cph-hero__cta" data-open-intake>Schedule a Consultation</button>
       </div>
 
@@ -238,6 +238,17 @@ const schema = [
         <a class="mp-nav__tab" href="#pricing" data-target="pricing">Pricing</a>
         <a class="mp-nav__tab" href="#properties" data-target="properties">Properties We Service</a>
       </div>
+
+      {/* Mobile-only section selector — replaces the horizontal-scroll
+          tabs row at narrow widths so the nav collapses to two rows
+          (brand + selector / CTA) instead of three. Driven by the same
+          scrollToId() handler as the tab anchors. */}
+      <select class="mp-nav__select" data-mp-select aria-label="Jump to maintenance plan section">
+        <option value="included">What's Included</option>
+        <option value="compliance">Compliance</option>
+        <option value="pricing">Pricing</option>
+        <option value="properties">Properties</option>
+      </select>
 
       <button type="button" class="mp-nav__cta" data-open-intake>Schedule a Consultation</button>
     </div>
@@ -1606,6 +1617,18 @@ const schema = [
     margin: 0 0 1rem;
     color: white;
   }
+  /* Mobile-only line break inside the headline. Hidden on desktop so
+     "Commercial Pool Care" reads as one line; on phone it forces the
+     "Pool Care" half onto its own line so the title doesn't compete
+     with the photo for horizontal room. */
+  .cph-hero__title-br {
+    display: none;
+  }
+  @media (max-width: 720px) {
+    .cph-hero__title-br {
+      display: inline;
+    }
+  }
 
   /* === Content overlay (subtitle + CTA only) =====================
      Anchored to the LEFT half, vertically centered on the photo. */
@@ -1665,6 +1688,7 @@ const schema = [
       padding: 0 clamp(16px, 4vw, 24px);
     }
   }
+
 
   /* --- Full-bleed hero image with stats overlay ------------------
      The image fills the section width edge-to-edge (no horizontal
@@ -1772,16 +1796,59 @@ const schema = [
     color: rgba(255, 255, 255, 0.55);
   }
 
-  @media (max-width: 880px) {
+  /* On narrow viewports we keep the title + CTA overlay AND the stats
+     overlay on the photo — just scaled down. The image gets a tall
+     portrait-ish aspect ratio so there's room for both layers without
+     competition. Stats stay as a single row of 4 (never wrap), with
+     tight typography. The footnote line hides under the smallest tier
+     so the value row aligns and labels stay readable. */
+  @media (max-width: 720px) {
+    .cph-hero__title {
+      font-size: clamp(1.5rem, 6vw, 2rem);
+      line-height: 1.05;
+      margin-bottom: 0.75rem;
+    }
+    .cph-hero__cta {
+      font-size: 0.85rem;
+      padding: 0.6rem 1.1rem;
+    }
+    .cph-hero__media img {
+      max-height: none;
+      min-height: 0;
+      height: auto;
+      aspect-ratio: 4 / 5;
+      object-position: center 25%;
+    }
     .cph-stats {
-      grid-template-columns: repeat(2, 1fr);
-      row-gap: clamp(20px, 3vh, 36px);
-      padding-top: clamp(56px, 8vh, 100px);
+      padding: clamp(28px, 5vh, 56px) clamp(10px, 3vw, 18px) clamp(14px, 3vh, 22px);
+      column-gap: clamp(6px, 1.5vw, 14px);
+      row-gap: 0.25rem;
+    }
+    .cph-stat__value {
+      font-size: clamp(1.05rem, 5vw, 1.4rem);
+    }
+    .cph-stat__prefix,
+    .cph-stat__suffix {
+      font-size: 0.72em;
+    }
+    .cph-stat__label {
+      font-size: clamp(0.55rem, 2.4vw, 0.7rem);
+      line-height: 1.25;
+    }
+    .cph-stat__footnote {
+      display: none;
     }
   }
-  @media (max-width: 720px) {
-    .cph-hero__title { font-size: clamp(2rem, 8vw, 2.5rem); }
-    .cph-hero__media img { min-height: 340px; max-height: 70vh; }
+
+  /* Mid-range tablets: keep the desktop 4-col row but tighten gaps so
+     the stats don't crowd the right edge before the mobile rules kick in. */
+  @media (min-width: 721px) and (max-width: 880px) {
+    .cph-stats {
+      column-gap: clamp(12px, 2.5vw, 28px);
+    }
+    .cph-stat__value {
+      font-size: clamp(1.6rem, 3.8vw, 2.4rem);
+    }
   }
 
   /* Stats Bar */
@@ -2415,6 +2482,22 @@ const schema = [
     scroll-margin-top: 72px;
   }
 
+  /* On mobile, sections size to their content rather than holding a
+     full viewport height. Without this, short sections (e.g. the
+     properties banner + carousel) center their content with huge dead
+     space above the heading — which on a phone reads as a broken gap
+     between sections. */
+  @media (max-width: 720px) {
+    .mp-section {
+      min-height: 0;
+      padding: var(--space-8) 0;
+      justify-content: flex-start;
+    }
+    .mp-section--properties .mp-property-banner {
+      padding-block: var(--space-3);
+    }
+  }
+
   /* Everything BELOW the Maintenance Plans CHAPTER runs on a tinted
      background (warm sand) so the white maint-plans section reads as
      a distinct centerpiece against neutral surrounding sections.
@@ -2642,20 +2725,59 @@ const schema = [
     background: color-mix(in srgb, var(--color-gray-900) 85%, #000);
   }
 
-  /* Mobile collapse: brand row → scrolling tabs → full-width CTA */
+  /* === Mobile section selector ====================================
+     Native <select> that replaces the horizontal-scroll tab strip on
+     narrow viewports. Hidden on desktop; revealed at the breakpoint
+     below. Styled as a subtle outlined pill with a custom chevron
+     (background-image SVG) since native arrows on iOS/Android are
+     inconsistent. */
+  .mp-nav__select {
+    display: none;
+  }
+
+  /* Mobile collapse: row 1 = brand label + section selector, row 2 = CTA */
   @media (max-width: 720px) {
-    .mp-nav__inner { gap: var(--space-3); padding-top: var(--space-3); padding-bottom: var(--space-3); }
-    .mp-nav__tabs {
-      margin-left: 0;
-      margin-right: 0;
-      width: 100%;
-      overflow-x: auto;
-      flex-wrap: nowrap;
-      gap: var(--space-5);
-      padding-bottom: 0.25rem;
+    .mp-nav__inner {
+      gap: var(--space-3);
+      padding-top: var(--space-3);
+      padding-bottom: var(--space-3);
     }
-    .mp-nav__tab { white-space: nowrap; padding-top: 0.5rem; padding-bottom: 0.5rem; }
-    .mp-nav__cta { width: 100%; text-align: center; }
+    .mp-nav__brand {
+      flex: 0 1 auto;
+      font-size: 0.95rem;
+    }
+    /* Hide the tab anchor row on mobile — the <select> replaces it. */
+    .mp-nav__tabs {
+      display: none;
+    }
+    .mp-nav__select {
+      display: inline-block;
+      flex: 0 1 auto;
+      margin-left: auto;
+      min-width: 0;
+      max-width: 55vw;
+      appearance: none;
+      -webkit-appearance: none;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--color-gray-900);
+      background-color: white;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%230f172a' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+      background-repeat: no-repeat;
+      background-position: right 0.6rem center;
+      background-size: 11px 11px;
+      border: 1px solid rgba(15, 23, 42, 0.18);
+      border-radius: 999px;
+      padding: 0.45rem 1.75rem 0.45rem 0.85rem;
+      line-height: 1.2;
+      cursor: pointer;
+      text-overflow: ellipsis;
+    }
+    .mp-nav__cta {
+      width: 100%;
+      text-align: center;
+    }
   }
 
   /* === Section background system =====================================
@@ -5037,6 +5159,17 @@ const schema = [
       });
     });
 
+    // Mobile dropdown — same scrollToId behavior as the desktop tabs.
+    const navSelect = document.querySelector('[data-mp-select]');
+    if (navSelect) {
+      navSelect.addEventListener('change', (e) => {
+        const id = e.target.value;
+        if (!id) return;
+        scrollToId(id);
+        history.replaceState(null, '', `#${id}`);
+      });
+    }
+
     // Active-section sync. rootMargin top is the nav height + 1px so a
     // section counts as "in view" once it crosses just below the nav.
     // The bottom margin is heavily negative so only the section currently
@@ -5050,6 +5183,14 @@ const schema = [
           navAnchors.forEach((a) => {
             a.classList.toggle('is-active', a.getAttribute('data-target') === id);
           });
+          // Keep the mobile dropdown's selected option in sync with
+          // the currently-visible section. The dropdown intentionally
+          // omits #intro (the brand link handles that jump), so don't
+          // try to set value="intro" — leaves the previous selection
+          // visible while the user is in the intro view.
+          if (navSelect && id !== 'intro' && navSelect.value !== id) {
+            navSelect.value = id;
+          }
         });
       },
       {

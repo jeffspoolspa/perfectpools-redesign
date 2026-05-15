@@ -31,7 +31,11 @@ const schema = [
   }
 ];
 
-/* Equipment categories for the interactive grid */
+/* Equipment categories for the interactive grid.
+   `description` — one-line summary used by the mobile diagram-tap card.
+   `summary`     — ~2 sentence card text used by the click-to-expand grid.
+   `detail`      — full long-form copy, currently unused on this page
+                   but kept for reference / future deep pages. */
 const equipment = [
   {
     id: 'pumps',
@@ -39,6 +43,7 @@ const equipment = [
     icon: 'pump',
     image: 'pump.png',
     description: 'Single-speed, dual-speed, and variable-speed pump service, repair, and installation.',
+    summary: 'The heart of your circulation system. Variable-speed pumps cut energy costs and now meet federal efficiency standards — we\'ll help you choose between a rebuild, a seal swap, or a full upgrade.',
     detail: 'The heart of your pool\'s circulation system. We service and install single-speed, dual-speed, and variable-speed pumps across all major brands. Variable-speed pumps can cut your energy costs dramatically and are now required by federal efficiency standards on most replacements. We\'ll help you understand whether a motor rebuild, a seal replacement, or a full pump upgrade is the right move — and size it correctly for your plumbing and filter system.',
     brands: 'Hayward · Pentair · Jandy',
   },
@@ -47,6 +52,7 @@ const equipment = [
     name: 'Filtration Systems',
     icon: 'filter',
     description: 'Sand, glass media, cartridge, and DE filter maintenance and replacement.',
+    summary: 'Sand, glass media, cartridge, and DE — each has different maintenance and replacement cycles. We help you pick the right media and keep flow rate and pressure where they should be.',
     detail: 'Your filter is what actually removes debris and particulates from the water. We work with all major filter types — sand, glass media, cartridge, and DE (diatomaceous earth). Each has different maintenance needs, replacement cycles, and performance characteristics depending on your pool size, usage, and plumbing. We\'ll help you choose the right media and keep your filter operating at the pressure and flow rate it was designed for.',
     brands: 'Sand & Glass Media · Cartridge · DE',
   },
@@ -55,6 +61,7 @@ const equipment = [
     name: 'Chlorination Systems',
     icon: 'chlorination',
     description: 'Salt chlorine generators and tablet feeder installation and service.',
+    summary: 'Salt cells or tablet feeders, sized to your pool and integrated with your circulation. Salt systems lower chemical costs but need proper sizing and routine cell maintenance.',
     detail: 'Proper sanitization is one of the three foundations of a clean pool. We install and service both salt chlorine generators and traditional tablet feeder systems. Salt systems generate chlorine continuously and can reduce your ongoing chemical costs, but they require proper sizing, compatible equipment, and regular cell maintenance. We\'ll recommend the right system for your pool and make sure it\'s integrated correctly with your circulation and automation.',
     brands: 'Salt Chlorine Generators · Tablet Feeders',
   },
@@ -63,22 +70,25 @@ const equipment = [
     name: 'Heaters & Heat Pumps',
     icon: 'heater',
     description: 'Gas heaters, electric heat pumps, and pool chillers for year-round comfort.',
+    summary: 'Gas heaters, electric heat pumps, and chillers sized to your pool. Heat pumps are our most-recommended option in coastal Georgia.',
     detail: 'Extending your pool season — or making it comfortable year-round — starts with the right heating or cooling equipment matched to your pool volume, climate, and usage. We install and service gas heaters, electric heat pumps, and pool chillers. Heat pumps are the most energy-efficient option for our climate and are what we recommend most often, but the right choice depends on your pool size, how quickly you need to heat, and your utility costs.',
-    brands: 'Gas Heaters · Electric Heat Pumps · Pool Chillers',
+    brands: 'Gas · Heat Pumps · Chillers',
   },
   {
     id: 'automation',
     name: 'Automation & Controls',
     icon: 'automation',
     description: 'From basic timers to full smart-home-integrated control panels.',
+    summary: 'From simple time clocks to smart-home platforms. Optimized run times protect equipment and let you control the pad from your phone.',
     detail: 'From basic analog timers to full smart-home-integrated control panels, automation determines how and when your equipment runs. We service and install systems ranging from simple time clocks and relay panels to advanced platforms like Hayward OmniLogic, Pentair IntelliCenter, and Jandy iAqualink. If you\'re upgrading equipment, automation is often the smartest investment — it optimizes run times, protects equipment, and gives you control from your phone.',
-    brands: 'Hayward OmniLogic · Pentair IntelliCenter · Jandy iAqualink',
+    brands: 'OmniLogic · IntelliCenter · iAqualink',
   },
   {
     id: 'cleaners',
     name: 'Automatic Pool Cleaners',
     icon: 'cleaner',
     description: 'Robotic cleaners and pressure-side cleaners for automated pool cleaning.',
+    summary: 'Robotic units that run independently, or pressure-side cleaners like the Polaris line that use a booster pump. We\'ll help you pick what fits your pool and your existing plumbing.',
     detail: 'We service and install both robotic cleaners and water-powered pressure-side cleaners. Robotic cleaners operate independently from your pool\'s circulation system and are the most efficient option for most residential pools. Pressure-side cleaners like the Polaris line use a dedicated booster pump and are common in older installations. We\'ll help you understand which type fits your pool and whether your existing plumbing supports it.',
     brands: 'Robotic Cleaners · Pressure-Side (Polaris)',
   },
@@ -119,8 +129,7 @@ const equipment = [
       <div class="philosophy-layout">
         <div class="philosophy-layout__content">
           <div class="philosophy-text">
-            <p>Most pool problems aren't what they look like on the surface. Cloudy water isn't always a chemical problem. A pump that won't prime isn't always a pump problem. A heater that shuts off mid-cycle might be a flow issue, not a heater issue.</p>
-            <p>We approach every pool as an engineered system where water movement, filtration, and chlorination work together. When those three things are dialed in correctly, they do 90% of the work — and your chemical costs drop significantly. When one is off, you end up chasing symptoms with band-aid repairs that never solve the problem.</p>
+            <p>Most pool problems trace back upstream of the symptom. We treat every pool as a system — water movement, filtration, and chlorination dialed in together — so you stop chasing band-aid repairs.</p>
           </div>
           {equipment.map((item) => (
             <article class="eq-info" data-eq-info={item.id}>
@@ -131,7 +140,7 @@ const equipment = [
           ))}
         </div>
         <div class="philosophy-layout__diagram">
-          <p class="diagram-hint">Hover over a piece of equipment to learn more</p>
+          <p class="diagram-hint">Tap a piece of equipment to learn more</p>
           <div class="diagram-wrapper">
             <img
               src={`${import.meta.env.BASE_URL}images/pool-equipment-diagram.png`}
@@ -141,12 +150,27 @@ const equipment = [
               width="2816"
               height="1536"
             />
-            <!-- Hover/click hotspot regions over equipment on the pad -->
-            <a href="#eq-pump" data-eq="pumps" class="diagram-hotspot" style="top: 54.4%; left: 57.5%; width: 9.6%; height: 9.5%;" aria-label="Pump"></a>
-            <a href="#eq-filter" data-eq="filtration" class="diagram-hotspot" style="top: 44.7%; left: 69.0%; width: 6.3%; height: 18.8%;" aria-label="Filter"></a>
-            <a href="#eq-heater" data-eq="heaters" class="diagram-hotspot" style="top: 48.3%; left: 77.4%; width: 6.4%; height: 15.6%;" aria-label="Heater"></a>
-            <a href="#eq-chlorination" data-eq="chlorination" class="diagram-hotspot" style="top: 56.4%; left: 85.9%; width: 6.9%; height: 5.0%;" aria-label="Salt Cell"></a>
-            <a href="#eq-automation" data-eq="automation" class="diagram-hotspot" style="top: 29.5%; left: 61.2%; width: 6.7%; height: 14.2%;" aria-label="Automation Controller"></a>
+            <!-- Tap hotspot regions over equipment on the pad -->
+            <button type="button" data-eq="pumps" class="diagram-hotspot" style="top: 54.4%; left: 57.5%; width: 9.6%; height: 9.5%;" aria-label="Pump"></button>
+            <button type="button" data-eq="filtration" class="diagram-hotspot" style="top: 44.7%; left: 69.0%; width: 6.3%; height: 18.8%;" aria-label="Filter"></button>
+            <button type="button" data-eq="heaters" class="diagram-hotspot" style="top: 48.3%; left: 77.4%; width: 6.4%; height: 15.6%;" aria-label="Heater"></button>
+            <button type="button" data-eq="chlorination" class="diagram-hotspot" style="top: 56.4%; left: 85.9%; width: 6.9%; height: 5.0%;" aria-label="Salt Cell"></button>
+            <button type="button" data-eq="automation" class="diagram-hotspot" style="top: 29.5%; left: 61.2%; width: 6.7%; height: 14.2%;" aria-label="Automation Controller"></button>
+          </div>
+
+          {/* Mobile-only description card. Sits below the diagram and
+              is populated/revealed when a hotspot is tapped. The
+              shortened description (item.description) reads quickly
+              without re-iterating the long-form copy that's also in
+              the equipment grid further down the page. */}
+          <div class="eq-mobile-stack" data-eq-mobile-stack>
+            {equipment.filter((item) => ['pumps', 'filtration', 'heaters', 'chlorination', 'automation'].includes(item.id)).map((item) => (
+              <article class="eq-mobile-info" data-eq-mobile-info={item.id}>
+                <h3 class="eq-mobile-info__title">{item.name}</h3>
+                <p class="eq-mobile-info__desc">{item.description}</p>
+                <span class="eq-mobile-info__brands">{item.brands}</span>
+              </article>
+            ))}
           </div>
         </div>
       </div>
@@ -323,7 +347,7 @@ const equipment = [
             <div class="eq-tile__card">
               <h3 class="eq-tile__name">{item.name}</h3>
               <div class="eq-tile__expand">
-                <p class="eq-tile__detail">{item.detail}</p>
+                <p class="eq-tile__detail">{item.summary}</p>
                 <span class="eq-tile__brands">{item.brands}</span>
               </div>
             </div>
@@ -346,31 +370,62 @@ const equipment = [
     ]}
   />
 
-  <!-- Diagram hover → slide diagram, fade in info card -->
+  <!-- Diagram tap → reveal description card. On desktop the eq-info
+       card slides in over the intro text on the left; on mobile the
+       eq-mobile-info card appears below the diagram and the diagram
+       gently scrolls toward viewport center so the active region
+       stays visible without jumping. -->
   <script>
     const philosophyLayout = document.querySelector('.philosophy-layout');
     if (philosophyLayout) {
       const hotspots = philosophyLayout.querySelectorAll('.diagram-hotspot');
       const infoCards = philosophyLayout.querySelectorAll('.eq-info');
+      const mobileInfoCards = philosophyLayout.querySelectorAll('.eq-mobile-info');
       const diagramWrapper = philosophyLayout.querySelector('.diagram-wrapper');
+      let activeId: string | null = null;
+
+      function setActiveId(id: string | null) {
+        activeId = id;
+        infoCards.forEach((card) => {
+          const matches = id !== null && (card as HTMLElement).dataset.eqInfo === id;
+          card.classList.toggle('is-active', matches);
+        });
+        mobileInfoCards.forEach((card) => {
+          const matches = id !== null && (card as HTMLElement).dataset.eqMobileInfo === id;
+          card.classList.toggle('is-active', matches);
+        });
+        philosophyLayout.classList.toggle('is-active', id !== null);
+      }
 
       hotspots.forEach((hotspot) => {
-        hotspot.addEventListener('mouseenter', () => {
+        hotspot.addEventListener('click', (e) => {
+          e.preventDefault();
           const id = (hotspot as HTMLElement).dataset.eq;
-          infoCards.forEach((card) => {
-            const matches = (card as HTMLElement).dataset.eqInfo === id;
-            card.classList.toggle('is-active', matches);
-          });
-          philosophyLayout.classList.add('is-hovering');
+          if (!id) return;
+          // Tap the already-active hotspot to close.
+          if (id === activeId) {
+            setActiveId(null);
+            return;
+          }
+          setActiveId(id);
+          // No auto-scroll on tap — the layout shift (intro collapses
+          // out, diagram + description card animate in) happens in
+          // the user's current viewport so the page stays put.
         });
       });
 
-      if (diagramWrapper) {
-        diagramWrapper.addEventListener('mouseleave', () => {
-          philosophyLayout.classList.remove('is-hovering');
-          infoCards.forEach((card) => card.classList.remove('is-active'));
-        });
-      }
+      // Tap outside the diagram or on any non-hotspot area inside it → close.
+      document.addEventListener('click', (e) => {
+        if (activeId === null) return;
+        const target = e.target as HTMLElement;
+        if (target.closest('.diagram-hotspot')) return;
+        if (target.closest('.eq-mobile-info') || target.closest('.eq-info')) return;
+        setActiveId(null);
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && activeId !== null) setActiveId(null);
+      });
     }
   </script>
 
@@ -724,9 +779,44 @@ const equipment = [
     margin-bottom: 0;
   }
 
-  .philosophy-layout.is-hovering .philosophy-text {
+  .philosophy-layout.is-hovering .philosophy-text,
+  .philosophy-layout.is-active .philosophy-text {
     opacity: 0;
     transform: translateX(-12px);
+  }
+
+  /* On mobile (single-column), collapse the intro text out of flow
+     when a hotspot is active so the diagram visually slides up into
+     its slot. Both the container height collapse and the text fade
+     run at the same 500ms duration with matching easing, so the
+     diagram + text move together as one motion instead of the text
+     fading first and the diagram catching up. */
+  @media (max-width: 959px) {
+    .philosophy-layout__content {
+      min-height: 0;
+      max-height: 60vh;
+      overflow: hidden;
+      transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                  opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                  margin-bottom 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .philosophy-text {
+      transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                  transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .philosophy-layout.is-active .philosophy-layout__content {
+      max-height: 0;
+      opacity: 0;
+      margin-bottom: calc(var(--space-12) * -1);
+    }
+    /* Hide the desktop eq-info card — on mobile the equipment summary
+       is rendered via .eq-mobile-info below the diagram, so the
+       desktop card would otherwise briefly flash in over the
+       collapsing intro text mid-transition. */
+    .eq-info,
+    .eq-info.is-active {
+      display: none;
+    }
   }
 
   /* Equipment info modal */
@@ -778,8 +868,73 @@ const equipment = [
     transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
   }
 
-  .philosophy-layout.is-hovering .philosophy-layout__diagram {
+  .philosophy-layout.is-hovering .philosophy-layout__diagram,
+  .philosophy-layout.is-active .philosophy-layout__diagram {
     transform: translateX(32px);
+  }
+
+  /* On mobile keep the diagram un-shifted — the horizontal slide only
+     makes sense in the desktop 2-column layout where the text vacates
+     the left side. */
+  @media (max-width: 959px) {
+    .philosophy-layout.is-active .philosophy-layout__diagram {
+      transform: none;
+    }
+  }
+
+  /* === Mobile equipment-info card (below the diagram) ===========
+     Sits in the diagram column on mobile and reveals a single
+     equipment description when a hotspot is tapped. Hidden on
+     desktop where the existing .eq-info card on the left handles
+     the same job. */
+  .eq-mobile-stack {
+    display: none;
+  }
+
+  @media (max-width: 959px) {
+    .eq-mobile-stack {
+      display: block;
+      position: relative;
+      margin-top: var(--space-5);
+      min-height: 0;
+    }
+    .eq-mobile-info {
+      display: none;
+      padding: var(--space-5);
+      border-radius: var(--radius-lg);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      animation: eq-mobile-fade 0.3s ease both;
+    }
+    .eq-mobile-info.is-active {
+      display: block;
+    }
+    .eq-mobile-info__title {
+      font-size: var(--text-lg);
+      font-weight: 700;
+      color: white;
+      margin: 0 0 var(--space-2);
+    }
+    .eq-mobile-info__desc {
+      font-size: var(--text-sm);
+      color: rgba(255, 255, 255, 0.82);
+      line-height: 1.55;
+      margin: 0 0 var(--space-3);
+    }
+    .eq-mobile-info__brands {
+      display: inline-block;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--color-accent);
+      background: rgba(255, 255, 255, 0.08);
+      padding: 0.25rem 0.65rem;
+      border-radius: var(--radius-full);
+    }
+  }
+
+  @keyframes eq-mobile-fade {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
 
   /* Dark diagram section — slides up over the sticky hero with a rounded top */
@@ -1234,8 +1389,16 @@ const equipment = [
     color: var(--color-gray-700);
     cursor: pointer;
     overflow: hidden;
+    border-radius: var(--radius-lg);
+    background: white;
+    border: 1px solid var(--color-border);
     /* No CSS transitions on transform — spring JS drives the motion */
-    transition: color 0.25s ease;
+    transition: color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .eq-tile:hover {
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-md);
   }
 
   .eq-tile:hover,
@@ -1363,5 +1526,88 @@ const equipment = [
 
   .eq-tile.is-active .eq-tile__close {
     display: flex;
+  }
+
+  /* On narrow viewports the active tile occupies a 3-col × 2-row area
+     in a 4-column grid, which is only ~250px wide. The desktop
+     typography (text-3xl title, 1rem detail at line-height 1.7) plus
+     a long brand string overruns that box, so we step everything down
+     and give the active state taller rows so summary + brands chip
+     both clear the close button without clipping. */
+  @media (max-width: 768px) {
+    .equipment-grid[data-state="active"] {
+      grid-template-rows: 200px 200px 160px;
+    }
+    .eq-tile.is-active {
+      padding: var(--space-5) var(--space-4) var(--space-4);
+    }
+    .eq-tile.is-active .eq-tile__icon {
+      top: var(--space-2);
+      left: var(--space-3);
+      transform: scale(0.65);
+      transform-origin: top left;
+    }
+    .eq-tile.is-active .eq-tile__name {
+      font-size: var(--text-lg);
+      margin-bottom: var(--space-1);
+      line-height: 1.2;
+    }
+    .eq-tile.is-active .eq-tile__detail {
+      font-size: 0.78rem;
+      line-height: 1.5;
+    }
+    .eq-tile.is-active .eq-tile__brands {
+      font-size: 0.7rem;
+      padding: 0.18rem 0.55rem;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      max-width: 100%;
+      box-sizing: border-box;
+      text-align: center;
+      line-height: 1.4;
+    }
+    .eq-tile.is-active .eq-tile__card {
+      gap: var(--space-2);
+    }
+    .eq-tile__close {
+      top: var(--space-2);
+      right: var(--space-2);
+      width: 30px;
+      height: 30px;
+    }
+
+    /* INACTIVE tiles when the grid is in active state: each column is
+       only ~80px wide, so the default text-base label "Chlorination
+       Systems" wraps to 3+ lines and gets clipped. Step the icon and
+       label down so they fit comfortably and labels stay readable. */
+    .equipment-grid[data-state="active"] .eq-tile:not(.is-active) {
+      padding: var(--space-2);
+      gap: var(--space-1);
+    }
+    .equipment-grid[data-state="active"] .eq-tile:not(.is-active) .eq-tile__icon svg {
+      width: 28px;
+      height: 28px;
+    }
+    .equipment-grid[data-state="active"] .eq-tile:not(.is-active) .eq-tile__name {
+      font-size: 0.62rem;
+      line-height: 1.2;
+      max-width: 100%;
+      overflow-wrap: break-word;
+      hyphens: auto;
+    }
+  }
+
+  /* Default state on mobile (no tile active) — labels also live in
+     narrow columns (~110px), so step them down slightly so longer
+     names like "Automation & Controls" fit on two lines comfortably. */
+  @media (max-width: 480px) {
+    .equipment-grid[data-state="default"] .eq-tile .eq-tile__name {
+      font-size: 0.82rem;
+      line-height: 1.2;
+    }
+    .equipment-grid[data-state="default"] .eq-tile .eq-tile__icon svg {
+      width: 36px;
+      height: 36px;
+    }
   }
 </style>

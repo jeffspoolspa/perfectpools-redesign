@@ -16,7 +16,8 @@
         </span>
       </div>
       <div class="top-bar__right">
-        <span>Mon–Fri: 8AM–5PM</span>
+        <span class="top-bar__hours">Mon–Fri: 8AM–5PM</span>
+        <button type="button" class="top-bar__cta" data-open-intake>Get a Quote</button>
       </div>
     </div>
   </div>
@@ -63,18 +64,58 @@
   }
 
   .top-bar__right {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
     color: rgba(255, 255, 255, 0.8);
   }
 
+  /* Get a Quote button — desktop hides it (the header's button covers
+     it); mobile reveals it inline with the phone number so the top
+     band carries the primary CTA when the header scrolls away. */
+  .top-bar__cta {
+    display: none;
+    appearance: none;
+    border: 0;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.78rem;
+    font-weight: 600;
+    line-height: 1;
+    padding: 0.45rem 0.9rem;
+    border-radius: 999px;
+    background: var(--color-accent, #f59332);
+    color: white;
+    transition: background-color var(--transition-fast), transform var(--transition-fast);
+  }
+  .top-bar__cta:hover {
+    background: color-mix(in srgb, var(--color-accent, #f59332) 88%, #000);
+  }
+  .top-bar__cta:active {
+    transform: translateY(1px);
+  }
+
+  /* On mobile, the band becomes the persistent top chrome: sticky to
+     the viewport top, phone number on the left, Get a Quote on the
+     right. The location pill, divider, and hours text drop out to
+     make room. The header below scrolls normally. */
   @media (max-width: 767px) {
+    .top-bar {
+      position: sticky;
+      top: 0;
+      z-index: 110;
+    }
     .top-bar__divider,
     .top-bar__link:not(a),
-    .top-bar__right {
+    .top-bar__hours {
       display: none;
     }
-
     .top-bar__inner {
-      justify-content: center;
+      justify-content: space-between;
+    }
+    .top-bar__cta {
+      display: inline-flex;
+      align-items: center;
     }
   }
 </style>
