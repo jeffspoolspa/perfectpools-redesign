@@ -3501,6 +3501,12 @@ p:last-child {
   overflow-x: hidden;
 }
 
+.intake-modal--v2 input,
+.intake-modal--v2 select,
+.intake-modal--v2 textarea {
+  font-size: max(16px, 1rem);
+}
+
 /* Follow-up questions on the progressive page (property, pool type,
    condition, body) render the existing .intake-choice markup but
    restyled as compact chip pills — text-only, horizontal flex,
