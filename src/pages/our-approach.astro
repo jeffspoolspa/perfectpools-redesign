@@ -1,8 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import ReviewCarousel from '../components/ReviewCarousel.astro';
 import WhyWeExistHero from '../components/WhyWeExistHero.astro';
-import { REVIEWS } from '../data/reviews';
+import ServicePageFinale from '../components/ServicePageFinale.astro';
 const base = import.meta.env.BASE_URL;
 
 /**
@@ -59,61 +58,22 @@ const base = import.meta.env.BASE_URL;
     <div id="visit-mount"></div>
   </section>
 
-  {/* Section 6 — Reviews.
-      Image is sticky at the top of the section (CSS sticky), so as
-      the user scrolls into the section the image pins to the top
-      of the viewport. The white reviews card flows naturally below
-      and scrolls UP over the image. Section has tall min-height so
-      the image stays pinned long enough for the card to scroll
-      fully past it before the partnership-cta section enters view —
-      same composition as the Rivian "Keep exploring" → "Never miss
-      an adventure" transition. */}
-  <section class="reviews-section oa-section" id="reviews">
-    <div class="reviews-section__image-pin">
-      <img
-        src={`${base}images/reviews-bg-testing-water.jpg`}
-        alt="A Perfect Pools technician testing pool water"
-        loading="lazy"
-      />
-    </div>
-
-    <div class="reviews-section__white-card">
-      <div class="container">
-        <div class="section-header" data-reveal="fade-up">
-          <span class="section-kicker">WHAT OUR CLIENTS SAY</span>
-          <h2>Real Reviews, Real Results.</h2>
-        </div>
-        <div class="reviews-grid" data-reveal="fade-up" data-reveal-stagger="0.12">
-          {REVIEWS.slice(0, 3).map((r) => (
-            <article class="review-tile">
-              <div class="review-tile__stars" aria-label={`${r.stars} out of 5 stars`}>
-                {'★'.repeat(r.stars)}
-              </div>
-              <p class="review-tile__quote">"{r.quote}"</p>
-              <span class="review-tile__name">— {r.name}</span>
-            </article>
-          ))}
-        </div>
-        <div style="text-align: center;">
-          <a href="https://g.page/r/CVrU0W_3-NRyEAE/review" target="_blank" rel="noopener" class="btn btn--outline">Read All Reviews on Google</a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  {/* Section 7 — Final CTA */}
-  <section class="partnership-cta oa-section">
-    <div class="container">
-      <div class="partnership-cta__card" data-reveal="scale-in" data-reveal-start="top 85%" data-reveal-end="top 55%">
-        <h2>Start Your Aquatic Partnership</h2>
-        <p>Experience the difference of architectural-grade maintenance. We are currently accepting new clients for our exclusive service routes.</p>
-        <div class="partnership-cta__buttons">
-          <a href={`${base}get-started/`} class="btn btn--cta btn--lg">Join Our Route</a>
-          <a href={`${base}plans/`} class="btn btn--outline-white btn--lg">View Pricing</a>
-        </div>
-      </div>
-    </div>
-  </section>
+  {/* Section 6+7 — Finale (Reviews + CTA) over a sticky photo
+      backdrop. Same component the /services/* pages use, opted out
+      of the FAQ pill via the omitted `faqs` prop. The component
+      handles the sticky photo, the pill-stack 100vh handoffs, and
+      the dark gradient CTA pill that ends the page. */}
+  <div id="reviews" class="oa-section">
+    <ServicePageFinale
+      ctaKicker="READY WHEN YOU ARE"
+      ctaHeading="Start Your Aquatic Partnership"
+      ctaText="Experience the difference of architectural-grade maintenance. We are currently accepting new clients for our exclusive service routes."
+      ctaButtons={[
+        { label: 'Join Our Route', href: `${base}get-started/`, variant: 'cta' },
+        { label: 'View Pricing', href: `${base}plans/`, variant: 'outline-white' },
+      ]}
+    />
+  </div>
 
   {/* Sticky chapter marker (top-left) + side rail (right) — Lenis nav UX */}
   <div id="oa-nav-mount"></div>
@@ -749,149 +709,11 @@ const base = import.meta.env.BASE_URL;
     :global(.prb__spacer) { height: 300vh; }
   }
 
-  /* === Reviews Section — sticky image + scroll-up white card =======
-     Image is `position: sticky; top: 0` and 100vh tall so it pins
-     to the viewport top once the section enters view. The white
-     card flows naturally below the image with a negative margin-top
-     so it overlaps the image at the start (image visible above the
-     card with rounded curve cutting in). As the user scrolls, the
-     image stays pinned and the card scrolls UP over it, eventually
-     scrolling out the top of the viewport. Once the section ends,
-     the partnership-cta below appears — same as Rivian's
-     "Keep exploring" → "Never miss an adventure" transition. */
-  .reviews-section {
-    position: relative;
-    padding: 0;
-    margin-top: 0;
-    /* Sized so the partnership-cta below is just at the viewport
-       bottom WHEN the card top reaches the viewport top (with a
-       little padding). Math:
-         card top = section.top + 100vh − card-overlap (45vh) = 55vh
-         For card top to land at viewport top with 32px padding:
-           section.top = 32px − 55vh   ≈ −55vh
-         For partnership-cta to be at viewport bottom at that moment:
-           section.top + min-height = 100vh   →   min-height ≈ 155vh
-       So the section "waits" for the card to touch the top before
-       the next section starts entering view. */
-    min-height: 155vh;
-    background-color: #0a1929; /* fallback during image load */
-  }
-
-  .reviews-section__image-pin {
-    position: sticky;
-    top: 0;
-    height: 100vh;
-    width: 100%;
-    overflow: hidden;
-    z-index: 0;
-  }
-
-  .reviews-section__image-pin img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-
-  /* Subtle dark overlay over the photo — keeps the image from
-     dominating and gives the white card more visual contrast.
-     ::after sits above the img but below the white card (z-index). */
-  .reviews-section__image-pin::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      180deg,
-      rgba(10, 25, 40, 0.30),
-      rgba(10, 25, 40, 0.40)
-    );
-    pointer-events: none;
-  }
-
-  .reviews-section__white-card {
-    position: relative;
-    z-index: 1;
-    background: var(--color-bg, #fff);
-    border-radius: 32px;
-    /* Generous breathing room top + bottom so the header and the
-     "Read All Reviews" button don't touch the card edges. Sides
-     stay narrower so the 3-tile grid keeps its width.
-     Note: prior values used --space-9 / --space-11 which DON'T
-     exist in this codebase's space scale (1,2,3,4,5,6,8,10,12,16,
-     20,24) so they evaluated to 0 — that's why padding looked
-     missing. Using real tokens here. */
-    padding: var(--space-16) var(--space-10);
-    /* Wider — closer to full-bleed with small side gutters so the
-       image is barely peeking around the card edges. */
-    max-width: 1600px;
-    width: calc(100% - 2 * var(--space-5));
-    margin-inline: auto;
-    /* Negative margin pulls the card up so it overlaps the image's
-       bottom — image visible ABOVE the card initially, card sits
-       within the image area with rounded corners on all sides. */
-    margin-top: -45vh;
-    margin-bottom: var(--space-8);
-    box-shadow: 0 32px 80px -28px rgba(0, 0, 0, 0.45);
-  }
-
-  /* "Read All Reviews on Google" button gets a chunkier tap target
-     and a clear gap above it from the review tiles. The wrapper
-     div gets the spacing; the button itself just gets its padding. */
-  .reviews-section__white-card .btn {
-    padding: 0.95rem 1.75rem;
-  }
-  .reviews-section__white-card .reviews-grid + div {
-    margin-top: var(--space-8);
-  }
-
-  /* 3-tile review grid — sits inside the white card. */
-  :global(.reviews-grid) {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: var(--space-5);
-    margin-top: var(--space-6);
-  }
-
-  :global(.review-tile) {
-    background: var(--color-bg-alt, #F9F6F0);
-    border: 1px solid var(--color-border, #e5e7eb);
-    border-radius: 18px;
-    padding: var(--space-5);
-    display: flex;
-    flex-direction: column;
-    gap: 0.85rem;
-  }
-
-  :global(.review-tile__stars) {
-    color: var(--color-gold, #F59E0B);
-    font-size: 0.95rem;
-    letter-spacing: 0.08em;
-  }
-
-  :global(.review-tile__quote) {
-    font-size: 0.92rem;
-    line-height: 1.55;
-    color: var(--color-text, #1E3A5F);
-    margin: 0;
-    /* Clamp quotes so all 3 tiles stay visually balanced. */
-    display: -webkit-box;
-    -webkit-line-clamp: 7;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  :global(.review-tile__name) {
-    margin-top: auto;
-    font-size: 0.82rem;
-    font-weight: 600;
-    color: var(--color-text-light, #5a6c7d);
-  }
-
-  @media (max-width: 768px) {
-    :global(.reviews-grid) {
-      grid-template-columns: minmax(0, 1fr);
-    }
-  }
+  /* === Reviews + Final CTA =========================================
+     Now handled by <ServicePageFinale> — sticky photo backdrop with
+     a Reviews pill + CTA pill stack. The old custom .reviews-section
+     and .partnership-cta CSS blocks were removed when this page
+     adopted that shared component. */
 
   /* === Comparison Scroll Section === */
   .compare-scroll-section {
@@ -2016,45 +1838,7 @@ const base = import.meta.env.BASE_URL;
     }
   }
 
-  /* --- Partnership CTA --- */
-  .partnership-cta {
-    padding: var(--space-16) 0;
-  }
-
-  .partnership-cta__card {
-    background: linear-gradient(135deg, #0B1320 0%, #1E3A5F 50%, #145BB8 100%);
-    border-radius: 24px;
-    padding: 4rem 3rem;
-    text-align: center;
-    color: #fff;
-  }
-
-  .partnership-cta__card h2 {
-    font-size: clamp(1.75rem, 4vw, 2.5rem);
-    font-weight: 800;
-    margin-bottom: 1rem;
-    color: #fff;
-  }
-
-  .partnership-cta__card p {
-    font-size: 1rem;
-    color: rgba(255, 255, 255, 0.75);
-    max-width: 480px;
-    margin: 0 auto 2rem;
-    line-height: 1.6;
-  }
-
-  .partnership-cta__buttons {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-
-  @media (max-width: 768px) {
-    .partnership-cta__card {
-      padding: 3rem 1.5rem;
-    }
-  }
+  /* Partnership CTA styles removed — the dark gradient CTA pill
+     now lives inside <ServicePageFinale> (svc-finale__pill--cta). */
 
 </style>

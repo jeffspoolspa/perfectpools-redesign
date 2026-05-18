@@ -9,6 +9,11 @@ import CustomerIntakeForm from '../components/CustomerIntakeForm.tsx';
 import GetStartedQuote from '../components/GetStartedQuoteV2.tsx';
 import '../styles/global.css';
 import '../styles/fluid.css';
+// Styles for the unified pillars card used by both PillarsCinematic
+// (live /our-approach) and the standalone sandbox card in
+// /our-approach-v2. Extracted from our-approach-v2.astro's page-scoped
+// block so /our-approach gets the same .pth-* rules.
+import '../styles/pillars-card.css';
 // Component-tool styles for the LSI calculator, sanitation tabs,
 // filtration diagram, and HOCl time-series. These used to live in
 // /our-approach.astro's scoped style block but the tool components

@@ -522,8 +522,13 @@ const logoSrc = `${base}images/perfect-pools-logo.png`;
         const h = shell.clientHeight;
         if (w === 0) return; // skip until shell has actual width
         const isAct1 = el.matches('[data-ww-stage]');
-        const canvasW = 1280;
-        const canvasH = isAct1 ? 680 : 740;
+        // Canvas dims come from the element's own intrinsic size (set
+        // by CSS width/height). offsetWidth returns the pre-transform
+        // layout size, so it's the right "design canvas" dimension to
+        // fit against the shell. Falls back to the desktop design size
+        // if offsetWidth is 0 (rare, only during early layout).
+        const canvasW = (el as HTMLElement).offsetWidth || 1280;
+        const canvasH = (el as HTMLElement).offsetHeight || (isAct1 ? 680 : 740);
         const sw = w / canvasW;
         // If shell has no explicit height (sandbox stacked layout, where
         // height is driven by aspect-ratio), height-fit will equal sw —

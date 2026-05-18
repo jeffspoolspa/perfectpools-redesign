@@ -26,6 +26,7 @@
 
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { assetPath } from '../../utils/base-url';
+import { getHeaderOffset } from '../../utils/scroll-config';
 
 interface Step {
   id: string;
@@ -112,14 +113,35 @@ export default function VisitScrollStack() {
   const [scrollIndex, setScrollIndex] = useState(0);
   const lastScrollIndexRef = useRef(0);
 
-  // The card index the USER is currently hovering. Overrides
-  // scrollIndex when set. Null = use scrollIndex.
+  // The card index the USER is currently hovering (desktop) or has
+  // tapped (mobile). Overrides scrollIndex when set. Null = use
+  // scrollIndex.
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
+
+  // True on devices that have a real hover-capable pointer (mouse,
+  // trackpad). False on touch-only devices. We use this to gate the
+  // hover handlers — on touch screens, hover events fire weirdly
+  // (e.g. on first tap), so we want explicit click/tap toggling
+  // instead. Detected once on mount via the (hover: hover) media
+  // query.
+  const [hasHover, setHasHover] = useState(true);
 
   /** Which card is expanded right now. Falls back to 0 when nothing
       has scrolled in yet so the first card opens expanded the moment
       it lands rather than appearing collapsed. */
   const activeIndex = hoverIndex ?? Math.max(0, scrollIndex);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const mq = window.matchMedia('(hover: hover)');
+    setHasHover(mq.matches);
+    const onChange = (e: MediaQueryListEvent) => setHasHover(e.matches);
+    // addEventListener is the modern API; addListener is the legacy
+    // fallback for old Safari. We use the modern one — Astro targets
+    // are recent browsers.
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
 
   useEffect(() => {
     if (typeof window === 'undefined' || !sectionRef.current) return;
@@ -182,8 +204,24 @@ export default function VisitScrollStack() {
         }
 
         const st = ScrollTrigger.create({
-          trigger: sectionRef.current!,
-          start: 'top top',
+          // Trigger off the PIN element (not the section) so the
+          // mobile section header — which sits ABOVE the pin inside
+          // the section but outside .vss-pin — scrolls past
+          // naturally before pinning engages. Matches the
+          // CompareScroll pattern: the pin engages "after the header
+          // and subtitle" rather than when section.top hits viewport
+          // top.
+          trigger: pinRef.current!,
+          // Pin engages with `header-height + topbar-height` of buffer
+          // ABOVE the pin top, so the pinned content sits BELOW the
+          // global sticky site header (.site-header is position:
+          // sticky; top: 0; z-index: 100) instead of behind it. Every
+          // other pinned section in this codebase uses this exact
+          // pattern — without it, the top of the pinned photo gets
+          // hidden under the site header. Function form so the offset
+          // re-evaluates on ScrollTrigger.refresh().
+          start: () => `top top+=${getHeaderOffset()}`,
+          endTrigger: sectionRef.current!,
           end: 'bottom bottom',
           pin: pinRef.current!,
           pinSpacing: false,
@@ -223,10 +261,22 @@ export default function VisitScrollStack() {
       class="vss-section"
       style={{ height: `${SCROLL_VH * 100}vh` }}
     >
+      {/* Mobile-only section header — sits OUTSIDE the pin so it
+          scrolls naturally past before the cards pin engages,
+          matching the "What sets us apart" (CompareScroll) pattern. */}
+      <header class="vss-header vss-header--mobile">
+        <span class="vss-header__eyebrow">The Process</span>
+        <h2 class="vss-header__title">45 Minutes of Precision</h2>
+        <p class="vss-header__subtitle">
+          A systematic breakdown of our exact methodology during every residential visit.
+        </p>
+      </header>
+
       <div ref={pinRef} class="vss-pin">
-        {/* Section header — pinned alongside the cards / photo so it
-            stays visible throughout the scroll. */}
-        <header class="vss-header">
+        {/* Desktop section header — pinned alongside the cards / photo
+            so it stays visible throughout the scroll. Hidden on
+            mobile (the duplicate above takes over there). */}
+        <header class="vss-header vss-header--desktop">
           <span class="vss-header__eyebrow">The Process</span>
           <h2 class="vss-header__title">45 Minutes of Precision</h2>
           <p class="vss-header__subtitle">
@@ -248,10 +298,20 @@ export default function VisitScrollStack() {
                   ref={(el) => { cardRefs.current[i] = el as HTMLElement | null; }}
                   class={`vss-card${isExpanded ? ' is-expanded' : ''}`}
                   style={{ '--accent': step.accent } as any}
-                  onMouseEnter={() => setHoverIndex(i)}
-                  onMouseLeave={() => setHoverIndex(null)}
+                  // On hover-capable pointers, hovering an earlier
+                  // card temporarily re-expands it. On touch-only
+                  // devices, hover events misfire on tap, so we
+                  // skip them and rely on onClick below.
+                  onMouseEnter={hasHover ? () => setHoverIndex(i) : undefined}
+                  onMouseLeave={hasHover ? () => setHoverIndex(null) : undefined}
                   onFocus={() => setHoverIndex(i)}
                   onBlur={() => setHoverIndex(null)}
+                  // Click/tap toggles: tapping the active card
+                  // collapses it back to scroll-driven default;
+                  // tapping any other card pins it as the active
+                  // one. Works on both desktop and mobile, but is
+                  // the ONLY way to expand on touch devices.
+                  onClick={() => setHoverIndex((prev) => (prev === i ? null : i))}
                   tabIndex={0}
                 >
                   <div class="vss-card__head">

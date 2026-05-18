@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import ReviewCarousel from '../components/ReviewCarousel.astro';
+import ReviewsGrid from '../components/ReviewsGrid.astro';
 
 const schema = {
   "@context": "https://schema.org",
@@ -521,10 +521,11 @@ const icons = {
   <section class="reviews-home">
     <div class="container">
       <div class="section-header reveal-up">
-        <h2>What our customers say</h2>
+        <span class="section-kicker">WHAT OUR CLIENTS SAY</span>
+        <h2>Real Reviews, Real Results.</h2>
       </div>
       <div class="reveal-up" style="--reveal-delay: 100ms">
-        <ReviewCarousel />
+        <ReviewsGrid />
       </div>
       <div class="text-center reveal-up" style="--reveal-delay: 200ms; margin-top:2rem;">
         <a href="https://g.page/r/CVrU0W_3-NRyEAE/review" target="_blank" rel="noopener" class="btn btn--outline">Read All Reviews on Google</a>

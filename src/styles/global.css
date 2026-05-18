@@ -10225,17 +10225,102 @@ p:last-child {
   left: 50%;
   z-index: 4;
   width: clamp(280px, 32vw, 420px);
-  /* transform set inline by JS — start centered, end left-of-card scaled.
-     origin: center so scale() shrinks around the visual center,
-     letting the JS translate values control the center position
-     directly without aspect-ratio math. */
+  /* transform set inline by JS — start at photo bottom, end
+     left-of-card scaled. The JS math expects CSS top:50%, so
+     don't change that. */
   transform: translate(-50%, -50%);
   transform-origin: center;
   will-change: transform;
   filter: drop-shadow(0 18px 40px rgba(0, 0, 0, 0.4));
+  /* Hidden until JS has set the transform so the diagram doesn't
+     flash at viewport-center before snapping to its Phase A start
+     position. The cinematic's useEffect kicks an initial onUpdate
+     on mount so the JS transform is applied before paint. */
+  opacity: 0;
+  transition: opacity 200ms ease-out;
 }
 
-/* --- Layer 4: per-pillar full-area panels ------------------------- */
+/* --- Layer 4: embedded card wrap --------------------------------------
+   Holds the PillarsTriangleHeaders card during Phase C. Centered in
+   the pin both axes; JS drives opacity + transform-origin + scale so
+   the card "grows out of" the diagram as the diagram lands into the
+   card's hidden header triangle slot. z-index 3 keeps the card above
+   the pool image but below the diagram (z-index 4) so the diagram's
+   landing arc reads as "into" the card rather than behind it. */
+.pc-card-wrap {
+  position: absolute;
+  /* Center the card vertically inside the pin, but offset by half
+     the site-header height so the card's top edge stays clear of
+     the 64px sticky header. Without this, tall desktop cards (with
+     bullets + bars + pool + caption) extend above the visible
+     viewport and get clipped by the header. */
+  top: calc(50% + 32px);
+  left: 50%;
+  /* Card spans nearly the full pin both axes — gives the content
+     room to breathe so the fit-scale doesn't have to work as hard.
+     Pool image behind is already dimmed to ~0.18 by Phase B end so
+     covering most of it is fine. */
+  width: min(96%, 1280px);
+  /* Reserve room for the 64px header + a comfortable 96px bottom
+     margin so the card doesn't kiss the next section. */
+  max-height: calc(100vh - 160px);
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  opacity: 0;
+  pointer-events: none;
+  /* transform-origin set inline by the cinematic's onUpdate (tracks
+     the diagram's live landing center, so the card scales-emerge from
+     the triangle). The base translate(-50%, -50%) centers it; JS
+     replaces the transform entirely with its own scale once the
+     scroll trigger is active. */
+}
+
+/* Mobile: card grabs the full viewport so both sanitation and
+   balance modes share the same visual box (no per-mode fitScale
+   resizing). The card fills the wrap, pth-card__top stretches
+   vertically as a flex column.
+
+   Top offset accounts for the 64px site-header so the pillar title
+   isn't covered. The cinematic's JS keeps `translate(-50%, -50%)`
+   in the transform — we shift the anchor down with `top:` to clear
+   the header instead of fighting the translate. Height shrinks
+   accordingly so the card doesn't bleed past the pin bottom. */
+@media (max-width: 900px) {
+  .pc-card-wrap {
+    width: 100%;
+    top: calc(50% + 32px);
+    height: calc(100dvh - 100px);
+    max-height: calc(100dvh - 100px);
+  }
+}
+
+/* LSI marker on the balance-mode gauge inside the embedded
+   PillarsTriangleHeaders card. Lives in global.css so the rule
+   loads on both /our-approach (cinematic) and /our-approach-v2
+   (sandbox). Position is driven by `left: <var--pos>%` (percent of
+   the TRACK), then transform: translate(-50%, -50%) centers the
+   marker on that point. (The earlier transform-only approach was
+   buggy — translate percentages are relative to the marker's own
+   26px width, so the dot only moved ~13px total across the bar.) */
+.pth-lsi__marker {
+  position: absolute;
+  top: 50%;
+  left: calc(var(--pos, 50) * 1%);
+  width: 26px;
+  height: 26px;
+  background: #fff;
+  border: 4px solid var(--color-cyan, #06b6d4);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .45);
+  transition: left 200ms cubic-bezier(.2, .8, .2, 1);
+  will-change: left;
+  pointer-events: none;
+}
+
+/* Old per-pillar panels (left in place in case anything still
+   references them). Kept hidden so they don't render during the
+   transition to the embedded-card layout. */
 .pc-panels {
   position: absolute;
   inset: 0;
@@ -10529,6 +10614,27 @@ p:last-child {
   .oss__logo-btn { transform: scale(0.85); }
 }
 
+/* Mobile-only reorder: story copy on top, then the logo wheel +
+   active partner panel, then the partner-inquiry form at the
+   bottom. `display: contents` on .oss__left flattens its children
+   into the grid so each can be ordered independently. Grid gap
+   is tightened so the kicker/heading/lead group reads as a single
+   block of copy rather than 3 separate ones; the logo wheel and
+   form get the original 3rem separation via top margin. */
+@media (max-width: 899px) {
+  .oss__grid {
+    gap: 0;
+  }
+  .oss__left {
+    display: contents;
+  }
+  .oss__kicker { order: 1; }
+  .oss__heading { order: 2; }
+  .oss__lead { order: 3; }
+  .oss__right { order: 4; margin-top: 3rem; }
+  .oss__form { order: 5; margin-top: 3rem; }
+}
+
 /* ====================================================================
    VisitScrollStack — sandbox experiment. Pinned scroll-driven card
    reveal: cards stack in one-by-one as the user scrolls, photo on
@@ -10576,13 +10682,37 @@ p:last-child {
 }
 
 /* Section header — pinned with the inner row so it stays visible
-   throughout the scroll. Compact: eyebrow + h2 + subtitle. */
+   throughout the scroll. Compact: eyebrow + h2 + subtitle.
+   Two variants: --desktop sits inside the pin, --mobile sits
+   outside so it scrolls past naturally before the pin engages. */
 .vss-header {
   width: 100%;
   max-width: 1480px;
   margin: 0 auto;
   padding-inline: var(--space-6);
   text-align: center;
+}
+/* Default (desktop): show the in-pin header, hide the outer one. */
+.vss-header--mobile {
+  display: none;
+}
+.vss-header--desktop {
+  display: block;
+}
+/* Mobile: invert — header scrolls naturally above the pinned
+   cards. Top padding gives it breathing room from the prior
+   section; bottom padding stays tight so the header sits close
+   to the photo without leaving an obvious empty gap. */
+@media (max-width: 899px) {
+  .vss-header--mobile {
+    display: block;
+    padding-top: var(--space-6);
+    padding-bottom: 0;
+    background: transparent;
+  }
+  .vss-header--desktop {
+    display: none;
+  }
 }
 
 .vss-header__eyebrow {
@@ -10758,14 +10888,19 @@ p:last-child {
    description scrolls within the active card if its slot is too
    short to fit the full body (graceful clipping on small screens). */
 .vss-card__body {
-  display: none;
-  /* Aligns the body text under the title (past the numeral pill). */
+  /* Smoothly collapse + fade so the body doesn't snap-vanish when
+     the active card flips to the next one during scroll. max-height
+     + opacity are both animatable — display: none / block is not. */
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
   padding-left: calc(34px + 0.9rem);
-  margin-top: 0.85rem;
-  overflow-y: auto;
-  /* Hide scrollbar visually — the user can still scroll inside the
-     body but no chrome bar appears. */
+  margin-top: 0;
   scrollbar-width: none;
+  transition:
+    max-height 320ms cubic-bezier(.2, .8, .2, 1),
+    opacity 200ms ease,
+    margin-top 320ms cubic-bezier(.2, .8, .2, 1);
 }
 
 .vss-card__body::-webkit-scrollbar {
@@ -10773,10 +10908,10 @@ p:last-child {
 }
 
 .vss-card.is-expanded .vss-card__body {
-  display: block;
-  /* Allow the body to expand into all remaining card slot height. */
-  flex: 1 1 auto;
-  min-height: 0;
+  max-height: 320px;
+  opacity: 1;
+  margin-top: 0.85rem;
+  overflow-y: auto;
 }
 
 .vss-card__desc {
@@ -10881,21 +11016,45 @@ p:last-child {
 }
 
 @media (max-width: 899px) {
-  .vss-inner {
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--space-5);
+  /* Pin layout on mobile: anchor to top (no centering — center
+     leaves a big empty band above the photo). Content order:
+     photo → cards. Pin keeps its 100vh height (ScrollTrigger needs
+     that for pinSpacing math), and the photo grows tall enough to
+     consume the remaining space below the cards so the pin doesn't
+     feel half-empty. */
+  .vss-pin {
+    justify-content: flex-start;
+    gap: var(--space-3);
+    padding-block: var(--space-3) var(--space-3);
   }
 
-  /* Mobile: photo on top, cards below, timeline below cards (hidden
-     for now — vertical gauge doesn't carry its meaning when the page
-     scrolls naturally instead of pinning). */
+  .vss-inner {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-3);
+  }
+
+  /* Mobile: photo on top, cards below (matches desktop hierarchy
+     where the photo is the dominant visual). Timeline (vertical
+     gauge) is hidden — its semantics don't survive natural mobile
+     scrolling. */
   .vss-media { grid-column: 1; grid-row: 1; }
   .vss-cards { grid-column: 1; grid-row: 2; }
   .vss-timeline { display: none; }
 
+  /* Photo height tuned so the active card's expanded body fits
+     inside the pinned viewport WITHOUT being clipped at the
+     bottom. Math on a 812px-tall phone:
+       header-offset (104) + pin-top-padding (12) + photo (28vh ≈ 227)
+       + row-gap (12) + 2 collapsed card heads (~120) + 2 card gaps
+       (~10) + expanded card head (~50) + expanded body (max ~300)
+       ≈ 845px — which is slightly over a full viewport but the body
+       text caps below max so it typically lands well inside. The
+       previous 40vh photo was clipping the bottom of card 03's body
+       ("Every visit closes…" trailed off-screen). */
   .vss-media {
-    aspect-ratio: 16 / 10;
-    min-height: 0;
+    aspect-ratio: auto;
+    height: 28vh;
+    min-height: 180px;
   }
 }
 

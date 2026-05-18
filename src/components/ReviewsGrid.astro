@@ -1,0 +1,113 @@
+---
+/**
+ * ReviewsGrid — 3-up static grid of the top reviews. Matches the
+ * format used in the /our-approach reviews section so review blocks
+ * read the same site-wide. Replaces the older ReviewCarousel.
+ *
+ * Renders just the grid (cards + stars + quote + name). Use inside
+ * a wrapping section that supplies the kicker, heading, and Google
+ * CTA so each page can frame it in its own background.
+ *
+ * Tile styles live globally in /our-approach.astro under
+ * :global(.reviews-grid) / :global(.review-tile) — that's where
+ * they were extracted from, so we share the same look without
+ * duplicating CSS.
+ */
+import { REVIEWS } from '../data/reviews';
+
+interface Props {
+  /** How many reviews to show. Defaults to 3 (matching our-approach). */
+  count?: number;
+}
+
+const { count = 3 } = Astro.props;
+---
+
+<div class="reviews-grid" data-reveal="fade-up" data-reveal-stagger="0.12">
+  {REVIEWS.slice(0, count).map((r) => (
+    <article class="review-tile">
+      <div class="review-tile__stars" aria-label={`${r.stars} out of 5 stars`}>
+        {'★'.repeat(r.stars)}
+      </div>
+      <p class="review-tile__quote">"{r.quote}"</p>
+      <span class="review-tile__name">— {r.name}</span>
+    </article>
+  ))}
+</div>
+
+<style is:global>
+  /* 3-tile review grid — shared across every page that uses
+     <ReviewsGrid />. Matches the original our-approach styling.
+     `is:global` so the selectors leak to the rendered tiles
+     (which only carry the class names, no Astro scoping hash). */
+  .reviews-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-5);
+    margin-top: var(--space-6);
+  }
+
+  .review-tile {
+    background: var(--color-bg-alt, #F9F6F0);
+    border: 1px solid var(--color-border, #e5e7eb);
+    border-radius: 18px;
+    padding: var(--space-5);
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+
+  .review-tile__stars {
+    color: var(--color-gold, #F59E0B);
+    font-size: 0.95rem;
+    letter-spacing: 0.08em;
+  }
+
+  .review-tile__quote {
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: var(--color-text, #1E3A5F);
+    margin: 0;
+    /* Clamp quotes so all 3 tiles stay visually balanced. */
+    display: -webkit-box;
+    -webkit-line-clamp: 7;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .review-tile__name {
+    margin-top: auto;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--color-text-light, #5a6c7d);
+  }
+
+  /* Mobile: turn the 3-up grid into a horizontal scroll-snap
+     carousel. Native swipe handles navigation — no arrows, no dots.
+     Each tile is ~85% wide so the next one peeks from the right
+     edge as a swipe affordance. Mirrors the pattern used by
+     ServicePageFinale's reviews pill. */
+  @media (max-width: 768px) {
+    .reviews-grid {
+      display: flex;
+      grid-template-columns: none;
+      gap: 0.85rem;
+      overflow-x: auto;
+      overflow-y: visible;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      /* Pull edges out so the first card runs flush to the container
+         padding and one card snaps centered with the next peeking. */
+      margin-inline: calc(var(--space-4, 1rem) * -1);
+      padding: 0.25rem var(--space-4, 1rem);
+    }
+    .reviews-grid::-webkit-scrollbar { display: none; }
+    .reviews-grid > .review-tile {
+      flex: 0 0 85%;
+      min-width: 0;
+      scroll-snap-align: center;
+    }
+  }
+</style>

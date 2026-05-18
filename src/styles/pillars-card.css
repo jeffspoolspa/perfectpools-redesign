@@ -1,0 +1,2453 @@
+  /* ====================================================================
+     PillarsTriangleHeaders sandbox — scroll-pinned card.
+     The outer .pth-section is a tall scroll container (~250vh) and
+     .pth-section__pin is the sticky pinning wrapper that holds the
+     card in the viewport as the user scrolls through the section.
+     Scroll progress is computed in the component from this section's
+     getBoundingClientRect and drives:
+       • Phase A — triangle scales + slides from big center into the
+         in-card header slot.
+       • Phase B → C — sanitation ↔ balance mode switch at 0.55.
+     ==================================================================== */
+  .pth-section {
+    position: relative;
+    height: 250vh;
+  }
+  .pth-section__pin {
+    position: sticky;
+    top: 80px;
+    height: calc(100vh - 100px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Allow the (initially scaled) triangle to overflow the card
+       without being clipped by the sticky bounding box. */
+    overflow: visible;
+  }
+  .pth-section__pin .pth {
+    width: 100%;
+    max-width: 1080px;
+  }
+
+  .pth {
+    color: #0f172a;
+  }
+  .pth-card {
+    background: #ffffff;
+    border-radius: 24px;
+    box-shadow: 0 24px 60px rgba(2, 8, 20, .35);
+    overflow: hidden;
+  }
+
+  /* TOP PANEL — split layout. */
+  .pth-card__top {
+    display: grid;
+    grid-template-columns: minmax(280px, 36%) 1fr;
+    gap: 0;
+    padding: var(--fluid-32);
+    background: #ffffff;
+  }
+  .pth-card__left {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fluid-20);
+    padding-right: var(--fluid-28);
+  }
+  .pth-card__right {
+    padding-left: var(--fluid-28);
+    border-left: 1px solid rgba(15, 23, 42, .08);
+    /* Clip content that slides leftward past this panel's left edge
+       so it visually "disappears into the left panel" instead of
+       traveling across the card. The new content then re-emerges
+       from this same left edge as it slides back in from below
+       translateX(-120%). */
+    overflow: hidden;
+  }
+  .pth-card__panel-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+    margin: 0;
+    color: var(--color-dark-blue, #0c4a6e);
+  }
+  .pth-card__panel-title--right {
+    text-align: right;
+    color: rgba(15, 23, 42, .65);
+  }
+
+  /* Mode toggle — sanitation ↔ balance. Tesla-style pill segmented
+     control, matches the SanitationTabs switcher used elsewhere. */
+  .pth-mode-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: rgba(15, 23, 42, .06);
+    border-radius: 12px;
+    padding: 4px;
+    gap: 4px;
+    margin-bottom: var(--fluid-12);
+  }
+  .pth-mode-tab {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    padding: 10px 12px;
+    font-size: .82rem;
+    font-weight: 600;
+    letter-spacing: .02em;
+    color: rgba(15, 23, 42, .6);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background .2s ease, color .2s ease, box-shadow .2s ease;
+  }
+  .pth-mode-tab.is-active {
+    background: #fff;
+    color: var(--color-dark-blue, #0c4a6e);
+    box-shadow: 0 1px 3px rgba(15, 23, 42, .12);
+  }
+
+  /* ===== Desktop reading rows (horizontal sliders) — height-collapse
+     panel-mode animation. The sliders are stacked vertically so
+     hiding a row collapses its height + opacity + margin. */
+  .pth-readings--desktop .pth-reading {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: var(--fluid-16);
+    max-height: 100px;
+    overflow: hidden;
+    transition:
+      max-height 350ms cubic-bezier(.2, .8, .2, 1),
+      opacity 250ms ease,
+      transform 400ms cubic-bezier(.2, .8, .2, 1),
+      margin-bottom 350ms cubic-bezier(.2, .8, .2, 1);
+  }
+  .pth-readings--desktop .pth-reading:last-child {
+    margin-bottom: 0;
+  }
+  /* Slider row head — label on the left, current value on the right.
+     Same typography as the standalone LSI calculator so the two
+     readings vocabularies stay in sync. */
+  .pth-readings--desktop .pth-reading__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .pth-readings--desktop .pth-reading__label {
+    font-size: .78rem;
+    color: rgba(15, 23, 42, .65);
+    letter-spacing: .02em;
+  }
+  .pth-readings--desktop .pth-reading__value {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: .95rem;
+    font-weight: 700;
+    color: var(--color-dark-blue, #0c4a6e);
+  }
+  .pth-readings--desktop .pth-reading--sanitation-only {
+    --vis: max(0, calc(1 - var(--pth-balance-amount, 0) * 2));
+    opacity: var(--vis);
+    transform: translateY(calc((var(--vis) - 1) * 120%));
+    max-height: calc(var(--vis) * 100px);
+    margin-bottom: calc(var(--vis) * var(--fluid-16));
+    pointer-events: none;
+  }
+  .pth-readings--desktop .pth-reading--sanitation-only[data-state="visible"] {
+    pointer-events: auto;
+  }
+  .pth-readings--desktop .pth-reading--balance-only {
+    --vis: max(0, calc(var(--pth-balance-amount, 0) * 2 - 1));
+    opacity: var(--vis);
+    transform: translateY(calc((var(--vis) - 1) * 120%));
+    max-height: calc(var(--vis) * 100px);
+    margin-bottom: calc(var(--vis) * var(--fluid-16));
+    pointer-events: none;
+  }
+  .pth-readings--desktop .pth-reading--balance-only[data-state="visible"] {
+    pointer-events: auto;
+  }
+  .pth-readings--desktop .pth-reading--common {
+    --vis: max(
+      calc(1 - var(--pth-balance-amount, 0) * 2),
+      calc(var(--pth-balance-amount, 0) * 2 - 1)
+    );
+    opacity: var(--vis);
+    transform: translateY(calc((var(--vis) - 1) * 120%));
+    max-height: calc(var(--vis) * 100px);
+    margin-bottom: calc(var(--vis) * var(--fluid-16));
+    pointer-events: none;
+  }
+  .pth-readings--desktop .pth-reading--common[data-state="visible"] {
+    pointer-events: auto;
+  }
+
+  /* ===== Mobile dial cells — width-collapse panel-mode animation.
+     When a panel-mode cell is hidden, it collapses its WIDTH so
+     other dials in the row reflow naturally. */
+  .pth-readings--mobile .pth-reading {
+    flex: 0 0 auto;
+    width: 110px;
+    min-width: 0;
+    position: relative;
+    overflow: visible; /* tooltip needs to escape the cell */
+    transition:
+      width 400ms cubic-bezier(.2, .8, .2, 1),
+      opacity 250ms ease,
+      transform 400ms cubic-bezier(.2, .8, .2, 1);
+  }
+  .pth-readings--mobile .pth-reading--sanitation-only {
+    --vis: max(0, calc(1 - var(--pth-balance-amount, 0) * 2));
+    opacity: var(--vis);
+    width: calc(var(--vis) * 110px);
+    /* Collapse height too — otherwise hidden dials still claim
+       their natural ~88px tall content in flex-wrap, pushing the
+       readings wrapper down and stealing vertical room from the
+       caption + pool below. */
+    max-height: calc(var(--vis) * 120px);
+    overflow: hidden;
+    transform: translateY(calc((var(--vis) - 1) * 30%));
+    pointer-events: none;
+  }
+  .pth-readings--mobile .pth-reading--sanitation-only[data-state="visible"] {
+    pointer-events: auto;
+  }
+  .pth-readings--mobile .pth-reading--balance-only {
+    --vis: max(0, calc(var(--pth-balance-amount, 0) * 2 - 1));
+    opacity: var(--vis);
+    width: calc(var(--vis) * 110px);
+    max-height: calc(var(--vis) * 120px);
+    overflow: hidden;
+    transform: translateY(calc((var(--vis) - 1) * 30%));
+    pointer-events: none;
+  }
+  .pth-readings--mobile .pth-reading--balance-only[data-state="visible"] {
+    pointer-events: auto;
+  }
+  .pth-readings--mobile .pth-reading--common {
+    --vis: max(
+      calc(1 - var(--pth-balance-amount, 0) * 2),
+      calc(var(--pth-balance-amount, 0) * 2 - 1)
+    );
+    opacity: var(--vis);
+    width: calc(var(--vis) * 110px);
+    max-height: calc(var(--vis) * 120px);
+    overflow: hidden;
+    transform: translateY(calc((var(--vis) - 1) * 30%));
+    pointer-events: none;
+  }
+  .pth-readings--mobile .pth-reading--common[data-state="visible"] {
+    pointer-events: auto;
+  }
+
+  /* Balance-mode top row — single full-width LSI gauge (no longer a
+     2-column grid). */
+  .pth-viz-top[data-mode="balance"] {
+    grid-template-columns: 1fr;
+  }
+
+  /* Full-width LSI gauge — same layout as the LSICalculator gauge in
+     the existing pillar: top row (LSI label + value | status), 3-zone
+     track with a sliding white marker, then zone labels underneath. */
+  .pth-lsi {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: var(--fluid-16) var(--fluid-20);
+    background: rgba(15, 23, 42, .03);
+    border: 1px solid rgba(15, 23, 42, .08);
+    border-radius: 12px;
+  }
+  .pth-lsi__top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .pth-lsi__readout {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .pth-lsi__label {
+    font-size: .68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .14em;
+    color: rgba(15, 23, 42, .55);
+  }
+  .pth-lsi__value {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--color-primary, #0284c7);
+  }
+  .pth-lsi__status {
+    font-size: .9rem;
+    font-weight: 700;
+  }
+  .pth-lsi--balanced .pth-lsi__status { color: #059669; }
+  .pth-lsi--corrosive .pth-lsi__status { color: #dc2626; }
+  .pth-lsi--scaling .pth-lsi__status   { color: #d97706; }
+  .pth-lsi__track {
+    position: relative;
+    height: 10px;
+    border-radius: 999px;
+    overflow: hidden;
+    display: flex;
+    margin-top: 4px;
+  }
+  .pth-lsi__zone { height: 100%; }
+  .pth-lsi__zone--corrosive {
+    flex: 4;
+    background: linear-gradient(to right, #ef4444, #f87171);
+  }
+  .pth-lsi__zone--balanced {
+    flex: 2;
+    background: #10b981;
+  }
+  .pth-lsi__zone--scaling {
+    flex: 4;
+    background: linear-gradient(to right, #fbbf24, #f97316);
+  }
+  /* Same shape + size as the slider thumb on the FC/pH/CYA sliders —
+     white center with a 4px cyan ring — so the marker reads as the
+     same "you are here" control instead of a generic dot.
+     Position is driven by `left: <var--pos>%` (percent of the track,
+     not the marker's own width), then translated by -50%/-50% so it
+     centers on that point. This is the correct way to move a marker
+     across a track in CSS — a transform-based percentage would have
+     been relative to the marker's 26px width, giving only ~13px of
+     total travel even at pos 0 ↔ 100. */
+  .pth-lsi__marker {
+    position: absolute;
+    top: 50%;
+    left: calc(var(--pos, 50) * 1%);
+    width: 26px;
+    height: 26px;
+    background: #fff;
+    border: 4px solid var(--color-cyan, #06b6d4);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .45);
+    /* Animate `left` so the dot smoothly slides as the user drags
+       the chemistry sliders. */
+    transition: left 200ms cubic-bezier(.2, .8, .2, 1);
+    will-change: left;
+  }
+  .pth-lsi__labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: .62rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: rgba(15, 23, 42, .5);
+    margin-top: 2px;
+  }
+
+  /* Title flip-in — fires whenever the keyed h3 remounts (mode flip).
+     Card stays put; only the heading text fades + slides into place. */
+  .pth-pillar-head__title--flip {
+    animation: pth-title-flip 360ms cubic-bezier(.2, .8, .2, 1);
+  }
+  @keyframes pth-title-flip {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Pool water blur — driven by --pool-water-blur set on .pth-pool-wrap.
+     Only the water + deep + ripple groups blur; the ladder stays sharp
+     so the rust state is still readable while water goes cloudy. */
+  .pth-pool-wrap .pool-icon__water {
+    filter: blur(var(--pool-water-blur, 0px));
+    transition: filter .4s ease;
+  }
+
+  /* Slider ideal-zone bands (balance mode) — sit on top of the slider
+     track so the user can see the pool-industry "sweet spot" at a
+     glance. The band layers below the thumb so the thumb still reads
+     clearly when it's inside the ideal zone. */
+  .pth-reading__slider-wrap {
+    position: relative;
+  }
+  .pth-reading__range {
+    position: absolute;
+    top: 50%;
+    height: 10px;
+    margin-top: -5px;
+    border-radius: 999px;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .pth-reading__range--ok {
+    background: rgba(245, 158, 11, .18);
+    border: 1px solid rgba(245, 158, 11, .35);
+  }
+  .pth-reading__range--ideal {
+    background: rgba(16, 185, 129, .25);
+    border: 1px solid rgba(16, 185, 129, .55);
+  }
+  .pth-reading__slider-wrap .pp-slider {
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Hint line under each balance slider — swaps copy based on whether
+     the value is in the ideal zone (neutral), too low, or too high. */
+  .pth-reading__hint {
+    margin: 6px 0 0;
+    font-size: .76rem;
+    line-height: 1.4;
+    color: rgba(15, 23, 42, .65);
+  }
+  .pth-reading__hint--ideal {
+    color: #047857;
+  }
+  .pth-reading__hint--ok {
+    color: #b45309;
+  }
+  .pth-reading__hint--bad {
+    color: #b91c1c;
+  }
+
+  /* Status callouts — slide IN from the left (same direction as
+     the balance pane above) so they read as part of the same
+     leftward → rightward motion across the right panel. Height +
+     margin also follow vis so the card body doesn't carry a
+     phantom gap before the cards arrive. */
+  .pth-status-cards {
+    --vis: max(0, calc(var(--pth-balance-amount, 0) * 2 - 1));
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--fluid-12);
+    overflow: hidden;
+    opacity: var(--vis);
+    transform: translateX(calc((var(--vis) - 1) * 120%));
+    max-height: calc(var(--vis) * 320px);
+    margin-top: calc(var(--vis) * 16px);
+    pointer-events: none;
+  }
+  .pth-status-cards[data-active="true"] {
+    pointer-events: auto;
+  }
+  .pth-status-card {
+    padding: var(--fluid-16) var(--fluid-20);
+    border-radius: 12px;
+    border: 1px solid;
+  }
+  .pth-status-card--balanced {
+    background: rgba(16, 185, 129, .08);
+    border-color: rgba(16, 185, 129, .35);
+  }
+  .pth-status-card--corrosive {
+    background: rgba(239, 68, 68, .08);
+    border-color: rgba(239, 68, 68, .35);
+  }
+  .pth-status-card--scaling {
+    background: rgba(245, 158, 11, .08);
+    border-color: rgba(245, 158, 11, .35);
+  }
+  .pth-status-card__title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: .95rem;
+    line-height: 1.2;
+    margin: 0 0 6px;
+  }
+  .pth-status-card--balanced .pth-status-card__title {
+    color: #047857;
+  }
+  .pth-status-card--corrosive .pth-status-card__title {
+    color: #b91c1c;
+  }
+  .pth-status-card--scaling .pth-status-card__title {
+    color: #b45309;
+  }
+  .pth-status-card__body {
+    margin: 0;
+    font-size: .78rem;
+    line-height: 1.45;
+    color: rgba(15, 23, 42, .7);
+  }
+
+  /* Stack the status cards on narrow widths. */
+  @media (max-width: 720px) {
+    .pth-status-cards {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Triangle-as-icon — small inline pillars diagram that sits in the
+     header where the chlorine-square icon used to be. Even at this
+     size the active-slice highlight (Sanitation) still reads, and
+     this gives the cinematic an exact destination to land in. */
+  .pth-pillar-head__triangle {
+    flex-shrink: 0;
+    width: 56px;
+    height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .pth-pillar-head__triangle svg {
+    width: 100%;
+    height: auto;
+    display: block;
+    filter: drop-shadow(0 3px 8px rgba(0, 0, 0, .35));
+  }
+  /* Embedded use — parent owns the moving triangle, so the card's
+     in-header slot is invisible (visibility, not display, so the
+     heading next to it keeps the same leading whitespace). */
+  .pth-pillar-head__triangle--hidden {
+    visibility: hidden;
+  }
+
+  /* Pillar header (icon + colored heading) — ports the .ps__card-header
+     pattern from PillarsScroll so this card visually identifies as the
+     Sanitation pillar. Title color is set inline from PILLARS data. */
+  .pth-pillar-head {
+    display: flex;
+    align-items: center;
+    gap: .85rem;
+    margin-bottom: var(--fluid-12);
+  }
+  /* Right-aligned variant — heading reads first then icon-box, so it
+     anchors to the right edge of the visualization column. */
+  .pth-pillar-head--right {
+    justify-content: flex-end;
+    text-align: right;
+  }
+  .pth-pillar-head__icon {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .25);
+  }
+  .pth-pillar-head__icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    /* The chlorine SVG is dark-on-light; invert it so it reads on the
+       dark navy icon background. */
+    filter: brightness(0) invert(1);
+    opacity: .95;
+  }
+  .pth-pillar-head__text {
+    /* Two-line stack: pillar title + one-line subtitle that summarizes
+       what the rest of the card is showing. Replaces the separate
+       header card the design mockup had above the calculator. */
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+    flex: 1;
+  }
+  .pth-pillar-head__title {
+    font-family: 'Poppins', sans-serif;
+    font-size: clamp(1.05rem, 1.8vw, 1.35rem);
+    font-weight: 600;
+    line-height: 1.25;
+    margin: 0;
+    /* Allow wrap so long pillar headings ("Water Balance & Chemistry")
+       break onto two lines instead of overflowing into the right panel
+       at narrow card widths. min-width: 0 lets the flex item shrink
+       below its intrinsic content width so wrapping can kick in. */
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
+  .pth-pillar-head__subtitle {
+    margin: 0;
+    font-size: .82rem;
+    line-height: 1.45;
+    color: rgba(15, 23, 42, .62);
+    text-wrap: pretty;
+  }
+  /* Subtitle stays visible on mobile too — it's the only place the
+     "why active HOCl matters" framing lives now that the header
+     card is gone. Scale down so it fits comfortably under the
+     pillar title without crowding the dials. */
+  @media (max-width: 900px) {
+    .pth-pillar-head__subtitle {
+      font-size: .68rem;
+      line-height: 1.45;
+    }
+  }
+
+  /* Readings + viz pane variants. Desktop = vertical slider stack +
+     straight HOCl bar. Mobile = horizontal dial row + curved HOCl arc.
+     Each pair mounts together so React state stays in sync regardless
+     of which is visible; only one is rendered per viewport via
+     display:none / display: <layout> overrides in the mobile @media
+     block further down. */
+  .pth-readings--desktop {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fluid-16);
+  }
+  .pth-readings--mobile {
+    display: none;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    gap: var(--fluid-12);
+  }
+  /* Mobile viz pane (curved arc + stacked Min FC) is hidden on
+     desktop. Two-class chain wins over the later
+     `.pth-viz-pane--sanitation { display: grid }` rule. The mobile
+     @media block re-shows it. */
+  .pth-viz-pane.pth-viz-pane--mobile {
+    display: none;
+  }
+
+  /* ======================================================================
+     Semicircular dial (.sdial) — compact half-circle gauge replacing
+     the horizontal sliders. Bullets that used to sit beside the slider
+     row are now tucked behind a ⓘ button on the dial so we reclaim
+     vertical space (especially valuable on mobile).
+     ====================================================================== */
+  .sdial {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    user-select: none;
+    touch-action: none;
+    width: 100%;
+  }
+  .sdial__svg {
+    width: 100%;
+    max-width: 130px;
+    height: auto;
+    display: block;
+    cursor: grab;
+    touch-action: none;
+  }
+  .sdial.is-dragging .sdial__svg { cursor: grabbing; }
+  .sdial.is-disabled .sdial__svg { cursor: not-allowed; opacity: .7; }
+  .sdial__readout {
+    display: flex;
+    align-items: baseline;
+    gap: 3px;
+    /* Overlap the SVG so the value reads as sitting INSIDE the arc. */
+    margin-top: -16px;
+    font-family: 'Poppins', sans-serif;
+  }
+  .sdial__value {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--color-dark-blue, #0c4a6e);
+    line-height: 1;
+  }
+  .sdial__unit {
+    font-size: .62rem;
+    font-weight: 600;
+    color: rgba(15, 23, 42, .55);
+    text-transform: lowercase;
+  }
+  .sdial__label-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 4px;
+  }
+  .sdial__label {
+    font-size: .65rem;
+    font-weight: 700;
+    color: rgba(15, 23, 42, .65);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    white-space: nowrap;
+  }
+  .sdial__label-suffix {
+    margin-left: 4px;
+    color: var(--color-orange, #E28D33);
+    font-weight: 700;
+    letter-spacing: .12em;
+    font-size: .55rem;
+  }
+  .sdial__info {
+    appearance: none;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    padding: 1px 4px;
+    font-size: .9rem;
+    color: rgba(15, 23, 42, .35);
+    border-radius: 50%;
+    transition: color .15s, background .15s;
+    line-height: 1;
+  }
+  .sdial__info:hover,
+  .sdial__info.is-open {
+    color: var(--color-cyan, #06b6d4);
+    background: rgba(6, 182, 212, .12);
+  }
+  .sdial__tip {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    /* --tip-shift is set by JS to push the body inward when near the
+       viewport edge; arrow uses the inverse so it still points at the
+       dial center. Defaults to 0 for the common centered case. */
+    transform: translateX(calc(-50% + var(--tip-shift, 0px)));
+    margin-top: 6px;
+    padding: 8px 10px;
+    background: rgba(15, 23, 42, .94);
+    color: rgba(241, 245, 249, .95);
+    font-size: .7rem;
+    font-weight: 500;
+    line-height: 1.4;
+    border-radius: 8px;
+    width: max-content;
+    max-width: min(200px, calc(100vw - 24px));
+    text-align: center;
+    z-index: 20;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .25);
+    pointer-events: none;
+  }
+  .sdial__tip::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(calc(-50% - var(--tip-shift, 0px)));
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 5px solid rgba(15, 23, 42, .94);
+  }
+
+  /* Slider — dark-theme overrides for the pp-slider component when
+     it lives inside the simulation panel. Mirrors the same shape +
+     proportions as the project's existing slider (in pool-tools.css):
+     hefty 10px track, 26px thumb with a colored border ring, brand
+     primary→cyan gradient fill. Bumped a couple of sizes vs the
+     baseline so the slider feels substantial on the dark panel. */
+  .pth-card__left .pp-slider {
+    position: relative;
+    width: 100%;
+    height: 32px;
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+  }
+  .pth-card__left .pp-slider.is-dragging {
+    cursor: grabbing;
+  }
+  .pth-card__left .pp-slider__track {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 10px;
+    margin-top: -5px;
+    background: rgba(10, 30, 55, .1);
+    border-radius: 999px;
+    pointer-events: none;
+  }
+  .pth-card__left .pp-slider__fill {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    height: 10px;
+    margin-top: -5px;
+    background: linear-gradient(to right, var(--color-primary, #0284c7), var(--color-cyan, #06b6d4));
+    border-radius: 999px;
+    pointer-events: none;
+  }
+  .pth-card__left .pp-slider__thumb {
+    position: absolute;
+    top: 50%;
+    width: 26px;
+    height: 26px;
+    margin-left: -13px;
+    margin-top: -13px;
+    background: #ffffff;
+    border: 4px solid var(--color-cyan, #06b6d4);
+    border-radius: 50%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .45);
+    pointer-events: none;
+    transition: transform 120ms ease, box-shadow 120ms ease;
+  }
+  .pth-card__left .pp-slider:hover .pp-slider__thumb {
+    transform: scale(1.08);
+  }
+  .pth-card__left .pp-slider.is-dragging .pp-slider__thumb {
+    transform: scale(1.15);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, .55);
+  }
+
+  /* Sanitation-only extras (bullets + deplete CTA) — slide UP into
+     the triangle as balance increases.
+     vis 1 → 0: translateY 0 → −120% (slides up off the top of the
+     card, toward the triangle in the header). Height also collapses
+     so the card body tightens up cleanly. */
+  .pth-sanitation-extras {
+    --vis: max(0, calc(1 - var(--pth-balance-amount, 0) * 2));
+    display: flex;
+    flex-direction: column;
+    gap: var(--fluid-20);
+    overflow: hidden;
+    opacity: var(--vis);
+    transform: translateY(calc((var(--vis) - 1) * 120%));
+    max-height: calc(var(--vis) * 320px);
+    pointer-events: none;
+  }
+  .pth-sanitation-extras[data-active="true"] {
+    pointer-events: auto;
+  }
+
+  /* === Active HOCl info button ===
+     Small ⓘ tucked next to the "Active HOCl" label. Opens the
+     waterfall modal that explains the FC → HOCl → Active chain. */
+  .pth-hoclmeter__info {
+    appearance: none;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    padding: 0 0 0 4px;
+    margin-left: 2px;
+    font-size: .85em;
+    line-height: 1;
+    color: rgba(15, 23, 42, .45);
+    transition: color .15s ease;
+    vertical-align: middle;
+  }
+  .pth-hoclmeter__info:hover,
+  .pth-hoclmeter__info:focus-visible {
+    color: var(--color-primary, #0284c7);
+    outline: none;
+  }
+
+  /* === HOCl waterfall modal === */
+  .pth-hocl-modal {
+    position: fixed;
+    /* Anchor explicitly to the *visual* viewport via 100vw/100vh
+       instead of inset:0 — on mobile, `inset:0` resolves to the
+       layout viewport which can be slightly wider than the visible
+       viewport (browser chrome, device emulation, etc.), causing
+       the centered panel to sit off-center visually. */
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Generous viewport padding so the panel never sits flush against
+       the screen edge. */
+    padding: 24px;
+    background: rgba(2, 8, 20, .6);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    opacity: 1;
+  }
+  .pth-hocl-modal__panel {
+    position: relative;
+    width: 100%;
+    /* Cap at 760px on desktop AND at the viewport width minus
+       breathing room. The latter guarantees the panel never sits
+       flush against either screen edge regardless of how the
+       browser reports innerWidth vs visual viewport. */
+    max-width: min(760px, calc(100vw - 48px));
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 22px 24px 20px;
+    box-shadow: 0 24px 60px rgba(2, 8, 20, .45);
+    opacity: 1;
+    /* Anything inside the panel that tries to be wider than the
+       panel itself (chart SVG labels, etc.) gets clipped at the
+       border-radius — prevents content from "escaping" the card. */
+    overflow: hidden;
+  }
+  .pth-hocl-modal__close {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    appearance: none;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    font-size: 1.5rem;
+    line-height: 1;
+    color: rgba(15, 23, 42, .45);
+    padding: 6px 10px;
+    border-radius: 8px;
+    transition: color .15s, background .15s;
+  }
+  .pth-hocl-modal__close:hover {
+    color: var(--color-dark-blue, #0c4a6e);
+    background: rgba(15, 23, 42, .06);
+  }
+  /* Title sits inline above the chart — no separate header card.
+     Centered so it reads as a chart caption above the bars. */
+  .pth-hocl-modal__title {
+    margin: 0 0 10px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--color-dark-blue, #0c4a6e);
+    text-align: center;
+    /* Symmetric horizontal padding so the title centers visually
+       even though the close × sits in the top-right corner. */
+    padding: 0 32px;
+  }
+
+  /* HOClWaterfall ships a full interactive component (intro paragraph,
+     3 input sliders, the bars chart, an Active HOCl meter, status
+     badges, and a "see daily protection" CTA). In the modal we only
+     want the bars chart + the hover tooltips — the rest duplicates
+     controls and copy that already live in the parent card. */
+  .pth-hocl-modal .hwf__intro,
+  .pth-hocl-modal .hwf__inputs,
+  .pth-hocl-modal .hwf__meter,
+  .pth-hocl-modal .hwf__status,
+  .pth-hocl-modal .hwf__next-step {
+    display: none;
+  }
+  /* The CYA-Bound segment tooltip ships a "See reserve deplete →"
+     action button that triggers a chart-level FC animation. We
+     already have the deplete simulation in the parent card so the
+     button is redundant here — hide it but keep the hover copy. */
+  .pth-hocl-modal .hwf__tip-btn {
+    display: none;
+  }
+  /* Tighten the chart wrapper since the meter that used to follow
+     it is now hidden. */
+  .pth-hocl-modal .hwf__chart-wrap {
+    padding: 0;
+    margin: 0;
+  }
+  /* Mobile compact tweaks — kill the title to give the graph more
+     vertical room. The close × is still tappable in the corner. */
+  @media (max-width: 480px) {
+    .pth-hocl-modal__panel {
+      padding: 18px 16px 14px;
+      max-height: calc(100dvh - 32px);
+      overflow-y: auto;
+    }
+    .pth-hocl-modal__title {
+      display: none;
+    }
+  }
+
+  /* Bullet list. */
+  .pth-bullets {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: .85rem;
+    color: rgba(15, 23, 42, .68);
+    line-height: 1.4;
+  }
+  .pth-bullets li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .pth-bullets__bullet {
+    flex: none;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-cyan, #06b6d4);
+  }
+  /* Mobile dial tooltips carry the same explainer copy — bullets are
+     desktop-only. */
+  @media (max-width: 900px) {
+    .pth-bullets {
+      display: none;
+    }
+  }
+
+  /* ─────────── Simulation time tracker ───────────
+     Lives inside .pth-sanitation-extras, above the deplete CTA.
+     Only rendered while the sim has been triggered. The "running"
+     state pulses; "paused" goes amber; "done" goes a deeper rest
+     state. The "crossed floor" row gets a colored dot so it reads
+     as the warning moment in the timeline. */
+  .pth-sim-status {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px 14px;
+    background: rgba(15, 23, 42, .04);
+    border: 1px solid rgba(15, 23, 42, .08);
+    border-left-width: 3px;
+    border-left-color: var(--color-cyan, #06b6d4);
+    border-radius: 10px;
+    font-size: .8rem;
+    color: rgba(15, 23, 42, .72);
+  }
+  .pth-sim-status.is-running {
+    border-left-color: var(--color-orange, #E28D33);
+    background: rgba(226, 141, 51, .06);
+    animation: pth-sim-pulse 1.6s ease-in-out infinite;
+  }
+  .pth-sim-status.is-paused {
+    border-left-color: #94a3b8;
+    background: rgba(148, 163, 184, .08);
+  }
+  .pth-sim-status.is-done {
+    border-left-color: #84cc16;
+    background: rgba(132, 204, 22, .06);
+  }
+  @keyframes pth-sim-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(226, 141, 51, 0); }
+    50%      { box-shadow: 0 0 0 4px rgba(226, 141, 51, .08); }
+  }
+  .pth-sim-status__row {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    /* Don't wrap — when "13h 15m · FC 1.01 ppm" gets long the row
+       would otherwise pop into 2 lines, then back to 1 as the
+       sim continues. Keep it consistent: always one line. */
+    flex-wrap: nowrap;
+    min-width: 0;
+    white-space: nowrap;
+  }
+  .pth-sim-status__row--floor {
+    color: rgba(15, 23, 42, .65);
+    font-size: .74rem;
+  }
+  .pth-sim-status__label {
+    font-size: .7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: rgba(15, 23, 42, .5);
+    flex-shrink: 0;
+  }
+  .pth-sim-status__row--floor .pth-sim-status__label {
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: .74rem;
+    font-weight: 500;
+    color: inherit;
+  }
+  .pth-sim-status__value {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-weight: 700;
+    font-size: .88rem;
+    color: var(--color-dark-blue, #0c4a6e);
+  }
+  .pth-sim-status__sep {
+    color: rgba(15, 23, 42, .35);
+  }
+  /* Colored dot before the "crossed floor" row — uses the same
+     orange as the HOCl meter's floor tick so the two read as the
+     same threshold. */
+  .pth-sim-status__floor-dot {
+    flex: none;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--color-orange, #E28D33);
+    box-shadow: 0 0 0 2px rgba(226, 141, 51, .18);
+  }
+
+  /* ─────────── Sim row (inline status + buttons) ───────────
+     When the deplete simulation is active, the status pill and its
+     control button(s) sit side-by-side so the whole block stays
+     compact within the mobile viewport. Status takes flex: 1, the
+     button column hugs its content. */
+  .pth-sim-row {
+    display: flex;
+    align-items: stretch;
+    gap: 10px;
+    margin-top: var(--fluid-12);
+  }
+  .pth-sim-row .pth-sim-status {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+  }
+  .pth-sim-row__actions {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    gap: 6px;
+    flex: none;
+  }
+  /* Compact CTA variant for the inline sim-row — smaller padding +
+     font so two buttons stack without busting the row height. */
+  .pth-cta--compact {
+    margin-top: 0;
+    padding: 8px 14px;
+    font-size: .78rem;
+    border-radius: 10px;
+    white-space: nowrap;
+  }
+  .pth-sim-row__actions .pth-cta-link {
+    margin: 0;
+    padding: 4px 8px;
+    font-size: .68rem;
+  }
+
+  /* Primary CTA + animation variants. Uses the site-wide CTA orange
+     (--color-orange / --color-orange-hover) so this matches the
+     "Get a Quote" button and the rest of the site's amber accents. */
+  .pth-cta {
+    margin-top: var(--fluid-12);
+    appearance: none;
+    border: 0;
+    cursor: pointer;
+    background: linear-gradient(135deg, var(--color-orange, #E28D33) 0%, var(--color-orange-hover, #d47e28) 100%);
+    color: #fff;
+    font-weight: 700;
+    font-size: .95rem;
+    padding: 14px 24px;
+    border-radius: 12px;
+    box-shadow: 0 4px 18px rgba(226, 141, 51, .35);
+    transition: transform .15s ease, box-shadow .15s ease, background .2s ease;
+  }
+  .pth-cta:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 22px rgba(226, 141, 51, .5);
+  }
+  .pth-cta--busy {
+    background: linear-gradient(180deg, #94a3b8, #64748b);
+    color: rgba(255, 255, 255, .9);
+    cursor: progress;
+    box-shadow: 0 4px 18px rgba(148, 163, 184, .25);
+    /* subtle pulse so the user can tell it's running */
+    animation: pth-cta-pulse 1.4s ease-in-out infinite;
+  }
+  /* Running variant — same orange as the start button (so it stays
+     the obvious primary action) but with a soft pulse so it reads
+     as "live, click to pause" rather than "idle, click to start". */
+  .pth-cta--running {
+    background: linear-gradient(135deg, var(--color-orange, #E28D33) 0%, var(--color-orange-hover, #d47e28) 100%);
+    color: #fff;
+    box-shadow: 0 4px 18px rgba(226, 141, 51, .45);
+    animation: pth-cta-pulse-orange 1.4s ease-in-out infinite;
+  }
+  .pth-cta--reset {
+    /* Lighter amber variant — same hue family, lower saturation, so
+       it reads as a softer "done" state without breaking the site's
+       orange consistency. */
+    background: linear-gradient(135deg, #f3b876 0%, var(--color-orange, #E28D33) 100%);
+    color: #fff;
+    box-shadow: 0 4px 18px rgba(226, 141, 51, .35);
+  }
+  @keyframes pth-cta-pulse-orange {
+    0%, 100% { box-shadow: 0 4px 18px rgba(226, 141, 51, .4); }
+    50%      { box-shadow: 0 4px 26px rgba(226, 141, 51, .7); }
+  }
+
+  /* Paused state group: primary "Resume" button + smaller reset link
+     beneath it. Stacked so the primary action is unambiguous. */
+  .pth-cta-group {
+    margin-top: var(--fluid-12);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .pth-cta-group .pth-cta {
+    margin-top: 0;
+  }
+  .pth-cta-link {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    color: rgba(15, 23, 42, .6);
+    font-size: .8rem;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 8px;
+    align-self: center;
+    transition: color .15s ease, background .15s ease;
+  }
+  .pth-cta-link:hover {
+    color: var(--color-dark-blue, #0c4a6e);
+    background: rgba(15, 23, 42, .06);
+  }
+  .pth-cta--disabled {
+    background: rgba(15, 23, 42, .06);
+    color: rgba(15, 23, 42, .45);
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+  @keyframes pth-cta-pulse {
+    0%, 100% { box-shadow: 0 4px 18px rgba(148, 163, 184, .25); }
+    50%      { box-shadow: 0 4px 24px rgba(148, 163, 184, .55); }
+  }
+
+  /* Locked reading (FC slider while the simulation runs). */
+  .pth-reading.is-locked {
+    opacity: .85;
+  }
+  .pth-reading.is-locked .pp-slider {
+    cursor: not-allowed;
+  }
+  .pth-reading.is-locked .pp-slider__thumb {
+    border-color: #94a3b8;
+  }
+  .pth-reading__sim {
+    font-size: .68rem;
+    font-weight: 600;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--color-orange, #E28D33);
+    margin-left: 6px;
+  }
+
+  /* Right panel — big value + chart placeholder. */
+  .pth-big-value {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.05;
+    color: #c4b5fd;
+    text-align: right;
+    margin-top: 8px;
+  }
+  .pth-sub-value {
+    text-align: right;
+    font-size: .95rem;
+    color: rgba(241, 245, 249, .8);
+    margin: 6px 0 var(--fluid-20);
+  }
+  .pth-sub-value__muted {
+    color: rgba(241, 245, 249, .55);
+  }
+
+  /* Top row above the pool. Both panes are mounted at all times and
+     overlap inside this container — only the data-active="true" pane
+     is visible. Container is position: relative so the panes can
+     stack via absolute positioning. */
+  .pth-viz-top {
+    position: relative;
+    margin: var(--fluid-12) 0 var(--fluid-20);
+    /* Min-height accommodates the taller pane. Desktop sanitation
+       now hosts the tall FC bars + copy panel (~280px); balance has
+       the LSI gauge (~150px). We size to the taller one so the pool
+       below doesn't jump as the user scrolls between modes. */
+    min-height: 290px;
+  }
+  /* Right panel — slide LEFT into the left panel (toward the
+     triangle), then slide back IN from the left into the right
+     panel position.
+     vis_san = max(0, 1 − 2·balance)  → 1 at balance 0, 0 at ≥0.5
+     vis_bal = max(0, 2·balance − 1)  → 0 at ≤0.5, 1 at balance 1
+     Both panes use the SAME formula `translateX = (vis − 1)·120%`:
+       sanitation (vis 1→0): translateX 0 → −120% (slides leftward
+                              into the triangle area).
+       balance    (vis 0→1): translateX −120% → 0 (emerges from
+                              the triangle area back into the right
+                              panel slot). */
+  .pth-viz-pane {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    pointer-events: none;
+  }
+  .pth-viz-pane--sanitation {
+    --vis: max(0, calc(1 - var(--pth-balance-amount, 0) * 2));
+    opacity: var(--vis);
+    transform: translateX(calc((var(--vis) - 1) * 120%));
+  }
+  .pth-viz-pane--balance {
+    --vis: max(0, calc(var(--pth-balance-amount, 0) * 2 - 1));
+    opacity: var(--vis);
+    transform: translateX(calc((var(--vis) - 1) * 120%));
+  }
+  .pth-viz-pane--sanitation[data-active="true"],
+  .pth-viz-pane--balance[data-active="true"] {
+    pointer-events: auto;
+  }
+  .pth-viz-pane--sanitation {
+    /* Sanitation pane is now a single child wrapper around the
+       .pth-calc-top grid — no need for the old 2-column pane grid. */
+    display: block;
+  }
+  .pth-viz-pane--balance {
+    /* Single full-width LSI gauge. */
+    display: block;
+  }
+
+  /* Active HOCl bar. */
+  .pth-hocl-bar {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: var(--fluid-16) var(--fluid-20);
+    background: rgba(15, 23, 42, .03);
+    border: 1px solid rgba(15, 23, 42, .08);
+    border-radius: 12px;
+  }
+  .pth-hocl-bar__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .pth-hocl-bar__label {
+    font-size: .78rem;
+    font-weight: 600;
+    color: rgba(15, 23, 42, .68);
+    letter-spacing: .02em;
+  }
+  .pth-hocl-bar__value {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: .95rem;
+    font-weight: 700;
+    color: var(--color-dark-blue, #0c4a6e);
+  }
+  .pth-hocl-bar__track {
+    position: relative;
+    height: 14px;
+    background: rgba(15, 23, 42, .1);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .pth-hocl-bar__fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    background: linear-gradient(90deg, #06b6d4, #3FA9F5);
+    border-radius: 8px;
+    transition: width .25s ease, background .25s ease;
+  }
+  .pth-hocl-bar__fill.is-below-floor {
+    background: linear-gradient(90deg, #dc2626, #f87171);
+  }
+  .pth-hocl-bar__floor {
+    position: absolute;
+    top: -3px;
+    bottom: -3px;
+    width: 2px;
+    background: #0f172a;
+    transform: translateX(-1px);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, .5);
+  }
+  .pth-hocl-bar__legend {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    font-size: .7rem;
+    color: rgba(15, 23, 42, .55);
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+  }
+  .pth-hocl-bar__floor-label {
+    position: absolute;
+    transform: translateX(-50%);
+    color: rgba(15, 23, 42, .85);
+    font-weight: 600;
+  }
+
+  /* Big "Min FC needed" data point — site-wide CTA orange. */
+  .pth-min-fc {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: var(--fluid-16) var(--fluid-16);
+    background: rgba(226, 141, 51, .1);
+    border: 1px solid rgba(226, 141, 51, .3);
+    border-radius: 12px;
+  }
+  .pth-min-fc__kicker {
+    font-size: .65rem;
+    font-weight: 700;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: rgba(226, 141, 51, .9);
+  }
+  .pth-min-fc__value {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: clamp(2.2rem, 4vw, 3.2rem);
+    line-height: 1;
+    color: var(--color-orange, #E28D33);
+    margin: 4px 0;
+  }
+  .pth-min-fc__unit {
+    font-size: .72rem;
+    color: rgba(15, 23, 42, .55);
+    line-height: 1.35;
+  }
+
+  /* Pool icon visualization — also rides the right-panel slide.
+     V-curve `--vis` peaks at the endpoints (balance 0 and 1) and
+     dips to 0 at the midpoint, so the pool slides leftward into
+     the left-panel boundary, gets clipped invisible at the swap,
+     and slides back out from that same boundary as balance mode
+     takes over. The pool only has ONE state (color reactivity is
+     chemistry-driven, not mode-driven) so the V curve is correct
+     here — the same pool exits and re-enters. */
+  .pth-pool-wrap {
+    --vis: max(
+      calc(1 - var(--pth-balance-amount, 0) * 2),
+      calc(var(--pth-balance-amount, 0) * 2 - 1)
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: var(--fluid-12) 0 var(--fluid-12);
+    opacity: var(--vis);
+    transform: translateX(calc((var(--vis) - 1) * 120%));
+    /* Default reactive vars — overridable from chemistry state. */
+    --pool-water-light: #7ECCFD;
+    --pool-water-dark: #3FA9F5;
+    --pool-water-ripple: #3FA9F5;
+    --pool-ladder-color: #9FC7E2;
+    --pool-ladder-light: #E2EDF2;
+    --pool-ladder-shadow: #4975AD;
+  }
+  .pth-pool {
+    width: 100%;
+    max-width: 360px;
+    height: auto;
+    display: block;
+    filter: drop-shadow(0 18px 36px rgba(15, 23, 42, .18));
+    transition: filter .3s ease;
+  }
+
+  /* Bar-chart placeholder (kept around in case we want it back). */
+  .pth-chart-placeholder {
+    position: relative;
+    height: 220px;
+    margin-bottom: var(--fluid-16);
+  }
+  .pth-chart-placeholder__grid {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: rgba(125, 211, 252, .08);
+  }
+  .pth-chart-placeholder__bars {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 3px;
+  }
+  .pth-chart-placeholder__bar {
+    flex: 1;
+    background: linear-gradient(180deg, #a78bfa 0%, #4c1d95 100%);
+    border-radius: 3px 3px 0 0;
+    min-height: 4px;
+  }
+  .pth-chart-placeholder__xaxis {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -22px;
+    display: flex;
+    justify-content: space-between;
+    font-size: .72rem;
+    color: rgba(241, 245, 249, .55);
+  }
+  .pth-chart-caption {
+    margin-top: var(--fluid-24);
+    text-align: center;
+    font-size: .88rem;
+    color: rgba(15, 23, 42, .7);
+  }
+  .pth-chart-caption strong {
+    color: var(--color-dark-blue, #0c4a6e);
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+  }
+  /* The new desktop sanitation copy panel covers the same ground as
+     this caption (status + advisory line), so hide it for the
+     sanitation viz. Balance mode keeps its narrative caption below
+     the pool. Sibling selector targets the caption when its
+     preceding viz-top is in sanitation mode. */
+  .pth-viz-top[data-mode="sanitation"] ~ .pth-chart-caption {
+    display: none;
+  }
+  /* Narrative line about the pool — two variants:
+       --full: long form, sits below the pool on desktop
+       --short: opening sentence, sits above the pool on mobile
+     Each is hidden on the opposite breakpoint via the mobile @media
+     overrides further down. */
+  .pth-pool-note {
+    margin: var(--fluid-16) auto 0;
+    max-width: 56ch;
+    text-align: center;
+    font-size: .92rem;
+    line-height: 1.55;
+    color: rgba(15, 23, 42, .68);
+    text-wrap: pretty;
+  }
+  /* Desktop default: full visible, short hidden. */
+  .pth-pool-note--short {
+    display: none;
+  }
+
+  /* =====================================================================
+     Desktop sanitation right-panel — Aave-style layout ported from the
+     Claude Design mockup. Two-column top half (FC vs Min FC tall bars
+     on the left, status copy + horizontal HOCl meter on the right),
+     pool icon below (lives in .pth-pool-wrap, already styled). Mobile
+     hides this whole pane (.pth-viz-pane--desktop { display: none })
+     and shows the vertical-meter card instead.
+     ===================================================================== */
+  .pth-calc-top {
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) 1.2fr;
+    gap: var(--fluid-24);
+    align-items: stretch;
+    padding-bottom: var(--fluid-12);
+  }
+  /* --- FC vs Min FC tall comparison bars --- */
+  .pth-fcbars {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .pth-fcbars__chart {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    align-items: end;
+    min-height: 220px;
+    padding-bottom: 2px;
+  }
+  .pth-fcbars__col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    height: 100%;
+    justify-content: flex-end;
+  }
+  .pth-fcbars__value {
+    font-family: 'Poppins', sans-serif;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 3px;
+  }
+  .pth-fcbars__num {
+    font-weight: 700;
+    font-size: 2.1rem;
+    letter-spacing: -.02em;
+    line-height: 1;
+    background: linear-gradient(135deg, var(--color-primary, #0284c7), var(--color-cyan, #06b6d4));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .pth-fcbars__num.is-low {
+    /* When FC is short of the minimum, the primary number flips to a
+       lime gradient — same tone as the "algae conditions" state. */
+    background: linear-gradient(135deg, #84cc16, #4d7c0f);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .pth-fcbars__value.is-muted .pth-fcbars__num {
+    background: none;
+    -webkit-background-clip: initial;
+    color: rgba(15, 23, 42, .55);
+    font-weight: 600;
+    font-size: 1.85rem;
+  }
+  .pth-fcbars__unit {
+    font-size: .68rem;
+    color: rgba(15, 23, 42, .55);
+    font-weight: 500;
+  }
+  .pth-fcbars__bar {
+    width: 100%;
+    max-width: 110px;
+    border-radius: 12px 12px 4px 4px;
+    transition: height 320ms cubic-bezier(.2, .7, .2, 1), background 200ms ease;
+    min-height: 8px;
+  }
+  .pth-fcbars__bar--primary {
+    background: linear-gradient(180deg, rgba(2, 132, 199, .9) 0%, rgba(6, 182, 212, .65) 100%);
+    box-shadow: inset 0 -8px 14px rgba(2, 132, 199, .18);
+  }
+  .pth-fcbars__bar--primary.is-low {
+    /* Algae-territory hue: chartreuse / lime, matches the warning
+       state used in the design mockup. */
+    background: linear-gradient(180deg, #a3e635 0%, #65a30d 100%);
+    box-shadow: inset 0 -8px 14px rgba(101, 163, 13, .25);
+  }
+  .pth-fcbars__bar--secondary {
+    background: linear-gradient(180deg, #d8dee8 0%, #c6cdd8 100%);
+  }
+  .pth-fcbars__label {
+    font-size: .72rem;
+    font-weight: 600;
+    color: rgba(15, 23, 42, .55);
+    letter-spacing: -.01em;
+    white-space: nowrap;
+  }
+  .pth-fcbars__label.is-primary {
+    color: var(--color-dark-blue, #0c4a6e);
+  }
+  .pth-fcbars__delta {
+    align-self: center;
+    font-size: .78rem;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 999px;
+  }
+  .pth-fcbars__delta.is-ok {
+    background: rgba(5, 150, 105, .08);
+    color: #047857;
+  }
+  .pth-fcbars__delta.is-low {
+    background: rgba(132, 204, 22, .14);
+    color: #4d7c0f;
+  }
+
+  /* --- Status copy panel (right column of top half) --- */
+  .pth-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-top: 4px;
+  }
+  .pth-copy__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--color-primary, #0284c7);
+    font-weight: 600;
+    font-size: .85rem;
+    letter-spacing: -.005em;
+  }
+  .pth-copy__eyebrow.is-low {
+    color: #65a30d;
+  }
+  .pth-copy__eyebrow svg {
+    color: inherit;
+  }
+  .pth-copy__title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: clamp(1.4rem, 2.4vw, 1.85rem);
+    line-height: 1.1;
+    letter-spacing: -.022em;
+    color: var(--color-dark-blue, #0c4a6e);
+    margin: 0;
+    text-wrap: balance;
+  }
+  .pth-copy__lead {
+    font-size: .95rem;
+    line-height: 1.55;
+    color: rgba(15, 23, 42, .85);
+    margin: 0;
+    text-wrap: pretty;
+  }
+  .pth-copy__lead strong {
+    color: var(--color-primary, #0284c7);
+    font-weight: 600;
+  }
+
+  /* --- Inline horizontal HOCl meter (lives inside the copy panel,
+         sits between the title and the lead paragraph) --- */
+  .pth-hoclmeter {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 2px;
+  }
+  .pth-hoclmeter__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .pth-hoclmeter__label {
+    font-size: .62rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    color: var(--color-primary, #0284c7);
+  }
+  .pth-hoclmeter__readout {
+    font-family: 'Poppins', sans-serif;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 3px;
+  }
+  .pth-hoclmeter__num {
+    font-weight: 700;
+    font-size: 1.35rem;
+    letter-spacing: -.02em;
+    line-height: 1;
+    background: linear-gradient(135deg, var(--color-primary, #0284c7), var(--color-cyan, #06b6d4));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .pth-hoclmeter__num.is-low {
+    background: linear-gradient(135deg, #84cc16, #4d7c0f);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .pth-hoclmeter__unit {
+    font-size: .68rem;
+    color: rgba(15, 23, 42, .55);
+    font-weight: 500;
+  }
+  .pth-hoclmeter__track {
+    position: relative;
+    height: 12px;
+    background: rgba(15, 23, 42, .08);
+    border-radius: 999px;
+    margin-top: 6px;
+    margin-bottom: 22px;
+  }
+  .pth-hoclmeter__fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-primary, #0284c7), var(--color-cyan, #06b6d4));
+    border-radius: 999px;
+    transition: width 320ms cubic-bezier(.2, .7, .2, 1), background 200ms ease;
+    min-width: 4px;
+  }
+  .pth-hoclmeter__fill.is-low {
+    background: linear-gradient(90deg, #a3e635, #65a30d);
+  }
+  .pth-hoclmeter__floor {
+    position: absolute;
+    top: -4px;
+    width: 0;
+  }
+  .pth-hoclmeter__floor-tick {
+    position: absolute;
+    left: -1.5px;
+    width: 3px;
+    height: 20px;
+    background: var(--color-orange, #E28D33);
+    border-radius: 2px;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, .9);
+  }
+  .pth-hoclmeter__floor-label {
+    position: absolute;
+    top: 22px;
+    left: 0;
+    transform: translateX(-50%);
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: .62rem;
+    font-weight: 600;
+    color: var(--color-orange, #E28D33);
+    white-space: nowrap;
+  }
+
+  /* When the result column gets too narrow, drop the top half from
+     two columns to stacked so the bars sit above the copy panel. */
+  @media (max-width: 1100px) {
+    .pth-calc-top {
+      grid-template-columns: 1fr;
+      gap: var(--fluid-16);
+    }
+    .pth-fcbars__chart {
+      min-height: 180px;
+    }
+  }
+
+  /* BOTTOM BAND — lightly tinted, 4-column comparison row. */
+  .pth-card__bottom {
+    background: #f1f5f9;
+    padding: var(--fluid-32);
+    border-top: 1px solid rgba(15, 23, 42, .06);
+  }
+  .pth-compare__title {
+    text-align: center;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--color-dark-blue, #0c4a6e);
+    margin: 0 0 var(--fluid-24);
+  }
+  .pth-compare__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: rgba(15, 23, 42, .08);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .pth-compare__col {
+    background: #ffffff;
+    padding: var(--fluid-24);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    text-align: center;
+  }
+  .pth-compare__value {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.4rem, 2.4vw, 2rem);
+    color: var(--color-dark-blue, #0c4a6e);
+    line-height: 1.1;
+  }
+  .pth-compare__delta {
+    font-size: .85rem;
+    font-weight: 600;
+    color: #dc2626;
+  }
+  .pth-compare__name {
+    margin-top: 12px;
+    font-size: .9rem;
+    font-weight: 600;
+    color: rgba(15, 23, 42, .85);
+  }
+  .pth-compare__sub {
+    font-size: .8rem;
+    color: rgba(15, 23, 42, .55);
+  }
+
+  /* ====================================================================
+     Mobile compression (≤640px). Tighten padding, gaps, type sizes,
+     and reformat dense rows so the card's natural content height
+     shrinks BEFORE the dynamic fit-scale kicks in. Sliders stay
+     touch-friendly (26px thumb); pool, status cards, and HOCl/MinFC
+     row reformat into denser single-column flows.
+     ==================================================================== */
+  @media (max-width: 640px) {
+    .pth-card__top {
+      padding: var(--fluid-20);
+      gap: var(--fluid-12);
+    }
+    .pth-card {
+      border-radius: 16px;
+    }
+
+    .pth-pillar-head {
+      gap: .6rem;
+      margin-bottom: var(--fluid-12);
+    }
+    .pth-pillar-head__triangle {
+      width: 44px;
+    }
+    .pth-pillar-head__title {
+      font-size: clamp(.95rem, 4.2vw, 1.15rem);
+    }
+
+    /* Mobile dial cells — cell width interpolates from 92px in pure
+       sanitation (balance=0) to 140px in pure balance (balance=1).
+       The wider balance cells force the 4 dials (pH/CYA/Alk/Ca) to
+       wrap into a 2x2 grid (3 * 140 + 2 * 6 = 432 won't fit a 312px-
+       wide inner card), while sanitation's 3 dials at 92px each
+       still fit in a single row (3 * 92 + 2 * 6 = 288 < 312). */
+    .pth-readings--mobile {
+      gap: 8px;
+      --cell-w: calc(105px + var(--pth-balance-amount, 0) * 48px);
+    }
+    .pth-readings--mobile .pth-reading {
+      width: var(--cell-w);
+    }
+    .pth-readings--mobile .pth-reading--sanitation-only,
+    .pth-readings--mobile .pth-reading--balance-only,
+    .pth-readings--mobile .pth-reading--common {
+      width: calc(var(--vis) * var(--cell-w));
+    }
+    .sdial__svg {
+      max-width: 115px;
+    }
+    .sdial__value {
+      font-size: 1.1rem;
+    }
+    .sdial__label {
+      font-size: .68rem;
+    }
+
+    .pth-cta {
+      padding: 11px 18px;
+      font-size: .92rem;
+    }
+    .pth-sanitation-extras {
+      gap: var(--fluid-12);
+    }
+
+    /* LSI gauge — compress padding + value. */
+    .pth-lsi {
+      padding: var(--fluid-12) var(--fluid-16);
+      gap: 6px;
+    }
+    .pth-lsi__value {
+      font-size: 1.25rem;
+    }
+    .pth-lsi__status {
+      font-size: .78rem;
+    }
+    .pth-lsi__label {
+      font-size: .6rem;
+    }
+    .pth-lsi__labels {
+      font-size: .58rem;
+    }
+
+    /* Status cards — stack vertically + tighter spacing. */
+    .pth-status-cards {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+    .pth-status-card {
+      padding: var(--fluid-12) var(--fluid-16);
+    }
+    .pth-status-card__title {
+      font-size: .85rem;
+      margin-bottom: 4px;
+    }
+    .pth-status-card__body {
+      font-size: .72rem;
+      line-height: 1.4;
+    }
+
+    /* Pool — smaller footprint. Still legible at 220px and saves
+       ~140px vs the desktop 360px max. */
+    .pth-pool {
+      max-width: 220px;
+    }
+    .pth-pool-wrap {
+      margin: 8px 0;
+    }
+
+    .pth-chart-caption {
+      margin-top: var(--fluid-12);
+      font-size: .78rem;
+    }
+  }
+
+  /* Tablet / mobile — collapse split + dial layout. The mobile redesign:
+     • Switch from slider stack to dial grid (toggled by display).
+     • Reorder layout so pool sits directly under dials.
+     • Swap the straight HOCl bar for a curved arc paired with a
+       stacked Min FC card.
+     • Move the deplete CTA to the bottom of the card.
+
+     Children of .pth-card__left and .pth-card__right are flattened
+     via display:contents so the whole stack lives in one flex column
+     and can be reordered with `order:`. The right panel's border-top
+     and padding-top are dropped — the card is one continuous flow. */
+  @media (max-width: 900px) {
+    /* Card fills the wrap completely on mobile so both modes
+       always occupy the same box. .pth (the outer styling div)
+       has to also be height:100% so the height percent on the
+       card cascades all the way down from .pc-card-wrap. Also
+       clear the inline scale() transform that React sets via
+       fitScale — that's disabled in the JS for mobile so the
+       inline transform is `scale(1)`, but we also force it here
+       for safety. */
+    .pth {
+      height: 100%;
+      display: flex;
+    }
+    .pth-card {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      transform: none !important;
+      border-radius: 18px;
+    }
+    .pth-card__top {
+      display: flex;
+      flex-direction: column;
+      padding: var(--fluid-16) var(--fluid-16) var(--fluid-20);
+      flex: 1;
+      min-height: 0;
+    }
+    .pth-card__left,
+    .pth-card__right {
+      display: contents;
+    }
+    /* Mobile order: pillar → dials → pool → viz (HOCl + Min FC) →
+       deplete CTA → status cards (balance). The chart-caption is
+       hidden on mobile because the gauge already shows the value;
+       the static "above floor" line is just redundant copy. */
+    .pth-pillar-head { order: 1; }
+    .pth-readings--mobile { order: 2; }
+    .pth-readings--desktop { display: none; }
+    /* Short caption above the pool on mobile, between dials and
+       pool-wrap. Full caption (--full) is hidden on mobile so
+       its order doesn't matter. */
+    .pth-pool-note--short { order: 3; }
+    .pth-pool-wrap { order: 4; }
+    .pth-viz-top { order: 5; }
+    .pth-sanitation-extras { order: 6; }
+    .pth-status-cards { order: 7; }
+    .pth-chart-caption { display: none; }
+    /* No more border between halves — they're one continuous column. */
+    .pth-card__bottom {
+      padding: var(--fluid-24);
+    }
+    .pth-compare__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* Reveal the mobile dial readings and the mobile viz pane,
+       hide the desktop slider/straight-bar versions. The viz-pane
+       rules use two-class chains so they win over the base
+       `.pth-viz-pane--sanitation { display: grid }` and over the
+       base `.pth-viz-pane.pth-viz-pane--mobile { display: none }`. */
+    .pth-readings--mobile {
+      display: flex;
+    }
+    .pth-viz-pane.pth-viz-pane--desktop {
+      display: none;
+    }
+    /* Mobile viz pane — bare compare-row (bars + copy) above the
+       Active HOCl meter. No card container — saves vertical room
+       so the pool above stays the focal point. */
+    .pth-viz-pane.pth-viz-pane--mobile {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      width: 100%;
+    }
+    /* Bars on the left in a tight column, copy (title + meter +
+       lead) on the right filling the remaining width. The two
+       columns naturally end up the same height (right column has
+       three stacked elements; left column has bars + delta pill
+       below). No card container around them — saves vertical room. */
+    .pth-compare-row {
+      display: grid;
+      grid-template-columns: 130px 1fr;
+      gap: 14px;
+      align-items: stretch;
+    }
+    /* Bars stretch vertically inside the row — chart grows to fill
+       the column so the bar tops sit near the column top and the
+       Your FC / Min FC labels anchor to the bottom, mirroring the
+       text block's full-height. */
+    .pth-viz-pane--mobile .pth-fcbars {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+    .pth-viz-pane--mobile .pth-fcbars__chart {
+      flex: 1;
+      min-height: 0;
+    }
+    /* Mobile FC bars — bumped a touch larger now that the pool
+       isn't claiming as much vertical real estate. */
+    .pth-viz-pane--mobile .pth-fcbars {
+      gap: 8px;
+    }
+    .pth-viz-pane--mobile .pth-fcbars__chart {
+      min-height: 130px;
+      gap: 10px;
+    }
+    .pth-viz-pane--mobile .pth-fcbars__bar {
+      max-width: 60px;
+    }
+    .pth-viz-pane--mobile .pth-fcbars__num {
+      font-size: 1.45rem;
+    }
+    .pth-viz-pane--mobile .pth-fcbars__value.is-muted .pth-fcbars__num {
+      font-size: 1.25rem;
+    }
+    .pth-viz-pane--mobile .pth-fcbars__label {
+      font-size: .72rem;
+    }
+    .pth-viz-pane--mobile .pth-fcbars__delta {
+      font-size: .75rem;
+      padding: 4px 11px;
+      /* Pill stays on one line — don't wrap "−2.0 ppm below min"
+         into two lines when the column gets tight. The label text
+         is short enough that overflowing slightly past the 130px
+         bars column is the lesser evil. */
+      white-space: nowrap;
+    }
+    /* Mobile copy block — title + paragraph in the right column.
+       Scaled up so the headline reads as a proper headline now that
+       the pool is smaller. */
+    .pth-copy--mobile {
+      gap: 6px;
+      padding: 0;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+    .pth-copy--mobile .pth-copy__title {
+      font-size: 1.05rem;
+      line-height: 1.18;
+    }
+    .pth-copy--mobile .pth-copy__lead {
+      font-size: .78rem;
+      line-height: 1.45;
+      color: rgba(15, 23, 42, .72);
+    }
+    /* Mobile HOCl meter — same horizontal layout as desktop. */
+    .pth-hoclmeter--mobile {
+      width: 100%;
+    }
+    .pth-hoclmeter--mobile .pth-hoclmeter__num {
+      font-size: 1.35rem;
+    }
+    .pth-hoclmeter--mobile .pth-hoclmeter__label {
+      font-size: .62rem;
+    }
+    .pth-hoclmeter--mobile .pth-hoclmeter__track {
+      height: 10px;
+    }
+    /* Compact variant — lives inside the narrow copy column on
+       mobile. Bumped up alongside the rest of the right column. */
+    .pth-hoclmeter--compact .pth-hoclmeter__top {
+      gap: 6px;
+    }
+    .pth-hoclmeter--compact .pth-hoclmeter__label {
+      font-size: .58rem;
+      letter-spacing: .1em;
+    }
+    .pth-hoclmeter--compact .pth-hoclmeter__num {
+      font-size: 1.1rem;
+    }
+    .pth-hoclmeter--compact .pth-hoclmeter__unit {
+      font-size: .62rem;
+    }
+    .pth-hoclmeter--compact .pth-hoclmeter__track {
+      height: 7px;
+      margin-top: 4px;
+      margin-bottom: 14px;
+    }
+    .pth-hoclmeter--compact .pth-hoclmeter__floor-tick {
+      width: 2px;
+      height: 14px;
+      left: -1px;
+    }
+    .pth-hoclmeter--compact .pth-hoclmeter__floor-label {
+      top: 16px;
+      font-size: .5rem;
+    }
+    /* Mobile viz-top + CTA: zero out the default desktop margins
+       and per-mode min-heights. The viz-panes flow normally (not
+       absolutely positioned) so viz-top sizes to its content
+       exactly. The pool above absorbs leftover via flex:1, so the
+       gaps from .pth-card__top apply uniformly. */
+    .pth-viz-top {
+      margin: 0;
+      min-height: 0;
+    }
+    .pth-viz-pane--sanitation,
+    .pth-viz-pane--balance {
+      position: relative;
+      transform: none;
+    }
+    /* Hide the inactive pane outright on mobile so it doesn't
+       contribute its height to viz-top. */
+    .pth-viz-pane[data-active="false"] {
+      display: none;
+    }
+    .pth-sanitation-extras .pth-cta,
+    .pth-sanitation-extras .pth-cta-group,
+    .pth-sanitation-extras .pth-sim-row {
+      margin-top: 0;
+    }
+
+    /* On mobile the right-panel V-curve (translateX into the triangle
+       area) doesn't read well because the layout is a single column —
+       there's no left panel for content to "slide into". Strip the
+       translateX and rely on opacity/max-height alone for the mode
+       crossfade. Pool-wrap also has a V-curve translateX that pulls
+       it 71px off-canvas during the transition — clear that too so
+       the pool stays centered while the dials morph. */
+    .pth-viz-pane--sanitation,
+    .pth-viz-pane--balance,
+    .pth-status-cards,
+    .pth-pool-wrap {
+      transform: none;
+    }
+
+    /* === Vertical HOCl meter (mobile) — light card ===
+       Bar is pinned to the LEFT edge of the card. The big value is
+       centered in the remaining card width so it has equal breathing
+       room between the bar and the right wall. A tiny "0.05" sits
+       to the right of the floor tick; a single "Above"/"Below" label
+       sits at the bottom-right of the bar. */
+    .pth-hocl-meter {
+      flex: 1 1 0;
+      min-width: 0;
+      position: relative;
+      display: flex;
+      align-items: stretch;
+      padding: 14px;
+      /* Above-floor = clean pool water (blue). The card has a soft
+         cyan glow in its lower-left corner. */
+      background:
+        radial-gradient(circle at 0% 100%, rgba(56, 189, 248, .14), transparent 60%),
+        linear-gradient(180deg, rgba(15, 23, 42, .03), rgba(15, 23, 42, .01));
+      border: 1px solid rgba(15, 23, 42, .08);
+      border-radius: 14px;
+    }
+    .pth-hocl-meter.is-danger {
+      /* Below-floor = algae territory. Card gets a soft green tint. */
+      background:
+        radial-gradient(circle at 0% 100%, rgba(16, 185, 129, .16), transparent 60%),
+        linear-gradient(180deg, rgba(16, 185, 129, .05), rgba(16, 185, 129, .01));
+      border-color: rgba(16, 185, 129, .22);
+    }
+    /* Bar wrapper is the gauge column at the far left; the bar fills
+       its full height. The floor and status labels position
+       absolutely outside the bar's right edge. */
+    .pth-hocl-meter__bar-wrap {
+      position: relative;
+      flex: none;
+      width: 28px;
+      height: 138px;
+    }
+    .pth-hocl-meter__bar {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 23, 42, .08);
+      border: 1px solid rgba(15, 23, 42, .1);
+      border-radius: 14px;
+      box-shadow: inset 0 1px 2px rgba(15, 23, 42, .06);
+      overflow: hidden;
+    }
+    .pth-hocl-meter__fill {
+      position: absolute;
+      left: 2px;
+      right: 2px;
+      bottom: 2px;
+      /* Above-floor = clean blue pool water. */
+      background: linear-gradient(180deg, #7dd3fc 0%, #38bdf8 60%, #0284c7 100%);
+      box-shadow:
+        0 0 16px rgba(56, 189, 248, .55),
+        inset 0 1px 0 rgba(255, 255, 255, .4);
+      border-radius: 10px;
+      transition:
+        height .45s cubic-bezier(.2, .8, .2, 1),
+        background .25s ease,
+        box-shadow .25s ease;
+    }
+    .is-danger .pth-hocl-meter__fill {
+      /* Below-floor = algae green. */
+      background: linear-gradient(180deg, #86efac 0%, #22c55e 60%, #15803d 100%);
+      box-shadow:
+        0 0 16px rgba(34, 197, 94, .55),
+        inset 0 1px 0 rgba(255, 255, 255, .35);
+    }
+    /* Floor tick — short horizontal line through the bar with a
+       very small "0.05" label to its right. */
+    .pth-hocl-meter__floor {
+      position: absolute;
+      left: -2px;
+      right: -2px;
+      height: 0;
+      border-top: 1.5px dashed rgba(15, 23, 42, .55);
+      pointer-events: none;
+    }
+    .pth-hocl-meter__floor-label {
+      position: absolute;
+      left: 100%;
+      top: 50%;
+      transform: translate(5px, -50%);
+      font-size: .5rem;
+      font-weight: 600;
+      letter-spacing: .02em;
+      color: rgba(15, 23, 42, .5);
+      white-space: nowrap;
+    }
+    /* Single status label — sits at the bottom-right of the bar.
+       Color follows the fill semantics: blue for "Above" (safe,
+       clean water), green for "Below" (algae territory). */
+    .pth-hocl-meter__status {
+      position: absolute;
+      bottom: 0;
+      left: 100%;
+      transform: translateX(6px);
+      font-size: .58rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: #0284c7;
+      white-space: nowrap;
+    }
+    .is-danger .pth-hocl-meter__status {
+      color: #15803d;
+    }
+    /* Readout — flex:1 fills the rest of the card; the value is
+       centered both horizontally and vertically inside it so it
+       sits with equal space between the bar and the right wall. */
+    .pth-hocl-meter__readout {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      min-width: 0;
+      font-family: 'Poppins', sans-serif;
+    }
+    .pth-hocl-meter__value {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--color-dark-blue, #0c4a6e);
+      line-height: 1;
+      letter-spacing: -.02em;
+      white-space: nowrap;
+    }
+    .pth-hocl-meter__unit {
+      font-size: .7rem;
+      font-weight: 600;
+      color: rgba(15, 23, 42, .55);
+      margin-top: 4px;
+    }
+    /* Min FC card matches the HOCl meter card style — same padding,
+       same radius, equal-width via flex:1. Content centered both
+       axes so the value reads as the focal point. */
+    .pth-min-fc--stack {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 14px 12px;
+      background:
+        radial-gradient(circle at 70% 100%, rgba(245, 158, 11, .12), transparent 60%),
+        linear-gradient(180deg, rgba(245, 158, 11, .06), rgba(245, 158, 11, .02));
+      border: 1px solid rgba(245, 158, 11, .22);
+      border-radius: 14px;
+    }
+    .pth-min-fc--stack .pth-min-fc__kicker {
+      font-size: .56rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--color-orange, #E28D33);
+      text-align: center;
+      line-height: 1;
+    }
+    .pth-min-fc--stack .pth-min-fc__value {
+      font-family: 'Poppins', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin: 0;
+      line-height: 1;
+      color: var(--color-orange, #E28D33);
+    }
+    .pth-min-fc--stack .pth-min-fc__unit {
+      font-size: .6rem;
+      font-weight: 600;
+      text-align: center;
+      color: rgba(15, 23, 42, .6);
+    }
+
+    /* LSI gauge — compress padding + value (was in the 640px block,
+       now lives here since the mobile redesign starts at 900px). */
+    .pth-lsi {
+      padding: var(--fluid-12) var(--fluid-16);
+      gap: 6px;
+    }
+    .pth-lsi__value {
+      font-size: 1.25rem;
+    }
+    .pth-lsi__status {
+      font-size: .78rem;
+    }
+    .pth-lsi__label {
+      font-size: .6rem;
+    }
+    .pth-lsi__labels {
+      font-size: .58rem;
+    }
+
+    /* Status cards stack vertically on mobile. */
+    .pth-status-cards {
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin-top: var(--fluid-12);
+    }
+    .pth-status-card {
+      padding: var(--fluid-12) var(--fluid-16);
+    }
+    .pth-status-card__title {
+      font-size: .85rem;
+      margin-bottom: 4px;
+    }
+    .pth-status-card__body {
+      font-size: .72rem;
+      line-height: 1.4;
+    }
+
+    /* Pool — the STAR of the mobile view. Big and central, sitting
+       directly under the dials. flex:1 lets it absorb leftover
+       space; min-height keeps it from collapsing to a thumbnail when
+       the results card grows. 180px is enough that the SVG renders
+       large + presence while still leaving room for the results
+       card + CTA below within a single mobile viewport. */
+    .pth-pool-wrap {
+      flex: 1 1 0;
+      min-height: 130px;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+    .pth-pool-wrap .pth-pool {
+      max-width: 220px;
+      max-height: 100%;
+      width: 100%;
+      height: auto;
+      /* Subtle drop shadow grounds the pool against the white card
+         background — matches the design's mockup. */
+      filter: drop-shadow(0 12px 18px rgba(20, 40, 60, .12));
+    }
+    /* Mobile: short note above the pool, full note hidden. The
+       short one is a single sentence at small size so it doesn't
+       push the layout past the viewport. Negative top margin
+       halves the visible gap above the caption — the parent
+       .pth-card__top flex gap was reading too generous, this
+       pulls it back to ~half. */
+    .pth-pool-note--full {
+      display: none;
+    }
+    .pth-pool-note--short {
+      display: block;
+      /* Pulls the caption tight under the dials — the .pth-card__top
+         flex gap was leaving too much room for a small explainer. */
+      margin: -8px 0 0;
+      font-size: .7rem;
+      line-height: 1.4;
+      color: rgba(15, 23, 42, .62);
+      text-align: center;
+      flex-shrink: 0;
+    }
+    /* Lock status cards + sanitation extras + dials + viz at their
+       natural / min-content height — pool absorbs slack, never
+       these. Without this, flex distributes shrinking proportionally
+       and status cards get squashed when balance mode runs tight. */
+    .pth-status-cards,
+    .pth-sanitation-extras,
+    .pth-readings--mobile,
+    .pth-viz-top,
+    .pth-pillar-head,
+    .pth-chart-caption {
+      flex-shrink: 0;
+    }
+
+    .pth-chart-caption {
+      margin-top: var(--fluid-8);
+      font-size: .78rem;
+    }
+  }

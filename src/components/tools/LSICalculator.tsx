@@ -19,7 +19,9 @@ import { useState, useRef, useEffect, useCallback } from 'preact/hooks';
  * the result significantly within a typical pool range.
  */
 
-type DialSpec = {
+export type DialHealth = 'ideal' | 'ok' | 'bad';
+
+export type DialSpec = {
   key: 'ph' | 'ch' | 'ta' | 'cya';
   label: string;
   unit: string;
@@ -45,7 +47,7 @@ type DialSpec = {
  *  Hint copy is scoped to the water-balance context only — how each reading
  *  affects calcium saturation and what goes wrong at each extreme. Chlorine
  *  and sanitation implications of pH/CYA are covered in the sanitation pillar. */
-const DIALS: DialSpec[] = [
+export const DIALS: DialSpec[] = [
   {
     key: 'ph',
     label: 'pH',
@@ -112,9 +114,7 @@ const DIALS: DialSpec[] = [
   },
 ];
 
-type DialHealth = 'ideal' | 'ok' | 'bad';
-
-function dialHealth(value: number, spec: DialSpec): DialHealth {
+export function dialHealth(value: number, spec: DialSpec): DialHealth {
   if (value >= spec.idealMin && value <= spec.idealMax) return 'ideal';
   if (value >= spec.okMin && value <= spec.okMax) return 'ok';
   return 'bad';

@@ -223,6 +223,29 @@ const PATTERNS = [
 
       <div class="sb__exp col-full dt-col-2-12">
         <header class="sb__exp-header">
+          <span class="sb__exp-tag">Section alt · Pillars triangle-headers</span>
+          <h3 class="sb__exp-h">Three Pillars: triangle splits into per-pillar headers + Flow span</h3>
+          <p class="sb__exp-desc">
+            <strong>What it is:</strong> alternate Three Pillars treatment. Top zone: the
+            full triangle on the left as a sticky reference, with three column-cards on
+            the right (Sanitation → Filtration → Balance), each headed by its colored
+            triangle slice. Bottom zone: a full-width <em>Flow</em> band housing the
+            Daily Protection 24-hour timeline (previously a tab inside Sanitation).
+            <br /><br />
+            <strong>Why:</strong> Daily Protection is about how all three pillars
+            interact across a day — that's the Flow story, so it lives there now.
+            The "See daily protection →" CTA inside the HOCl Waterfall scrolls down
+            to the Flow section, preserving the same narrative.
+            <br /><br />
+            <strong>Status:</strong> scaffold only — minimal styling, no scroll
+            choreography yet. Iterating on layout before adding motion + polish.
+          </p>
+        </header>
+        <div id="exp-pillars-triangle-headers-mount"></div>
+      </div>
+
+      <div class="sb__exp col-full dt-col-2-12">
+        <header class="sb__exp-header">
           <span class="sb__exp-tag">Section alt · Visit card stack</span>
           <h3 class="sb__exp-h">Anatomy of a Visit: timer-cycled cards + paired photos</h3>
           <p class="sb__exp-desc">
@@ -268,6 +291,7 @@ const PATTERNS = [
   import PinnedMediaWheel from '../components/experiments/PinnedMediaWheel.tsx';
   import OurStorySplit from '../components/OurStorySplit.tsx';
   import PillarsCinematic from '../components/experiments/PillarsCinematic.tsx';
+  import PillarsTriangleHeaders from '../components/experiments/PillarsTriangleHeaders.tsx';
   import VisitCardStack from '../components/experiments/VisitCardStack.tsx';
   import VisitScrollStack from '../components/experiments/VisitScrollStack.tsx';
 
@@ -294,6 +318,11 @@ const PATTERNS = [
   const pcMount = document.getElementById('exp-pillars-cinematic-mount');
   if (pcMount) {
     render(h(PillarsCinematic, null), pcMount);
+  }
+
+  const pthMount = document.getElementById('exp-pillars-triangle-headers-mount');
+  if (pthMount) {
+    render(h(PillarsTriangleHeaders, null), pthMount);
   }
 
   const vcsMount = document.getElementById('exp-visit-card-stack-mount');
@@ -1061,4 +1090,5 @@ const PATTERNS = [
       padding: var(--fluid-32) 0;
     }
   }
+
 </style>
