@@ -1,11 +1,14 @@
 ---
 /**
- * Shared bottom-of-page finale used on every /services/* page.
+ * Shared bottom-of-page finale used on every /services/* page AND
+ * /our-approach (which opts out of the FAQ pill).
  *
- * Three "pills" stacked over a sticky photo backdrop:
+ * Up to three "pills" stacked over a sticky photo backdrop:
  *   1. Reviews — pulls 3 reviews from the shared REVIEWS data.
  *      Mobile shows one tile at a time with a prev/next/dot nav.
  *   2. FAQs   — page-scoped questions passed via `faqs` prop.
+ *               Omitted when `faqs` is missing or empty (e.g. on
+ *               /our-approach).
  *   3. CTA    — page-scoped headline / lead / button(s) passed via
  *               `cta*` props.
  *
@@ -23,7 +26,10 @@ interface CtaButton {
 }
 
 interface Props {
-  faqs: Array<{ question: string; answer: string }>;
+  /** Optional — when omitted or empty, the FAQ pill is not rendered.
+      This lets /our-approach reuse the finale (sticky photo +
+      Reviews pill + CTA pill) without needing FAQ copy. */
+  faqs?: Array<{ question: string; answer: string }>;
   ctaKicker?: string;
   ctaHeading: string;
   ctaText: string;
@@ -37,6 +43,9 @@ const {
   ctaText,
   ctaButtons = [{ label: 'Get a Quote', openIntake: true, variant: 'cta' }],
 } = Astro.props;
+
+// Render the FAQ pill only if we have at least one question.
+const hasFaqs = Array.isArray(faqs) && faqs.length > 0;
 
 const base = import.meta.env.BASE_URL;
 ---
@@ -77,25 +86,28 @@ const base = import.meta.env.BASE_URL;
         </div>
       </article>
 
-      {/* Pill 2 — FAQs (page-scoped questions) */}
-      <article class="svc-finale__pill svc-finale__pill--faqs" data-reveal="fade-up" data-reveal-start="top 90%">
-        <header class="svc-finale__pill-head">
-          <span class="svc-finale__pill-kicker">QUESTIONS</span>
-          <h2>Frequently asked questions</h2>
-        </header>
-        <div class="svc-finale__faq-list faq-list">
-          {faqs.map((item) => (
-            <div class="faq-item">
-              <button class="faq-question" aria-expanded="false">{item.question}</button>
-              <div class="faq-answer" role="region">
-                <div class="faq-answer__inner">
-                  <p>{item.answer}</p>
+      {/* Pill 2 — FAQs (page-scoped questions). Skipped entirely
+          when no `faqs` were passed (e.g. on /our-approach). */}
+      {hasFaqs && (
+        <article class="svc-finale__pill svc-finale__pill--faqs" data-reveal="fade-up" data-reveal-start="top 90%">
+          <header class="svc-finale__pill-head">
+            <span class="svc-finale__pill-kicker">QUESTIONS</span>
+            <h2>Frequently asked questions</h2>
+          </header>
+          <div class="svc-finale__faq-list faq-list">
+            {faqs!.map((item) => (
+              <div class="faq-item">
+                <button class="faq-question" aria-expanded="false">{item.question}</button>
+                <div class="faq-answer" role="region">
+                  <div class="faq-answer__inner">
+                    <p>{item.answer}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </article>
+            ))}
+          </div>
+        </article>
+      )}
 
       {/* Pill 3 — Final CTA (page-scoped copy) */}
       <article class="svc-finale__pill svc-finale__pill--cta" data-reveal="fade-up" data-reveal-start="top 90%">

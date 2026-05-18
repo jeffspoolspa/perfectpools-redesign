@@ -36,25 +36,31 @@
  */
 
 import { useEffect, useRef, useState } from 'preact/hooks';
-import PillarsTriangle, { PILLARS } from '../PillarsTriangle';
-import LSICalculator from '../tools/LSICalculator';
-import SanitationTabs from '../tools/SanitationTabs';
-import FiltrationDiagram from '../tools/FiltrationDiagram';
+import PillarsTriangle from '../PillarsTriangle';
+import PillarsTriangleHeaders from './PillarsTriangleHeaders';
 import { assetPath } from '../../utils/base-url';
 
-const SCROLL_VH = 5;
+// Section was 5 viewports long while Phase C cycled through every
+// pillar. With Phase C disabled (only sanitation ships for now), the
+// section only needs A + B + a short "card visible, exit" tail — so
+// we shrink it to 3 viewports total to avoid wasted scroll.
+const SCROLL_VH = 3;
+// Phase boundaries rescaled to match the original A/B durations
+// inside the new SCROLL_VH window:
+//   A: 0  → 0.50  (1.5vh of scroll — same as before)
+//   B: 0.50 → 0.75 (0.75vh — same as before)
+//   Tail (card visible, exit): 0.75 → 1.0
+const PHASE_A_END = 0.5;
+const PHASE_B_END = 0.75;
 const BG_IMAGE = assetPath('/images/hero-pool.png');
 
 /**
- * Cinematic cycle order: sanitation → filtration → balance → flow.
- * Each gets its own crossfade panel; the "flow" panel is intentionally
- * blank for now (placeholder reserved so we can fill it in later with
- * content about how the three outer pillars connect as one system).
+ * Modes the embedded card cycles through during Phase C. Order
+ * matches scroll progress — sanitation gets the first half of the
+ * deep-dive window, balance the second half. Filtration and flow
+ * will be added once their card states exist.
  */
-const MAIN_PILLAR_IDS = ['sanitation', 'filtration', 'balance', 'flow'] as const;
-const MAIN_PILLARS = MAIN_PILLAR_IDS
-  .map((id) => PILLARS.find((p) => p.id === id))
-  .filter((p): p is (typeof PILLARS)[number] => Boolean(p));
+type CardMode = 'sanitation' | 'balance';
 
 /**
  * Linear interpolation between two values.
@@ -86,11 +92,21 @@ export default function PillarsCinematic() {
   const bgRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLDivElement>(null);
   const diagramRef = useRef<HTMLDivElement>(null);
-  const panelRefs = useRef<(HTMLDivElement | null)[]>([]);
+  // Ref to the embedded card so we can measure its header triangle
+  // slot at runtime — the diagram's Phase B landing target is that
+  // slot's center, computed in pin-local coordinates.
+  const cardRef = useRef<HTMLDivElement>(null);
 
-  /** Drives which pillar slice on the triangle is highlighted. */
-  const [activeIndex, setActiveIndex] = useState(0);
-  const lastActiveRef = useRef(0);
+  /** Card mode + which triangle slice is "live" both come from
+   *  scroll progress during Phase C. */
+  const [mode, setMode] = useState<CardMode>('sanitation');
+  const lastModeRef = useRef<CardMode>('sanitation');
+  /** Continuous 0..1 crossfade value passed into the embedded card.
+   *  Drives a CSS variable so the changing elements (HOCl ↔ LSI,
+   *  bullets+CTA ↔ status cards) ramp opacity + max-height with
+   *  scroll instead of snapping at the mode-flip threshold. */
+  const [balanceAmount, setBalanceAmount] = useState(0);
+  const lastBalanceRef = useRef(0);
 
   useEffect(() => {
     if (typeof window === 'undefined' || !sectionRef.current || !pinRef.current) {
@@ -107,70 +123,29 @@ export default function PillarsCinematic() {
         const title = titleRef.current!;
         const diagram = diagramRef.current!;
         const pin = pinRef.current!;
-        const panels = panelRefs.current.filter(Boolean) as HTMLDivElement[];
+        const cardWrap = cardRef.current!;
 
-        const st = ScrollTrigger.create({
-          trigger: sectionRef.current!,
-          start: 'top top',
-          end: 'bottom bottom',
-          pin: pinRef.current!,
-          pinSpacing: false,
-          scrub: 0.6,
-          onUpdate: (self: any) => {
-            const p = self.progress;
+        // Extract onUpdate body so we can call it once at mount with
+        // progress=0 — without that, the diagram (CSS opacity 0) only
+        // becomes visible the moment ScrollTrigger fires its first
+        // update, which is AFTER the user has already scrolled into
+        // the section's pin range. By prepainting Phase A's start
+        // state, the diagram appears at the bottom of the photo as
+        // soon as the section enters the viewport.
+        const runUpdate = (p: number) => {
 
-            // === Compute the unified diagram + card BLOCK layout ===
-            // The diagram and card render as a single visual component:
-            //   [ diagram ] [gap] [ card ]
-            // centered horizontally with min side padding. Gap stays
-            // fixed (32px) at every size so the pair always reads as
-            // one unit, not two scattered pieces.
-            //
-            // IMPORTANT: positions are relative to the PIN element
-            // (pin.getBoundingClientRect()), NOT the viewport. Pin is
-            // position:fixed but its containing block can be smaller
-            // than the viewport (e.g., when this experiment is mounted
-            // inside a column-constrained sandbox container). All
-            // inline left/transform values below are in pin-local
-            // coordinates.
+            // === Pin-local viewport dimensions ===
+            // All positions below are in pin-local coords (relative
+            // to pin.getBoundingClientRect()) so the math works the
+            // same whether this mounts on /our-approach or inside a
+            // sandbox container.
             const pinR = pin.getBoundingClientRect();
             const vw = pinR.width;
             const vh = pinR.height;
-            // diagVisualW/H: rendered triangle dimensions after the
-            // Phase C end scale is applied. We measure offsetWidth/H
-            // so the math tracks the diagram's actual CSS-defined
-            // size (clamp(280px, 32vw, 420px)) at every viewport,
-            // instead of hardcoding 410 / 0.55 desktop assumptions.
-            const DIAG_END_SCALE = 0.7;
             const diagBaseW = diagram.offsetWidth || 410;
-            const diagBaseH = diagram.offsetHeight || 372;
-            const diagVisualW = diagBaseW * DIAG_END_SCALE;
-            const diagVisualH = diagBaseH * DIAG_END_SCALE;
-            const blockGap = 18;     // tightened from 32 — reads as
-                                     // one component instead of two.
-            const sidePadMin = 40;
-            const cardMaxW = 820;
-            const availableForCard = vw - sidePadMin * 2 - diagVisualW - blockGap;
-            const cardW = Math.min(cardMaxW, Math.max(360, availableForCard));
-            const blockTotalW = diagVisualW + blockGap + cardW;
-            const blockLeft = Math.max(sidePadMin, (vw - blockTotalW) / 2);
-            const diagramLeftPx = blockLeft;
-            const diagramCenterX = diagramLeftPx + diagVisualW / 2;
-            const cardLeftPx = diagramLeftPx + diagVisualW + blockGap;
 
-            // === Vertical centering of the [diagram + card] block ===
-            // The diagram's vertical center is anchored to vh/2 so it
-            // sits at the same vertical axis as every card's center.
-            // Each panel's `top` is computed PER-PANEL (in the loop
-            // below) from its own natural height — so a content-light
-            // panel like Flow doesn't inherit the tall Filtration
-            // panel's top offset and look stuck at the viewport top.
-            const minTopMargin = 32;
-            const maxAllowedCardH = vh - 2 * minTopMargin;
-            const diagramCenterY = vh / 2;
-
-            // --- PHASE A: 0.00 → 0.30 (reveal) ---------------------
-            const a = clamp(p / 0.30, 0, 1);
+            // --- PHASE A: 0 → PHASE_A_END (reveal) ---------------
+            const a = clamp(p / PHASE_A_END, 0, 1);
             // Photo frame: starts inset (a=0) and grows to full bleed
             // (a=1). Inset is set via top/left/right/bottom (not
             // clip-path) so the element can carry a real CSS border —
@@ -188,7 +163,14 @@ export default function PillarsCinematic() {
             bg.style.opacity = String(lerp(0.65, 1, a));
 
             // Title & diagram fade in over Phase A.
-            const titleFadeIn = clamp((p - 0.08) / 0.22, 0, 1);
+            // Title fade-in occupies the back ~73% of Phase A — same
+            // proportional window as the original (0.08–0.30 of a
+            // 0.30-long phase).
+            const titleFadeIn = clamp(
+              (p - PHASE_A_END * 0.27) / (PHASE_A_END * 0.73),
+              0,
+              1,
+            );
             title.style.opacity = String(titleFadeIn);
 
             // === Phase A diagram + title vertical layout ===========
@@ -253,12 +235,19 @@ export default function PillarsCinematic() {
             title.style.top = `${phaseA_titleTopY}px`;
             title.style.transform = `translate(-50%, ${lerp(20, 0, titleFadeIn)}px)`;
 
-            // --- PHASE B: 0.30 → 0.45 (transition) ----------------
+            // --- PHASE B: PHASE_A_END → PHASE_B_END (transition) -
             // Title fades out, image dims, diagram tweens to top-left,
             // and PILLAR 1 fades in — all timed to complete together
-            // at p=0.45 so the diagram "lands" at the exact moment
-            // the first card is fully visible.
-            const b = clamp((p - 0.30) / 0.15, 0, 1);
+            // at p=PHASE_B_END so the diagram "lands" at the exact
+            // moment the first card is fully visible. After this
+            // the section just holds the card for a short tail and
+            // unpins (Phase C is no longer used — only sanitation
+            // ships for now).
+            const b = clamp(
+              (p - PHASE_A_END) / (PHASE_B_END - PHASE_A_END),
+              0,
+              1,
+            );
             title.style.opacity = String(lerp(titleFadeIn, 0, b));
             bg.style.opacity = String(lerp(1, 0.18, b));
 
@@ -272,152 +261,98 @@ export default function PillarsCinematic() {
             const stageBl = Math.round(lerp(255, 41, b));
             pin.style.background = `rgb(${stageR}, ${stageG}, ${stageBl})`;
 
-            // Diagram positioning across Phases A → B:
-            //   Phase A end (b=0): visual center = phaseA_diagCenterY
-            //     (computed above — sits below the title within the
-            //     image-centered block).
-            //   Phase B target (b=1): visual center at the block layout's
-            //     diagramCenterX / diagramCenterY — exactly to the LEFT
-            //     of the card with the fixed gap between them.
-            // Use px (not vw/vh) for translate so the diagram lands at
-            // a precise position relative to the card on any viewport.
-            const txEndPx = diagramCenterX - vw / 2;
-            const tyEndPx = diagramCenterY - vh / 2;
+            // === Diagram landing target ===
+            // Measure the (visibility:hidden) in-card header triangle
+            // slot. Its center IS the diagram's Phase B destination —
+            // by the end of Phase B the cinematic's overlay diagram
+            // overlaps the card's header slot pixel-perfect, so it
+            // visually becomes the card's pillar icon.
+            let landingCenterX = vw / 2;
+            let landingCenterY = vh / 2;
+            let landingScale = 0.14;
+            const slot = cardWrap.querySelector(
+              '.pth-pillar-head__triangle',
+            ) as HTMLElement | null;
+            if (slot) {
+              const sR = slot.getBoundingClientRect();
+              landingCenterX = sR.left + sR.width / 2 - pinR.left;
+              landingCenterY = sR.top + sR.height / 2 - pinR.top;
+              if (sR.width > 0) {
+                landingScale = Math.max(0.08, sR.width / diagBaseW);
+              }
+            }
+
+            // Diagram tween: Phase A end → Phase B end.
+            //   start (b=0): visual center at phaseA_diagCenterY
+            //   end   (b=1): visual center at landingCenterX/Y, scaled
+            //                down to fit the header slot.
+            const txEndPx = landingCenterX - vw / 2;
+            const tyEndPx = landingCenterY - vh / 2;
             const tyStartPx = phaseA_diagCenterY - vh / 2;
             const txPx = lerp(0, txEndPx, b);
             const tyPx = lerp(tyStartPx, tyEndPx, b);
-            const diagScale = lerp(1, DIAG_END_SCALE, b);
+            const diagScale = lerp(1, landingScale, b);
             diagram.style.transform =
               `translate(calc(-50% + ${txPx}px), calc(-50% + ${tyPx}px)) scale(${diagScale})`;
+            // Fade the diagram in once it has its computed transform.
+            // CSS keeps it at opacity 0 until this point so it doesn't
+            // flash at viewport-center (the CSS top:50%/translate
+            // default) before snapping down to the photo's bottom.
+            diagram.style.opacity = '1';
 
-            // --- PHASE C: 0.45 → 1.00 (pillar deep-dives) ---------
-            // Phase C is divided into N equal segments, one per pillar.
-            // Pillar 1 is SPECIAL: it fades in during Phase B (not C)
-            // and is at full opacity by p=0.45, so it's already
-            // visible when Phase C begins. Pillars 2..N cycle through
-            // their segments with crossfades on the boundaries.
-            const phaseC_start = 0.45;
-            const phaseC_range = 1 - phaseC_start;
-            const segWidth = phaseC_range / panels.length; // p-space width
-            // fadeBand controls how much scroll distance each crossfade
-            // takes. Higher = longer/softer transition. At 1.0 the
-            // crossfades meet exactly (panel i hits 0 as i+1 hits 1)
-            // with zero hold-at-full time. Above 1.0 panels overlap,
-            // which reads as muddled.
-            const fadeBand = segWidth * 0.95;
+            // === Card fade-in + scale-emerge from triangle ===
+            // The card's opacity ramps with Phase B so the diagram
+            // lands at the exact moment the card is fully visible.
+            // transform-origin tracks the diagram's CURRENT center so
+            // the card visually grows OUT of the triangle.
+            // IMPORTANT: the base CSS transform is translate(-50%, -50%)
+            // for centering — we must KEEP that and append the scale,
+            // otherwise the card anchors from its top-left and shoots
+            // off the right side of the viewport.
+            const cardOpacity = easeInOutCubic(b);
+            const cardScale = lerp(0.92, 1, b);
+            cardWrap.style.opacity = String(cardOpacity);
+            const cardR = cardWrap.getBoundingClientRect();
+            const originX = landingCenterX + pinR.left - cardR.left;
+            const originY = landingCenterY + pinR.top - cardR.top;
+            cardWrap.style.transformOrigin = `${originX}px ${originY}px`;
+            cardWrap.style.transform = `translate(-50%, -50%) scale(${cardScale})`;
+            cardWrap.style.pointerEvents = cardOpacity > 0.7 ? 'auto' : 'none';
 
-            panels.forEach((panel, i) => {
-              // `panelOpacity` is the EASED final value driving both
-              // CSS opacity and the coupled emerges-from-diagram scale.
-              // We compute a linear `t` in [0, 1] for whichever ramp
-              // applies (entrance / exit / hold), then run it through
-              // easeInOutCubic so neither end of the crossfade snaps in.
-              let panelOpacity = 0;
-              if (i === 0) {
-                // Pillar 1 fades in during Phase B.
-                if (p < 0.30) {
-                  panelOpacity = 0;
-                } else if (p < phaseC_start) {
-                  // Linear progress through Phase B, eased.
-                  const t = (p - 0.30) / 0.15;
-                  panelOpacity = easeInOutCubic(clamp(t, 0, 1));
-                } else {
-                  // After Phase B: stay at 1 until pillar 2 starts
-                  // fading in, then crossfade out.
-                  const segCenter = phaseC_start + segWidth * 0.5;
-                  const distFromCenter = Math.abs(p - segCenter);
-                  if (distFromCenter < segWidth * 0.5 - fadeBand * 0.5) {
-                    panelOpacity = 1;
-                  } else if (distFromCenter < segWidth * 0.5 + fadeBand * 0.5) {
-                    const t = (segWidth * 0.5 + fadeBand * 0.5 - distFromCenter) / fadeBand;
-                    panelOpacity = easeInOutCubic(clamp(t, 0, 1));
-                  }
-                  // While the user is still scrolling INTO pillar 1's
-                  // segment (left half), keep opacity at 1 — they just
-                  // arrived from Phase B.
-                  if (p < segCenter) panelOpacity = 1;
-                }
-              } else {
-                // Pillars 2..N: standard segment-centered crossfade.
-                const segCenter = phaseC_start + segWidth * (i + 0.5);
-                const distFromCenter = Math.abs(p - segCenter);
-                if (distFromCenter < segWidth * 0.5 - fadeBand * 0.5) {
-                  panelOpacity = 1;
-                } else if (distFromCenter < segWidth * 0.5 + fadeBand * 0.5) {
-                  const t = (segWidth * 0.5 + fadeBand * 0.5 - distFromCenter) / fadeBand;
-                  panelOpacity = easeInOutCubic(clamp(t, 0, 1));
-                }
-              }
-              panel.style.opacity = String(panelOpacity);
-
-              // === Per-panel vertical centering =====================
-              // Measure THIS panel's natural content height and center
-              // it on vh/2. Each panel computes its own top so a short
-              // panel (e.g. Flow, just a header) sits at viewport center
-              // instead of inheriting a tall panel's top offset.
-              // scrollHeight ignores the current scale transform but
-              // does reflect width — converges on the next frame after
-              // cardW changes.
-              const panelNaturalH = panel.scrollHeight || 200;
-              const panelUsedH = Math.min(panelNaturalH, maxAllowedCardH);
-              const panelTopPx = Math.max(
-                minTopMargin,
-                (vh - panelUsedH) / 2,
-              );
-              const panelMaxH = vh - 2 * panelTopPx;
-
-              // === Place card at the computed block-layout position ===
-              // left + width are shared across panels (same diagram).
-              // top + max-height are PER-PANEL so each panel centers
-              // its own content vertically.
-              panel.style.left = `${cardLeftPx}px`;
-              panel.style.width = `${cardW}px`;
-              panel.style.top = `${panelTopPx}px`;
-              panel.style.maxHeight = `${panelMaxH}px`;
-
-              // === Card "emerges from diagram" effect ============
-              // transform-origin = diagram's CURRENT visual center,
-              // expressed in the card's own local coordinate system
-              // (relative to its top-left). Scale ramps with opacity
-              // so the card appears to grow OUT OF the diagram on
-              // fade-in and shrink BACK INTO it on fade-out.
-              const diagCurrentCenterX = vw / 2 + txPx;
-              const diagCurrentCenterY = vh / 2 + tyPx;
-              const originX = diagCurrentCenterX - cardLeftPx;
-              const originY = diagCurrentCenterY - panelTopPx;
-              panel.style.transformOrigin = `${originX}px ${originY}px`;
-
-              // Scale starts close to 1 — just enough to read as a
-              // gentle emergence from the diagram. Starting smaller
-              // (e.g. 0.15) makes cards feel like they "fly out" of
-              // the origin, which reads as aggressive at scroll speed.
-              const cardScale = lerp(0.85, 1, panelOpacity);
-              const drift = (1 - panelOpacity) * 14;
-              // No -50% horizontal translate — `left` is already at the
-              // card's target x position from the block layout.
-              panel.style.transform = `translate(0, ${drift}px) scale(${cardScale})`;
-              panel.style.pointerEvents = panelOpacity > 0.7 ? 'auto' : 'none';
-            });
-
-            // Sync the diagram's active slice. During Phase A/B,
-            // pillar 1 is the relevant one (it's the first one to
-            // appear). In Phase C, compute from progress within
-            // the segment grid.
-            let activeIdx = 0;
-            if (p >= phaseC_start) {
-              const phaseCProgress = (p - phaseC_start) / phaseC_range;
-              activeIdx = clamp(
-                Math.floor(phaseCProgress * panels.length),
-                0,
-                panels.length - 1,
-              );
+            // === Phase C disabled ===
+            // The balance pillar isn't shipping yet — we only show
+            // sanitation. Pin balanceAmount to 0 so the card stays
+            // in sanitation mode for the entire pin, and after
+            // Phase B ends (PHASE_B_END) the user just scrolls
+            // through the short tail to unpin the section.
+            const nextBalance = 0;
+            if (Math.abs(nextBalance - lastBalanceRef.current) > 0.01) {
+              lastBalanceRef.current = nextBalance;
+              setBalanceAmount(nextBalance);
             }
-            if (activeIdx !== lastActiveRef.current) {
-              lastActiveRef.current = activeIdx;
-              setActiveIndex(activeIdx);
+            const nextMode: CardMode = 'sanitation';
+            if (nextMode !== lastModeRef.current) {
+              lastModeRef.current = nextMode;
+              setMode(nextMode);
             }
-          },
+        };
+
+        const st = ScrollTrigger.create({
+          trigger: sectionRef.current!,
+          start: 'top top',
+          end: 'bottom bottom',
+          pin: pinRef.current!,
+          pinSpacing: false,
+          scrub: 0.6,
+          onUpdate: (self: any) => runUpdate(self.progress),
         });
+
+        // Prepaint the Phase A start state so the diagram (CSS
+        // opacity 0) is in its bottom-of-photo position before the
+        // user reaches the trigger range. Without this the diagram
+        // pops in only after the first scroll event inside the pin,
+        // making it disappear during the section's reveal.
+        runUpdate(0);
 
         cleanup = () => st.kill();
       },
@@ -446,45 +381,27 @@ export default function PillarsCinematic() {
           </p>
         </div>
 
-        {/* === Layer 3: triangle diagram (center → top-left) ======= */}
+        {/* === Layer 3: triangle diagram (center → into card header) ===
+            During Phase A it sits centered over the pool image. During
+            Phase B it tweens to the embedded card's hidden header
+            triangle slot, ending up pixel-perfect over the spot the
+            card reserved for it. Active slice tracks the card's mode. */}
         <div ref={diagramRef} class="pc-diagram">
-          <PillarsTriangle
-            active={MAIN_PILLARS[activeIndex].id}
-            onHover={(id) => {
-              const i = MAIN_PILLARS.findIndex((p) => p.id === id);
-              if (i >= 0) {
-                lastActiveRef.current = i;
-                setActiveIndex(i);
-              }
-            }}
-          />
+          <PillarsTriangle active={mode} />
         </div>
 
-        {/* === Layer 4: per-pillar full-area panels (Phase C) ====== */}
-        <div class="pc-panels">
-          {MAIN_PILLARS.map((pillar, i) => (
-            <div
-              key={pillar.id}
-              ref={(el) => { panelRefs.current[i] = el; }}
-              class={`pc-panel pc-panel--${pillar.id}`}
-              style={{ opacity: 0, '--accent': pillar.color } as any}
-            >
-              <header class="pc-panel-head">
-                <div class="pc-panel-icon" style={{ background: pillar.color }}>
-                  <img src={assetPath(pillar.icon)} alt="" />
-                </div>
-                <div>
-                  <span class="pc-panel-kicker">Pillar 0{i + 1}</span>
-                  <h3 class="pc-panel-title">{pillar.heading}</h3>
-                </div>
-              </header>
-              <div class="pc-panel-body">
-                {pillar.id === 'sanitation' && <SanitationTabs />}
-                {pillar.id === 'filtration' && <FiltrationDiagram />}
-                {pillar.id === 'balance' && <LSICalculator />}
-              </div>
-            </div>
-          ))}
+        {/* === Layer 4: embedded card (Phase B fade-in + Phase C modes) ===
+            One PillarsTriangleHeaders mount that flips between
+            sanitation and balance based on scroll progress. The
+            card's in-header triangle slot is visibility:hidden so the
+            Phase B-landed overlay diagram becomes the visual pillar
+            icon. */}
+        <div ref={cardRef} class="pc-card-wrap">
+          <PillarsTriangleHeaders
+            embedded
+            mode={mode}
+            balanceAmount={balanceAmount}
+          />
         </div>
       </div>
     </div>

@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
-import ReviewCarousel from '../../../components/ReviewCarousel.astro';
+import ReviewsGrid from '../../../components/ReviewsGrid.astro';
 const base = import.meta.env.BASE_URL;
 
 const city = {
@@ -186,7 +186,7 @@ const city = {
         <span class="city-kicker">WHAT OUR CLIENTS SAY</span>
         <h2>Real Reviews, Real Results.</h2>
       </div>
-      <ReviewCarousel />
+      <ReviewsGrid />
       <div class="text-center" style="margin-top: var(--space-8);">
         <a href="https://g.page/r/CVrU0W_3-NRyEAE/review" target="_blank" rel="noopener" class="btn btn--outline">Read All Reviews on Google</a>
       </div>

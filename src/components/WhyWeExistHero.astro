@@ -302,4 +302,261 @@ import WhyWeExistTwoActs from './experiments/WhyWeExistTwoActs.astro';
     transform-origin: center;
     transform: translate(-50%, -50%) scale(var(--ww-s, 1));
   }
+
+  /* === Mobile (≤900px) — switch to a portrait canvas (400×880) and
+       rearrange the 9 artifact cards top-to-bottom so they fill the
+       narrow viewport's available height instead of leaving a tiny
+       horizontal band of stuff. WhyWeExistTwoActs.astro's own 900px
+       media query collapses the canvas into a stacked single-column
+       grid (which breaks the hero's pinned-stage choreography); these
+       overrides restore an absolute-positioned canvas inside .ww-hero
+       at mobile-friendly dimensions, and the fit() script reads the
+       new offsetWidth/Height to compute --ww-s accordingly.
+       Several rules need !important because the sandbox component
+       uses !important on .ww-art's mobile reset. ============= */
+  @media (max-width: 900px) {
+    /* Mobile-only header-zone override. The default clamp(150, 22vh, 200)
+       gives ~179px on a 812-tall iPhone, but the 3-line wrapped
+       subtitle ("Maintenance, repairs, communication, and billing
+       usually live in different places — or fall through the cracks
+       entirely.") needs ~230px. Bumping the zone pushes the stages
+       down so they no longer overlap the subtitle. The stage-shell
+       height calc subtracts this once, so the canvas shrinks by the
+       same amount — Stage 1's portrait artifacts and Stage 2's phone
+       both stay visible. */
+    .ww-hero {
+      --ww-header-zone: clamp(210px, 30vh, 260px);
+    }
+
+    /* Act 1 — artifacts canvas: 2-column 480×720 portrait-leaning frame.
+       Aspect (0.67) is close to the mobile shell's ~0.72 so the
+       fit() script's --ww-s ends up around 0.68 — much bigger than
+       the original 1280-wide canvas would have given (~0.28) — and
+       both axes get used. Width 480 buys room for two ~200px columns
+       of cards with a center-bridge photo. */
+    .ww-hero .ww-stage-shell .ww-stage-wrap {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 480px;
+      height: 720px;
+      margin: 0;
+      display: block;
+      gap: 0;
+      transform-origin: center;
+      transform: translate(-50%, -50%) scale(var(--ww-s, 1));
+    }
+    .ww-hero .ww-stage {
+      display: block;
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+    /* Hide the dashed connectors on mobile — their SVG paths are
+       drawn for the desktop layout's artifact positions, so they
+       would point to wrong places after the rearrangement. */
+    .ww-hero .ww-connectors { display: none; }
+    .ww-hero .ww-art {
+      position: absolute !important;
+      width: auto !important;
+      margin: 0 !important;
+    }
+    /* 2-column layout: left col x≈10–235, right col x≈245–475,
+       with a wider photo straddling the middle as a bridge.
+       Cards alternate slight rotations for the pinboard feel. */
+    /* Left column: text → note → cal → invoice */
+    .ww-hero .ww-art-text {
+      width: 200px !important;
+      top: 15px !important; left: 20px !important;
+      transform: rotate(-4deg) !important;
+    }
+    .ww-hero .ww-art-note {
+      width: 160px !important;
+      top: 175px !important; left: 30px !important;
+      transform: rotate(-5deg) !important;
+    }
+    .ww-hero .ww-art-cal {
+      width: 175px !important;
+      top: 310px !important; left: 15px !important;
+      transform: rotate(-3deg) !important;
+    }
+    .ww-hero .ww-art-invoice {
+      width: 230px !important;
+      top: 555px !important; left: 25px !important;
+      transform: rotate(-2deg) !important;
+    }
+    /* Right column: chem → parts → checklist → call */
+    .ww-hero .ww-art-chem {
+      width: 200px !important;
+      top: 10px !important; left: 260px !important;
+      transform: rotate(3deg) !important;
+    }
+    .ww-hero .ww-art-parts {
+      width: 180px !important;
+      top: 165px !important; left: 280px !important;
+      transform: rotate(2deg) !important;
+    }
+    .ww-hero .ww-art-checklist {
+      width: 220px !important;
+      top: 310px !important; left: 250px !important;
+      transform: rotate(2deg) !important;
+    }
+    .ww-hero .ww-art-call {
+      width: 195px !important;
+      top: 575px !important; left: 270px !important;
+      transform: rotate(4deg) !important;
+    }
+    /* Center bridge: photo straddles the two columns. */
+    .ww-hero .ww-art-photo {
+      width: 230px !important;
+      height: 135px !important;
+      top: 445px !important; left: 125px !important;
+      transform: rotate(2deg) !important;
+    }
+    .ww-hero .ww-tag { display: inline-flex; }
+
+    /* === Act 2 — phone-screen redesign for mobile ============
+       The desktop dashboard is a 1280×740 landscape window with three
+       columns. That shape doesn't fit a 375-wide phone viewport — at
+       best it scales to a thin horizontal banner. So on mobile we
+       reshape the same dashboard HTML into a 360×680 portrait phone
+       UI: chrome becomes a slim app bar, the 3-column grid becomes
+       a vertical scroll-feed, and several secondary panels are hidden
+       so the remaining elements (next visit, chemistry, work order,
+       activity feed) get readable space.
+       The fit() script reads offsetWidth/offsetHeight, so changing
+       these dimensions automatically reflows --ww-s.
+       =============================================================== */
+    .ww-hero .ww-shell .ww-frame {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 360px;
+      height: 820px;
+      margin: 0;
+      transform-origin: center;
+      transform: translate(-50%, -50%) scale(var(--ww-s, 1));
+    }
+    /* Phone bezel — heavy rounded corners + dark ring */
+    .ww-hero .ww-shell .ww-window {
+      height: 100%;
+      border-radius: 36px;
+      border: 6px solid #0a1929;
+      box-shadow:
+        0 0 0 2px rgba(125,211,252,.15) inset,
+        0 60px 120px rgba(2,8,20,.6),
+        0 0 80px rgba(125,211,252,.08);
+    }
+
+    /* Slim app bar — keep logo + customer chip, drop nav and divider */
+    .ww-hero .ww-shell .ww-chrome {
+      height: 48px;
+      padding: 0 12px;
+      gap: 10px;
+    }
+    .ww-hero .ww-shell .ww-chrome__logo { height: 22px; }
+    .ww-hero .ww-shell .ww-chrome__divider { display: none; }
+    .ww-hero .ww-shell .ww-chrome__nav { display: none; }
+    .ww-hero .ww-shell .ww-chrome__customer {
+      padding: 4px 10px 4px 4px;
+      gap: 6px;
+      margin-left: auto;
+    }
+    .ww-hero .ww-shell .ww-chrome__avatar {
+      width: 24px; height: 24px; font-size: .65rem;
+    }
+    .ww-hero .ww-shell .ww-chrome__customer-name { font-size: .72rem; }
+    .ww-hero .ww-shell .ww-chrome__customer-addr { font-size: .6rem; }
+
+    /* Subbar — just title + active pill, drop the right-side meta */
+    .ww-hero .ww-shell .ww-subbar { padding: 8px 14px; }
+    .ww-hero .ww-shell .ww-subbar__title { font-size: .85rem; }
+    .ww-hero .ww-shell .ww-subbar__right { display: none; }
+
+    /* Grid → vertical scroll-feed */
+    .ww-hero .ww-shell .ww-grid {
+      display: flex;
+      flex-direction: column;
+      grid-template-columns: none;
+      height: calc(100% - 48px - 36px);
+      background: transparent;
+      gap: 0;
+      overflow: hidden;
+    }
+    .ww-hero .ww-shell .ww-col {
+      padding: 10px 14px;
+      gap: 10px;
+      background: transparent;
+    }
+
+    /* Schedule column (first .ww-col in the grid — the original
+       component doesn't put .ww-col--left on it, so target by
+       position). Keep only the next-visit hero card. */
+    .ww-hero .ww-shell .ww-grid > .ww-col:nth-child(1) { padding-top: 12px; }
+    .ww-hero .ww-shell .ww-grid > .ww-col:nth-child(1) .ww-col__head { display: none; }
+    .ww-hero .ww-shell .ww-grid > .ww-col:nth-child(1) > div:last-child { display: none; }
+    .ww-hero .ww-shell .ww-next-visit__day { font-size: 1.1rem; }
+    .ww-hero .ww-shell .ww-next-visit__day span { font-size: .6rem; }
+    .ww-hero .ww-shell .ww-next-visit__when { font-size: .68rem; }
+    .ww-hero .ww-shell .ww-next-visit__when strong { font-size: .82rem; }
+
+    /* Service log column — drop the log-head, show chem strip and
+       work order panel, hide the second "Repair pending" panel. */
+    .ww-hero .ww-shell .ww-col--mid { padding: 4px 14px 10px; gap: 8px; }
+    .ww-hero .ww-shell .ww-log-head { display: none; }
+    .ww-hero .ww-shell .ww-col--mid > div:nth-of-type(1) .ww-col__title {
+      font-size: .58rem;
+      margin-bottom: 6px !important;
+    }
+    /* Chemistry strip — keep 5 tiles in a row at compressed size. */
+    .ww-hero .ww-shell .ww-chem-row {
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4px;
+    }
+    .ww-hero .ww-shell .ww-stat { padding: 6px 4px 8px; border-radius: 6px; }
+    .ww-hero .ww-shell .ww-stat__label { font-size: .52rem; }
+    .ww-hero .ww-shell .ww-stat__value { font-size: .8rem; }
+    /* Twocol → single column, hide repair-pending panel. */
+    .ww-hero .ww-shell .ww-twocol {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+    .ww-hero .ww-shell .ww-twocol > .ww-panel:last-child { display: none; }
+    .ww-hero .ww-shell .ww-panel { padding: 10px 12px; border-radius: 10px; }
+    .ww-hero .ww-shell .ww-panel__head strong { font-size: .8rem; }
+    .ww-hero .ww-shell .ww-panel__head span { font-size: .7rem; }
+    .ww-hero .ww-shell .ww-checklist__item { font-size: .72rem; }
+    /* Trim work-order checklist to 3 items so the activity feed has
+       room for the full invoice breakdown below it. */
+    .ww-hero .ww-shell .ww-checklist__item:nth-child(n+4) { display: none; }
+
+    /* Activity column (third .ww-col in the grid). Drop the col head
+       entirely on mobile (saves ~30px) — Sarah's message + the invoice
+       card are self-explanatory in context. Hide the two middle feed
+       items (Marcus reply + Repair scheduled) so the screen has room
+       for the full invoice breakdown including the total row.
+       Extra bottom padding so the $392.00 total clears the rounded
+       phone bezel rather than kissing it. */
+    .ww-hero .ww-shell .ww-grid > .ww-col:nth-child(3) {
+      padding-top: 4px;
+      padding-bottom: 16px;
+      gap: 8px;
+    }
+    .ww-hero .ww-shell .ww-grid > .ww-col:nth-child(3) .ww-col__head { display: none; }
+    .ww-hero .ww-shell .ww-grid > .ww-col:nth-child(3) .ww-feed__item:nth-child(2),
+    .ww-hero .ww-shell .ww-grid > .ww-col:nth-child(3) .ww-feed__item:nth-child(3) {
+      display: none;
+    }
+    .ww-hero .ww-shell .ww-feed { gap: 8px; }
+    .ww-hero .ww-shell .ww-feed__item { padding: 0; }
+    .ww-hero .ww-shell .ww-feed__head { gap: 6px; margin-bottom: 4px; }
+    .ww-hero .ww-shell .ww-feed__avatar { width: 20px; height: 20px; font-size: .6rem; }
+    .ww-hero .ww-shell .ww-feed__who { font-size: .7rem; }
+    .ww-hero .ww-shell .ww-feed__when { font-size: .6rem; }
+    .ww-hero .ww-shell .ww-feed__bubble,
+    .ww-hero .ww-shell .ww-feed__body { font-size: .72rem; line-height: 1.3; padding: 8px 10px; }
+    .ww-hero .ww-shell .ww-feed__invoice { padding: 8px 10px; gap: 4px; }
+    .ww-hero .ww-shell .ww-feed__invoice-row { font-size: .68rem; }
+    .ww-hero .ww-shell .ww-feed__invoice-total { font-size: .8rem; padding-top: 4px; }
+  }
 </style>
