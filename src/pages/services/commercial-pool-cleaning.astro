@@ -60,7 +60,7 @@ const schema = [
           before the Maintenance Plans chapter.) */}
       <div class="cph-hero__content">
         <h1 class="cph-hero__title">Commercial<br class="cph-hero__title-br" />Pool Care</h1>
-        <button type="button" class="cph-hero__cta" data-open-intake>Schedule a Consultation</button>
+        <button type="button" class="cph-hero__cta" data-open-intake data-prefill-service="maintenance" data-prefill-customer="commercial">Schedule a Consultation</button>
       </div>
 
       {/* Stats overlay — sits at the BOTTOM of the hero image. Numbers
@@ -80,7 +80,7 @@ const schema = [
             <span class="cph-stat__num" data-count-to="1">0</span>
           </div>
           <div class="cph-stat__label">
-            Commercial pool service provider across coastal counties
+            Commercial service provider
             <span class="cph-stat__footnote">Per publicly available DPH inspection records</span>
           </div>
         </div>
@@ -102,8 +102,46 @@ const schema = [
     </div>
   </section>
 
-  {/* Stats bar was removed in v2 — the same 4 numbers now live as
-      the overlay on the hero image above. */}
+  {/* Mobile-only stats banner. On phones the overlay-on-hero version
+      above is hidden (it's too cramped at small widths); this banner
+      shows the same 4 numbers in a blue-banded section right under
+      the hero with a 2x2 grid so each stat has room to breathe.
+      Hidden on desktop where the hero overlay is used instead. */}
+  <section class="cph-stats-banner" data-cph-stats aria-label="By the numbers">
+    <div class="container cph-stats-banner__grid">
+      <div class="cph-stat cph-stat--banner">
+        <div class="cph-stat__value">
+          <span class="cph-stat__num" data-count-to="75">0</span>
+          <span class="cph-stat__suffix">+</span>
+        </div>
+        <div class="cph-stat__label">Commercial pools serviced</div>
+      </div>
+      <div class="cph-stat cph-stat--banner">
+        <div class="cph-stat__value">
+          <span class="cph-stat__prefix">#</span>
+          <span class="cph-stat__num" data-count-to="1">0</span>
+        </div>
+        <div class="cph-stat__label">
+          Commercial service provider
+          <span class="cph-stat__footnote">Per publicly available DPH inspection records</span>
+        </div>
+      </div>
+      <div class="cph-stat cph-stat--banner">
+        <div class="cph-stat__value">
+          <span class="cph-stat__num" data-count-to="98">0</span>
+          <span class="cph-stat__suffix">%+</span>
+        </div>
+        <div class="cph-stat__label">Avg DPH inspection score</div>
+      </div>
+      <div class="cph-stat cph-stat--banner">
+        <div class="cph-stat__value">
+          <span class="cph-stat__num" data-count-to="24">0</span>
+          <span class="cph-stat__suffix">hr</span>
+        </div>
+        <div class="cph-stat__label">Service response time</div>
+      </div>
+    </div>
+  </section>
 
   <!-- Two main commercial priorities — Rivian Delivery 500/700 style:
        no section header; each column's TITLE acts as the header,
@@ -250,7 +288,7 @@ const schema = [
         <option value="properties">Properties</option>
       </select>
 
-      <button type="button" class="mp-nav__cta" data-open-intake>Schedule a Consultation</button>
+      <button type="button" class="mp-nav__cta" data-open-intake data-prefill-service="maintenance" data-prefill-customer="commercial">Schedule a Consultation</button>
     </div>
   </nav>
 
@@ -662,7 +700,7 @@ const schema = [
         <header class="mp-pricing-v2__intro">
           <h3>Custom pricing for your property.</h3>
           <p>Commercial pricing varies. We quote each property after a short on-site consultation — three factors set the per-visit cost: service frequency, debris load from surrounding trees and landscaping, and total water volume across the pool and any connected bodies of water.</p>
-          <button type="button" class="mp-pricing-v2__cta" data-open-intake>
+          <button type="button" class="mp-pricing-v2__cta" data-open-intake data-prefill-service="maintenance" data-prefill-customer="commercial">
             Schedule a consultation
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
           </button>
@@ -1306,6 +1344,33 @@ const schema = [
         setActive(0);
       });
     })();
+
+    /**
+     * Tap-to-reveal for full-service management slides on mobile.
+     *
+     * The detail panel (description + bullets) is shown via :hover on
+     * desktop, which doesn't exist on touch devices. This adds a click
+     * handler that toggles `.is-revealed` on the slide — CSS pairs that
+     * class with the same reveal state as :hover. Tap once to open, tap
+     * again to close. Tapping a different slide closes any others.
+     *
+     * Runs on every viewport (a click on desktop still toggles), but
+     * desktop's :hover takes precedence so the behavior feels normal.
+     */
+    (function () {
+      const slides = document.querySelectorAll('.mp-prop-slide--reveal');
+      if (!slides.length) return;
+      slides.forEach((slide) => {
+        slide.addEventListener('click', (e) => {
+          // Don't toggle when an inner link/button was clicked.
+          const target = e.target;
+          if (target instanceof Element && target.closest('a, button')) return;
+          const wasRevealed = slide.classList.contains('is-revealed');
+          slides.forEach((s) => s.classList.remove('is-revealed'));
+          if (!wasRevealed) slide.classList.add('is-revealed');
+        });
+      });
+    })();
   </script>
 
   {/* ────────────────────────────────────────────────────────────────
@@ -1796,6 +1861,61 @@ const schema = [
     color: rgba(255, 255, 255, 0.55);
   }
 
+  /* Mobile-only blue stats banner — replaces the hero-overlay stats
+     on phones. The hero-overlay version is too cramped at small
+     widths; this gives each stat its own cell in a 2x2 grid with
+     a deep blue background that bands across the page right under
+     the hero photo. Hidden on >720px where the hero overlay is used. */
+  .cph-stats-banner {
+    display: none;
+  }
+
+  @media (max-width: 720px) {
+    /* Hide the hero-overlay stats; the banner below takes over. */
+    .cph-hero .cph-stats {
+      display: none;
+    }
+    .cph-stats-banner {
+      display: block;
+      background: #1E3A5F;
+      color: white;
+      padding: 1.75rem 0;
+    }
+    .cph-stats-banner__grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.6rem;
+      align-items: start;
+    }
+    .cph-stat--banner {
+      display: block;
+      min-width: 0;
+      text-align: center;
+    }
+    .cph-stat--banner .cph-stat__value {
+      display: inline-flex;
+      justify-content: center;
+      font-size: clamp(1.1rem, 5vw, 1.5rem);
+      line-height: 1;
+      margin-bottom: 0.3rem;
+    }
+    .cph-stat--banner .cph-stat__label {
+      font-size: clamp(0.6rem, 2.4vw, 0.72rem);
+      line-height: 1.25;
+      color: rgba(255, 255, 255, 0.82);
+    }
+    /* Footnote (DPH inspection records) hides at single-row size —
+       there's no room. The 4 main labels read regardless. */
+    .cph-stat--banner .cph-stat__footnote {
+      display: none;
+    }
+    .cph-stat--banner .cph-stat__prefix,
+    .cph-stat--banner .cph-stat__suffix {
+      font-size: 0.78em;
+      color: rgba(255, 255, 255, 0.78);
+    }
+  }
+
   /* On narrow viewports we keep the title + CTA overlay AND the stats
      overlay on the photo — just scaled down. The image gets a tall
      portrait-ish aspect ratio so there's room for both layers without
@@ -2038,6 +2158,14 @@ const schema = [
     grid-template-columns: 1fr;
     gap: var(--space-8);
     align-items: center;
+  }
+  /* Mobile: show the active project's photo ABOVE the accordion list
+     (and below the section's intro/subtitle), so users see what's
+     being described before they pick a project. On desktop the grid
+     puts list on the left and photos on the right side-by-side. */
+  @media (max-width: 899px) {
+    .cph-projects__photos { order: 1; }
+    .cph-projects__left { order: 2; }
   }
   @media (min-width: 900px) {
     .cph-projects__grid {
@@ -3157,8 +3285,9 @@ const schema = [
       scroll-behavior: smooth;
       transition: none;
     }
+    /* Mobile relies on native swipe — no prev/next/dots needed. */
     .mp-prop-carousel--pinned .mp-prop-carousel__nav {
-      display: flex;
+      display: none;
     }
   }
 
@@ -3345,6 +3474,12 @@ const schema = [
     justify-content: center;
     gap: var(--space-4);
     margin-top: var(--space-8);
+  }
+  /* On mobile the tape collapses to a single stacked column showing
+     all cards at once, so paging through them with prev/next is
+     pointless — the user just scrolls. Hide the nav entirely. */
+  @media (max-width: 720px) {
+    .mp-grid-nav { display: none; }
   }
   .mp-grid-nav__dots {
     display: flex;
@@ -3534,17 +3669,38 @@ const schema = [
   }
   .mp-pricing-v2__cta svg { transition: transform 0.2s ease; }
 
-  /* Card grid — 1 col mobile, 3 cols desktop. Same approach as the
-     existing .mp-grid (auto-fit / repeat(3, 1fr)). */
+  /* Card grid — horizontal swipe carousel on mobile, 3-col grid on
+     desktop. On mobile the cards become a scroll-snap strip so users
+     can flick through them; one card fills most of the viewport with
+     a peek of the next as a swipe affordance. */
   .mp-pricing-v2__cards {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--space-5);
+    display: flex;
+    gap: var(--space-4);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    margin: 0 calc(var(--container-padding, 1rem) * -1);
+    padding: 0.5rem var(--container-padding, 1rem);
+  }
+  .mp-pricing-v2__cards::-webkit-scrollbar { display: none; }
+  .mp-pricing-v2__cards > .mp-process-card {
+    flex: 0 0 86%;
+    scroll-snap-align: start;
   }
   @media (min-width: 720px) {
     .mp-pricing-v2__cards {
+      display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: var(--space-6);
+      overflow: visible;
+      scroll-snap-type: none;
+      margin: 0;
+      padding: 0;
+    }
+    .mp-pricing-v2__cards > .mp-process-card {
+      flex: initial;
+      scroll-snap-align: none;
     }
   }
 
@@ -4789,7 +4945,8 @@ const schema = [
     pointer-events: none;
   }
   .mp-prop-slide--reveal:hover::after,
-  .mp-prop-slide--reveal:focus-within::after {
+  .mp-prop-slide--reveal:focus-within::after,
+  .mp-prop-slide--reveal.is-revealed::after {
     opacity: 1;
   }
 
@@ -4808,7 +4965,8 @@ const schema = [
       margin-top 0.4s cubic-bezier(0.2, 0, 0.2, 1);
   }
   .mp-prop-slide--reveal:hover .mp-prop-slide__detail,
-  .mp-prop-slide--reveal:focus-within .mp-prop-slide__detail {
+  .mp-prop-slide--reveal:focus-within .mp-prop-slide__detail,
+  .mp-prop-slide--reveal.is-revealed .mp-prop-slide__detail {
     max-height: 500px;
     opacity: 1;
     margin-top: var(--space-3);
@@ -4870,6 +5028,11 @@ const schema = [
     justify-content: center;
     gap: var(--space-4);
     margin-top: var(--space-6);
+  }
+  /* Mobile relies on native swipe — no prev/next/dots needed for any
+     .mp-prop-carousel instance (Properties We Service, etc). */
+  @media (max-width: 720px) {
+    .mp-prop-carousel__nav { display: none; }
   }
   .mp-prop-carousel__dots {
     display: flex;
@@ -5050,9 +5213,13 @@ const schema = [
    * short enough that scroll-by users still see the final values.
    */
   (function () {
-    const root = document.querySelector('[data-cph-stats]');
-    if (!root) return;
-    const nums = root.querySelectorAll('.cph-stat__num');
+    // Multiple [data-cph-stats] roots exist (hero overlay + mobile
+    // banner). Each one has its own count-up triggered when it
+    // enters the viewport. display:none roots have no layout box,
+    // so their IntersectionObserver never fires — meaning the
+    // hidden version doesn't waste an animation.
+    const roots = document.querySelectorAll('[data-cph-stats]');
+    if (!roots.length) return;
     const DURATION = 1800;
 
     /** ease-out cubic — 1 - (1-t)^3 — fast start, soft landing. */
@@ -5060,7 +5227,8 @@ const schema = [
       return 1 - Math.pow(1 - t, 3);
     }
 
-    function runCountUp() {
+    function runCountUp(root) {
+      const nums = root.querySelectorAll('.cph-stat__num');
       const targets = Array.from(nums).map((el) => {
         const target = parseFloat(el.getAttribute('data-count-to') || '0');
         return { el, target };
@@ -5085,7 +5253,7 @@ const schema = [
           for (const entry of entries) {
             if (entry.isIntersecting) {
               obs.unobserve(entry.target);
-              runCountUp();
+              runCountUp(entry.target);
             }
           }
         },
@@ -5094,10 +5262,10 @@ const schema = [
         // see the numbers already counting up.
         { threshold: 0.25 },
       );
-      obs.observe(root);
+      roots.forEach((r) => obs.observe(r));
     } else {
-      // No IO support — just run on page load.
-      runCountUp();
+      // No IO support — just run on page load for each root.
+      roots.forEach(runCountUp);
     }
   })();
 

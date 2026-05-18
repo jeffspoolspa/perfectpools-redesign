@@ -343,16 +343,38 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
 
   /* ── Open / close ── */
   useEffect(() => {
+    /**
+     * Open handler. Accepts an optional CustomEvent payload:
+     *   detail.prefill — partial QuoteFormData (firstName, lastName,
+     *     email, phone, addressStreet, addressCity, addressState,
+     *     addressZip, county, serviceInterest, customerType, …).
+     *   detail.skipToStep — explicit step override.
+     *
+     * If no skipToStep is passed but prefill includes enough data, we
+     * smart-skip: address-only opens at the contact step; address +
+     * contact opens at the progressive pool page. Without prefill,
+     * starts at step 1 as before.
+     */
     const handler = (e?: Event) => {
+      const detail = (e as CustomEvent)?.detail || {};
+      const prefill: Partial<QuoteFormData> = detail.prefill || {};
       const saved = getSession();
-      if (saved?.formData) {
-        setFormData(prev => ({ ...prev, ...saved.formData }));
+      const savedForm = saved?.formData || {};
+      // Prefill wins over session, but session fills in anything the
+      // prefill doesn't specify (so a returning user's earlier inputs
+      // aren't blown away).
+      const merged = { ...savedForm, ...prefill };
+      setFormData(prev => ({ ...prev, ...merged }));
+
+      let nextStep = detail.skipToStep as number | undefined;
+      if (!nextStep) {
+        const hasAddress = !!merged.addressStreet;
+        const hasContact = !!(merged.firstName && merged.lastName && merged.email && merged.phone);
+        if (hasAddress && hasContact) nextStep = 3;
+        else if (hasAddress) nextStep = 2;
+        else nextStep = 1;
       }
-      // Always start at the address page (currentStep === 1) regardless
-      // of where the saved session left off — the flow shape is in flux
-      // and dropping the user into a half-complete middle step is worse
-      // than re-confirming address.
-      setCurrentStep(1);
+      setCurrentStep(nextStep);
       setIsOpen(true);
     };
     window.addEventListener('openGetStarted', handler);
@@ -634,16 +656,27 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
 
   function buildTicketDescription(type: TicketType) {
     const answers = ticketQualifiers[type];
+    const lines: string[] = [];
+    // Property type + commercial property name lead the description
+    // so the dispatcher sees them first.
+    if (formData.customerType) {
+      const ctLabel = CUSTOMER_TYPES.find(c => c.id === formData.customerType)?.label || formData.customerType;
+      lines.push(`Property type: ${ctLabel}`);
+    }
+    if (formData.customerType === 'commercial' && commercialForm.companyName.trim()) {
+      lines.push(`Property name: ${commercialForm.companyName.trim()}`);
+    }
     const qualifierLines = TICKET_QUALIFIER_CONFIG[type].questions
       .map(question => {
         const selected = question.options.find(option => option.id === answers[question.id]);
         return selected ? `${question.label}: ${selected.label}` : null;
       })
       .filter((line): line is string => Boolean(line));
+    lines.push(...qualifierLines);
     const notes = ticketDescription.trim();
-    if (notes) qualifierLines.push(`Additional details: ${notes}`);
-    return qualifierLines.length
-      ? qualifierLines.join('\n')
+    if (notes) lines.push(`Additional details: ${notes}`);
+    return lines.length
+      ? lines.join('\n')
       : 'Customer requested a call back through the website quote form.';
   }
 
@@ -1495,6 +1528,10 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
       ? ticketQualifierQuestions.every(question => !!ticketQualifiers[selectedTicketType][question.id])
       : false;
     const onCommercialMaintenance = onMaintenance && formData.customerType === 'commercial';
+    // Non-maintenance commercial — equipment/green-pool/renovation
+    // tickets for a commercial property. We surface a single extra
+    // qualifier (property name) before the existing ticket questions.
+    const onCommercialTicket = !!selectedTicketType && formData.customerType === 'commercial';
     const commercialFrequencyAnswered = commercialForm.closesForWinter !== null;
     const commercialCompanyAnswered = !!commercialForm.companyName.trim();
     // Reveal each follow-up after the prior is answered, regardless of
@@ -1502,17 +1539,31 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
     // (commercial, above-ground, needs-repair) happens on Continue, not
     // on selection — so the user can change any selection without being
     // hard-redirected mid-flow.
-    const showProperty = onMaintenance;
+    // Property type now shows for EVERY service interest, not just
+    // maintenance. For ticket flows (equipment/green-pool/renovation)
+    // it gates the ticket qualifier questions below.
+    const showProperty = !!formData.serviceInterest;
     const showCommercialFrequency = onCommercialMaintenance;
     const showCommercialCompany = showCommercialFrequency && commercialFrequencyAnswered;
-    const showPoolType = showProperty && !!formData.customerType && !onCommercialMaintenance;
+    // For non-maintenance commercial, the company-name field is the
+    // single extra qualifier we add — shown right after property type
+    // and before the ticket qualifier questions.
+    const showTicketPropertyName = onCommercialTicket;
+    const ticketPropertyNameAnswered = !showTicketPropertyName || commercialCompanyAnswered;
+    const showTicketQualifiers = !!selectedTicketType && !!formData.customerType && ticketPropertyNameAnswered;
+    const showPoolType = showProperty && !!formData.customerType && !onCommercialMaintenance && onMaintenance;
     const showCondition = showPoolType && !!formData.isInground;
     const showBody = showCondition && !!formData.poolCondition;
     const allAnswered = onCommercialMaintenance
       ? commercialFrequencyAnswered && commercialCompanyAnswered
       : onMaintenance
       ? !!(showBody && formData.serviceTypeTouched && formData.serviceType)
-      : !!(selectedTicketType && ticketQualifiersAnswered);
+      : !!(
+          selectedTicketType
+          && !!formData.customerType
+          && ticketPropertyNameAnswered
+          && ticketQualifiersAnswered
+        );
 
     // Continue handler: check the deferred filters in order. If any
     // applies, swap to the corresponding redirect/sorry screen instead
@@ -1602,20 +1653,10 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
           </div>
         </div>
 
-        {selectedTicketType && ticketQualifierQuestions.map((question, index) => {
-          const previousQuestion = ticketQualifierQuestions[index - 1];
-          const shouldShow = index === 0 || !!ticketQualifiers[selectedTicketType][previousQuestion.id];
-          if (!shouldShow) return null;
-
-          return (
-            <div class="psf-q psf-q--ticket-qualifier" key={`${selectedTicketType}-${question.id}`}>
-              <h3 class="psf-q__label">{question.label}</h3>
-              {renderTicketQualifierQuestion(selectedTicketType, question)}
-            </div>
-          );
-        })}
-
-        {/* Q2: Property type */}
+        {/* Q2: Property type — now shown for EVERY service interest.
+            For ticket flows (equipment/green-pool/renovation) it gates
+            the qualifier questions below; for maintenance it gates the
+            commercial-frequency or residential-pool branches as before. */}
         {showProperty && (
           <div class="psf-q">
             <h3 class="psf-q__label">
@@ -1637,6 +1678,44 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
             </div>
           </div>
         )}
+
+        {/* NEW: Commercial property name — single extra qualifier for
+            non-maintenance commercial tickets (equipment / green-pool /
+            renovation). Reuses commercialForm.companyName so the same
+            field name flows through to the ticket description. */}
+        {showTicketPropertyName && (
+          <div class="psf-q">
+            <h3 class="psf-q__label">
+              What is the company or facility name?
+              {infoIcon('This helps us prepare the dispatch record')}
+            </h3>
+            <div class="intake-field" style="margin-bottom: 0;">
+              <input
+                type="text"
+                class="intake-input"
+                value={commercialForm.companyName}
+                onInput={(e: any) => setCommercialForm(prev => ({ ...prev, companyName: e.target.value }))}
+                placeholder="e.g. Oceanview HOA, Hampton Inn Savannah"
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Ticket qualifier questions — for equipment / green-pool /
+            renovation. Gated on property type being selected (and, for
+            commercial, property name being filled). */}
+        {showTicketQualifiers && ticketQualifierQuestions.map((question, index) => {
+          const previousQuestion = ticketQualifierQuestions[index - 1];
+          const shouldShow = index === 0 || !!ticketQualifiers[selectedTicketType][previousQuestion.id];
+          if (!shouldShow) return null;
+
+          return (
+            <div class="psf-q psf-q--ticket-qualifier" key={`${selectedTicketType}-${question.id}`}>
+              <h3 class="psf-q__label">{question.label}</h3>
+              {renderTicketQualifierQuestion(selectedTicketType, question)}
+            </div>
+          );
+        })}
 
         {/* Commercial Q3: service frequency */}
         {showCommercialFrequency && (

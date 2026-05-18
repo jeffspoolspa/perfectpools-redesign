@@ -69,14 +69,14 @@ const icons = {
             <span>Pool Service Provider Across Coastal Counties</span>
           </div>
 
-          <h1 class="reveal-up" style="--reveal-delay: 75ms">Pool care you can count on.</h1>
-          <p class="reveal-up" style="--reveal-delay: 150ms">Highest-quality service. Experienced technicians. Clear communication and transparent pricing.</p>
+          <h1 class="reveal-up" style="--reveal-delay: 50ms">Pool care you can count on.</h1>
+          <p class="reveal-up" style="--reveal-delay: 100ms">Highest-quality service. Experienced technicians. Clear communication and transparent pricing.</p>
 
-          <div class="hero__buttons reveal-up" style="--reveal-delay: 225ms">
+          <div class="hero__buttons reveal-up" style="--reveal-delay: 150ms">
             <a href="tel:9124590160" class="btn btn--cta btn--lg">Call (912) 459-0160</a>
           </div>
 
-          <div class="hero__chips reveal-up" style="--reveal-delay: 300ms">
+          <div class="hero__chips reveal-up" style="--reveal-delay: 200ms">
             <span class="hero__chip">
               <Fragment set:html={icons.shield} />
               Licensed &amp; Insured
@@ -98,7 +98,7 @@ const icons = {
              open at a time; tapping the other collapses the first.
              Hidden on desktop (≥1024) where the standalone .hero-form
              below renders instead. -->
-        <div class="hero__route-picker reveal-up" data-hero-route-picker style="--reveal-delay: 225ms">
+        <div class="hero__route-picker reveal-up" data-hero-route-picker style="--reveal-delay: 150ms">
           <div class="route-card route-card--gradient route-card--expandable" data-route-card="maintenance">
             <button type="button" class="route-card__header" data-route-toggle="maintenance" aria-expanded="false" aria-controls="route-form-maintenance">
               <div class="route-card__icon">
@@ -141,7 +141,7 @@ const icons = {
         <!-- Contact form. On mobile it's hidden until a route card is tapped,
              then animates open below the picker (origin: top edge). On desktop
              it sits in its own grid column visible by default. -->
-        <div class="hero__form-wrap reveal-up" data-hero-form-wrap style="--reveal-delay: 300ms">
+        <div class="hero__form-wrap reveal-up" data-hero-form-wrap style="--reveal-delay: 200ms">
           <form class="hero-form" data-hero-form data-active-tab="maintenance">
             <div class="hero-form__tabs" role="tablist" aria-label="Service type">
               <button
@@ -183,7 +183,7 @@ const icons = {
         </div>
       </div>
 
-      <div class="hero__footer reveal-up" style="--reveal-delay: 450ms">
+      <div class="hero__footer reveal-up" style="--reveal-delay: 280ms">
         <a href={`${import.meta.env.BASE_URL}our-approach`}>First time pool owner? Start here &rarr;</a>
       </div>
     </div>
@@ -380,8 +380,12 @@ const icons = {
 
   <!-- ============ WAVE: What We Do -> Partner ============ -->
   <div class="coastal-wave coastal-wave--bottom" style="background: white;">
-    <svg viewBox="0 0 1440 120" preserveAspectRatio="none" fill="none">
-      <path d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 60C1200 60 1320 45 1380 37.5L1440 30V120H0Z" fill="#1E3A5F"/>
+    <svg viewBox="0 0 1440 120" preserveAspectRatio="none" fill="none" style="overflow: visible;">
+      <!-- Above-curve fill (white) extends 8 units past viewBox top so
+           the lighter Partner-section side has the same anti-seam
+           overhang as the dark blue side. -->
+      <path d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 60C1200 60 1320 45 1380 37.5L1440 30V-8H0Z" fill="white"/>
+      <path d="M0 128V120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 60C1200 60 1320 45 1380 37.5L1440 30V128H0Z" fill="#1E3A5F"/>
     </svg>
   </div>
 
@@ -404,8 +408,9 @@ const icons = {
 
   <!-- ============ WAVE: Partner -> Coastal ============ -->
   <div class="coastal-wave coastal-wave--top" style="background: white;">
-    <svg viewBox="0 0 1440 120" preserveAspectRatio="none" fill="none">
-      <path d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 60C1200 60 1320 45 1380 37.5L1440 30V120H0Z" fill="#1E3A5F"/>
+    <svg viewBox="0 0 1440 120" preserveAspectRatio="none" fill="none" style="overflow: visible;">
+      <path d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 60C1200 60 1320 45 1380 37.5L1440 30V-8H0Z" fill="white"/>
+      <path d="M0 128V120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 60C1200 60 1320 45 1380 37.5L1440 30V128H0Z" fill="#1E3A5F"/>
     </svg>
   </div>
 
@@ -413,15 +418,9 @@ const icons = {
   <section class="coastal-section" id="service-area">
     <div class="container">
       <div class="coastal-layout">
-        <!-- Left: Interactive Google Map -->
-        <div class="coastal-map reveal-up">
-          <div class="coastal-map__glow"></div>
-          <div class="coastal-map__frame coastal-map__frame--map">
-            <div class="service-area__map" id="service-area-map"></div>
-          </div>
-        </div>
-
-        <!-- Right: Content -->
+        <!-- Content: title + description.
+             On mobile this comes first (DOM order); on desktop the grid
+             places it in the top-right column with the map on the left. -->
         <div class="coastal-content">
           <h2 class="coastal-content__title reveal-up" style="--reveal-delay: 75ms">
             Engineered for<br/>the Coast
@@ -430,16 +429,23 @@ const icons = {
             Local environments demand local expertise. We've built our methodology
             specifically to combat the unique challenges of coastal pool ownership.
           </p>
+        </div>
 
-          <!-- Address Checker -->
-          <div class="coastal-checker reveal-up" style="--reveal-delay: 225ms">
-            <h3 class="coastal-checker__title">Check Your Address</h3>
-            <p class="coastal-checker__desc">Enter your address to see if you're within our service area.</p>
-            <div id="service-area-checker"></div>
+        <!-- Interactive Google Map -->
+        <div class="coastal-map reveal-up">
+          <div class="coastal-map__glow"></div>
+          <div class="coastal-map__frame coastal-map__frame--map">
+            <div class="service-area__map" id="service-area-map"></div>
           </div>
+        </div>
 
-          <!-- Checklist removed -->
-          </ul>
+        <!-- Address Checker — sibling of content + map so on mobile it
+             sits directly below the map (in one viewport with it),
+             and on desktop it sits below the content in the right column. -->
+        <div class="coastal-checker reveal-up" style="--reveal-delay: 225ms">
+          <h3 class="coastal-checker__title">Check Your Address</h3>
+          <p class="coastal-checker__desc">Enter your address to see if you're within our service area.</p>
+          <div id="service-area-checker"></div>
         </div>
       </div>
 
@@ -512,8 +518,9 @@ const icons = {
 
   <!-- ============ WAVE: Coastal -> Reviews ============ -->
   <div class="coastal-wave coastal-wave--bottom" style="background: #F9F6F0;">
-    <svg viewBox="0 0 1440 120" preserveAspectRatio="none" fill="none">
-      <path d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 60C1200 60 1320 45 1380 37.5L1440 30V120H0Z" fill="#1E3A5F"/>
+    <svg viewBox="0 0 1440 120" preserveAspectRatio="none" fill="none" style="overflow: visible;">
+      <path d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 60C1200 60 1320 45 1380 37.5L1440 30V-8H0Z" fill="#F9F6F0"/>
+      <path d="M0 128V120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 60C1200 60 1320 45 1380 37.5L1440 30V128H0Z" fill="#1E3A5F"/>
     </svg>
   </div>
 
@@ -819,10 +826,33 @@ const icons = {
         updateHeroTab(type);
       });
     });
+    /**
+     * Hero contact form submit — pass values along to the modal.
+     *
+     * Captures the four inputs (first/last/email/phone) and the active
+     * tab (maintenance/repair → serviceInterest), then dispatches
+     * openGetStarted with a prefill payload. The modal's smart-skip
+     * logic opens the user at the next-needed step (step 2 = contact
+     * is auto-filled; the user lands at the address step OR — if
+     * service-area address was checked earlier — directly at the
+     * progressive pool page).
+     */
     heroForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      const intakeTrigger = document.querySelector('[data-open-intake]') as HTMLButtonElement | null;
-      if (intakeTrigger) intakeTrigger.click();
+      const fd = new FormData(heroForm);
+      const tab = heroForm.dataset.activeTab === 'repair' ? 'equipment' : 'maintenance';
+      const prefill: Record<string, string> = {
+        firstName: (fd.get('first_name') || '').toString().trim(),
+        lastName: (fd.get('last_name') || '').toString().trim(),
+        email: (fd.get('email') || '').toString().trim(),
+        phone: (fd.get('phone') || '').toString().trim(),
+        serviceInterest: tab,
+      };
+      // Drop empties so we don't overwrite saved-session values with ''
+      for (const k of Object.keys(prefill)) if (!prefill[k]) delete prefill[k];
+      window.dispatchEvent(new CustomEvent('openGetStarted', {
+        detail: { prefill },
+      }));
     });
 
     // Mobile route picker — each card is a self-contained mini-form.
@@ -997,8 +1027,18 @@ const icons = {
         e.preventDefault();
         const type = form.dataset.routeForm as 'maintenance' | 'repair';
         updateHeroTab(type);
-        const intakeTrigger = document.querySelector('[data-open-intake]') as HTMLButtonElement | null;
-        if (intakeTrigger) intakeTrigger.click();
+        const fd = new FormData(form);
+        const prefill: Record<string, string> = {
+          firstName: (fd.get('first_name') || '').toString().trim(),
+          lastName: (fd.get('last_name') || '').toString().trim(),
+          email: (fd.get('email') || '').toString().trim(),
+          phone: (fd.get('phone') || '').toString().trim(),
+          serviceInterest: type === 'repair' ? 'equipment' : 'maintenance',
+        };
+        for (const k of Object.keys(prefill)) if (!prefill[k]) delete prefill[k];
+        window.dispatchEvent(new CustomEvent('openGetStarted', {
+          detail: { prefill },
+        }));
       });
     });
   }
@@ -1051,12 +1091,17 @@ const icons = {
     display: block;
   }
 
+  /* Overlap each wave 2px into the adjacent section. Combined with the
+     2px solid-color band added via the inline gradient backgrounds on
+     each wave (white→#1E3A5F on top wave, #1E3A5F→#F9F6F0 on bottom),
+     this guarantees no subpixel light-blue seam appears between the
+     SVG path and the section background. */
   .coastal-wave--top {
-    margin-bottom: -1px;
+    margin-bottom: -2px;
   }
 
   .coastal-wave--bottom {
-    margin-top: -1px;
+    margin-top: -2px;
     transform: rotate(180deg);
   }
 
@@ -1084,31 +1129,45 @@ const icons = {
     overflow: hidden;
   }
 
+  /* Mobile: stacks content → map → checker (DOM order) so the section
+     header sits at top, then map + checker are visible together in one
+     viewport. Desktop uses grid to put map in the left column spanning
+     both rows, with content top-right and checker bottom-right. */
   .coastal-layout {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 3rem;
+    gap: 2rem;
   }
 
   @media (min-width: 900px) {
     .coastal-layout {
-      flex-direction: row;
-      gap: 4rem;
+      display: grid;
+      grid-template-columns: 45% 1fr;
+      grid-template-rows: auto auto;
+      grid-template-areas:
+        "map content"
+        "map checker";
+      column-gap: 4rem;
+      row-gap: 2rem;
+      align-items: start;
     }
+    .coastal-map { grid-area: map; align-self: center; }
+    .coastal-content { grid-area: content; }
+    .coastal-checker { grid-area: checker; }
   }
 
-  /* Map graphic container */
+  /* Map graphic container — sized smaller on mobile so map + address
+     checker fit together in a single phone viewport. */
   .coastal-map {
     flex: 0 0 auto;
     width: 100%;
-    max-width: 400px;
+    max-width: 320px;
     position: relative;
   }
 
   @media (min-width: 900px) {
     .coastal-map {
-      flex: 0 0 45%;
       max-width: none;
     }
   }
@@ -1288,6 +1347,11 @@ const icons = {
     margin-top: 1.5rem;
   }
 
+  /* Mobile: hide carousel nav buttons — cards are swipeable directly. */
+  @media (max-width: 767px) {
+    .coastal-areas__nav { display: none; }
+  }
+
   .coastal-areas__btn {
     width: 40px;
     height: 40px;
@@ -1318,6 +1382,31 @@ const icons = {
     display: flex;
     gap: 1rem;
     transition: transform 300ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  /* Mobile: switch the wrapper to native horizontal scroll with
+     snap so users can flick through cards by swiping. JS-driven
+     transform is also disabled so the scroll position isn't fought
+     by translateX. The track gets side padding so the first/last
+     card can snap flush with the container edge. */
+  @media (max-width: 767px) {
+    .coastal-areas__track-wrapper {
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+      margin: 0 calc(var(--container-padding, 1rem) * -1);
+      padding: 0 var(--container-padding, 1rem);
+    }
+    .coastal-areas__track-wrapper::-webkit-scrollbar { display: none; }
+    .coastal-areas__track {
+      transform: none !important;
+      transition: none;
+    }
+    .coastal-area-card {
+      scroll-snap-align: start;
+    }
   }
 
   .coastal-area-card {

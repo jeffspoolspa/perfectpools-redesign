@@ -115,7 +115,15 @@ export default function CompareScroll() {
           end: 'bottom bottom',
           pin: stickyEl,
           pinSpacing: false,
+          // anticipatePin: 1 — pre-fixes the sticky just before the
+          // pin range so Lenis's smoothed scroll doesn't catch a frame
+          // of stall when ScrollTrigger first computes position:fixed.
+          anticipatePin: 1,
           scrub: 1,
+          // fastScrollEnd: true — on direction change or sudden stop,
+          // snap to the current scroll position instead of winding
+          // back through the scrub buffer.
+          fastScrollEnd: true,
           animation: tl,
           onUpdate: (self: any) => {
             // Split the section's scroll range evenly between the two

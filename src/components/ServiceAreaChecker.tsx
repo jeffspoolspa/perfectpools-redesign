@@ -10,6 +10,28 @@ const SERVICE_COUNTIES = [
 
 declare const google: any;
 
+/** Parse a Google formatted_address ("123 Main St, Savannah, GA 31401, USA")
+ *  into the modal's address fields. Handles 4-part and 5-part variants. */
+function parseFormattedAddress(formatted: string): { street: string; city: string; state: string; zip: string } {
+  const parts = formatted.split(',').map(p => p.trim());
+  // Drop trailing "USA"
+  if (parts.length && parts[parts.length - 1].toUpperCase() === 'USA') parts.pop();
+  let street = '', city = '', state = '', zip = '';
+  if (parts.length >= 3) {
+    street = parts[0];
+    city = parts[1];
+    const stateZip = parts[2].split(/\s+/);
+    state = stateZip[0] || '';
+    zip = stateZip[1] || '';
+  } else if (parts.length === 2) {
+    street = parts[0];
+    const stateZip = parts[1].split(/\s+/);
+    state = stateZip[0] || '';
+    zip = stateZip[1] || '';
+  }
+  return { street, city, state, zip };
+}
+
 export default function ServiceAreaChecker() {
   const [status, setStatus] = useState<'idle' | 'in-area' | 'out-of-area'>('idle');
   const [address, setAddress] = useState('');
@@ -17,6 +39,9 @@ export default function ServiceAreaChecker() {
   const [mapsLoaded, setMapsLoaded] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const autocompleteRef = useRef<any>(null);
+  // Captured pieces of the resolved address, used to build the prefill
+  // payload when the user clicks "Get a Quote" after an in-area check.
+  const resolvedRef = useRef<{ street: string; city: string; state: string; zip: string; county: string } | null>(null);
 
   // Load Google Maps — poll until places is ready
   useEffect(() => {
@@ -74,10 +99,19 @@ export default function ServiceAreaChecker() {
 
       if (inBounds && inCounty) {
         setStatus('in-area');
-        setAddress(place.formatted_address || '');
+        const formatted = place.formatted_address || '';
+        setAddress(formatted);
         setCity(foundCity);
+        const parsed = parseFormattedAddress(formatted);
+        resolvedRef.current = {
+          street: parsed.street,
+          city: parsed.city || foundCity,
+          state: parsed.state || 'GA',
+          zip: parsed.zip,
+          county: hitCounty,
+        };
         sessionStorage.setItem('serviceAreaAddress', JSON.stringify({
-          street: place.formatted_address,
+          street: formatted,
           city: foundCity,
           county: hitCounty,
           lat, lng,
@@ -112,7 +146,26 @@ export default function ServiceAreaChecker() {
             <strong>Great news — we service {city || 'your area'}!</strong>
             <p>We're currently accepting new clients on our {city || 'local'} routes.</p>
           </div>
-          <a href="/get-started/" class="btn btn--cta btn--sm">Get a Quote</a>
+          <button
+            type="button"
+            class="btn btn--cta btn--sm"
+            onClick={() => {
+              const r = resolvedRef.current;
+              const prefill: Record<string, string> = {};
+              if (r) {
+                if (r.street) prefill.addressStreet = r.street;
+                if (r.city) prefill.addressCity = r.city;
+                if (r.state) prefill.addressState = r.state;
+                if (r.zip) prefill.addressZip = r.zip;
+                if (r.county) prefill.county = r.county;
+              }
+              window.dispatchEvent(new CustomEvent('openGetStarted', {
+                detail: Object.keys(prefill).length ? { prefill } : undefined,
+              }));
+            }}
+          >
+            Get a Quote
+          </button>
         </div>
       )}
 

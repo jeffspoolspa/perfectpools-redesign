@@ -343,7 +343,15 @@ export default function PillarsCinematic() {
           end: 'bottom bottom',
           pin: pinRef.current!,
           pinSpacing: false,
+          // anticipatePin: 1 — pre-applies position:fixed just before the
+          // trigger reaches viewport top so the pin engage doesn't stall
+          // for a frame against Lenis's smoothed scroll.
+          anticipatePin: 1,
           scrub: 0.6,
+          // fastScrollEnd: true — on direction change or sudden stop,
+          // snap to the current scroll position instead of winding
+          // back through the scrub buffer.
+          fastScrollEnd: true,
           onUpdate: (self: any) => runUpdate(self.progress),
         });
 
