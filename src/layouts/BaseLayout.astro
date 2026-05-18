@@ -137,8 +137,10 @@ const ogImageUrl = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`
       // A2: lerp instead of duration. Lerp = each frame moves N% toward
       // target. Gives the "weighted, viscous" feel Studio Freight uses by
       // default. duration mode is more snappy/predictable; lerp is more
-      // premium-feeling.
-      lerp: 0.1,
+      // premium-feeling. Bumped 0.1 → 0.13 to reduce the felt lag when
+      // a user reverses scroll direction (lower lerp = more carry-over
+      // momentum to overcome before the new direction registers).
+      lerp: 0.13,
       // A3: wheelMultiplier 1.2 — Mac trackpads under-deliver wheel
       // velocity. Small bump makes scroll respond more eagerly without
       // feeling skittish.
@@ -220,13 +222,39 @@ const ogImageUrl = ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`
 
   <!-- Intake form trigger + Get Started trigger + Mobile menu script -->
   <script>
-    // Quote form trigger delegation — all quote/get-started buttons open the new GetStartedQuote modal
+    // Quote form trigger delegation — all quote/get-started buttons open the GetStartedQuote modal.
+    //
+    // Triggers can carry data-prefill-* attributes (data-prefill-service,
+    // data-prefill-customer, data-prefill-first-name, etc.) which we
+    // bundle into the event's detail.prefill so the modal can skip past
+    // the corresponding steps. Used by service-page CTAs to auto-pick
+    // serviceInterest based on which page the user is on.
     document.addEventListener('click', (e) => {
       const trigger = (e.target as HTMLElement).closest('[data-open-intake], [data-open-get-started]');
-      if (trigger) {
-        e.preventDefault();
-        window.dispatchEvent(new CustomEvent('openGetStarted'));
+      if (!trigger) return;
+      e.preventDefault();
+      const el = trigger as HTMLElement;
+      const prefill: Record<string, string> = {};
+      const map: Record<string, string> = {
+        'prefillService': 'serviceInterest',
+        'prefillCustomer': 'customerType',
+        'prefillFirstName': 'firstName',
+        'prefillLastName': 'lastName',
+        'prefillEmail': 'email',
+        'prefillPhone': 'phone',
+        'prefillAddressStreet': 'addressStreet',
+        'prefillAddressCity': 'addressCity',
+        'prefillAddressState': 'addressState',
+        'prefillAddressZip': 'addressZip',
+        'prefillCounty': 'county',
+      };
+      for (const [dataKey, fieldKey] of Object.entries(map)) {
+        const v = (el.dataset as any)[dataKey];
+        if (v) prefill[fieldKey] = v;
       }
+      window.dispatchEvent(new CustomEvent('openGetStarted', {
+        detail: Object.keys(prefill).length ? { prefill } : undefined,
+      }));
     });
 
     const toggle = document.getElementById('mobile-menu-toggle');

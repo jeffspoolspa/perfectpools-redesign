@@ -104,7 +104,19 @@ import WhyWeExistTwoActs from './experiments/WhyWeExistTwoActs.astro';
       end: '+=100%',
       pin: pin,
       pinSpacing: true,
+      // anticipatePin: 1 — preempts the position:fixed switch right
+      // before the trigger reaches the top. Without it, ScrollTrigger
+      // computes the transition synchronously the first time the user
+      // scrolls into the pin range, which appears as a brief "stick"
+      // before the pin engages. Especially noticeable when combined
+      // with Lenis smoothed scroll.
+      anticipatePin: 1,
       scrub: 0.4,
+      // fastScrollEnd: true — when the user scrolls fast then stops
+      // or reverses direction, snap the animation to the current
+      // scroll position instead of slowly winding back through the
+      // scrub buffer. Removes the "drag" on direction change.
+      fastScrollEnd: true,
       onUpdate: (self) => {
         const p = self.progress;
 
@@ -232,6 +244,14 @@ import WhyWeExistTwoActs from './experiments/WhyWeExistTwoActs.astro';
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
+  }
+  /* Hide the "good" header by default — both headers are absolutely
+     positioned at the same spot, and without this they'd render
+     overlapping at opacity 1 between first paint and when the JS
+     scroll handler initializes (which fires on window.load). The JS
+     animates this opacity up during the scroll crossfade. */
+  .ww-hero [data-ww-header="good"] {
+    opacity: 0;
   }
 
   /* === Stage 1 — artifacts canvas, lives BELOW the header zone =====

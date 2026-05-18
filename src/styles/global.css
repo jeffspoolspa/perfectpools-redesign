@@ -1907,9 +1907,9 @@ p:last-child {
    Respects prefers-reduced-motion by being visible immediately. */
 .reveal-up {
   opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 320ms cubic-bezier(0.16, 1, 0.3, 1),
-              transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(12px);
+  transition: opacity 280ms cubic-bezier(0.22, 1, 0.36, 1),
+              transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
   transition-delay: var(--reveal-delay, 0ms);
   will-change: opacity, transform;
 }
@@ -1923,10 +1923,10 @@ p:last-child {
 .reveal-words span {
   display: inline-block;
   opacity: 0;
-  transform: translateY(18px);
-  transition: opacity 320ms cubic-bezier(0.16, 1, 0.3, 1),
-              transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
-  transition-delay: calc(var(--word-index, 0) * 35ms);
+  transform: translateY(12px);
+  transition: opacity 280ms cubic-bezier(0.22, 1, 0.36, 1),
+              transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: calc(var(--word-index, 0) * 25ms);
   will-change: opacity, transform;
 }
 .reveal-words.is-visible span {
@@ -1945,15 +1945,15 @@ p:last-child {
 .reveal-chars .char {
   display: inline-block;
   opacity: 0;
-  transform: translateY(14px);
+  transform: translateY(10px);
   will-change: opacity, transform;
 }
 .reveal-chars.is-visible .char {
-  animation: reveal-char 480ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  animation-delay: calc(var(--char-index, 0) * 28ms);
+  animation: reveal-char 360ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: calc(var(--char-index, 0) * 20ms);
 }
 @keyframes reveal-char {
-  from { opacity: 0; transform: translateY(14px); }
+  from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
@@ -11940,33 +11940,93 @@ p:last-child {
 }
 
 .cps__monthly-label {
-  display: inline-flex;
-  align-items: baseline;
-  flex-wrap: nowrap;
-  gap: 0.35rem;
-  font-size: 0.82rem;
+  display: block;
+  font-size: 1rem;
   font-weight: 800;
   letter-spacing: 0;
   color: var(--color-primary);
   max-width: 100%;
   white-space: nowrap;
+  line-height: 1.2;
 }
 
 .intake-modal--quote .gs-quote-pricing .cps__monthly-label {
   min-width: 0;
-  font-size: clamp(0.56rem, 2.35cqi, 0.82rem);
+  /* Match the .cps__plan-name size in the same modal so the
+     "Estimated monthly total" reads with the same visual weight
+     as "Labor" and "Chemicals" labels above. */
+  font-size: clamp(0.88rem, 4cqi, 1rem);
 }
 
+/* Math expression now sits on its own line below the label, smaller
+   and lighter for clear visual hierarchy. */
 .cps__monthly-math {
-  flex: 0 0 auto;
-  font-size: 0.76rem;
-  font-weight: 800;
-  color: var(--color-primary);
+  display: block;
+  margin-top: 2px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
   white-space: nowrap;
 }
 
 .intake-modal--quote .gs-quote-pricing .cps__monthly-math {
-  font-size: clamp(0.52rem, 2.05cqi, 0.76rem);
+  font-size: clamp(0.6rem, 2.6cqi, 0.78rem);
+}
+
+/* Single tap-to-cycle button for visit count. Replaces the old
+   two-pill .cps__visit-toggle. Same overall shape as the season
+   picker — pill with the current value + a cycle icon, tap to advance. */
+.cps__visit-cycle-btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.55rem;
+  padding: 6px 12px 6px 11px;
+  border: 1px solid rgba(30, 58, 95, 0.12);
+  background: #fff;
+  color: var(--color-primary);
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(30, 58, 95, 0.08);
+  transition: background 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+}
+
+.cps__visit-cycle-btn:hover {
+  background: #f3f4f6;
+  border-color: rgba(30, 58, 95, 0.22);
+  box-shadow: 0 3px 8px rgba(30, 58, 95, 0.12);
+  transform: translateY(-1px);
+}
+
+.cps__visit-cycle-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(30, 58, 95, 0.10);
+}
+
+.cps__visit-cycle-btn:focus-visible {
+  outline: 2px solid rgba(226, 141, 51, 0.5);
+  outline-offset: 2px;
+}
+
+.cps__visit-cycle-count {
+  font-size: 0.85rem;
+  letter-spacing: 0;
+}
+
+.cps__visit-cycle-text {
+  font-weight: 700;
+}
+
+.cps__visit-cycle-btn svg {
+  opacity: 0.55;
+  margin-left: 0.1rem;
 }
 
 .cps__visit-toggle {
@@ -12198,9 +12258,20 @@ p:last-child {
 }
 
 .intake-modal--quote .gs-quote-pricing .cps__plan-price-unit,
-.intake-modal--quote .gs-quote-pricing .cps__chem-price-unit,
-.intake-modal--quote .gs-quote-pricing .cps__monthly-price-unit {
+.intake-modal--quote .gs-quote-pricing .cps__chem-price-unit {
   white-space: nowrap;
+}
+
+/* Allow "LABOR + CHEMICALS" to wrap onto a second line when the
+   monthly card doesn't have enough horizontal width — otherwise the
+   nowrap text would push the price column wider and force the whole
+   card to grow. text-wrap: balance distributes the words evenly across
+   lines for a cleaner two-line look when it does wrap. */
+.intake-modal--quote .gs-quote-pricing .cps__monthly-price-unit {
+  white-space: normal;
+  text-wrap: balance;
+  max-width: 110px;
+  text-align: right;
 }
 
 .intake-modal--v2 .gs-quote-pricing .cps__header {
@@ -12448,11 +12519,20 @@ p:last-child {
     align-items: stretch;
   }
 
+  /* Pop the "Winter only" badge out of the TOP-RIGHT corner of the
+     toggle. The previous centered-above positioning extended up far
+     enough to overlap the "Your maintenance plan" title (which on
+     mobile is stacked above the toggle, not next to it). Pinning to
+     the right corner and using a small negative offset keeps the
+     badge clear of the title while clearly anchored to the frequency
+     selector. */
   .intake-modal--v2 .gs-quote-pricing .cps__winter-note {
-    align-self: center;
-    left: 50%;
-    right: auto;
-    translate: -50% 0;
+    align-self: auto;
+    left: auto;
+    right: 0;
+    bottom: auto;
+    top: -10px;
+    translate: 0 0;
   }
 
   .intake-modal--v2 .gs-quote-pricing .cps__toggle {
@@ -12470,25 +12550,63 @@ p:last-child {
     --chem-range-band: 58px;
   }
 
+  /* Season picker on mobile: in-flow, one row, between the description
+     and the chart header. Sits flush-left at the top of the chart, with
+     the season name and its month ranges on a single line. */
   .intake-modal--v2 .gs-quote-pricing .chem-numberline__mobile-season {
+    position: static;
     display: flex;
     justify-content: flex-start;
-    margin-bottom: 0.55rem;
+    margin: 0 0 0.85rem;
   }
 
   .intake-modal--v2 .gs-quote-pricing .chem-numberline__mobile-season .chem-numberline__season-btn {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 0.45rem;
     flex: 0 1 auto;
     width: auto;
-    min-width: 96px;
-    max-width: 132px;
+    max-width: none;
+    padding: 0.35rem 0.6rem;
+    font-size: 0.74rem;
+    line-height: 1.2;
+  }
+
+  /* Periods now sit inline with the season name on a single row.
+     Each period gets a "·" separator before it (via ::before) so the
+     output reads "Spring/Fall · Mar-May · Sep-Oct". */
+  .intake-modal--v2 .gs-quote-pricing .chem-numberline__mobile-season .chem-numberline__period {
+    display: inline-flex;
+    flex-direction: row;
+    gap: 0.4rem;
+    margin-top: 0;
+    font-size: 0.68rem;
+    font-weight: 500;
+    opacity: 0.7;
+  }
+
+  .intake-modal--v2 .gs-quote-pricing .chem-numberline__mobile-season .chem-numberline__period span {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.4rem;
+  }
+
+  .intake-modal--v2 .gs-quote-pricing .chem-numberline__mobile-season .chem-numberline__period span::before {
+    content: '·';
+    opacity: 0.5;
   }
 
   .intake-modal--v2 .gs-quote-pricing .chem-numberline__season-btn--inline {
     display: none;
   }
 
+  /* Vertical breathing room — the chart elements were stacking too
+     tightly on phones with the floating $mid label and callout
+     bunching into the bar. Bump gaps between header row → bar →
+     callout → axis. */
   .intake-modal--v2 .gs-quote-pricing .cps__chem-chart .chem-numberline__header-row {
-    margin-bottom: 0.6rem;
+    margin-bottom: 1.1rem;
   }
 
   .intake-modal--v2 .gs-quote-pricing .cps__chem-chart .chem-numberline__row {
@@ -12510,10 +12628,12 @@ p:last-child {
 
   .intake-modal--v2 .gs-quote-pricing .cps__chem-chart .chem-numberline__callout {
     padding-left: 0;
+    margin-top: 0.55rem;
   }
 
   .intake-modal--v2 .gs-quote-pricing .cps__chem-chart .chem-numberline__axis {
     padding-left: 0;
     padding-right: calc(var(--chem-range-band) + 0.5rem);
+    margin-top: 0.75rem;
   }
 }

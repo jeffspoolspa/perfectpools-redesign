@@ -113,7 +113,7 @@ const equipment = [
     <div class="container sr-hero__content">
       <h1 class="sr-hero__title">We Don't Guess.<br/>We Diagnose.</h1>
       <div class="sr-hero__actions">
-        <button type="button" class="btn btn--cta btn--lg" data-open-intake>Schedule a Site Visit</button>
+        <button type="button" class="btn btn--cta btn--lg" data-open-intake data-prefill-service="equipment">Schedule a Site Visit</button>
         <a href="tel:9124590160" class="btn btn--outline-white btn--lg">Call (912) 459-0160</a>
       </div>
     </div>
@@ -472,10 +472,26 @@ const equipment = [
         // For each tile: compute delta from current visual → new layout,
         // and set the spring position to that delta. Velocity is preserved
         // so mid-flight clicks redirect smoothly with momentum.
+        //
+        // Mobile-only safety: when a tile is display:none in EITHER the
+        // before or after rect (its width/height collapse to 0), skip
+        // the FLIP delta — otherwise the spring would try to fly the
+        // tile in from the viewport's top-left corner. This handles the
+        // mobile expand-over-everything mode where 5 of 6 tiles are
+        // hidden when one is active.
         tiles.forEach((t) => {
           const b = before.get(t);
           const a = t.getBoundingClientRect();
           const spring = springs.get(t);
+          const wasHidden = b.width === 0 || b.height === 0;
+          const isHidden = a.width === 0 || a.height === 0;
+          if (wasHidden || isHidden) {
+            spring.x = 0;
+            spring.y = 0;
+            spring.vx = 0;
+            spring.vy = 0;
+            return;
+          }
           spring.x = b.left - a.left;
           spring.y = b.top - a.top;
           // Apply the initial transform so the tile visually stays put
@@ -1373,7 +1389,28 @@ const equipment = [
 
   @media (max-width: 768px) {
     .equipment-grid[data-state="default"] { grid-template-rows: repeat(2, 160px); }
-    .equipment-grid[data-state="active"] { grid-template-rows: repeat(3, 160px); }
+    /* On mobile we skip the L-shape entirely. When a tile is active,
+       hide the other five and let the active tile occupy the full
+       3-column / 2-row grid area. Tapping X (or the active tile)
+       snaps back to the original 3×2 grid via the JS that drives
+       `data-state`. */
+    .equipment-grid[data-state="active"] {
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(2, 160px);
+    }
+    .equipment-grid[data-state="active"] .eq-tile:not(.is-active) {
+      display: none;
+    }
+    .equipment-grid[data-state="active"] .eq-tile.is-active {
+      grid-column: 1 / -1;
+      grid-row: 1 / -1;
+      /* Grid items default to `min-height: auto`, which would let the
+         tile's intrinsic content height push the explicit row tracks
+         beyond their 160px. Force `min-height: 0` so the tile stays
+         exactly the size of the 2-row grid area. */
+      min-height: 0;
+      overflow: hidden;
+    }
   }
 
   /* Tile — default: icon centered above name, click target = whole tile */
@@ -1528,16 +1565,12 @@ const equipment = [
     display: flex;
   }
 
-  /* On narrow viewports the active tile occupies a 3-col × 2-row area
-     in a 4-column grid, which is only ~250px wide. The desktop
-     typography (text-3xl title, 1rem detail at line-height 1.7) plus
-     a long brand string overruns that box, so we step everything down
-     and give the active state taller rows so summary + brands chip
-     both clear the close button without clipping. */
+  /* Mobile active-tile typography. The active tile fills the entire
+     original 3×2 grid area on mobile (see the earlier media query
+     above for the layout rules), so it's wide but constrained in
+     height — step down the desktop typography so title + summary +
+     brand chip clear the close button without overflowing. */
   @media (max-width: 768px) {
-    .equipment-grid[data-state="active"] {
-      grid-template-rows: 200px 200px 160px;
-    }
     .eq-tile.is-active {
       padding: var(--space-5) var(--space-4) var(--space-4);
     }

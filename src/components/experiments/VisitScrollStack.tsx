@@ -225,7 +225,16 @@ export default function VisitScrollStack() {
           end: 'bottom bottom',
           pin: pinRef.current!,
           pinSpacing: false,
+          // anticipatePin: 1 — pre-applies position:fixed just before
+          // the pin range so the photo backdrop doesn't catch a frame
+          // of stickiness as ScrollTrigger first computes the pin
+          // transition against Lenis's smoothed scroll.
+          anticipatePin: 1,
           scrub: 0.4,
+          // fastScrollEnd: true — on direction change or sudden stop,
+          // snap to the current scroll position instead of winding
+          // back through the scrub buffer.
+          fastScrollEnd: true,
           animation: tl,
           onUpdate: (self: any) => {
             // Active card index = which MINUTE the timeline is in,

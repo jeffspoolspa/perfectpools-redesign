@@ -418,26 +418,33 @@ export default function QuotePricingSection({
               aria-expanded={isTotalOpen}
               onClick={toggleTotalPanel}
             >
-              <span class="cps__monthly-label">
-                Estimated monthly total
-                <span class="cps__monthly-math">({selectedVisitCount} x ${totalPerVisit}/visit)</span>
-              </span>
+              <span class="cps__monthly-label">Estimated monthly total</span>
+              <span class="cps__monthly-math">({selectedVisitCount} x ${totalPerVisit}/visit)</span>
             </button>
 
-            <div class="cps__visit-toggle" role="tablist" aria-label="Monthly visit count">
-              {visitOptions.map((count) => (
-                <button
-                  key={count}
-                  type="button"
-                  role="tab"
-                  aria-selected={selectedVisitCount === count}
-                  class={`cps__visit-toggle-btn ${selectedVisitCount === count ? 'is-active' : ''}`}
-                  onClick={() => setMonthlyVisitCount(count)}
-                >
-                  {count} visit month
-                </button>
-              ))}
-            </div>
+            {/* Single tap-to-cycle button replaces the two-pill toggle.
+                Each tap advances to the next option in visitOptions and
+                wraps around (4 → 5 → 4 for weekly, 2 → 3 → 2 for biweekly).
+                Saves horizontal space and avoids the cramped two-pill row. */}
+            <button
+              type="button"
+              class="cps__visit-cycle-btn"
+              onClick={() => {
+                const currentIdx = visitOptions.indexOf(selectedVisitCount);
+                const nextIdx = (currentIdx + 1) % visitOptions.length;
+                setMonthlyVisitCount(visitOptions[nextIdx]);
+              }}
+              aria-label={`Currently showing ${selectedVisitCount} visit month. Tap to switch.`}
+            >
+              <span class="cps__visit-cycle-count">{selectedVisitCount}</span>
+              <span class="cps__visit-cycle-text">visit month</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="m17 3 4 4-4 4"/>
+                <path d="M3 7h18"/>
+                <path d="m7 21-4-4 4-4"/>
+                <path d="M21 17H3"/>
+              </svg>
+            </button>
           </div>
 
           <span class="cps__monthly-price">
