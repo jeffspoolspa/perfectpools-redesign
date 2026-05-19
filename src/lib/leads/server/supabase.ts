@@ -20,8 +20,12 @@ let cachedClient: SupabaseClient | null = null;
 export function getServerSupabase(): SupabaseClient {
   if (cachedClient) return cachedClient;
 
-  const url = import.meta.env.PUBLIC_SUPABASE_URL;
-  const serviceKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
+  // Use process.env for server-only vars — Astro's import.meta.env doesn't
+  // reliably surface non-PUBLIC env vars at runtime in @astrojs/vercel
+  // serverless mode. PUBLIC_SUPABASE_URL can be read either way; using
+  // process.env keeps the pattern consistent.
+  const url = process.env.PUBLIC_SUPABASE_URL;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !serviceKey) {
     throw new Error(
       "Missing PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY env var",
