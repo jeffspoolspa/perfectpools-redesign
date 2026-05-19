@@ -11,13 +11,13 @@ import type { Office } from "../leads/types";
 const DEFAULT_BASE = "https://internal.jeffspoolspa.com";
 
 function baseUrl(): string {
-  return (
-    (import.meta.env.INTERNAL_API_BASE_URL as string | undefined) ?? DEFAULT_BASE
-  );
+  // process.env: Astro's import.meta.env doesn't reliably surface non-PUBLIC
+  // env vars at runtime in @astrojs/vercel serverless mode.
+  return process.env.INTERNAL_API_BASE_URL ?? DEFAULT_BASE;
 }
 
 function token(): string {
-  const t = import.meta.env.INTERNAL_API_TOKEN as string | undefined;
+  const t = process.env.INTERNAL_API_TOKEN;
   if (!t) throw new Error("Missing INTERNAL_API_TOKEN env var");
   return t;
 }

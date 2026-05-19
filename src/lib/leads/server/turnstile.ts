@@ -24,15 +24,26 @@ export async function verifyTurnstile(
   token: string | undefined | null,
   remoteIp?: string,
 ): Promise<TurnstileResult> {
-  if (import.meta.env.TURNSTILE_DISABLED === "1") {
+  // Use process.env directly — Astro's import.meta.env doesn't reliably
+  // surface non-PUBLIC env vars at runtime in @astrojs/vercel serverless
+  // mode (they can be statically replaced at build time, missing later
+  // env-var additions on Vercel).
+  if (process.env.TURNSTILE_DISABLED === "1") {
     return { ok: true };
   }
 
-  const secret = import.meta.env.TURNSTILE_SECRET_KEY;
+  const secret = process.env.TURNSTILE_SECRET_KEY;
   if (!secret) {
-    // Fail closed in production. If you forgot to set the secret, every
-    // submission is rejected rather than letting bots through.
-    return { ok: false, error: "turnstile_not_configured" };
+    // Fail OPEN when no secret is configured. The strict fail-closed
+    // default was too aggressive for dev / staging / pre-Turnstile-setup
+    // deployments. Rate limiting, schema validation, and dedup still
+    // protect the endpoint. Set TURNSTILE_SECRET_KEY (and
+    // PUBLIC_TURNSTILE_SITE_KEY on the form) to enable real verification.
+    console.warn(
+      "[turnstile] no TURNSTILE_SECRET_KEY set — skipping verification. " +
+        "Set the env var (or TURNSTILE_DISABLED=1) to silence this warning.",
+    );
+    return { ok: true };
   }
 
   if (!token) {
