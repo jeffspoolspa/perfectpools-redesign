@@ -140,6 +140,149 @@ function isBiweeklyAvailable() {
   return month >= 8 || month <= 1;
 }
 
+/* ── API client (talks to our Vercel endpoints, not Supabase directly) ──
+   The service-role key + Turnstile secret live server-side; this file only
+   sees the public site key. All DB work goes through /api/leads/*.       */
+const TURNSTILE_SITE_KEY = ((import.meta.env as Record<string, string | undefined>).PUBLIC_TURNSTILE_SITE_KEY ?? '') as string;
+let _turnstileToken: string | null = null;
+function setTurnstileToken(t: string | null) { _turnstileToken = t; }
+function getTurnstileToken(): string | null { return _turnstileToken; }
+
+interface ApiResult<T> { ok: boolean; data?: T; error?: string; status: number; }
+
+async function apiPost<T>(path: string, body: unknown): Promise<ApiResult<T>> {
+  try {
+    const res = await fetch(path, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      credentials: 'same-origin',
+    });
+    const data = await res.json().catch(() => ({ ok: false, error: 'invalid_response' }));
+    return { ok: !!data.ok, data: data.data as T, error: data.error, status: res.status };
+  } catch (e: any) {
+    return { ok: false, error: e?.message || 'network_error', status: 0 };
+  }
+}
+
+async function apiGet<T>(path: string): Promise<ApiResult<T>> {
+  try {
+    const res = await fetch(path, { method: 'GET', credentials: 'same-origin' });
+    const data = await res.json().catch(() => ({ ok: false, error: 'invalid_response' }));
+    return { ok: !!data.ok, data: data.data as T, error: data.error, status: res.status };
+  } catch (e: any) {
+    return { ok: false, error: e?.message || 'network_error', status: 0 };
+  }
+}
+
+interface StartLeadOutput {
+  lead_id: string;
+  returning: boolean;
+  resumed: boolean;
+  office: string;
+}
+
+/* ── Single submit endpoint ────────────────────────────────
+   Replaces the previous /start + /qualify two-step flow. All form data is
+   posted at the end of the qualifying page; backend runs dedup and either
+   returns matches (no DB write) or creates customer + lead + child + bodies.
+*/
+export interface DedupMatch {
+  customer_id: number;
+  display_name: string | null;
+  first_name: string | null;
+  last_name: string | null;
+  redacted_phone: string | null;
+  redacted_email: string | null;
+  account_type: string | null;
+}
+
+interface SubmitLeadOutput {
+  lead_id: string;
+  account_id: number;
+  returning: boolean;
+  office: string;
+  lifecycle_state: 'open' | 'closed';
+  closed_reason: string | null;
+  child_status: string | null;
+  quote?: { per_visit: number; first_months_deposit: number };
+}
+
+interface SubmitLeadResult {
+  ok: boolean;
+  data?: SubmitLeadOutput;
+  dedup_required?: boolean;
+  matches?: DedupMatch[];
+  error?: string;
+  status: number;
+}
+
+async function apiSubmitLead(input: {
+  contact: { first_name: string; last_name: string; email?: string; phone?: string };
+  address: { street: string; city: string; state: string; zip: string };
+  account_type: 'residential' | 'commercial';
+  qualifying: Record<string, unknown>;
+  referral_source?: string;
+  customer_action?: 'use_existing' | 'create_new';
+  existing_customer_id?: number;
+  client?: { user_agent?: string; referrer?: string; utm?: Record<string, string> };
+}): Promise<SubmitLeadResult> {
+  try {
+    const body: Record<string, unknown> = { ...input };
+    // Turnstile token is single-use — only include on the first call
+    // (the one without customer_action). The re-submit after dedup
+    // confirmation would fail re-verification with the same token.
+    if (!input.customer_action) {
+      body.turnstile_token = getTurnstileToken();
+    }
+    const res = await fetch('/api/leads/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      credentials: 'same-origin',
+    });
+    const data = await res.json().catch(() => ({ ok: false, error: 'invalid_response' }));
+    return { ...data, status: res.status };
+  } catch (e: any) {
+    return { ok: false, error: e?.message || 'network_error', status: 0 };
+  }
+}
+
+async function apiAcceptLead(leadId: string): Promise<ApiResult<{ ok: boolean; lead_id: string; status: string }>> {
+  return apiPost('/api/leads/accept', { lead_id: leadId });
+}
+
+async function apiSendQuote(leadId: string, channel: 'email' | 'sms'): Promise<ApiResult<{ communication_id: string; channel: 'email' | 'sms' }>> {
+  return apiPost('/api/leads/send-quote', { lead_id: leadId, channel });
+}
+
+function getUtmParams(): Record<string, string> {
+  try {
+    const u = new URL(window.location.href);
+    const out: Record<string, string> = {};
+    ['utm_source','utm_medium','utm_campaign','utm_term','utm_content'].forEach(k => {
+      const v = u.searchParams.get(k);
+      if (v) out[k] = v;
+    });
+    return out;
+  } catch { return {}; }
+}
+
+/* Load Cloudflare Turnstile JS once. The widget then auto-mounts onto any
+   `.cf-turnstile` div in the DOM and writes the token into the input named
+   `cf-turnstile-response`. We poll for the token and stash it in module
+   scope so apiStartLead can attach it without prop drilling. */
+function loadTurnstile(): void {
+  if (!TURNSTILE_SITE_KEY) return; // dev mode: backend uses TURNSTILE_DISABLED=1
+  if (document.getElementById('cf-turnstile-script')) return;
+  const s = document.createElement('script');
+  s.id = 'cf-turnstile-script';
+  s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
+  s.async = true;
+  s.defer = true;
+  document.head.appendChild(s);
+}
+
 /* ── Types ── */
 export interface QuoteFormData {
   serviceInterest: string;
@@ -330,12 +473,19 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
   const [leadToken, setLeadToken] = useState<string | null>(null);
   const [leadSubmitting, setLeadSubmitting] = useState(false);
   const [leadError, setLeadError] = useState('');
+  // Separate state for the post-createLead "actually send the quote" POST.
+  // Lets us show "Sending..." after the lead is saved, and keep both buttons
+  // disabled during the send without conflating it with the createLead state.
+  const [quoteSending, setQuoteSending] = useState<'email' | 'sms' | null>(null);
 
   // Duplicate check state
   const [dupChecking, setDupChecking] = useState(false);
   const [dupMatchName, setDupMatchName] = useState('');
   const [dupMatchPhone, setDupMatchPhone] = useState('');
   const [dupMatchEmail, setDupMatchEmail] = useState('');
+  // Customer_id of the matched record — needed to re-submit with
+  // customer_action='use_existing' when the user confirms "Yes, that's me".
+  const [dupMatchCustomerId, setDupMatchCustomerId] = useState<number | null>(null);
 
   const updateForm = (updates: Partial<QuoteFormData>) => {
     setFormData(prev => ({ ...prev, ...updates }));
@@ -386,6 +536,28 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
     }
 
     return () => window.removeEventListener('openGetStarted', handler);
+  }, []);
+
+  /* (Cookie-based resume effect removed — in the new flow, the lead row
+     and its resume_token only exist AFTER a full submit at the end of the
+     qualifying page. There's no partial-lead state to resume to. The
+     sessionStorage saveSession/getSession pattern still handles "user
+     closed and reopened the modal in the same browser session" for the
+     in-progress form data.) */
+
+  /* ── Turnstile widget mount ────────────────────────────────
+     Loads the Cloudflare Turnstile script once. When the script is ready
+     it auto-mounts onto our `.cf-turnstile` div (rendered in the modal
+     JSX below) and invokes window.ppTurnstileCallback with the verification
+     token. We stash the token in module scope so apiStartLead can attach it.
+     Without a PUBLIC_TURNSTILE_SITE_KEY env var, the widget is skipped —
+     in dev set TURNSTILE_DISABLED=1 on the server so /api/leads/start still
+     accepts requests.                                                  */
+  useEffect(() => {
+    if (!TURNSTILE_SITE_KEY) return;
+    (window as any).ppTurnstileCallback = (token: string) => setTurnstileToken(token);
+    (window as any).ppTurnstileExpired = () => setTurnstileToken(null);
+    loadTurnstile();
   }, []);
 
   /* ── Escape key ── */
@@ -514,87 +686,117 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
   }
 
   /* ── Create lead in Supabase via edge function ── */
-  async function createLead(contactPref?: 'email' | 'text'): Promise<{ id: string; token: string } | null> {
-    // Don't double-create if already submitted
+  /* ── Single submit ────────────────────────────────────────
+     Called from handleContinue (end of qualifying page) and from the
+     renderDupCheck Yes/No buttons. Posts the full payload to
+     /api/leads/submit which runs server-side dedup + creates the customer,
+     lead, child row, and service bodies in one transaction.
+
+     Returns null if either:
+       - dedup match found (state set to surface the "Is this you?" UI,
+         caller doesn't advance)
+       - error (leadError set, caller doesn't advance)
+     Returns { id, token } on success — id and token are both the lead_id
+     (preserved for compat with handleGetStartedNow's URL building).        */
+  async function createLead(opts: {
+    contactPref?: 'email' | 'text';
+    customer_action?: 'use_existing' | 'create_new';
+    existing_customer_id?: number;
+    type_override?: 'residential_maintenance' | 'commercial_maintenance' | 'service_request';
+    qualifying_override?: Record<string, unknown>;
+  } = {}): Promise<{ id: string; token: string } | null> {
     if (leadId) return { id: leadId, token: leadToken! };
     setLeadSubmitting(true);
     setLeadError('');
     try {
-      const p = calculatePrice();
+      // Default qualifying payload (residential). The submitTicket and
+      // submitCommercialLead paths pass their own type_override + qualifying.
+      const leadType = opts.type_override ?? 'residential_maintenance';
+      let qualifying: Record<string, unknown>;
+      if (opts.qualifying_override) {
+        qualifying = opts.qualifying_override;
+      } else {
+        // Residential — build from current formData
+        const bodies: any[] = [];
+        const st = formData.serviceType;
+        const isInground = formData.isInground === 'inground' ? true
+          : formData.isInground === 'above_ground' ? false : null;
+        if (st === 'pool' || st === 'pool_spa_combo') {
+          bodies.push({ body_type: 'pool', is_primary: true, is_inground: isInground });
+        }
+        if (st === 'spa') bodies.push({ body_type: 'spa', is_primary: true });
+        if (st === 'pool_spa_combo') bodies.push({ body_type: 'spa', is_primary: false });
+        if (formData.hasExtraBody) {
+          bodies.push({ body_type: 'fountain', is_primary: bodies.length === 0 });
+        }
+        const poolCondition =
+          formData.poolCondition === 'needs_repair' || formData.poolCondition === 'green_pool'
+            ? formData.poolCondition
+            : 'good';
+        qualifying = {
+          type: 'residential_maintenance',
+          visits_per_week: formData.isBiweekly ? 0.5 : 1,
+          pool_condition: poolCondition,
+          issue_description: poolCondition !== 'good'
+            ? (formData.leadContext || 'Customer reported issue via website')
+            : undefined,
+          contact_preference: opts.contactPref ?? formData.contactPreference,
+          lead_context: formData.leadContext || undefined,
+          bodies,
+        };
+      }
 
-      // ── Map old form fields → new domain model ──
-      // serviceType: 'pool' | 'spa' | 'pool_spa_combo'; hasExtraBody = fountain add-on
-      const bodies: any[] = [];
-      const st = formData.serviceType;
-      const isInground = formData.isInground === 'inground'
-        ? true
-        : formData.isInground === 'above_ground'
-          ? false
-          : null;
-      const serviceAddr = {
-        service_street: formData.addressStreet || undefined,
-        service_city: formData.addressCity || undefined,
-        service_state: formData.addressState || 'GA',
-        service_zip: formData.addressZip || undefined,
-      };
-      if (st === 'pool' || st === 'pool_spa_combo') {
-        bodies.push({ body_type: 'pool', is_primary: true, is_inground: isInground, ...serviceAddr });
-      }
-      if (st === 'spa') {
-        bodies.push({ body_type: 'spa', is_primary: true, ...serviceAddr });
-      }
-      if (st === 'pool_spa_combo') {
-        bodies.push({ body_type: 'spa', is_primary: false, ...serviceAddr });
-      }
-      if (formData.hasExtraBody) {
-        bodies.push({ body_type: 'fountain', is_primary: bodies.length === 0, ...serviceAddr });
-      }
-
-      // pool_condition: only 'good' | 'needs_repair' | 'green_pool' supported server-side.
-      // Old form uses 'good' | 'needs_repair' (needs_repair redirects before submit).
-      const poolCondition =
-        formData.poolCondition === 'needs_repair' || formData.poolCondition === 'green_pool'
-          ? formData.poolCondition
-          : 'good';
-
-      const payload = {
-        account: {
+      const result = await apiSubmitLead({
+        contact: {
           first_name: formData.firstName.trim(),
           last_name: formData.lastName.trim(),
           email: formData.email.trim() || undefined,
           phone: formData.phone.trim() || undefined,
-          account_type: formData.customerType === 'commercial' ? 'commercial' : 'residential',
-          billing_street: formData.addressStreet || '',
-          billing_city: formData.addressCity || '',
-          billing_state: formData.addressState || 'GA',
-          billing_zip: formData.addressZip || '',
         },
-        bodies,
-        lead: {
-          source: 'website',
-          visits_per_week: formData.isBiweekly ? 0.5 : 1,
-          pool_condition: poolCondition,
-          issue_description: poolCondition !== 'good' ? (formData.leadContext || 'Customer reported issue via website') : undefined,
+        address: {
+          street: formData.addressStreet || '',
+          city: formData.addressCity || '',
+          state: formData.addressState || 'GA',
+          zip: formData.addressZip || '',
         },
-      };
-
-      const res = await fetch(`${SUPABASE_URL}/functions/v1/website-lead-intake`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          apikey: SUPABASE_ANON,
-          Authorization: `Bearer ${SUPABASE_ANON}`,
+        account_type: formData.customerType === 'commercial' ? 'commercial' : 'residential',
+        qualifying,
+        referral_source: formData.referralSource || undefined,
+        customer_action: opts.customer_action,
+        existing_customer_id: opts.existing_customer_id,
+        client: {
+          user_agent: navigator.userAgent,
+          referrer: document.referrer || undefined,
+          utm: getUtmParams(),
         },
-        body: JSON.stringify(payload),
       });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({ error: 'Submission failed' }));
-        throw new Error(err.error || 'Failed to create lead');
+
+      if (result.dedup_required) {
+        const matches = result.matches ?? [];
+        if (matches.length > 0) {
+          const first = matches[0];
+          setDupMatchName(first.display_name || `${first.first_name ?? ''} ${first.last_name?.charAt(0) ?? ''}.`);
+          setDupMatchPhone(first.redacted_phone || '');
+          setDupMatchEmail(first.redacted_email || '');
+          setDupMatchCustomerId(first.customer_id);
+          setShowDupCheck(true);
+        }
+        return null;
       }
-      const data = await res.json();
-      if (!data.ok) throw new Error(data.error || 'Failed to create lead');
-      const leadIdStr = String(data.lead_id);
-      const token = leadIdStr; // new endpoint doesn't issue a resume token; use lead_id
+
+      if (!result.ok || !result.data) {
+        const msg = result.error || 'Something went wrong. Please try again or call us.';
+        // Out-of-area gets a friendlier message.
+        if (result.error === 'out_of_service_area') {
+          setLeadError("We don't currently service that zip code. Please call us at (912) 459-0160 — we'd still love to help.");
+        } else {
+          setLeadError(msg);
+        }
+        return null;
+      }
+
+      const leadIdStr = result.data.lead_id;
+      const token = leadIdStr; // onboarding page reuses lead_id as its URL token
       setLeadId(leadIdStr);
       setLeadToken(token);
       try { sessionStorage.setItem('leadId', leadIdStr); } catch {}
@@ -609,23 +811,82 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
     }
   }
 
-  /* ── "Get Started Now" → create lead + redirect to onboarding page ── */
+  /* ── "Get Started Now" → flip child status to 'accepted' + redirect ──
+     Lead already exists at this point (created on qualifying-page Continue).
+     The Accept call validates the cookie's resume_token and updates the
+     child row's status. Then we redirect to /get-started for the onboarding
+     flow (payment + scheduling). */
   async function handleGetStartedNow() {
-    const lead = await createLead();
-    if (!lead) return; // Don't redirect if lead creation failed — error is shown in UI
-    // Save quote data so the onboarding page can read it
+    if (!leadId) {
+      setLeadError("Something went wrong — please refresh and try again.");
+      return;
+    }
+    setLeadSubmitting(true);
+    setLeadError('');
     try {
-      sessionStorage.setItem('getStartedOnboarding', JSON.stringify({
-        ...formData,
-        quotedPerVisit: price.perVisit,
-        quotedMonthly: price.monthly,
-        visitsPerMonth: price.visitsPerMonth,
-        leadId: lead.id,
-        resumeToken: lead.token,
-      }));
-    } catch {}
-    // Redirect with token
-    window.location.href = assetPath(`get-started/?token=${lead.token}`);
+      const result = await apiAcceptLead(leadId);
+      if (!result.ok) {
+        setLeadError(result.error || "Couldn't accept the quote. Please try again or call us.");
+        return;
+      }
+      // Save quote data so the onboarding page can read it
+      try {
+        sessionStorage.setItem('getStartedOnboarding', JSON.stringify({
+          ...formData,
+          quotedPerVisit: price.perVisit,
+          quotedMonthly: price.monthly,
+          visitsPerMonth: price.visitsPerMonth,
+          leadId,
+          resumeToken: leadToken,
+        }));
+      } catch {}
+      window.location.href = assetPath(`get-started/?token=${leadToken ?? leadId}`);
+    } finally {
+      setLeadSubmitting(false);
+    }
+  }
+
+  /* ── "Email Quote" / "Text Quote" → just fire the send-quote endpoint ──
+     The lead already exists (created on qualifying-page Continue). These
+     buttons just trigger comms. Both can fire — they're tracked
+     independently in the communications table, and the first successful
+     send enrolls the lead in the quote_followup drip campaign. */
+  async function handleQuoteSend(channel: 'email' | 'sms') {
+    if (!leadId) {
+      setLeadError("Something went wrong — please refresh and try again.");
+      return;
+    }
+    const contactPref = channel === 'email' ? 'email' : 'text';
+    setQuoteSending(channel);
+    setLeadError('');
+    try {
+      const result = await apiSendQuote(leadId, channel);
+      if (!result.ok) {
+        setLeadError(
+          channel === 'email'
+            ? "We saved your info but couldn't send the email. We'll follow up by phone."
+            : "We saved your info but couldn't send the text. We'll follow up by phone.",
+        );
+        updateForm({
+          quotePath: channel === 'email' ? 'email' : 'text',
+          contactPreference: contactPref,
+        });
+        return;
+      }
+      updateForm({
+        quotePath: channel === 'email' ? 'email' : 'text',
+        contactPreference: contactPref,
+      });
+    } catch (e: any) {
+      console.error('send-quote network error:', e);
+      setLeadError("We saved your info but couldn't send the quote. We'll follow up by phone.");
+      updateForm({
+        quotePath: channel === 'email' ? 'email' : 'text',
+        contactPreference: contactPref,
+      });
+    } finally {
+      setQuoteSending(null);
+    }
   }
 
   function updateTicketQualifier(type: TicketType, questionId: string, optionId: string) {
@@ -701,35 +962,31 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
     setTicketSubmitting(true);
     try {
       const description = buildTicketDescription(type);
-      // 1. Submit Airtable ticket (office dispatch)
-      const ticketRes = await fetch(`${SUPABASE_URL}/functions/v1/submit-ticket`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type,
-          firstName: contact.firstName.trim(),
-          lastName: contact.lastName.trim(),
-          phone: contact.phone.trim(),
-          email: contact.email.trim(),
-          address: formData.addressStreet || '',
-          addressCity: formData.addressCity || '',
-          addressState: formData.addressState || 'GA',
-          addressZip: formData.addressZip || '',
-          county: formData.county || '',
-          description,
-        }),
+      const kindMap: Record<TicketType, string> = {
+        green_pool: 'green_pool',
+        renovation: 'renovation',
+        equipment: 'service',
+      };
+      // Single submit. The submit_website_lead RPC handles service_request
+      // by closing the lead immediately with closed_reason='ticketed' and
+      // stashing details in leads.metadata.service_request. The Airtable
+      // ticket fires from the /api/leads/submit endpoint as a side effect.
+      const lead = await createLead({
+        type_override: 'service_request',
+        qualifying_override: {
+          type: 'service_request',
+          kind: kindMap[type],
+          issue_description: description,
+          pool_condition: type === 'green_pool' ? 'green_pool' : 'needs_repair',
+        },
       });
-      if (!ticketRes.ok) {
-        const err = await ticketRes.json().catch(() => ({ error: 'Something went wrong' }));
-        throw new Error(err.error || 'Submission failed');
+      if (!lead) {
+        // dedup_required or error — leadError set by createLead
+        if (!showDupCheck) {
+          setTicketError(leadError || 'Something went wrong. Please try again or call us.');
+        }
+        return;
       }
-
-      // Note: previously this also called the legacy `create-lead` edge
-      // function with old-schema fields (address_street/etc.). That call has
-      // been removed — lead creation for green-pool / repair flows is now
-      // handled inside `website-lead-intake` whenever pool_condition !== "good".
-      // The Airtable ticket above remains the primary dispatch record.
-
       setTicketSubmitted(true);
     } catch (e: any) {
       setTicketError(e.message || 'Something went wrong. Please try again or call us.');
@@ -751,46 +1008,25 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
     }
     setCommercialSubmitting(true);
     try {
-      const body: Record<string, any> = {
-        first_name: formData.firstName.trim(),
-        last_name: formData.lastName.trim(),
-        email: formData.email.trim(),
-        phone: formData.phone.trim(),
-        address_street: formData.addressStreet || null,
-        address_city: formData.addressCity || null,
-        address_state: formData.addressState || 'GA',
-        address_zip: formData.addressZip || null,
-        county: formData.county || null,
-        service_interest: 'commercial',
-        customer_type: 'commercial',
-        lead_source: 'website_quote_form',
-        company_name: commercialForm.companyName.trim(),
-        closes_for_winter: commercialForm.closesForWinter,
-        summer_frequency: commercialForm.summerFrequency,
-        commercial_description: commercialForm.commercialDescription.trim() || null,
-      };
-      if (commercialForm.closesForWinter) {
-        body.winter_frequency = commercialForm.winterFrequency;
-      }
-      if (commercialForm.pmName.trim()) {
-        body.property_manager_name = commercialForm.pmName.trim();
-        body.property_manager_phone = commercialForm.pmPhone.trim() || null;
-        body.property_manager_email = commercialForm.pmEmail.trim() || null;
-      }
-
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/leads`, {
-        method: 'POST',
-        headers: {
-          'apikey': SUPABASE_ANON,
-          'Authorization': `Bearer ${SUPABASE_ANON}`,
-          'Content-Type': 'application/json',
-          'Prefer': 'return=minimal',
+      const lead = await createLead({
+        type_override: 'commercial_maintenance',
+        qualifying_override: {
+          type: 'commercial_maintenance',
+          company_name: commercialForm.companyName.trim(),
+          closes_for_winter: commercialForm.closesForWinter ?? undefined,
+          summer_frequency: commercialForm.summerFrequency,
+          winter_frequency: commercialForm.closesForWinter ? commercialForm.winterFrequency : undefined,
+          property_manager_name: commercialForm.pmName.trim() || undefined,
+          property_manager_phone: commercialForm.pmName.trim() ? (commercialForm.pmPhone.trim() || undefined) : undefined,
+          property_manager_email: commercialForm.pmName.trim() ? (commercialForm.pmEmail.trim() || undefined) : undefined,
+          commercial_description: commercialForm.commercialDescription.trim() || undefined,
         },
-        body: JSON.stringify(body),
       });
-      if (!res.ok) {
-        const err = await res.text();
-        throw new Error(err || 'Submission failed');
+      if (!lead) {
+        if (!showDupCheck) {
+          setCommercialError(leadError || 'Something went wrong. Please try again or call us.');
+        }
+        return;
       }
       setCommercialSubmitted(true);
     } catch (e: any) {
@@ -832,6 +1068,16 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
      ═══════════════════════════════════════ */
   return (
     <div class={`intake-overlay is-open${currentStep === 5 ? ' intake-overlay--quote' : ''}`} onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }} role="dialog" aria-modal="true" aria-label="Get a quote">
+      {TURNSTILE_SITE_KEY ? (
+        <div
+          class="cf-turnstile"
+          data-sitekey={TURNSTILE_SITE_KEY}
+          data-callback="ppTurnstileCallback"
+          data-expired-callback="ppTurnstileExpired"
+          data-size="invisible"
+          style="position: absolute; left: -9999px;"
+        />
+      ) : null}
       <div class={`intake-modal intake-modal--v2${currentStep === 5 ? ' intake-modal--quote' : ''}`}>
         {/* Persistent hero — visible on every step. The new artwork
             already has the dark navy background with the
@@ -1019,8 +1265,8 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
             condition, body type all on one page) → Referral → Quote. */}
         <div class={`intake-body gs-fade-in${currentStep === 5 ? ' intake-body--quote' : ''}`} key={currentStep + '-' + redirect + (showDupCheck ? '-dup' : '')}>
           {currentStep === 1 && renderStep2()}
-          {currentStep === 2 && (showDupCheck ? renderDupCheck() : renderStep3())}
-          {currentStep === 3 && renderProgressivePoolPage()}
+          {currentStep === 2 && renderStep3()}
+          {currentStep === 3 && (showDupCheck ? renderDupCheck() : renderProgressivePoolPage())}
           {currentStep === 4 && renderReferralSource()}
           {currentStep === 5 && renderQuoteDisplay()}
         </div>
@@ -1155,43 +1401,11 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
               pencil that returns the user to the address page. */}
         </div>
         <div class="intake-actions" style="margin-top: 1.5rem;">
-          <button type="button" class="intake-cta-btn" data-intake-advance disabled={!isValid || dupChecking} onClick={async () => {
-            if (formData.duplicateResolution) {
-              goNext();
-              return;
-            }
-            // Real duplicate check via RPC (normalizes phone formats)
-            setDupChecking(true);
-            try {
-              const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/check_duplicate_customer`, {
-                method: 'POST',
-                headers: {
-                  'apikey': SUPABASE_ANON,
-                  'Authorization': `Bearer ${SUPABASE_ANON}`,
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                  p_phone: formData.phone,
-                  p_address: formData.addressStreet || null,
-                }),
-              });
-              const result = res.ok ? await res.json() : { found: false };
-              if (result.found) {
-                setDupMatchName(result.display_name || 'Existing customer');
-                setDupMatchPhone(result.redacted_phone || '');
-                setDupMatchEmail(result.redacted_email || '');
-                setShowDupCheck(true);
-              } else {
-                goNext();
-              }
-            } catch {
-              // If check fails, just proceed — don't block the user
-              goNext();
-            } finally {
-              setDupChecking(false);
-            }
-          }}>
-            {dupChecking ? 'Checking...' : 'Continue'} {!dupChecking && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>}
+          {/* No DB writes happen here in the new flow — submit fires at the
+              end of the qualifying page, after all data is collected. The
+              contact step just advances. */}
+          <button type="button" class="intake-cta-btn" data-intake-advance disabled={!isValid} onClick={goNext}>
+            Continue <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
           </button>
         </div>
       </>
@@ -1225,16 +1439,25 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
           </div>
           <p style="text-align: center; font-weight: 500; margin: 1rem 0 0.75rem;">Is this you?</p>
           <div class="gs-existing-choices">
-            <button type="button" class="intake-cta-btn" onClick={() => {
+            <button type="button" class="intake-cta-btn" disabled={leadSubmitting} onClick={async () => {
               updateForm({ duplicateResolution: 'confirmed_yes' });
               setShowDupCheck(false);
-              // Existing-lead resume hydration was removed — the new schema
-              // exposes leads via accept tokens, not direct field reads. The
-              // user just continues through the quote flow; the backend dedup
-              // in website-lead-intake will reuse their existing account.
-              goNext();
-            }}>Yes, that's me</button>
-            <button type="button" class="intake-outline-btn" onClick={() => { updateForm({ duplicateResolution: 'confirmed_no' }); setShowDupCheck(false); goNext(); }}>No, I'm a new customer</button>
+              setRedirectLoading('quote');
+              const lead = await createLead({
+                customer_action: 'use_existing',
+                existing_customer_id: dupMatchCustomerId ?? undefined,
+              });
+              setRedirectLoading('');
+              if (lead) setCurrentStep(5);
+            }}>{leadSubmitting ? 'Saving...' : "Yes, that's me"}</button>
+            <button type="button" class="intake-outline-btn" disabled={leadSubmitting} onClick={async () => {
+              updateForm({ duplicateResolution: 'confirmed_no' });
+              setShowDupCheck(false);
+              setRedirectLoading('quote');
+              const lead = await createLead({ customer_action: 'create_new' });
+              setRedirectLoading('');
+              if (lead) setCurrentStep(5);
+            }}>{leadSubmitting ? 'Saving...' : "No, I'm a new customer"}</button>
           </div>
         </div>
       </>
@@ -1574,7 +1797,7 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
     // their ticket-form view. The loader holds for 750ms, then we
     // jump straight to step 5 (renderQuoteDisplay), which now shows
     // a consolidated summary card on top.
-    const handleContinue = () => {
+    const handleContinue = async () => {
       if (selectedTicketType) {
         setRedirectLoading(selectedTicketType);
         window.setTimeout(() => {
@@ -1586,12 +1809,21 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
       if (onCommercialMaintenance) { setRedirect('commercial'); return; }
       if (formData.isInground === 'above_ground') { setRedirect('above_ground'); return; }
       if (formData.poolCondition === 'needs_repair') { setRedirect('needs_repair'); return; }
-      // Happy path → loader → quote.
+
+      // Happy path → loader → submit lead → quote.
+      // This is the moment of lead creation in the new flow. createLead
+      // runs server-side dedup; if matches found it sets showDupCheck=true
+      // and returns null (renderDupCheck takes over). If success, we
+      // advance to step 5 (renderQuoteDisplay).
       setRedirectLoading('quote');
-      window.setTimeout(() => {
-        setCurrentStep(5);
-        setRedirectLoading('');
-      }, 750);
+      const lead = await createLead();
+      setRedirectLoading('');
+      if (!lead) {
+        // Either dedup_required (renderDupCheck will show) or error
+        // (leadError displayed). Either way, stay on current step.
+        return;
+      }
+      setCurrentStep(5);
     };
 
     const serviceIcons: Record<string, any> = {
@@ -2003,19 +2235,31 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
                 the lead flow immediately. */}
             {leadError && <p style="color: #dc2626; font-size: 0.85rem; margin-top: 0.5rem;">{leadError}</p>}
             <div class="intake-btn-row">
-              <button type="button" class="intake-outline-btn" disabled={leadSubmitting} onClick={async () => {
-                const lead = await createLead('email');
-                if (lead) updateForm({ quotePath: 'email', contactPreference: 'email' });
-              }}>
+              <button
+                type="button"
+                class="intake-outline-btn"
+                disabled={leadSubmitting || !!quoteSending}
+                onClick={() => handleQuoteSend('email')}
+              >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-                {leadSubmitting ? 'Saving...' : 'Email Quote'}
+                {leadSubmitting
+                  ? 'Saving...'
+                  : quoteSending === 'email'
+                    ? 'Sending...'
+                    : 'Email Quote'}
               </button>
-              <button type="button" class="intake-outline-btn" disabled={leadSubmitting} onClick={async () => {
-                const lead = await createLead('text');
-                if (lead) updateForm({ quotePath: 'text', contactPreference: 'text' });
-              }}>
+              <button
+                type="button"
+                class="intake-outline-btn"
+                disabled={leadSubmitting || !!quoteSending}
+                onClick={() => handleQuoteSend('sms')}
+              >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                {leadSubmitting ? 'Saving...' : 'Text Quote'}
+                {leadSubmitting
+                  ? 'Saving...'
+                  : quoteSending === 'sms'
+                    ? 'Sending...'
+                    : 'Text Quote'}
               </button>
             </div>
           </div>
