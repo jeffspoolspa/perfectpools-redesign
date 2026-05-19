@@ -37,6 +37,29 @@ interface SubmitRequestBody {
 }
 
 export const POST: APIRoute = async ({ request, cookies }) => {
+  try {
+    return await handleSubmit({ request, cookies });
+  } catch (e) {
+    // Top-level guard: any unhandled exception from below (getServerSupabase
+    // env-var read, supabase client errors, unexpected RPC shape, etc.) gets
+    // turned into a structured JSON response so the browser sees the real
+    // error string instead of Astro's router returning an empty 500.
+    const err = e as Error;
+    console.error("[/api/leads/submit] unhandled:", err.message, err.stack);
+    return new Response(
+      JSON.stringify({ ok: false, error: `unhandled: ${err.message}` }),
+      { status: 500, headers: { "Content-Type": "application/json" } },
+    );
+  }
+};
+
+async function handleSubmit({
+  request,
+  cookies,
+}: {
+  request: Request;
+  cookies: import("astro").AstroCookies;
+}): Promise<Response> {
   const ip = clientIp(request);
 
   const rl = rateLimit(`leads:submit:${ip}`, RATE_LIMIT_PER_IP_MAX, RATE_LIMIT_WINDOW_MS);
@@ -215,7 +238,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         : undefined,
     },
   });
-};
+}
 
 async function fireTicketSubmission(
   supabase: ReturnType<typeof getServerSupabase>,
