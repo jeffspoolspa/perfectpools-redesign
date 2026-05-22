@@ -7,7 +7,9 @@
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@astrojs/preact": "^4.0.0",
@@ -26,5 +28,12 @@
     "preact": "^10.25.0",
     "protomaps-themes-base": "^4.5.0",
     "three": "^0.183.2"
+  },
+  "devDependencies": {
+    "@preact/preset-vite": "^2.10.5",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/preact": "^3.2.4",
+    "jsdom": "^29.1.1",
+    "vitest": "^4.1.7"
   }
 }
