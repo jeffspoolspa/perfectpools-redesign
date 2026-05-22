@@ -13,3 +13,7 @@ patterns/
 # Generated map tiles — 80–150MB depending on bbox/zoom.
 # Regenerate with `pmtiles extract` (command in src/pages/map.astro).
 public/tiles/
+
+# One-off HTML exports for design references — generated via the
+# (now-removed) /api/dev-export endpoint. Not part of the build.
+quote-page-export.html

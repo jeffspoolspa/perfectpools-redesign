@@ -39,20 +39,28 @@ import type {
 interface RequestBody {
   lead_id?: unknown;
   channel?: unknown;
+  // Body fallback for the resume token — see accept.ts for rationale.
+  resume_token?: unknown;
 }
 
 export const POST: APIRoute = async ({ request, cookies }) => {
-  const token = getResumeToken(cookies);
-  if (!token) {
-    return json({ ok: false, error: "missing_resume_token" }, 401);
-  }
-
   let body: RequestBody;
   try {
     body = (await request.json()) as RequestBody;
   } catch {
     return json({ ok: false, error: "invalid_json" }, 400);
   }
+
+  const cookieToken = getResumeToken(cookies);
+  const bodyToken =
+    typeof body.resume_token === "string" && body.resume_token.length > 0
+      ? body.resume_token
+      : null;
+  const token = cookieToken ?? bodyToken;
+  if (!token) {
+    return json({ ok: false, error: "missing_resume_token" }, 401);
+  }
+
   const leadId = typeof body.lead_id === "string" ? body.lead_id : null;
   const channel = body.channel === "email" || body.channel === "sms" ? body.channel : null;
   if (!leadId) return json({ ok: false, error: "missing_lead_id" }, 400);

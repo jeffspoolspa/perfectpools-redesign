@@ -230,6 +230,15 @@ async function handleSubmit({
       lifecycle_state: result.lifecycle_state,
       closed_reason: result.closed_reason,
       child_status: result.child_status,
+      // Echo the resume_token back to the client so it can be passed as
+      // a body fallback on subsequent /accept and /send-quote calls.
+      // The HttpOnly cookie is still the primary transport, but cookies
+      // get dropped in real-world conditions (Safari ITP, third-party
+      // cookie restrictions, embedded iframes, etc.) — the body fallback
+      // keeps the flow working in those cases. Sending it back over the
+      // same-origin response is no leak: the cookie value was already
+      // travelling in the response headers.
+      resume_token: result.resume_token,
       quote: quotedPerVisit !== null
         ? {
             per_visit: quotedPerVisit,

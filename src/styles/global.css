@@ -3120,10 +3120,14 @@ p:last-child {
   transform: translateY(0) scale(1);
 }
 
-.intake-modal--quote {
-  width: min(920px, 100%);
-  max-width: calc(100vw - clamp(0.75rem, 2.4vw, 2rem));
-}
+/* .intake-modal--quote — intentionally NO width override.
+   The quote screen previously bumped to 920px which caused a jarring
+   "blow up" between steps: the hero scales with modal width (3:1
+   aspect ratio), so a wider modal also made the hero a lot taller,
+   compounding the visual jump on the qualifier→quote transition.
+   By inheriting .intake-modal's 660px max-width, every step keeps
+   the same modal footprint and the transition is smooth.
+   The QuotePricingSection inside happily renders at this width. */
 
 /* Close button */
 .intake-close-btn {
@@ -7023,6 +7027,465 @@ p:last-child {
   color: var(--color-text-light);
   max-width: 400px;
   margin: 0 auto var(--space-4);
+}
+
+/* ─── Confirmation takeover modal ───────────────────────────────
+   Renders after the customer fires Email Quote or Text Quote. Takes
+   over the full intake modal — no progress bar, no hero, no summary
+   rail. Two-column on desktop (marketing image left, content right);
+   stacks on mobile with the image as a banner at the top. */
+.intake-modal--confirm {
+  width: min(900px, 100%);
+  max-width: calc(100vw - clamp(0.75rem, 2.4vw, 2rem));
+  max-height: calc(100dvh - 2rem);
+  overflow: hidden;
+  background: linear-gradient(135deg, #f0f9ff, #fff 45%, #ecfdf5);
+}
+
+.intake-confirm {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  min-height: 480px;
+  max-height: calc(100dvh - 2rem);
+}
+
+.intake-confirm__media {
+  position: relative;
+  overflow: hidden;
+  background: #082f49;
+}
+
+.intake-confirm__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Anchor to the bottom of the photo so the pool stays visible — the
+     hero-residential-pool source has trees/sky on top and the pool at
+     the bottom, so default center-crop hides the actual pool. */
+  object-position: center bottom;
+  display: block;
+}
+
+.intake-confirm__media::after {
+  /* Subtle gradient on top of the photo so a future text/badge
+     overlay would still be readable; doesn't hurt the bare photo. */
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(8, 47, 73, 0.10) 0%, rgba(8, 47, 73, 0.30) 100%);
+}
+
+.intake-confirm__body {
+  padding: clamp(1.5rem, 3vw, 2.25rem);
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  overflow-y: auto;
+}
+
+.intake-confirm__status-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  align-self: flex-start;
+}
+
+.intake-confirm__badge {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: #dcfce7;
+  color: #16a34a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.18);
+  flex-shrink: 0;
+}
+
+.intake-confirm__title {
+  font-size: clamp(1.4rem, 2.2vw, 1.85rem);
+  line-height: 1.18;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.intake-confirm__subtitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #047857;
+  background: #d1fae5;
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  align-self: flex-start;
+}
+
+.intake-confirm__subtitle-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Card visual treatment matches QuotePricingSection's .cps__monthly:
+   subtle navy-tinted gradient over white, soft border, rounded 14px.
+   The header row mirrors .cps__monthly-summary — plan + cycle on the
+   left, big primary monthly amount + "LABOR + CHEMICALS" eyebrow on
+   the right — so the confirmation reads like a continuation of the
+   quote screen, not a different visual language. */
+.intake-confirm__card {
+  margin-top: 0.25rem;
+  border: 1px solid rgba(30, 58, 95, 0.12);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(30, 58, 95, 0.055), rgba(255, 255, 255, 0.86));
+  overflow: hidden;
+}
+
+.intake-confirm__card-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  align-items: center;
+  gap: 8px 14px;
+  padding: 13px 15px 8px;
+}
+
+.intake-confirm__card-plan {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.intake-confirm__plan {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-primary, #0284c7);
+  line-height: 1.1;
+}
+
+.intake-confirm__cycle {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--color-text-light, #64748b);
+  line-height: 1.35;
+}
+
+.intake-confirm__card-price {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.intake-confirm__price-amount {
+  font-size: 1.6rem;
+  font-weight: 850;
+  color: var(--color-primary, #0284c7);
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+.intake-confirm__price-unit {
+  margin-top: 6px;
+  font-size: 0.61rem;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--color-text-muted, #9ca3af);
+}
+
+.intake-confirm__card-math {
+  padding: 0 15px 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--color-text-muted, #9ca3af);
+  white-space: nowrap;
+}
+
+.intake-confirm__card-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 11px 15px 13px;
+  border-top: 1px solid rgba(30, 58, 95, 0.10);
+}
+
+.intake-confirm__card-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.75rem;
+  font-size: 0.86rem;
+}
+
+.intake-confirm__card-row > span:first-child {
+  color: var(--color-text-light, #64748b);
+  font-weight: 500;
+}
+
+.intake-confirm__card-row-value {
+  color: var(--color-primary, #0284c7);
+  font-weight: 700;
+  text-align: right;
+}
+
+.intake-confirm__card-row--address .intake-confirm__card-row-value {
+  color: #0f172a;
+  font-weight: 600;
+}
+
+/* "What happens next" variant — same outer card chrome as the quote
+   card so the two confirmation flows look like the same component,
+   with a bulleted list instead of a price/breakdown. Used by the
+   green-pool / equipment / renovation / commercial confirmations. */
+.intake-confirm__card--expect {
+  padding: 13px 15px 15px;
+}
+
+.intake-confirm__expect-title {
+  margin: 0 0 0.65rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--color-text-muted, #9ca3af);
+}
+
+.intake-confirm__expect-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.intake-confirm__expect-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  font-size: 0.88rem;
+  color: #0f172a;
+  line-height: 1.45;
+}
+
+.intake-confirm__expect-bullet {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  background: #dcfce7;
+  color: #16a34a;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.15rem;
+}
+
+.intake-confirm__expect-note {
+  margin: 0.85rem 0 0;
+  padding: 0.55rem 0.75rem;
+  background: rgba(30, 58, 95, 0.05);
+  border: 1px solid rgba(30, 58, 95, 0.12);
+  border-radius: 0.55rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-text-light, #64748b);
+}
+
+.intake-confirm__error {
+  margin: 0;
+  padding: 0.55rem 0.75rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.5rem;
+  color: #b91c1c;
+  font-size: 0.85rem;
+}
+
+.intake-confirm__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin-top: 0.25rem;
+}
+
+.intake-confirm__primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.9rem 1.25rem;
+  border: none;
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, #0ea5e9, #0284c7);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(2, 132, 199, 0.28);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
+}
+
+.intake-confirm__primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(2, 132, 199, 0.35);
+}
+
+.intake-confirm__primary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.intake-confirm__secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.7rem 1.1rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.75rem;
+  background: #fff;
+  color: #0f172a;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.intake-confirm__secondary:hover:not(:disabled) {
+  background: #f8fafc;
+  border-color: #94a3b8;
+}
+
+.intake-confirm__secondary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Secondary in-flight state — keep at full opacity so the spinner is
+   readable. Sent state is a separate styled "success" pill instead of
+   the default disabled treatment. */
+.intake-confirm__secondary.is-sending {
+  opacity: 1;
+  cursor: progress;
+  color: var(--color-text-light, #64748b);
+}
+
+.intake-confirm__secondary.is-sent,
+.intake-confirm__secondary.is-sent:disabled {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  opacity: 1;
+  cursor: default;
+  background: #dcfce7;
+  border-color: #86efac;
+  color: #166534;
+}
+
+.intake-confirm__secondary.is-sent svg {
+  color: #16a34a;
+}
+
+/* Spinner used inside the "Sending…" button state */
+.intake-confirm__spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid rgba(15, 23, 42, 0.18);
+  border-top-color: var(--color-primary, #0284c7);
+  display: inline-block;
+  margin-right: 0.4rem;
+  animation: intake-confirm-spin 0.7s linear infinite;
+}
+
+@keyframes intake-confirm-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Tertiary "Need something else?" — text-link tone, no background or
+   border. Sends the user back to the qualifier page (step 3) without
+   blowing away their address/contact info, so they can resubmit a
+   different lead for the same pool. */
+.intake-confirm__tertiary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem 0.75rem;
+  border: none;
+  background: transparent;
+  color: var(--color-text-light, #64748b);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: rgba(100, 116, 139, 0.4);
+  text-underline-offset: 3px;
+  transition: color 0.12s ease, text-decoration-color 0.12s ease;
+}
+
+.intake-confirm__tertiary:hover {
+  color: var(--color-primary, #0284c7);
+  text-decoration-color: currentColor;
+}
+
+.intake-confirm__contact {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--color-text-light, #64748b);
+  text-align: center;
+}
+
+.intake-confirm__contact a {
+  color: var(--color-primary, #0284c7);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.intake-confirm__contact a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 720px) {
+  /* Match the rest of the intake modal's mobile behavior: fullscreen
+     takeover, no border-radius, edge-to-edge. The image becomes a
+     fixed-height banner up top, content scrolls below. */
+  .intake-modal--confirm {
+    width: 100%;
+    max-width: 100%;
+    max-height: 100dvh;
+    height: 100dvh;
+    border-radius: 0;
+  }
+
+  .intake-confirm {
+    grid-template-columns: 1fr;
+    grid-template-rows: 220px 1fr;
+    min-height: 0;
+    max-height: 100dvh;
+    height: 100dvh;
+  }
+
+  .intake-confirm__media {
+    grid-row: 1;
+  }
+
+  .intake-confirm__body {
+    padding: 1.25rem;
+    gap: 0.75rem;
+  }
+
+  .intake-confirm__title {
+    font-size: 1.3rem;
+  }
 }
 
 /* ─── Step transition ─── */
