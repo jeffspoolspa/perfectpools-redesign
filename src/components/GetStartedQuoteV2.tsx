@@ -45,15 +45,6 @@ const CUSTOMER_TYPES = [
   { id: 'commercial', label: 'Commercial', desc: 'HOA, hotel, or business pool', icon: 'building' },
 ];
 
-const REFERRAL_SOURCES = [
-  { id: 'google', label: 'Google', icon: 'search' },
-  { id: 'social_media', label: 'Social Media', icon: 'share' },
-  { id: 'saw_truck', label: 'Saw Our Truck', icon: 'truck' },
-  { id: 'word_of_mouth', label: 'Word of Mouth', icon: 'users' },
-  { id: 'print_ad', label: 'Print Advertisement', icon: 'newspaper' },
-  { id: 'other', label: 'Other', icon: 'more' },
-];
-
 const POOL_CONDITIONS = [
   { id: 'good', label: 'Everything is Working', desc: 'Equipment running, water is blue' },
   { id: 'needs_repair', label: 'Something Needs Fixing', desc: 'Cloudy water, leak, pump down, etc.' },
@@ -156,6 +147,8 @@ import {
 } from '../lib/leads/client';
 export type DedupMatch = _DedupMatch;
 import { ConfirmationModal, type ConfirmKind } from './lead-flow/ConfirmationModal';
+import { DupCheckStep } from './lead-flow/steps/DupCheckStep';
+import { ReferralStep, type ReferralSourceId } from './lead-flow/steps/ReferralStep';
 
 /* Load Cloudflare Turnstile JS once. The widget then auto-mounts onto any
    `.cf-turnstile` div in the DOM and writes the token into the input named
@@ -1451,50 +1444,32 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
      Shows within step 3 when a duplicate is found.
      ══════════════════════════════════ */
   function renderDupCheck() {
+    const handleResolveDup = async (action: 'use_existing' | 'create_new') => {
+      updateForm({
+        duplicateResolution: action === 'use_existing' ? 'confirmed_yes' : 'confirmed_no',
+      });
+      setShowDupCheck(false);
+      setRedirectLoading('quote');
+      const opts =
+        action === 'use_existing'
+          ? { customer_action: action, existing_customer_id: dupMatchCustomerId ?? undefined }
+          : { customer_action: action };
+      const lead = await createLead(opts as Parameters<typeof createLead>[0]);
+      setRedirectLoading('');
+      if (lead) setCurrentStep(5);
+    };
     return (
-      <>
-        <div class="intake-step-header">
-          <div class="intake-step-icon" style="background: #fef3c7;">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          </div>
-          <h2 class="intake-step-title">We may already know you!</h2>
-          <p class="intake-step-subtitle">It looks like we've done work at this property before.</p>
-        </div>
-        <div class="gs-existing-card">
-          <div class="gs-existing-match" style="display: flex; align-items: center; gap: 0.75rem; padding: 1rem; background: var(--primary-light, #f0f7ff); border-radius: 0.75rem;">
-            <div style="width: 44px; height: 44px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--primary, #2563eb)" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            </div>
-            <div>
-              <strong style="display: block; font-size: 1rem;">{dupMatchName || `${formData.firstName} ${formData.lastName.charAt(0)}.`}</strong>
-              {dupMatchPhone && <span style="display: block; font-size: 0.85rem; color: var(--text-light);">Phone: {dupMatchPhone}</span>}
-              {dupMatchEmail && <span style="display: block; font-size: 0.85rem; color: var(--text-light);">Email: {dupMatchEmail}</span>}
-            </div>
-          </div>
-          <p style="text-align: center; font-weight: 500; margin: 1rem 0 0.75rem;">Is this you?</p>
-          <div class="gs-existing-choices">
-            <button type="button" class="intake-cta-btn" disabled={leadSubmitting} onClick={async () => {
-              updateForm({ duplicateResolution: 'confirmed_yes' });
-              setShowDupCheck(false);
-              setRedirectLoading('quote');
-              const lead = await createLead({
-                customer_action: 'use_existing',
-                existing_customer_id: dupMatchCustomerId ?? undefined,
-              });
-              setRedirectLoading('');
-              if (lead) setCurrentStep(5);
-            }}>{leadSubmitting ? 'Saving...' : "Yes, that's me"}</button>
-            <button type="button" class="intake-outline-btn" disabled={leadSubmitting} onClick={async () => {
-              updateForm({ duplicateResolution: 'confirmed_no' });
-              setShowDupCheck(false);
-              setRedirectLoading('quote');
-              const lead = await createLead({ customer_action: 'create_new' });
-              setRedirectLoading('');
-              if (lead) setCurrentStep(5);
-            }}>{leadSubmitting ? 'Saving...' : "No, I'm a new customer"}</button>
-          </div>
-        </div>
-      </>
+      <DupCheckStep
+        match={{
+          customerId: dupMatchCustomerId,
+          displayName: dupMatchName || `${formData.firstName} ${formData.lastName.charAt(0)}.`,
+          redactedPhone: dupMatchPhone || undefined,
+          redactedEmail: dupMatchEmail || undefined,
+        }}
+        onUseExisting={() => handleResolveDup('use_existing')}
+        onCreateNew={() => handleResolveDup('create_new')}
+        loading={leadSubmitting}
+      />
     );
   }
 
@@ -1535,38 +1510,12 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
      Step 5 — Pool Size
      ══════════════════════════════════ */
   function renderReferralSource() {
-    const icons: Record<string, any> = {
-      search: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
-      share: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>,
-      truck: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>,
-      users: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
-      newspaper: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><line x1="10" y1="6" x2="18" y2="6"/><line x1="10" y1="10" x2="18" y2="10"/><line x1="10" y1="14" x2="14" y2="14"/></svg>,
-      more: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>,
-    };
     return (
-      <>
-        <div class="intake-step-header">
-          <div class="intake-step-icon">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-          </div>
-          <h2 class="intake-step-title">How did you hear about us?</h2>
-          <p class="intake-step-subtitle">This helps us serve the community better</p>
-        </div>
-        <div class="intake-surface-list">
-          {REFERRAL_SOURCES.map(rs => (
-            <button key={rs.id} type="button" class={`intake-surface-item${formData.referralSource === rs.id ? ' selected' : ''}`} onClick={() => {
-              updateForm({ referralSource: rs.id });
-              setTimeout(() => goNext(), 300);
-            }}>
-              <div style="display: flex; align-items: center; gap: 0.75rem;">
-                <div style="color: var(--color-primary); flex-shrink: 0;">{icons[rs.icon]}</div>
-                <h3>{rs.label}</h3>
-              </div>
-              <div class="intake-surface-radio" />
-            </button>
-          ))}
-        </div>
-      </>
+      <ReferralStep
+        value={formData.referralSource}
+        onChange={(id: ReferralSourceId) => updateForm({ referralSource: id })}
+        onAdvance={goNext}
+      />
     );
   }
 
