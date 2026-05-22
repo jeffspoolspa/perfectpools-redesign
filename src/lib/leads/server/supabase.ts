@@ -22,13 +22,21 @@ export function getServerSupabase(): SupabaseClient {
 
   // Use process.env for server-only vars — Astro's import.meta.env doesn't
   // reliably surface non-PUBLIC env vars at runtime in @astrojs/vercel
-  // serverless mode. PUBLIC_SUPABASE_URL can be read either way; using
-  // process.env keeps the pattern consistent.
-  const url = process.env.PUBLIC_SUPABASE_URL;
+  // serverless mode.
+  //
+  // Accept multiple env-var name conventions so we work regardless of how
+  // the project was set up:
+  //   - PUBLIC_SUPABASE_URL          (Astro convention)
+  //   - NEXT_PUBLIC_SUPABASE_URL     (Next.js convention; matches internal-app)
+  //   - SUPABASE_URL                 (plain)
+  const url =
+    process.env.PUBLIC_SUPABASE_URL ??
+    process.env.NEXT_PUBLIC_SUPABASE_URL ??
+    process.env.SUPABASE_URL;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !serviceKey) {
     throw new Error(
-      "Missing PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY env var",
+      `Missing Supabase env vars. Looked for url in PUBLIC_SUPABASE_URL/NEXT_PUBLIC_SUPABASE_URL/SUPABASE_URL (found: ${url ? "yes" : "no"}); SUPABASE_SERVICE_ROLE_KEY (found: ${serviceKey ? "yes" : "no"})`,
     );
   }
 

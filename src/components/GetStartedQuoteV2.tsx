@@ -205,6 +205,10 @@ interface SubmitLeadOutput {
   lifecycle_state: 'open' | 'closed';
   closed_reason: string | null;
   child_status: string | null;
+  /* Echo of the HttpOnly resume cookie. We also stash it client-side and
+     pass it in the body on /accept and /send-quote so the flow still works
+     when the cookie gets dropped (Safari ITP, iframe contexts, etc.). */
+  resume_token?: string;
   quote?: { per_visit: number; first_months_deposit: number };
 }
 
@@ -248,12 +252,28 @@ async function apiSubmitLead(input: {
   }
 }
 
-async function apiAcceptLead(leadId: string): Promise<ApiResult<{ ok: boolean; lead_id: string; status: string }>> {
-  return apiPost('/api/leads/accept', { lead_id: leadId });
+async function apiAcceptLead(
+  leadId: string,
+  resumeToken: string | null,
+): Promise<ApiResult<{ ok: boolean; lead_id: string; status: string }>> {
+  // resume_token in body is a fallback for when the HttpOnly cookie set
+  // by /api/leads/submit gets dropped by the browser (Safari ITP, etc.).
+  return apiPost('/api/leads/accept', {
+    lead_id: leadId,
+    resume_token: resumeToken ?? undefined,
+  });
 }
 
-async function apiSendQuote(leadId: string, channel: 'email' | 'sms'): Promise<ApiResult<{ communication_id: string; channel: 'email' | 'sms' }>> {
-  return apiPost('/api/leads/send-quote', { lead_id: leadId, channel });
+async function apiSendQuote(
+  leadId: string,
+  channel: 'email' | 'sms',
+  resumeToken: string | null,
+): Promise<ApiResult<{ communication_id: string; channel: 'email' | 'sms' }>> {
+  return apiPost('/api/leads/send-quote', {
+    lead_id: leadId,
+    channel,
+    resume_token: resumeToken ?? undefined,
+  });
 }
 
 function getUtmParams(): Record<string, string> {
@@ -471,12 +491,38 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
   // Lead submission state
   const [leadId, setLeadId] = useState<string | null>(null);
   const [leadToken, setLeadToken] = useState<string | null>(null);
+  /* The Supabase customer id that the first createLead call created
+     (or matched into via dedup). Tracked separately from leadId so we
+     can fire a NEW lead under the SAME customer when the user clicks
+     "Need something else?" on the confirmation modal — passing
+     existing_customer_id + customer_action='use_existing' to the
+     /api/leads/submit RPC skips the dedup round trip the second time. */
+  const [accountId, setAccountId] = useState<number | null>(null);
+  /* The actual server-side resume token (HttpOnly cookie's value), echoed
+     back to us in the submit response. We pass this in the body of
+     subsequent /accept and /send-quote calls so the flow keeps working
+     even if the cookie gets dropped (Safari ITP, third-party-cookie
+     blocking, iframe sandboxing). Separate from leadToken (the URL
+     token to the onboarding page, currently equal to lead_id). */
+  const [resumeToken, setResumeToken] = useState<string | null>(null);
   const [leadSubmitting, setLeadSubmitting] = useState(false);
   const [leadError, setLeadError] = useState('');
   // Separate state for the post-createLead "actually send the quote" POST.
   // Lets us show "Sending..." after the lead is saved, and keep both buttons
   // disabled during the send without conflating it with the createLead state.
   const [quoteSending, setQuoteSending] = useState<'email' | 'sms' | null>(null);
+  /* Tracks which channels the customer has successfully fired the
+     initial-quote send through. Each channel can fire AT MOST ONCE —
+     after a successful send we mark it sent here, swap the button to a
+     green "Sent" state, and ignore further clicks. This separates from
+     formData.quotePath (which records the INITIAL channel the customer
+     picked and drives the "Check your email/text" confirmation pill).
+     The pill stays locked to the initial channel even after they fire
+     the other channel as a secondary action. */
+  const [channelsSent, setChannelsSent] = useState<{ email: boolean; sms: boolean }>({
+    email: false,
+    sms: false,
+  });
 
   // Duplicate check state
   const [dupChecking, setDupChecking] = useState(false);
@@ -685,6 +731,41 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
     setIsOpen(false);
   }
 
+  /* "Need something else?" on the confirmation takeover. The customer
+     already gave us address + contact, and a lead+customer row is
+     persisted server-side. We DON'T want to wipe their answers; we
+     just want to send them back to the qualifier page so they can
+     resubmit with different pool details / service interest. Clears
+     lead-side state (id/token/quotePath) so createLead fires fresh on
+     the next Continue — the existing customer row gets reused via the
+     dedup "Is this you?" flow when phone/email match. */
+  function handleNeedSomethingElse() {
+    setLeadId(null);
+    setLeadToken(null);
+    // resume_token is per-lead — drop it so the next submit issues a
+    // fresh one that authenticates against the new lead row.
+    setResumeToken(null);
+    try { sessionStorage.removeItem('resumeToken'); } catch {}
+    setLeadError('');
+    setQuoteSending(null);
+    // Send slots are per-lead — fresh lead, fresh slots.
+    setChannelsSent({ email: false, sms: false });
+    // Clear the success flags for ALL flows so the takeover modal
+    // exits and the user lands back on the qualifier page regardless
+    // of which service they originally picked.
+    setTicketSubmitted(false);
+    setCommercialSubmitted(false);
+    setTicketError('');
+    setCommercialError('');
+    updateForm({
+      quotePath: '',
+      contactPreference: '',
+    });
+    setShowDupCheck(false);
+    setRedirect('');
+    setCurrentStep(3);
+  }
+
   /* ── Create lead in Supabase via edge function ── */
   /* ── Single submit ────────────────────────────────────────
      Called from handleContinue (end of qualifying page) and from the
@@ -708,6 +789,16 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
     if (leadId) return { id: leadId, token: leadToken! };
     setLeadSubmitting(true);
     setLeadError('');
+    // If we already know this customer's account_id from an earlier
+    // submit in the same session (e.g. they hit "Need something else?"
+    // after sending themselves a quote), short-circuit the dedup round
+    // trip by passing customer_action='use_existing' + that id. Without
+    // this we'd just match ourselves on phone/email and force the user
+    // through the "Is this you?" UI a second time for no reason.
+    const resolvedCustomerAction = opts.customer_action
+      ?? (accountId && !opts.existing_customer_id ? 'use_existing' : undefined);
+    const resolvedExistingId = opts.existing_customer_id
+      ?? (resolvedCustomerAction === 'use_existing' ? accountId ?? undefined : undefined);
     try {
       // Default qualifying payload (residential). The submitTicket and
       // submitCommercialLead paths pass their own type_override + qualifying.
@@ -762,8 +853,8 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
         account_type: formData.customerType === 'commercial' ? 'commercial' : 'residential',
         qualifying,
         referral_source: formData.referralSource || undefined,
-        customer_action: opts.customer_action,
-        existing_customer_id: opts.existing_customer_id,
+        customer_action: resolvedCustomerAction,
+        existing_customer_id: resolvedExistingId,
         client: {
           user_agent: navigator.userAgent,
           referrer: document.referrer || undefined,
@@ -799,6 +890,19 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
       const token = leadIdStr; // onboarding page reuses lead_id as its URL token
       setLeadId(leadIdStr);
       setLeadToken(token);
+      // Remember the customer/account id so "Need something else?" can
+      // resubmit a NEW lead under the SAME customer without re-running
+      // dedup (we'd just match ourselves on phone/email).
+      if (typeof result.data.account_id === 'number') {
+        setAccountId(result.data.account_id);
+        try { sessionStorage.setItem('accountId', String(result.data.account_id)); } catch {}
+      }
+      // Stash the server-issued resume_token as a cookie fallback —
+      // see resumeToken state declaration for why.
+      if (typeof result.data.resume_token === 'string' && result.data.resume_token) {
+        setResumeToken(result.data.resume_token);
+        try { sessionStorage.setItem('resumeToken', result.data.resume_token); } catch {}
+      }
       try { sessionStorage.setItem('leadId', leadIdStr); } catch {}
       try { sessionStorage.setItem('leadToken', token); } catch {}
       return { id: leadIdStr, token };
@@ -824,7 +928,7 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
     setLeadSubmitting(true);
     setLeadError('');
     try {
-      const result = await apiAcceptLead(leadId);
+      const result = await apiAcceptLead(leadId, resumeToken);
       if (!result.ok) {
         setLeadError(result.error || "Couldn't accept the quote. Please try again or call us.");
         return;
@@ -856,34 +960,39 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
       setLeadError("Something went wrong — please refresh and try again.");
       return;
     }
+    // Each channel fires at most once — re-clicks while in flight or
+    // after a successful send are ignored. Failed sends keep the slot
+    // open so the user can retry.
+    if (channelsSent[channel] || quoteSending) return;
     const contactPref = channel === 'email' ? 'email' : 'text';
+    /* quotePath is locked to the FIRST channel the customer chose so
+       the confirmation pill keeps reading "Check your email" (or text)
+       even after they fire the OTHER channel as a secondary action.
+       Without this guard, sending the second channel flips the pill,
+       which is jarring. */
+    const isFirstSend = !formData.quotePath;
     setQuoteSending(channel);
     setLeadError('');
     try {
-      const result = await apiSendQuote(leadId, channel);
+      const result = await apiSendQuote(leadId, channel, resumeToken);
       if (!result.ok) {
         setLeadError(
           channel === 'email'
             ? "We saved your info but couldn't send the email. We'll follow up by phone."
             : "We saved your info but couldn't send the text. We'll follow up by phone.",
         );
+        return;
+      }
+      setChannelsSent(prev => ({ ...prev, [channel]: true }));
+      if (isFirstSend) {
         updateForm({
           quotePath: channel === 'email' ? 'email' : 'text',
           contactPreference: contactPref,
         });
-        return;
       }
-      updateForm({
-        quotePath: channel === 'email' ? 'email' : 'text',
-        contactPreference: contactPref,
-      });
     } catch (e: any) {
       console.error('send-quote network error:', e);
       setLeadError("We saved your info but couldn't send the quote. We'll follow up by phone.");
-      updateForm({
-        quotePath: channel === 'email' ? 'email' : 'text',
-        contactPreference: contactPref,
-      });
     } finally {
       setQuoteSending(null);
     }
@@ -1062,6 +1171,76 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
 
   const pct = Math.round((currentStep / TOTAL_STEPS) * 100);
   const price = calculatePrice();
+  // Once the user has fired off Email Quote or Text Quote, we replace the
+  // entire modal contents with a confirmation takeover — no progress bar,
+  // no summary rail, no edit affordances. They can only close out or click
+  // Get Started Now (or fire the OTHER channel they didn't pick).
+  const isQuoteSent = formData.quotePath === 'email' || formData.quotePath === 'text';
+  const sentBodyOpt = SERVICE_BODY_OPTIONS.find(o => o.id === formData.serviceType);
+  const sentPlanLabel = sentBodyOpt?.label ?? 'Pool Only';
+  const otherChannel: 'email' | 'sms' = formData.quotePath === 'email' ? 'sms' : 'email';
+  const sentCycleLabel = formData.isBiweekly ? 'Bi-Weekly' : 'Weekly';
+  /* The non-maintenance redirect flows (green pool, equipment, renovation)
+     and the commercial-maintenance flow ALSO land on a confirmation state
+     once the lead is filed. They reuse the same takeover modal as the
+     quote confirmation, just with simpler "we'll call you back" content
+     instead of a quote breakdown. */
+  const isFlowComplete = isQuoteSent || ticketSubmitted || commercialSubmitted;
+  type ConfirmKind = 'quote' | 'green_pool' | 'equipment' | 'renovation' | 'commercial';
+  const confirmKind: ConfirmKind | null = isQuoteSent
+    ? 'quote'
+    : commercialSubmitted
+      ? 'commercial'
+      : ticketSubmitted && (redirect === 'green_pool' || redirect === 'equipment' || redirect === 'renovation')
+        ? (redirect as 'green_pool' | 'equipment' | 'renovation')
+        : null;
+  /* Per-service copy for the takeover. Keep the headline consistent
+     across all flows ("Almost There!") so the modal reads like the same
+     UX regardless of which service was requested — only the subhead /
+     what-to-expect content varies. */
+  const CONFIRM_COPY: Record<Exclude<ConfirmKind, 'quote'>, {
+    title: string;
+    pillText: string;
+    expect: string[];
+    note?: string;
+  }> = {
+    green_pool: {
+      title: 'Help Is On The Way — Crystal Water Awaits',
+      pillText: 'We\'ll call you back',
+      expect: [
+        'A team member calls within 1 business day to schedule recovery',
+        'Most green pools clear up in 5–7 days',
+        'Flat-rate recovery quote — no surprises',
+      ],
+    },
+    equipment: {
+      title: 'Got It — Repair Help Is Coming',
+      pillText: 'We\'ll call you back',
+      expect: [
+        'A technician calls within 1 business day to schedule the diagnostic',
+        'Most repairs completed same day; parts ordered if needed',
+      ],
+      note: '$150 residential / $185 commercial diagnostic fee applies.',
+    },
+    renovation: {
+      title: 'Your Dream Pool Is One Call Away',
+      pillText: 'We\'ll call you back',
+      expect: [
+        'Our renovation partner (PSP) reaches out within 1–2 business days',
+        'Site visit scheduled to scope the project',
+        'Custom quote for replaster, retile, or full remodel',
+      ],
+    },
+    commercial: {
+      title: 'Your Property Is In Good Hands',
+      pillText: 'We\'ll be in touch',
+      expect: [
+        'A commercial account manager reaches out within 24 hours',
+        'Free on-site visit to walk the property and scope service',
+        'Custom service agreement built around your hours and budget',
+      ],
+    },
+  };
 
   /* ═══════════════════════════════════════
      RENDER
@@ -1078,6 +1257,195 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
           style="position: absolute; left: -9999px;"
         />
       ) : null}
+      {isFlowComplete ? (
+        /* ── Confirmation takeover ──────────────────────────────────────
+           Replaces the entire modal once the customer has either sent
+           themselves the quote (maintenance flow) OR filed a service
+           request / commercial inquiry (the redirect flows). No hero,
+           no progress bar, no summary rail — just confirmation. The
+           quote variant shows the quote recap + dual-channel send CTAs;
+           the other variants show a what-to-expect list. All four
+           variants share the same headline and image so the UX reads
+           the same regardless of which service the customer picked. */
+        <div class="intake-modal intake-modal--confirm">
+          <button class="intake-close-btn" onClick={handleClose} aria-label="Close">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 6 6 18M6 6l12 12"/>
+            </svg>
+          </button>
+          <div class="intake-confirm">
+            <div class="intake-confirm__media">
+              <img
+                src={assetPath('images/hero-residential-pool.webp')}
+                alt="Crystal-clear backyard pool"
+                loading="eager"
+              />
+            </div>
+            <div class="intake-confirm__body">
+              <div class="intake-confirm__status-row">
+                <div class="intake-confirm__badge" aria-hidden="true">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                </div>
+                <p class="intake-confirm__subtitle">
+                  <span class="intake-confirm__subtitle-icon" aria-hidden="true">
+                    {confirmKind === 'quote' ? (
+                      formData.quotePath === 'email' ? (
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <rect x="3" y="5" width="18" height="14" rx="2"/>
+                          <path d="m3 7 9 6 9-6"/>
+                        </svg>
+                      ) : (
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                        </svg>
+                      )
+                    ) : (
+                      /* Phone icon for the call-back flows */
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                      </svg>
+                    )}
+                  </span>
+                  {confirmKind === 'quote'
+                    ? (formData.quotePath === 'email' ? 'Check your email' : 'Check your texts')
+                    : confirmKind && CONFIRM_COPY[confirmKind].pillText}
+                </p>
+              </div>
+              <h2 class="intake-confirm__title">
+                {confirmKind === 'quote'
+                  ? 'Almost There! Your Worry Free Pool Awaits'
+                  : confirmKind && CONFIRM_COPY[confirmKind].title}
+              </h2>
+
+              {confirmKind === 'quote' ? (
+                /* Quote summary card — mirrors the QuotePricingSection
+                   "estimated monthly total" block (cps__monthly): plan +
+                   cycle on the left, big primary-blue monthly amount on
+                   the right. Chemicals are billed separately (variable per
+                   pool), so the eyebrow reads "Plus chemicals" instead of
+                   rolling an estimate into the headline number. */
+                <div class="intake-confirm__card">
+                  <div class="intake-confirm__card-head">
+                    <div class="intake-confirm__card-plan">
+                      <span class="intake-confirm__plan">{sentPlanLabel}</span>
+                      <span class="intake-confirm__cycle">
+                        {sentCycleLabel} · {price.visitsPerMonth} visit month
+                      </span>
+                    </div>
+                    <div class="intake-confirm__card-price">
+                      <span class="intake-confirm__price-amount">${price.monthly}</span>
+                      <span class="intake-confirm__price-unit">Plus chemicals</span>
+                    </div>
+                  </div>
+                  <div class="intake-confirm__card-math">
+                    ({price.visitsPerMonth} × ${price.perVisit}/visit)
+                  </div>
+                  {formData.addressStreet && (
+                    <div class="intake-confirm__card-rows">
+                      <div class="intake-confirm__card-row intake-confirm__card-row--address">
+                        <span>Service address</span>
+                        <span class="intake-confirm__card-row-value">
+                          {[formData.addressStreet, formData.addressCity].filter(Boolean).join(', ')}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : confirmKind ? (
+                /* What-to-expect card for the non-quote flows — reuses the
+                   same card chrome as the quote variant for visual
+                   consistency, with bullets instead of a price line. */
+                <div class="intake-confirm__card intake-confirm__card--expect">
+                  <h3 class="intake-confirm__expect-title">What happens next</h3>
+                  <ul class="intake-confirm__expect-list">
+                    {CONFIRM_COPY[confirmKind].expect.map((item, idx) => (
+                      <li key={idx} class="intake-confirm__expect-item">
+                        <span class="intake-confirm__expect-bullet" aria-hidden="true">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"/>
+                          </svg>
+                        </span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  {CONFIRM_COPY[confirmKind].note && (
+                    <p class="intake-confirm__expect-note">{CONFIRM_COPY[confirmKind].note}</p>
+                  )}
+                </div>
+              ) : null}
+
+              {leadError && <p class="intake-confirm__error">{leadError}</p>}
+
+              <div class="intake-confirm__actions">
+                {confirmKind === 'quote' && (
+                  <>
+                    <button
+                      type="button"
+                      class="intake-confirm__primary"
+                      onClick={handleGetStartedNow}
+                      disabled={leadSubmitting}
+                    >
+                      {leadSubmitting ? 'Getting started…' : 'Get Started Now'}
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"/>
+                      </svg>
+                    </button>
+                    {(() => {
+                      /* Three states for the secondary channel button:
+                         - sent: green check, disabled, copy says "Sent"
+                         - sending: spinner, disabled, copy says "Sending…"
+                         - idle: outline button, "Also email/text me the quote" */
+                      const sent = channelsSent[otherChannel];
+                      const sending = quoteSending === otherChannel;
+                      const otherLabel = otherChannel === 'email' ? 'email' : 'text';
+                      return (
+                        <button
+                          type="button"
+                          class={`intake-confirm__secondary${sent ? ' is-sent' : ''}${sending ? ' is-sending' : ''}`}
+                          onClick={() => handleQuoteSend(otherChannel)}
+                          disabled={sent || !!quoteSending}
+                          aria-pressed={sent}
+                        >
+                          {sent ? (
+                            <>
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <polyline points="20 6 9 17 4 12"/>
+                              </svg>
+                              {`Sent — check your ${otherChannel === 'email' ? 'email' : 'texts'}`}
+                            </>
+                          ) : sending ? (
+                            <>
+                              <span class="intake-confirm__spinner" aria-hidden="true" />
+                              Sending…
+                            </>
+                          ) : (
+                            `Also ${otherLabel} me the quote`
+                          )}
+                        </button>
+                      );
+                    })()}
+                  </>
+                )}
+                <button
+                  type="button"
+                  class="intake-confirm__tertiary"
+                  onClick={handleNeedSomethingElse}
+                >
+                  Need something else?
+                </button>
+              </div>
+
+              <p class="intake-confirm__contact">
+                Questions? Call{' '}
+                <a href="tel:9124590160">(912) 459-0160</a>
+              </p>
+            </div>
+          </div>
+        </div>
+      ) : (
       <div class={`intake-modal intake-modal--v2${currentStep === 5 ? ' intake-modal--quote' : ''}`}>
         {/* Persistent hero — visible on every step. The new artwork
             already has the dark navy background with the
@@ -1271,6 +1639,7 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
           {currentStep === 5 && renderQuoteDisplay()}
         </div>
       </div>
+      )}
     </div>
   );
 
@@ -2070,10 +2439,18 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
         {/* Continue button — only after all relevant questions answered */}
         {allAnswered && (
           <div class="intake-actions" style="margin-top: 1.5rem;">
-            <button type="button" class="intake-cta-btn" data-intake-advance onClick={handleContinue}>
-              Continue
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+            <button type="button" class="intake-cta-btn" data-intake-advance disabled={leadSubmitting} onClick={handleContinue}>
+              {leadSubmitting ? 'Submitting…' : 'Continue'}
+              {!leadSubmitting && (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+              )}
             </button>
+            {/* Surface createLead failures inline. Without this the user
+                clicks Continue, the API errors, and they're left staring
+                at the same page with no feedback — looks like a glitch. */}
+            {leadError && (
+              <p style="color: #dc2626; font-size: 0.85rem; margin-top: 0.75rem;">{leadError}</p>
+            )}
           </div>
         )}
       </div>
@@ -2084,36 +2461,9 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
      Final Step — Quote Display + Decision
      ══════════════════════════════════ */
   function renderQuoteDisplay() {
-    const bodyOpt = SERVICE_BODY_OPTIONS.find(o => o.id === formData.serviceType);
-    const bodyLabel = bodyOpt?.label || 'Pool Only';
-    const bodyPrice = bodyOpt?.price || 50;
-
-    // "Send Details" confirmation (after clicking Email or Text)
-    if (formData.quotePath === 'email' || formData.quotePath === 'text') {
-      return (
-        <div class="gs-sent-confirm">
-          <div style="width: 64px; height: 64px; border-radius: 50%; background: #dcfce7; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-          </div>
-          <h2 style="margin-bottom: 0.5rem;">We'll Be in Touch!</h2>
-          <p style="color: var(--text-light); margin-bottom: 1.5rem;">
-            We'll send your quote details via <strong>{formData.quotePath === 'email' ? 'email' : 'text message'}</strong> within 24 hours.
-          </p>
-          <div class="intake-quote-details" style="margin-bottom: 1.5rem;">
-            <div class="intake-quote-total">
-              <span>Estimated Monthly Rate</span>
-              <span class="intake-quote-total-val">${price.monthly}/mo</span>
-            </div>
-          </div>
-          <p style="font-size: 0.85rem; color: var(--text-light);">
-            Questions? Call us at <a href="tel:9124590160" style="color: var(--color-primary); font-weight: 500;">(912) 459-0160</a>
-          </p>
-          <button type="button" class="intake-text-btn" style="margin-top: 1rem;" onClick={() => updateForm({ quotePath: '' })}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Back to Quote
-          </button>
-        </div>
-      );
-    }
+    /* Note: when quotePath is 'email' or 'text', the modal-level
+       conditional renders the confirmation takeover instead — this
+       function never sees that state. */
 
     /* Build the chip list for the consolidated summary card. We
        pull each pool detail from formData and look up its display
@@ -2446,30 +2796,9 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
      P2-2 — Equipment Redirect (with ticket form)
      ══════════════════════════════════ */
   function renderEquipmentRedirect() {
-    if (ticketSubmitted) {
-      return (
-        <>
-          <div class="intake-step-header">
-            <div class="intake-step-icon" style="background: #dcfce7;">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-            </div>
-            <h2 class="intake-step-title">We've got your request!</h2>
-            <p class="intake-step-subtitle">We'll have someone call you back shortly to schedule your equipment service call.</p>
-          </div>
-          <div class="intake-sorry-content">
-            <div class="intake-ticket-pricing-note">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-              <span><strong>$150 residential</strong> / <strong>$185 commercial</strong> diagnosis fee applies</span>
-            </div>
-            <div class="intake-sorry-actions">
-              <button type="button" class="intake-text-btn" onClick={resetTicketState}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Back to Services
-              </button>
-            </div>
-          </div>
-        </>
-      );
-    }
+    /* Success state is rendered by the modal-level confirmation
+       takeover (see isFlowComplete branch) — this function only
+       handles the input form now. */
 
     /* Layout: consolidated summary at top (service + address +
        contact in one card) + just a description textarea below.
@@ -2522,30 +2851,8 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
      P2-2 — Green Pool Redirect (with ticket form)
      ══════════════════════════════════ */
   function renderGreenPoolRedirect() {
-    if (ticketSubmitted) {
-      return (
-        <>
-          <div class="intake-step-header">
-            <div class="intake-step-icon" style="background: #dcfce7;">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-            </div>
-            <h2 class="intake-step-title">We've got your request!</h2>
-            <p class="intake-step-subtitle">We'll have someone call you back shortly to schedule your green pool evaluation.</p>
-          </div>
-          <div class="intake-sorry-content">
-            <div class="intake-ticket-pricing-note">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-              <span><strong>$50 green pool evaluation</strong> — $150 if equipment is also down</span>
-            </div>
-            <div class="intake-sorry-actions">
-              <button type="button" class="intake-text-btn" onClick={resetTicketState}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Back to Services
-              </button>
-            </div>
-          </div>
-        </>
-      );
-    }
+    /* Success state lives in the modal-level confirmation takeover
+       (isFlowComplete branch). */
 
     /* Same pattern as Equipment redirect — consolidated summary +
        just the description textarea (contact info comes from
@@ -2607,26 +2914,8 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
      a fault report.
      ══════════════════════════════════ */
   function renderRenovationRedirect() {
-    if (ticketSubmitted) {
-      return (
-        <>
-          <div class="intake-step-header">
-            <div class="intake-step-icon" style="background: #dcfce7;">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-            </div>
-            <h2 class="intake-step-title">We've got your request!</h2>
-            <p class="intake-step-subtitle">We'll have someone call you back shortly about your renovation project.</p>
-          </div>
-          <div class="intake-sorry-content">
-            <div class="intake-sorry-actions">
-              <button type="button" class="intake-text-btn" onClick={resetTicketState}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Back to Services
-              </button>
-            </div>
-          </div>
-        </>
-      );
-    }
+    /* Success state lives in the modal-level confirmation takeover
+       (isFlowComplete branch). */
 
     return (
       <>
@@ -2675,33 +2964,8 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
      P2-3 — Commercial Mini-Form
      ══════════════════════════════════ */
   function renderCommercialForm() {
-    if (commercialSubmitted) {
-      return (
-        <>
-          <div class="intake-step-header">
-            <div class="intake-step-icon" style="background: #dcfce7;">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-            </div>
-            <h2 class="intake-step-title">Request Received!</h2>
-            <p class="intake-step-subtitle">We'll reach out within 24 hours to discuss your needs and schedule a free site visit.</p>
-          </div>
-          <div class="intake-sorry-content">
-            <div class="intake-ticket-pricing-note" style="background: #f0fdf4; border-color: #bbf7d0;">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-              <span>Free on-site evaluation included — no obligation</span>
-            </div>
-            <p style="text-align: center; color: var(--color-text-light); font-size: 0.9rem; margin-top: 1rem;">
-              Questions? Call us at <a href="tel:9124590160" style="color: var(--color-primary); font-weight: 500;">(912) 459-0160</a>
-            </p>
-            <div class="intake-sorry-actions" style="margin-top: 0.75rem;">
-              <button type="button" class="intake-text-btn" onClick={resetCommercialState}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Back to Services
-              </button>
-            </div>
-          </div>
-        </>
-      );
-    }
+    /* Success state lives in the modal-level confirmation takeover
+       (isFlowComplete branch). */
 
     const commercialSummaryChips = [
       commercialForm.companyName.trim(),
