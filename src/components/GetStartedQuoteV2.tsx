@@ -138,13 +138,17 @@ function isBiweeklyAvailable() {
    server-side secret needs protection. */
 const TURNSTILE_SITE_KEY = ((import.meta.env as Record<string, string | undefined>).PUBLIC_TURNSTILE_SITE_KEY ?? '') as string;
 import {
-  apiSubmitLead,
+  apiCheckOrCreateCustomer,
+  apiCreateLead,
   apiAcceptLead,
   apiSendQuote,
   getUtmParams,
   setTurnstileToken,
   type DedupMatch as _DedupMatch,
 } from '../lib/leads/client';
+import { checkServiceArea } from '../lib/leads/service-area';
+import { calculateQuote } from '../lib/leads/pricing';
+import type { BodyType, VisitsPerWeek } from '../lib/leads/types';
 export type DedupMatch = _DedupMatch;
 import { ConfirmationModal, type ConfirmKind } from './lead-flow/ConfirmationModal';
 import { DupCheckStep } from './lead-flow/steps/DupCheckStep';
@@ -699,33 +703,47 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
         };
       }
 
-      const result = await apiSubmitLead({
-        contact: {
-          first_name: formData.firstName.trim(),
-          last_name: formData.lastName.trim(),
-          email: formData.email.trim() || undefined,
-          phone: formData.phone.trim() || undefined,
-        },
-        address: {
-          street: formData.addressStreet || '',
-          city: formData.addressCity || '',
-          state: formData.addressState || 'GA',
-          zip: formData.addressZip || '',
-        },
-        account_type: formData.customerType === 'commercial' ? 'commercial' : 'residential',
-        qualifying,
-        referral_source: formData.referralSource || undefined,
+      const contact = {
+        first_name: formData.firstName.trim(),
+        last_name: formData.lastName.trim(),
+        email: formData.email.trim() || undefined,
+        phone: formData.phone.trim() || undefined,
+      };
+      const address = {
+        street: formData.addressStreet || '',
+        city: formData.addressCity || '',
+        state: formData.addressState || 'GA',
+        zip: formData.addressZip || '',
+      };
+      const accountType = formData.customerType === 'commercial' ? 'commercial' as const : 'residential' as const;
+
+      // Out-of-area check happens client-side via checkServiceArea (the same
+      // function /api/quote/calculate uses server-side, kept in lib/leads
+      // so they can't drift). We could also call /api/quote/calculate first,
+      // but the zip→office lookup is deterministic and instant.
+      const area = checkServiceArea(address.zip);
+      if (!area.inArea || !area.office) {
+        setLeadError("We don't currently service that zip code. Please call us at (912) 459-0160 — we'd still love to help.");
+        return null;
+      }
+
+      // ── Step 1: check_or_create_customer ──
+      // Returns either { dedup_required, matches } OR { customer_id, customer_token, returning }.
+      // The customer_token is a 10-min signed receipt we MUST pass to /api/leads/create
+      // to prove we just created/linked this customer (see lib/leads/server/customer-token.ts).
+      const customerResult = await apiCheckOrCreateCustomer({
+        contact,
+        address,
+        account_type: accountType,
         customer_action: resolvedCustomerAction,
         existing_customer_id: resolvedExistingId,
-        client: {
-          user_agent: navigator.userAgent,
-          referrer: document.referrer || undefined,
-          utm: getUtmParams(),
-        },
+        account_name: accountType === 'commercial'
+          ? (qualifying.company_name as string | undefined)?.trim() || undefined
+          : undefined,
       });
 
-      if (result.dedup_required) {
-        const matches = result.matches ?? [];
+      if (customerResult.dedup_required) {
+        const matches = customerResult.matches ?? [];
         if (matches.length > 0) {
           const first = matches[0];
           setDupMatchName(first.display_name || `${first.first_name ?? ''} ${first.last_name?.charAt(0) ?? ''}.`);
@@ -737,36 +755,80 @@ export default function GetStartedQuoteV2({ basePath = '/' }: { basePath?: strin
         return null;
       }
 
-      if (!result.ok || !result.data) {
-        const msg = result.error || 'Something went wrong. Please try again or call us.';
-        // Out-of-area gets a friendlier message.
-        if (result.error === 'out_of_service_area') {
-          setLeadError("We don't currently service that zip code. Please call us at (912) 459-0160 — we'd still love to help.");
-        } else {
-          setLeadError(msg);
-        }
+      if (!customerResult.ok || !customerResult.data) {
+        setLeadError(customerResult.error || 'Something went wrong. Please try again or call us.');
         return null;
       }
 
-      const leadIdStr = result.data.lead_id;
+      const customerId = customerResult.data.customer_id;
+      const customerToken = customerResult.data.customer_token;
+      const returning = customerResult.data.returning;
+
+      // Compute pricing client-side for residential_maintenance leads —
+      // the legacy submit endpoint did this server-side, but with the split
+      // we pass it in so the new endpoint stays a thin DB wrapper. Same
+      // calculateQuote() that /api/quote/calculate uses, so values agree.
+      let quotedPerVisit: number | undefined;
+      let firstMonthsDeposit: number | undefined;
+      if (leadType === 'residential_maintenance') {
+        const bodies = (qualifying.bodies as Array<{ body_type: BodyType; is_primary: boolean }> | undefined) ?? [];
+        const primary = bodies.find((b) => b.is_primary) ?? bodies[0];
+        if (primary) {
+          const q = calculateQuote({
+            primaryBodyType: primary.body_type,
+            additionalBodyCount: Math.max(0, bodies.length - 1),
+            visitsPerWeek: qualifying.visits_per_week as VisitsPerWeek,
+          });
+          quotedPerVisit = q.perVisit;
+          firstMonthsDeposit = q.firstMonthsDeposit;
+        }
+      }
+
+      // ── Step 2: create_lead ──
+      // Uses the just-issued customer_token to attach a new lead under the
+      // resolved customer. Server stamps the resume_token cookie.
+      const leadResult = await apiCreateLead({
+        customer_id: customerId,
+        customer_token: customerToken,
+        type: leadType,
+        office: area.office,
+        qualifying,
+        quoted_per_visit: quotedPerVisit,
+        first_months_deposit: firstMonthsDeposit,
+        referral_source: formData.referralSource || undefined,
+        metadata: {
+          intake_referrer: document.referrer || undefined,
+          utm: getUtmParams(),
+        },
+      });
+
+      if (!leadResult.ok || !leadResult.data) {
+        setLeadError(leadResult.error || 'Something went wrong. Please try again or call us.');
+        return null;
+      }
+
+      const leadIdStr = leadResult.data.lead_id;
       const token = leadIdStr; // onboarding page reuses lead_id as its URL token
       setLeadId(leadIdStr);
       setLeadToken(token);
       // Remember the customer/account id so "Need something else?" can
       // resubmit a NEW lead under the SAME customer without re-running
       // dedup (we'd just match ourselves on phone/email).
-      if (typeof result.data.account_id === 'number') {
-        setAccountId(result.data.account_id);
-        try { sessionStorage.setItem('accountId', String(result.data.account_id)); } catch {}
-      }
-      // Stash the server-issued resume_token as a cookie fallback —
-      // see resumeToken state declaration for why.
-      if (typeof result.data.resume_token === 'string' && result.data.resume_token) {
-        setResumeToken(result.data.resume_token);
-        try { sessionStorage.setItem('resumeToken', result.data.resume_token); } catch {}
+      setAccountId(customerId);
+      try { sessionStorage.setItem('accountId', String(customerId)); } catch {}
+      // Stash the resume_token as a body fallback for the cookie (see
+      // resumeToken state declaration).
+      if (leadResult.data.resume_token) {
+        setResumeToken(leadResult.data.resume_token);
+        try { sessionStorage.setItem('resumeToken', leadResult.data.resume_token); } catch {}
       }
       try { sessionStorage.setItem('leadId', leadIdStr); } catch {}
       try { sessionStorage.setItem('leadToken', token); } catch {}
+      // Mark returning customer in the form data for downstream tracking
+      if (returning && !formData.duplicateResolution) {
+        // Returning customer flowed through use_existing — formData already tracks
+        // this when we set duplicateResolution during dup-check resolution.
+      }
       return { id: leadIdStr, token };
     } catch (e: any) {
       console.error('createLead error:', e);
