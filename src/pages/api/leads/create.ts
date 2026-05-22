@@ -95,12 +95,12 @@ async function handleCreate({
     return json({ ok: false, error: "invalid_type" }, 400);
   }
 
-  // Office routing — accept the caller's value but only after validating it
-  // against the address's zip via service-area lookup. The caller might know
-  // the office from a prior /api/quote/calculate call; we re-verify to keep
-  // the office field trustworthy server-side.
+  // Office routing — the caller computes via checkServiceArea(zip) on the
+  // client and passes it through. Validate it's a known office; the actual
+  // service-area enforcement happens at /api/quote/calculate, which the
+  // client SHOULD have already called before reaching this point.
   let office: Office | null = null;
-  if (body.office === "richmond_hill" || body.office === "brunswick") {
+  if (body.office === "richmond_hill" || body.office === "brunswick" || body.office === "st_marys") {
     office = body.office;
   } else {
     return json({ ok: false, error: "office_required" }, 400);

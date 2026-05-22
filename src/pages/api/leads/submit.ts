@@ -1,8 +1,17 @@
 // POST /api/leads/submit
 //
-// New "all-at-once" lead intake. Replaces the previous /start + /qualify
-// two-phase flow. Client submits the whole form at the end of the qualifying
-// page; server runs dedup, and either:
+// ⚠️ DEPRECATED (since PR #11). The website's frontend now uses the
+// split-endpoint chain:
+//   1. POST /api/customers/check-or-create  → returns customer_id + customer_token
+//   2. POST /api/leads/create               → creates lead under that customer
+// This endpoint is preserved as a back-compat shim. The underlying RPC
+// (submit_website_lead) is itself a wrapper around the same RPCs the
+// split endpoints call, so behavior is identical. Safe to delete once
+// no live caller depends on it (verify via Vercel logs).
+//
+// Original docstring (kept for context):
+// Single submit endpoint. Client posts the whole form at the end of the
+// qualifying page; server runs dedup, and either:
 //
 //   1. Returns dedup matches (no DB writes) → client shows "Is this you?" UI
 //      then re-POSTs with `customer_action` set
